@@ -23,7 +23,7 @@ import Data.Maybe (mapMaybe)
 -- Returns the shortest program and its cost
 kolmogorovKappa :: TypeExpr -> Library -> (Int, Maybe TypeProgram)
 kolmogorovKappa target lib =
-  let maxCost = 15  -- Search up to this cost
+  let maxCost = 6   -- Reduced from 15: exponential blowup beyond ~6
       progs = allPrograms lib maxCost
       matches = filter (\p -> programToExpr p `typeEquiv` target) progs
   in case matches of
