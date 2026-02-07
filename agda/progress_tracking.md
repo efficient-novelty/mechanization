@@ -218,6 +218,30 @@ Just equals constructor count (gives ρ = 1 always).
 
 ---
 
+## Phase 3c: Information-Theoretic Reformulation (Proof-Rank Plan)
+
+### Status: IN PROGRESS
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Extend plan with proof-rank clustering | Done | Added clustering/derivability details and Haskell/Agda integration notes |
+| Define Haskell prototype scope | Done | Depth-2 enumeration + clustering for toy libraries |
+| Specify Agda ↔ Haskell interface | Done | JSON/YAML manifest + witness logging for verification |
+| Implement depth-2 enumerator + clustering prototype | Done | Added ProofRank module and toy S¹ run in engine |
+| Next: validate ν counts against pencil values | Pending | Compare cluster counts to 5–6 expectation |
+
+### Notes
+
+- The information-theoretic plan now includes an explicit integration path that
+  keeps enumeration and clustering in Haskell while retaining Agda as the
+  verification layer. This addresses performance concerns while preserving
+  proof accountability.
+- Immediate next steps are to implement a depth-2 enumerator and proof-rank
+  clustering on a toy library, then confirm the pencil-derived ν values.
+- A depth-2 proof-rank implementation now exists in `engine/src/ProofRank.hs`,
+  with a toy run wired into `engine/src/Main.hs` for S¹ on a Unit/Bool library.
+
+
 ## Phase 3b: OpSchema Framework (Advanced ν-Measure)
 
 ### Status: COMPLETE

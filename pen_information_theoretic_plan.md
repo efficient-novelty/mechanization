@@ -940,6 +940,38 @@ selectionLoop maxSteps = go emptyLibrary 1 where
             return (winner : rest)
 ```
 
+### 4.6 Integration with the Current Agda Work
+
+The existing Agda implementation already has reflection-based κ and ν macros, but
+these are constructor-counting surrogates. The proof-rank and Kolmogorov programs
+should be implemented **outside Agda** and then checked by Agda. A practical
+interface plan:
+
+- **Library export:** Maintain a simple JSON/YAML manifest of the current library
+  in `agda/` listing types, constructors, and a small set of algebraic operations
+  (→, ×, Σ, Id, truncation, suspension). The Haskell engine reads this manifest
+  to build `Library`.
+- **Witness logging:** When the Haskell engine claims inhabitation of a candidate
+  type, it should emit a proof sketch (e.g., "const constructor", "pair of
+  witnesses") that can be translated into an Agda term for verification.
+- **Result ingestion:** Store `(κ, ν, ρ)` results for each candidate in a table
+  and import into Agda as a data module. Agda checks the claims but does not
+  perform enumeration.
+
+This keeps enumeration and clustering fast while preserving Agda as the trusted
+checker for all claims that are used in proofs.
+
+### 4.7 Immediate Next Steps (for the Engine)
+
+1. Implement a small Haskell prototype that enumerates depth-2 types for a toy
+   library (Unit, Bool, Π/Σ) and computes proof-rank ν by clustering.
+2. Validate that the prototype reproduces the pencil-calculated ν for Π/Σ and
+   S¹ (expecting the 5–6 cluster result).
+3. Add a JSON manifest format and a tiny translator that can read the Agda
+   library inventory into the Haskell engine.
+4. Define a minimal witness format so that the Haskell engine can explain
+   its inhabitation decisions to the Agda checker.
+
 ---
 
 ## Part 5: Specific Research Questions
