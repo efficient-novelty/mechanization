@@ -218,6 +218,27 @@ Just equals constructor count (gives ρ = 1 always).
 
 ---
 
+## Phase 3c: Information-Theoretic Reformulation (Proof-Rank Plan)
+
+### Status: IN PROGRESS
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Extend plan with proof-rank clustering | Done | Added clustering/derivability details and Haskell/Agda integration notes |
+| Define Haskell prototype scope | Done | Depth-2 enumeration + clustering for toy libraries |
+| Specify Agda ↔ Haskell interface | Done | JSON/YAML manifest + witness logging for verification |
+| Next: implement prototype | Pending | Start with Unit/Bool/Π/Σ |
+
+### Notes
+
+- The information-theoretic plan now includes an explicit integration path that
+  keeps enumeration and clustering in Haskell while retaining Agda as the
+  verification layer. This addresses performance concerns while preserving
+  proof accountability.
+- Immediate next steps are to implement a depth-2 enumerator and proof-rank
+  clustering on a toy library, then confirm the pencil-derived ν values.
+
+
 ## Phase 3b: OpSchema Framework (Advanced ν-Measure)
 
 ### Status: COMPLETE
