@@ -1,5 +1,5 @@
 # PEN Information-Theoretic Research Plan
-# κ as Kolmogorov Complexity, ν as Shannon Surprise, and the Selection Loop
+# κ as Kolmogorov Complexity, ν as Proof-Rank, ρ as Amplitude
 
 ## Why This Matters
 
@@ -8,14 +8,27 @@ by hand but the machine implementation undercounts for complex types because it 
 the conceptual vocabulary. We proposed "vocabulary co-evolution" as the fix — but that
 just names the problem. It doesn't solve it.
 
-Halvor's original intuition offers something better: a **principled, vocabulary-free**
-definition of both κ and ν grounded in information theory. If κ ≈ Kolmogorov complexity
-and ν ≈ Shannon surprise, then neither measure requires a hand-designed grammar.
-Both are defined relative to the library and a universal computation model.
+Halvor's original intuition — that novelty is "Shannon surprise" and effort is
+"Kolmogorov complexity" — pointed in the right direction. But a pencil calculation
+(testing S¹ at step 5) revealed that raw counting of newly inhabited types gives
+either ~2 (strict) or ~30+ (loose), never 7. The Genesis ν values count something
+more specific: **the number of independent proof techniques** that a structure
+enables. This is a rank, not a cardinality.
 
-The research question: **Can we reformulate PEN in information-theoretic terms,
-approximate the resulting measures computably in Agda, and does the reformulated
-model produce viable selection dynamics?**
+Combined with the insight that ρ = ν/κ functions as a **probability amplitude**
+(with ρ² giving the "physical probability" of a structure manifesting), the
+information-theoretic reformulation becomes:
+
+- **κ(X | L)** = Kolmogorov complexity: shortest description of X using library L
+- **ν(X | L)** = proof-rank: number of independent clusters of newly provable
+  theorems at depth ≤ 2 (fixed by the Complexity Scaling Theorem's d=2)
+- **ρ = ν/κ** = efficiency amplitude (not a probability)
+- **ρ²** = realization probability (Born rule)
+
+The research question: **Can we implement proof-rank ν computably, confirm that
+it reproduces the Genesis values, verify that ρ² gives viable selection dynamics,
+and connect the Born rule at the foundational level to the Born rule in the
+emergent physics (Paper 5)?**
 
 ---
 
@@ -102,187 +115,255 @@ enters, "Fiber" becomes available. This is the vocabulary co-evolution, but now 
 principled: the vocabulary is exactly the library itself.
 
 
-### 1.2 ν as Shannon Surprise
+### 1.2 ν as Proof-Rank
 
-**The idea:** ν(X | L) measures how much X changes the distribution of provable
-statements. The more unexpected the consequences of X, the more novel it is.
+**The idea:** ν(X | L) = the number of **independent proof clusters** among the
+newly provable theorems that X enables, at depth ≤ 2.
 
-**Why this resolves the vocabulary problem:**
+**Why not raw theorem counting (Shannon surprise):**
 
-The OpSchema grammar required us to design categories of operations and argue
-about which are "qualitatively distinct." Shannon surprise replaces all of that
-judgment with a single quantity: **how unlikely were the new consequences of X,
-given what was known from L?**
+The pencil calculation for S¹ (step 5) showed that counting newly inhabited types
+gives the wrong answer at every threshold. Counting all of them gives ~30+.
+Counting only those whose inhabitation essentially requires S¹'s path constructor
+gives ~2. The Genesis value ν = 7 counts neither theorems nor essential theorems
+but **independent proof techniques** — qualitatively distinct capabilities.
 
-A type whose consequences were all "almost provable" from L has low surprise.
-A type that enables wildly unexpected new theorems has high surprise. No grammar
-needed — just a probability model and a way to enumerate consequences.
+The 7 items for S¹ are: (1) existence, (2) non-trivial loop, (3) rich map space,
+(4) dependent elimination with transport, (5) loop space algebra, (6) fundamental
+group computation, (7) suspension template. Each is a *generator* of a family of
+related theorems. Raw counting sees the individual theorems; proof-rank sees only
+the generators.
 
-**Formal definition (ideal):**
+**Formal definition:**
 
-Let Thm(L) be the set of provable type-judgments (Γ ⊢ t : T) using library L.
-Define a "prior" distribution P_L over potential theorems, based on their syntactic
-complexity:
+Let NewThm(X, L, d) = { T : T is inhabited in L∪{X}, not in L, complexity(T) ≤ d }
+be the set of newly provable theorems at bounded depth.
 
-```
-P_L(t : T) ∝ 2^{-|T|}    (shorter types are more likely a priori)
-```
+Define a **derivability relation** ≻ on NewThm: T₁ ≻ T₂ if T₂ can be proved
+from T₁ using only library operations (without additional appeal to X).
 
-Then:
-```
-ν(X | L) = Σ_{(t:T) ∈ Thm(L∪{X}) \ Thm(L)} surprise(T)
-         = Σ_{new theorems} -log P_L(T)
-         = Σ_{new theorems} |T|    (up to constant, with the 2^{-|T|} prior)
-```
-
-**Translation:** Novelty is the total description complexity of the new theorems
-that X enables.
-
-This is elegant: a type that enables many short, unexpected theorems is more novel
-than one that enables one very long theorem. And a type that enables theorems that
-were "almost provable" anyway (short descriptions, high prior probability) contributes
-less than one that opens genuinely new territory.
-
-**But wait — this is still infinite.** Thm(L∪{X}) \ Thm(L) is generally infinite.
-We need a finite approximation.
-
-
-### 1.3 The Bounded Surprise Approximation
-
-**Practical definition:**
-
-Fix a complexity bound k. Enumerate all types T of syntactic complexity ≤ k
-formable from L ∪ {X}. For each, check (approximately) whether:
-1. T is inhabited in L ∪ {X} (a new theorem exists)
-2. T was NOT inhabited in L (the theorem is genuinely new)
+Two theorems are in the same **cluster** if they are connected by chains of ≻.
+Formally, cluster equivalence is the symmetric transitive closure of ≻.
 
 Then:
 ```
-ν_k(X | L) = Σ_{T : new, |T| ≤ k} w(T)
+ν(X | L) = |NewThm(X, L, d) / ~|    (number of equivalence classes)
 ```
 
-where the weight w(T) captures the "surprise" of T.
+**In words:** ν counts the number of independent directions in which X extends the
+library's proof capabilities. Each cluster represents one qualitatively new thing
+you can do.
 
-**Three candidate weight functions:**
+**Why d = 2 (not a free parameter):**
 
-**Weight A — Uniform (count new inhabited types):**
+The Complexity Scaling Theorem proves d = 2 for the coherence window: the
+Fibonacci recurrence Δ_{n+1} = Δ_n + Δ_{n-1} decomposes the interface into
+interactions with layers n and n-1. Everything older is absorbed into Ω.
+
+If d = 2 governs cost, it should also govern novelty. The relevant new theorems
+at step n are those involving X interacting with the 2-step window {R_{n-1}, R_{n-2}}.
+Deeper chains involve layers outside the coherence window.
+
+This was confirmed by the pencil calculation: for R4, R5, and R6, all substantive
+novelty appears at expression depth ≤ 2. No depth-3 type adds a genuinely new
+capability. There is no free parameter to tune.
+
+**Connection to OpSchema:**
+
+The OpSchema categories (EXIST, PATH, MAP, DEP-ELIM, LOOP, HOMOTOPY-GROUP,
+SUSPENSION) are exactly the cluster representatives for S¹. The grammar was
+manually discovering what proof-rank computes automatically: the number of
+independent proof generators.
+
+The advantage of the proof-rank formulation: no grammar needed. Enumerate theorems,
+cluster by derivability, count clusters. The "vocabulary" emerges from the
+clustering, not from a pre-designed grammar.
+
+
+### 1.3 The Clustering Algorithm
+
+Since ν is the number of independent proof clusters at depth ≤ 2, the computation
+has three steps:
+
+**Step 1: Enumerate.** Generate all types T of expression depth ≤ 2 formable from
+L ∪ {X}, using the type formers available in L.
+
+For the 2-step window, the atoms are X, R_{n-1}, and R_{n-2}. The type formers
+are those in L (→, ×, Σ, Id after step 4; plus ‖-‖ after step 6; etc.)
+
+At depth ≤ 2 with ~5 atoms and ~5 type formers, this produces on the order of
+50-200 candidate types. Very tractable.
+
+**Step 2: Filter.** For each candidate type T, check (heuristically):
+- Is T inhabited in L ∪ {X}? (inhabitation oracle)
+- Was T inhabited in L alone? (pre-addition oracle)
+Keep only the newly inhabited types: NewThm(X, L, 2).
+
+**Step 3: Cluster.** Among the newly inhabited types, determine which are
+derivably related:
+
 ```
-w(T) = 1 for all T
+T₁ ≻ T₂  iff  there exists f : T₁ → T₂ constructible from L alone
 ```
-This is just counting new inhabited types up to complexity k. Simple but doesn't
-distinguish trivial from deep theorems.
 
-**Weight B — Complexity-weighted (Shannon-style):**
-```
-w(T) = |T|    (the syntactic size of the type)
-```
-Longer types (more complex theorems) contribute more surprise.
-Rationale: under the 2^{-|T|} prior, surprise = |T| · log 2.
+Two theorems T₁, T₂ are in the same cluster if connected by ≻ chains. In
+practice, the clustering rules are:
 
-**Weight C — Rarity-weighted:**
-```
-w(T) = 1 / (number of types at the same complexity level that are also newly inhabited)
-```
-If adding X makes many types at complexity level k inhabitable, each one is less
-surprising. If it makes only one type at that level inhabitable, it's very surprising.
+- T and (1 → T) are in the same cluster (trivial currying)
+- T and (T × 1) are in the same cluster (trivial product)
+- (A → T) and T are in the same cluster if A is inhabited in L (const eliminates A)
+- (T → 1) is in a trivial cluster (always derivable from existence of T)
+- If T₁ ≃ T₂ up to known library equivalences, same cluster
+- Ω(X) and (base =_X base) are the same cluster (definitional equality)
 
-**Weight D — Depth-weighted (Bennett-inspired):**
-```
-w(T) = depth(T)
-```
-where depth(T) is the minimum derivation length needed to establish T's
-inhabitation from L ∪ {X}. A consequence provable in one step (e.g., "S¹ is
-inhabited" follows directly from its constructor) contributes less than a
-consequence requiring a chain of reasoning (e.g., "π₁(S¹) ≅ ℤ" requires
-the loop space, winding number construction, and group isomorphism).
+After clustering, ν = number of non-trivial clusters.
 
-This captures Bennett's logical depth insight: the *value* of a mathematical
-structure lies not in its shallow consequences but in its deep ones. A type
-whose interesting properties require elaborate proofs is "deeper" than one
-whose properties are immediate.
+**Example: S¹ at step 5**
 
-Operationally, depth(T) ≈ the number of intermediate types needed in the
-derivation. In the Haskell engine, this is the length of the witness term
-produced by the inhabitation checker. Short witnesses → shallow consequences.
-Long witnesses → deep consequences.
+NewThm(S¹, L₄, 2) includes: S¹, 1→S¹, S¹→1, S¹→S¹, S¹×S¹, S¹×1,
+base=base, Ω(S¹), Ω(S¹)→Ω(S¹), (x:S¹)→P(x), S¹→U₀, ...
 
-Note that depth-weighting naturally resolves a puzzle from Phase 3b: type
-formers (Π, Σ) enable many types but most are *shallow* (just combining
-existing types). S¹ enables fewer types but they're *deep* (loop spaces,
-fundamental groups). Depth-weighting suppresses the former and amplifies
-the latter, which is exactly the behavior we need.
+Clustering:
+- {S¹, 1→S¹, S¹×1, Σ(x:S¹).1} — all derived from S¹'s existence
+- {S¹→1} — trivial (terminal map), don't count
+- {S¹→S¹} — contains id, const base, but also degree maps. Independent of existence.
+- {S¹×S¹} — torus. Derived from existence? Yes: if A and B are inhabited, A×B is
+  inhabited. So this clusters with existence. BUT topologically it's new.
+  Decision: for inhabitation purposes, it's derived. For structure, it's not.
+  Under our definition (derivability of inhabitation), it clusters with existence.
+- {base =_{S¹} base, Ω(S¹)} — the loop. Independent (requires loop constructor).
+- {Ω(S¹)→Ω(S¹)} — path algebra. Derivable from the loop? The TYPE is inhabited
+  because Ω(S¹) is inhabited (via const loop). So it clusters with the loop cluster.
+  BUT it has additional structure (composition, inversion) not present in just Ω(S¹).
+- {(x:S¹)→P(x)} — dependent elimination. Independent (new proof technique).
+- {S¹→U₀} — type families over S¹. Independent (fibrations).
 
-**My recommendation: start with Weight A (counting) and Weight B (complexity-weighted).
-If those don't match, try Weight D (depth-weighted) before giving up.
-Weight C is interesting but harder to compute.**
+This gives 5-6 clusters depending on boundary decisions. Still short of 7.
+
+**The gap:** Items 6 (π₁ ≅ ℤ) and 7 (suspension) from the OpSchema analysis are
+not captured because they involve structures (ℤ, pushouts) not in L₄. They're
+"potential" novelty — capabilities that become actual when later structures arrive.
+
+**Resolution options:**
+(a) Accept ν ≈ 5-6 for S¹ and check if selection dynamics are robust to this
+(b) Expand the window to include "latent" capabilities (provable in L ∪ {X} ∪ {future})
+(c) Count type families X → U as producing one cluster per non-trivial fiber shape
+
+Option (a) is the most honest. Option (c) has merit: S¹ → U produces genuinely
+independent fiber families (constant, universal cover, ...) and each is a new
+proof cluster. This may close the gap.
+
+**For the Haskell engine:** Implement (a) first. If the selection loop works
+with ν ≈ 5-6 for geometric types, the exact count doesn't matter for the dynamics.
+If it fails, try (c).
 
 
-### 1.4 The Reformulated Efficiency
+### 1.4 The Reformulated Efficiency and the Born Rule
 
 Putting it together:
 
 ```
-ρ(X | L) = ν_k(X | L) / κ(X | L)
-          = (total surprise of new theorems up to complexity k)
+ρ(X | L) = ν(X | L) / κ(X | L)
+          = (independent proof clusters at depth ≤ 2)
             / (Kolmogorov complexity of X given L)
 ```
 
-**In words:** Efficiency is surprise-per-bit-of-description. The system selects
-structures that deliver the most unexpected consequences for the least definitional
-investment.
+**The critical reinterpretation: ρ is an amplitude, not a probability.**
 
-**The Selection Bar remains Fibonacci-timed** (proven in Phase 1). The
-information-theoretic reformulation changes the *measures* but not the *dynamics*.
+In quantum mechanics, the probability of an event is proportional to the
+square of the number of independent paths (amplitudes) leading to it. PEN's
+ρ has exactly this structure:
 
+- ν counts the number of independent "paths" (proof clusters) through which
+  X impacts the library
+- κ is the "cost" of constructing X
+- ρ = ν/κ is the **amplitude** of the realization
+- ρ² = (ν/κ)² is the **realization probability**
 
-### 1.5a The Delta-Ratio Equivalence
-
-An important structural observation: one might ask whether PEN should maximize
-the ratio ν/κ or the delta ν - λ·κ. The ratio can be "hacked" by trivial
-structures with tiny κ; the delta directly rewards absolute impact.
-
-The existing PEN dynamics already resolve this. The selection rule is:
+**The selection rule becomes:**
 
 ```
-ρ(X) = ν/κ ≥ Bar(n) = Φ(n) · Ω(n-1)
+Select X if: ρ(X)² ≥ Bar(n)²     (equivalently, ρ ≥ Bar)
+Among viable candidates: select argmax ρ(X)²  (= argmax ρ(X))
 ```
 
-Rearranging: ν - Bar(n) · κ ≥ 0. This IS a delta form with a time-dependent
-penalty λ(n) = Bar(n) that rises on the Fibonacci schedule. Among candidates
-clearing this threshold, PEN selects the ratio-maximizer.
+Since squaring is monotone on non-negatives, the selection dynamics are identical
+whether we maximize ρ or ρ². The ordering of candidates doesn't change. What
+changes is the *interpretation*: the Genesis Sequence is not a sequence of
+"efficient structures" but a sequence of **high-amplitude structures** — those
+with the most independent proof paths per unit of descriptive cost.
 
-So PEN naturally combines both: the delta ensures absolute novelty scales with
-the rising bar (filtering out trivially cheap structures), while the ratio
-selects the most efficient within the viable set. The Bar prevents noise
-(high ν, high κ — wasteful) and the ratio prevents triviality (low ν, low κ —
-boring). The "sweet spot" — high ν, low κ — is exactly what survives.
+**Why this matters:**
 
-In information-theoretic terms: PEN selects for maximum **surprise per bit
-of description**, subject to a minimum **absolute surprise** that grows over
-time. This is a well-posed optimization that doesn't need additional correction.
+The Born rule appears at two levels in the PEN framework:
+
+1. **Foundational level:** The realization probability of a mathematical structure
+   is ρ² = (ν/κ)². Structures with many independent proof paths (high ν) and
+   short descriptions (low κ) have high amplitude and are "more likely to exist."
+
+2. **Emergent level (Paper 5):** The PEN → Linear Logic → No-Cloning derivation
+   produces quantum mechanics, in which the probability of a physical event is
+   |ψ|² — the Born rule applied to quantum amplitudes.
+
+**The self-consistency claim:** The same rule (probability ∝ amplitude²) governs
+both which mathematical structures get realized and which physical events occur
+within those structures. The Born rule is not derived from something deeper — it
+IS the foundational selection principle, appearing at every level.
+
+This is a strong, falsifiable claim. It predicts that any attempt to derive the
+Born rule "from below" will eventually bottom out at a selection principle that
+looks like PEN's efficiency maximization. Conversely, PEN's efficiency dynamics
+must produce exactly the |ψ|² rule when restricted to the quantum regime.
 
 
-### 1.5 Why This Might Resolve the Vocabulary Problem
+### 1.4a The Delta-Ratio Equivalence (Amplitude Thresholding)
 
-The key insight: **the bounded theorem enumeration automatically discovers the
-vocabulary.**
+An important structural observation: the selection rule ρ ≥ Bar(n) rearranges to:
 
-When we enumerate types of complexity ≤ k after adding S¹, we will automatically
-find:
-- base =_{S¹} base (loop — which IS the "loop space" concept)
-- (x : S¹) → P(x) (dependent elimination — which IS "transport")
-- ‖Ω(S¹)‖₀ (which IS "π₁" once truncation exists)
+```
+ν - Bar(n) · κ ≥ 0
+```
 
-We don't need to pre-specify LOOP-SPACE, DEP-ELIM, or HOMOTOPY-GROUP as
-schema categories. They emerge from the enumeration. The "vocabulary" is just
-the set of short types that become inhabited.
+This IS a delta form: ν - λ(n)·κ ≥ 0, where λ(n) = Bar(n) rises on the Fibonacci
+schedule. Among candidates clearing this threshold, PEN selects the ρ-maximizer.
 
-**This is the crucial advantage over OpSchema:** the grammar writes itself.
+In amplitude terms: the delta threshold ensures a minimum absolute amplitude
+(filtering out structures whose total proof-path count is too low relative to their
+cost), while the ratio selects the highest amplitude-per-cost within the viable set.
 
-**The cost:** Enumeration up to complexity k is expensive. For k=5 and a library
-of 10 types, the number of formable types might be in the thousands. But this is
-a computational cost, not a conceptual one — and it's exactly the kind of thing
-Agda (or a Haskell/Python helper) can do.
+The Bar prevents noise (many paths but expensive — low amplitude) and the ratio
+prevents triviality (cheap but few paths — low amplitude). The "sweet spot" — many
+independent proof paths at low descriptive cost — is the high-amplitude regime.
+
+
+### 1.5 Why Proof-Rank Resolves the Vocabulary Problem
+
+The OpSchema approach required pre-designing categories (EXIST, PATH, MAP, DEP-ELIM,
+LOOP, HOMOTOPY-GROUP, FIBRATION, TRUNCATION) and manually checking which were
+"newly realized." The vocabulary problem was that complex types (S³, Connections,
+DCT) needed domain-specific categories the grammar didn't have.
+
+Proof-rank eliminates the grammar entirely. The "categories" emerge automatically
+as clusters:
+
+1. Enumerate newly inhabited types at depth ≤ 2 (mechanical)
+2. Cluster by derivability (mechanical)
+3. Count clusters (trivial)
+
+No hand-designed vocabulary needed. The clusters ARE the vocabulary — they're
+discovered, not assumed.
+
+**The cost:** The clustering step requires checking derivability between pairs of
+types, which means checking inhabitation of function types. This is harder than
+just checking inhabitation of individual types. But at depth ≤ 2 with ~50-200
+candidates, the pairwise checks are O(n²) ≈ O(40,000) — entirely feasible.
+
+**What depth ≤ 2 buys us:** The Complexity Scaling Theorem's d=2 means no free
+parameter. We don't search over k values. We don't need to find a "natural
+complexity horizon." The horizon IS 2, dictated by the same principle that
+produces Fibonacci timing. The entire model has one structural constant (d=2)
+and everything flows from it: Fibonacci costs, depth-2 novelty, and now
+proof-rank clustering.
 
 ---
 
@@ -290,30 +371,27 @@ Agda (or a Haskell/Python helper) can do.
 
 ### 2.0 Notes from External Review (Gemini Deepthink)
 
-An external review raised several points. Two were incorporated:
+An external review raised several points. One was incorporated, one was
+superseded by later analysis:
 
 1. **Delta vs. Ratio:** The concern that ρ = ν/κ can be gamed by trivial
    structures is valid, but the existing Bar mechanism already provides the
-   delta correction. See Section 1.5a above. No change to the formalism needed,
-   but worth making explicit in any paper.
+   delta correction. See Section 1.4a above. No change to the formalism needed.
 
-2. **Bennett's Logical Depth:** The observation that Kolmogorov complexity
-   measures description length but not derivation effort. This motivated
-   Weight D (depth-weighted novelty) in Section 1.3, where we weight newly
-   inhabited types by the length of their inhabitation witness. This is our
-   operationalization of logical depth within the bounded enumeration framework.
+2. **Bennett's Logical Depth:** Originally motivated a "depth-weighted"
+   novelty measure (Weight D). However, the pencil calculation showed that
+   all substantive novelty lives at depth ≤ 2 (as predicted by the Complexity
+   Scaling Theorem). Depth-weighting is unnecessary — there's nothing deep
+   enough to weight differently. The d=2 constraint from Fibonacci timing
+   simultaneously determines the novelty horizon, which is more elegant than
+   a separate depth parameter. Bennett's insight survives in a different form:
+   the *clustering* step captures "proof technique independence," which is the
+   qualitative aspect of logical depth that matters.
 
 Two other suggestions were evaluated and set aside:
 
-3. **Compression proxies (gzip/LZW):** Not applicable. Our type definitions
-   are tiny ASTs (3-10 nodes). The TypeProgram cost in the Haskell engine IS
-   the description length directly. Compression ratios are meaningless at this
-   scale.
-
-4. **Cellular automata experiment:** Interesting in its own right but orthogonal
-   to our project. We're measuring novelty of mathematical structures in type
-   theory, not searching for Life-like patterns in binary grids. The connection
-   to PEN would require a separate theoretical bridge that doesn't currently exist.
+3. **Compression proxies (gzip/LZW):** Not applicable at our scale.
+4. **Cellular automata experiment:** Orthogonal to our type-theoretic project.
 
 ### 2.1 The Rate-Distortion Analogy
 
@@ -349,24 +427,26 @@ This connection is worth making explicit in the paper because MDL is a well-know
 well-respected framework. Grounding PEN in MDL gives it credibility with
 information theorists.
 
-### 2.3 The Logical Depth Connection (Bennett)
+### 2.3 The Logical Depth Connection (Bennett) — Revisited
 
 Charles Bennett's "logical depth" measures the computational effort required to
 derive the interesting consequences of a string, given its shortest description.
-A string is "deep" if its shortest program runs for a long time.
 
-In PEN terms:
-- A type X has high "depth" if its short description (low κ) produces consequences
-  that require extensive computation to derive (high ν)
-- The Genesis Sequence should select for "deep" types — ones with low Kolmogorov
-  complexity but high logical depth
+The d=2 finding from the pencil calculation changes how logical depth enters PEN.
+Originally, we thought deeper consequences should be weighted more heavily. Instead,
+the Complexity Scaling Theorem says the depth horizon IS 2 — there are no "deep"
+consequences to weight, because the coherence window only sees 2 steps back.
+
+What remains of Bennett's insight is the **clustering** aspect: within the depth-2
+window, some newly provable theorems are derivably related (shallow) and some are
+independent (deep in a qualitative sense). The proof-rank ν counts the independent
+ones. This is a categorical version of logical depth — not "how long is the
+derivation?" but "how many independent derivation KINDS are there?"
 
 **Prediction:** If we plot κ vs. ν for the Genesis types, the sequence should
 trace the Pareto frontier of the (low κ, high ν) region. Types below the frontier
-are "shallow" (easy to define, few consequences). Types above are impossible
-(can't get that much novelty from that little definition).
-
-This is testable once we have computable κ and ν!
+are "low-amplitude" (few independent paths per bit). The Genesis Sequence is the
+high-amplitude trajectory.
 
 ### 2.4 Algorithmic Mutual Information
 
@@ -381,6 +461,55 @@ that X enables. This measures how much knowing X tells you about what comes next
 
 A type with high mutual information with the future is one that "unlocks" many
 subsequent realizations. This is exactly the enabling power interpretation.
+
+### 2.5 The Born Rule as Foundational Principle
+
+The reinterpretation of ρ as amplitude (Section 1.4) has a deep structural
+consequence that connects the PEN foundation to its physical predictions.
+
+**The claim:** The Born rule (probability ∝ amplitude²) is not derived within PEN.
+It IS PEN. The selection dynamics are:
+
+```
+P(X realized at step n) ∝ ρ(X | L_n)²  =  (ν/κ)²
+```
+
+This says: the probability of a mathematical structure manifesting is proportional
+to the square of the number of independent proof paths per unit of description.
+
+**Why squared and not linear?**
+
+Consider the analogy with quantum amplitudes. A quantum event with n independent
+paths to it has amplitude ψ = Σᵢ aᵢ, and probability |ψ|². The squaring
+implements constructive interference — independent paths reinforce each other
+superlinearly. Two paths don't just double the probability; they quadruple it
+(if equal amplitude).
+
+For PEN: a structure with 7 independent proof clusters (S¹) is not 7× more
+likely than one with 1 cluster — it's 49/1 = 49× more likely (at equal κ).
+The independent proof techniques "interfere constructively."
+
+**Why this is self-consistent with Paper 5:**
+
+Paper 5 derives: PEN → Linear Logic → No-Cloning → Hilbert Space → Born Rule.
+
+The Born rule at the emergent level (quantum mechanics) says P(event) = |⟨ψ|φ⟩|².
+The Born rule at the foundational level (PEN selection) says P(structure) ∝ (ν/κ)².
+
+If the derivation in Paper 5 is correct, these must be the same rule appearing at
+different levels of description. The emergent Born rule is a "projection" of the
+foundational one into the quantum regime.
+
+**Testable prediction:** The ρ² dynamics should produce the same Genesis Sequence
+as the ρ dynamics (since squaring preserves ordering). BUT ρ² matters for the
+*physical* predictions — specifically, for computing the coupling constants and
+cosmological parameters that Paper 5 claims to derive. If those derivations
+implicitly assume ρ (linear) rather than ρ² (Born), they need correction.
+
+**Research task:** Audit Paper 5's derivations. Every place where "efficiency"
+appears in a physical formula, check whether it should be ρ or ρ². The Born
+rule interpretation predicts ρ². If the existing formulas already use ρ², the
+self-consistency is confirmed. If they use ρ, the physical predictions change.
 
 ---
 
@@ -466,58 +595,64 @@ Step 3: Compare the two κ measures and check which one, combined with
 computable ν, produces a viable selection sequence.
 
 
-### Experiment 2: Computable ν via Bounded Theorem Enumeration
+### Experiment 2: Computable ν via Proof-Rank
 
-**Goal:** Compute ν(X | L) as the count (or weighted sum) of newly inhabited types
-up to complexity k, and compare to Genesis ν values.
+**Goal:** Compute ν(X | L) as the number of independent proof clusters among
+newly inhabited types at depth ≤ 2, and compare to Genesis ν values.
 
 **Method:**
 
-Step 1: Define the type enumeration (as in Part 1.3).
+Step 1: Define the type enumeration at depth ≤ 2 (as in Section 1.3).
+Use the 2-step window {R_{n-1}, R_{n-2}} as the atom set.
 
-Step 2: For each enumerated type, check approximate inhabitation.
+Step 2: For each enumerated type, check approximate inhabitation using the
+heuristic oracle. Filter for newly inhabited types.
 
-Step 3: Count newly inhabited types under four weighting schemes:
+Step 3: Cluster the newly inhabited types by derivability. Two types T₁, T₂ are
+in the same cluster if a function T₁ → T₂ (or T₂ → T₁) is constructible
+from library operations alone.
 
-```
-ν_A(X | L, k) = |new types|                          -- raw count
-ν_B(X | L, k) = Σ complexity(T) for new types        -- complexity-weighted
-ν_C(X | L, k) = Σ 1/cohort_size(T) for new types    -- rarity-weighted
-ν_D(X | L, k) = Σ depth(T) for new types             -- depth-weighted
-```
+Step 4: Count clusters. This is ν.
 
-Step 4: Compare all four to Genesis ν. Compute correlations, orderings, and
-absolute errors. The winner is the weight that best preserves the Genesis ordering
-across R1-R10.
+Step 5: Compare to Genesis ν. Compute for R1-R10.
 
-**Key prediction for Weight D:** If depth-weighting is correct, then Π/Σ (which
-enables many shallow consequences) should have lower ν_D than S¹ (which enables
-fewer but deeper consequences). Check whether ν_D(Π/Σ) < ν_D(S¹) matches
-the Genesis ordering (5 < 7). If Weight A gives the wrong ordering here but
-Weight D gets it right, that's strong evidence for depth-weighting.
+**Critical test cases:**
 
-**Prediction:** There should be a "natural" value of k where the enumerated ν
-approximately matches the Genesis values. If k=3 works for R1-R6 but k=5 is
-needed for R7-R10, that tells us something about the effective complexity horizon
-of each structure.
+- R4 (Π/Σ): Pencil calculation gives ν = 5. Engine should match.
+- R5 (S¹): Pencil calculation gives ν ≈ 5-6. Genesis says 7.
+  Gap of 1-2 is expected (latent capabilities not yet constructible).
+- R6 (PropTrunc): Pencil calculation gives ν = 8. Engine should match.
+
+**The gap test:** If the engine consistently undercounts by ~15-25% for geometric
+types, that's the "latent capability" effect. Check whether selection dynamics
+are robust to this systematic undercount.
+
+**Prediction:** There should NOT be a "natural k" to tune — the depth is fixed
+at 2. Either the proof-rank at d=2 preserves the Genesis ordering or it doesn't.
+No parameter search.
 
 
-### Experiment 3: The Cross-Validation
+### Experiment 3: The Cross-Validation (Including Born Rule Check)
 
-**Goal:** Determine whether the information-theoretic κ and ν produce viable
-selection dynamics (ρ clears Bar for all 16 steps).
+**Goal:** Determine whether (Kolmogorov κ, proof-rank ν) produces viable
+selection dynamics, and whether ρ or ρ² gives better physical predictions.
 
 **Method:**
 
 For each of the following (κ, ν) pairs:
 - (paper κ, paper ν) — the original hand-tuned values
 - (Kolmogorov κ, paper ν) — new κ, old ν
-- (paper κ, enumerated ν) — old κ, new ν
-- (Kolmogorov κ, enumerated ν) — both new
+- (paper κ, proof-rank ν) — old κ, new ν
+- (Kolmogorov κ, proof-rank ν) — both new
 
 Compute ρ = ν/κ, Bar = Φ · Ω, and check whether ρ ≥ Bar for all 16 steps.
 
-**This is the decisive test.** If (Kolmogorov κ, enumerated ν) produces a viable
+**Additional Born rule check:** For each combination, also compute ρ² and
+check whether any physical predictions from the companion papers (coupling
+constants, cosmological parameters) are sensitive to using ρ vs. ρ². If they
+are, recompute with ρ² and check against observations.
+
+**This is the decisive test.** If (Kolmogorov κ, proof-rank ν) produces a viable
 sequence, we've found a fully computable foundation for PEN. If it doesn't, we know
 exactly which measure fails and where.
 
@@ -544,10 +679,14 @@ include many options so the selection pressure does real work.
 Step 2: For each candidate, compute (κ, ν, ρ).
 
 ```
-κ(X) = programCost(X)
-ν(X) = ν_enum(X | L, k)   -- bounded theorem enumeration
-ρ(X) = ν(X) / κ(X)
+κ(X) = programCost(X)              -- Kolmogorov κ
+ν(X) = proofRank(X | L, d=2)       -- proof-rank at depth 2
+ρ(X) = ν(X) / κ(X)                 -- amplitude
 ```
+
+Note: Since ρ² is monotone in ρ, maximizing ρ and maximizing ρ² give the same
+winner. The Born rule interpretation doesn't change the selection loop's behavior,
+only the physical interpretation of the output.
 
 Step 3: Apply the selection rule.
 
@@ -717,6 +856,45 @@ checkInhab (TFiber _ _) _ = Unknown
 **Important:** This is deliberately conservative. Returning Unknown is always safe;
 it just means we undercount ν. As we understand more, we can add rules.
 
+### 4.4 The Derivability Checker (for Clustering)
+
+```haskell
+-- Check if T₂ is derivable from T₁ using library operations
+-- i.e., is (T₁ → T₂) inhabited using only L?
+derivable :: TypeExpr -> TypeExpr -> Library -> Bool
+derivable t1 t2 lib = case checkInhab (TArrow t1 t2) lib of
+  Yes _ -> True
+  _     -> False
+
+-- Cluster newly inhabited types by derivability
+cluster :: [TypeExpr] -> Library -> [[TypeExpr]]
+cluster newTypes lib = connectedComponents graph
+  where
+    -- Edge if either direction is derivable
+    graph = [ (t1, t2)
+            | t1 <- newTypes, t2 <- newTypes, t1 /= t2
+            , derivable t1 t2 lib || derivable t2 t1 lib
+            ]
+
+-- Filter out trivial clusters (types derivable from any inhabited type)
+-- E.g., X → 1 is always derivable from X's existence
+nonTrivialClusters :: [[TypeExpr]] -> Library -> [[TypeExpr]]
+nonTrivialClusters clusters lib =
+  filter (not . isTrivialCluster lib) clusters
+
+-- ν = number of non-trivial clusters
+proofRank :: TypeExpr -> Library -> Int
+proofRank newType lib =
+  let newThms = enumerateNewInhabitants newType lib 2  -- depth ≤ 2
+      clusters = cluster newThms lib
+  in length (nonTrivialClusters clusters lib)
+```
+
+**The key design decision:** What counts as "trivial"? A cluster containing only
+types of the form (X → 1), (1 → X), (X × 1) etc. is trivial — these exist for
+any new type. A cluster containing Ω(X) or (x : X) → P(x) is non-trivial — these
+require X's specific structure.
+
 ### 4.4 The Kolmogorov κ Computation
 
 ```haskell
@@ -789,31 +967,27 @@ to *use* (you need the group structure, which takes work to establish). Maybe:
 
 This is computable if "key_properties" is bounded.
 
-### Q2: Does bounded enumeration ν match paper ν?
+### Q2: Does proof-rank ν match paper ν?
 
-**Prediction:** It will match for small k (R1-R6) and undercount for large k (R7+),
-but the gap should be smaller than the OpSchema gap because the enumeration
-automatically discovers operation categories that the grammar missed.
+**Prediction:** It will match within ±20% for R1-R6 and undercount by ~25-35% for
+R7+ due to "latent capabilities" (proof clusters that become actual only when
+later structures arrive). The critical test: does it preserve the *ordering*?
+If proof-rank says ν(Π/Σ) < ν(S¹) < ν(PropTrunc), matching the Genesis ordering
+(5 < 7 < 8), the measure is correct even if absolute values differ.
 
-**Critical test:** S¹ at step 5. If the enumeration at k=4 finds approximately 7
-newly inhabited types (loop space, dependent elimination, free loop space...), we're
-on track. If it finds significantly fewer, the enumeration depth is too shallow or
-the inhabitation heuristic is too conservative.
+**The S¹ gap:** The pencil calculation shows ν ≈ 5-6 for S¹ vs. Genesis ν = 7.
+If this gap is consistent across all geometric types (always ~15% under), it's a
+systematic effect of the depth-2 window and can be characterized precisely.
 
-### Q3: What is the "natural" complexity horizon?
+### Q3: Is the d=2 bound sufficient?
 
-Plot ν(X | L, k) as a function of k for each Genesis type. There should be a
-"knee" in the curve where most of the novelty has been captured. The position of
-the knee tells us the effective complexity horizon for that type.
+The Complexity Scaling Theorem predicts d=2. The pencil calculation confirms it
+for R4-R6: all substantive novelty appears at depth ≤ 2.
 
-**Prediction:** The knee moves rightward (higher k) as types get more complex.
-Simple types (Unit, Bool) have their novelty captured at k=2. S¹ needs k=3-4.
-Hopf needs k=5-6. DCT might need k=10+.
-
-**If this is true:** The PEN model has a natural notion of "mathematical depth" —
-the complexity horizon at which a type's novelty is fully captured. Deep types are
-those whose consequences require long chains of reasoning. This connects directly
-to Bennett's logical depth.
+**Test:** Compute proof-rank at d=2 AND d=3 for R1-R10. If d=3 captures
+significantly more clusters than d=2, the Complexity Scaling Theorem's prediction
+is wrong (or its applicability to novelty is looser than to cost). If d=2 and d=3
+give essentially the same clusters, the theorem governs both cost and novelty.
 
 ### Q4: Does the machine sequence match the Genesis Sequence?
 
@@ -829,35 +1003,47 @@ The interesting part is characterizing the divergences:
 
 Each divergence type has a different implication for the theory.
 
-### Q5: Is novelty ≈ entropy of the type's "future light cone"?
+### Q5: Does ρ² give better physical predictions than ρ?
 
-An alternative information-theoretic interpretation: ν(X | L) measures the
-**entropy** of the distribution of types that X enables.
+The Born rule interpretation predicts that physical observables should depend on
+ρ² = (ν/κ)², not ρ = ν/κ. Paper 5 derives coupling constants and cosmological
+parameters from the Genesis Sequence. Audit these derivations:
 
-If X enables many diverse types (high entropy of Thm(L∪{X}) \ Thm(L)),
-it's more novel. If X enables many types that are all "similar" (low entropy),
-it's less novel even if the count is high.
+- Everywhere "efficiency" appears in a formula, does it enter as ρ or ρ²?
+- If the existing formulas use ρ linearly but should use ρ², the predicted
+  values change. Recompute and check against observations.
+- If ρ² gives better agreement with measured constants, that's direct evidence
+  for the Born rule interpretation at the foundational level.
 
-This could explain why type formers (Π, Σ) have moderate ν despite enabling
-infinitely many types: most of those types are "similar" (just different
-combinations of existing types). Whereas S¹ enables a smaller number but
-more diverse set of types (loop spaces, winding numbers, covering spaces —
-all qualitatively different).
+**The deeper test:** The Genesis Sequence's ordering is the same under ρ and ρ²
+(squaring preserves order). But the *relative magnitudes* change. Under ρ², the
+gap between a ν=7 structure and a ν=2 structure is 49:4, not 7:2. This changes
+the Bar dynamics quantitatively (though not qualitatively). Run the selection loop
+with both and check if ρ² produces a tighter, more constrained sequence.
+
+### Q6: Does proof-rank connect to the number of "independent amplitudes"?
+
+The Born rule analogy becomes precise if each proof cluster corresponds to an
+independent amplitude in the quantum-mechanical sense. In QM:
 
 ```
-ν_entropy(X | L, k) = H({ T ∈ Thm(L∪{X}, k) \ Thm(L, k) })
+P(event) = |Σᵢ aᵢ|² = Σᵢⱼ aᵢ aⱼ*
 ```
 
-where H is the entropy of the distribution (uniform over newly provable types).
+For PEN, if each cluster contributes amplitude 1/√κ:
 
-If all new types are at the same complexity level: H = log(count). So for
-uniform-complexity new types, ν_entropy ≈ log(ν_count). But for types that
-enable consequences at many different complexity levels, H > log(ν_count).
+```
+ρ² = (ν/κ)² = (ν · (1/κ))² = |Σᵢ₌₁ⁿ (1/κ)|²  where n = ν
+```
 
-**This might explain the "Candidate 5 matches by hand" result:** The OpSchema
-categories (EXIST, PATH, MAP, DEP-ELIM, HIGHER, FIBRATION...) are
-essentially the *diversity dimensions* of the new theorem space. Counting
-categories ≈ counting independent dimensions ≈ measuring entropy.
+The independent proof clusters are the "Feynman paths" of mathematical structure.
+Each cluster is an independent way the structure connects to the library, just as
+each Feynman path is an independent way a particle connects initial to final state.
+
+**Test:** Can we assign phases to proof clusters (not just amplitudes)? If some
+clusters "destructively interfere" (represent mutually exclusive proof strategies),
+ν should count the NET rank after interference, not the gross count. Check whether
+any Genesis ν values show evidence of cancellation.
 
 ---
 
@@ -866,31 +1052,29 @@ categories ≈ counting independent dimensions ≈ measuring entropy.
 ### Week 1-2: The Haskell Engine
 
 - Define TypeExpr and TypeProgram ASTs
-- Implement complexity measure
-- Implement inhabitation heuristic (start with rules 1-7)
-- Implement type enumeration up to depth k
+- Implement complexity measure (depth bound = 2, fixed)
+- Implement inhabitation heuristic (start with rules 1-8)
+- Implement type enumeration at depth ≤ 2
 - Implement Kolmogorov κ computation (shortest program search)
 - Test on R1-R4 (Universe, Unit, Witness, Π/Σ)
 
-### Week 3-4: ν Computation
+### Week 3-4: Proof-Rank Computation
 
-- Implement bounded theorem enumeration
-- Implement "new inhabitant" detection (compare Thm(L∪X) vs Thm(L))
-- Implement all four weight functions (A: count, B: complexity, C: rarity, D: depth)
-- For depth-weighting: track witness length in inhabitation checker
-- Compute ν_A, ν_B, ν_D for R1-R10 with k = 2, 3, 4, 5
-- Compare all three to Genesis ν values (correlations, ordering preservation)
-- Identify the "natural" k and best weight function for each type
-- Key test: does ν_D preserve the Π/Σ < S¹ ordering (5 < 7)?
+- Implement derivability checker (is T₁ → T₂ inhabited from L alone?)
+- Implement clustering (connected components of derivability graph)
+- Implement trivial-cluster filter
+- Compute proof-rank ν for R1-R10
+- Compare to Genesis ν values (ordering preservation, absolute errors)
+- Key test: does ordering ν(Π/Σ) < ν(S¹) < ν(PropTrunc) hold?
+- Sanity check: also compute at d=3 to confirm d=2 sufficiency
 
-### Week 5-6: Cross-Validation
+### Week 5-6: Cross-Validation and Born Rule Audit
 
-- Compute (Kolmogorov κ, enumerated ν) for all 16 types
-- Test with best weight function from Week 3-4
+- Compute (Kolmogorov κ, proof-rank ν) for all 16 types
 - Check selection dynamics: does ρ clear Bar?
-- Compare four (κ, ν) combinations (paper/paper, paper/enum, kolm/paper, kolm/enum)
-- If no single weight works: test ν_D (depth) which should better capture
-  the difference between shallow type-former consequences and deep geometric ones
+- Compare four (κ, ν) combinations (paper/paper, paper/rank, kolm/paper, kolm/rank)
+- Audit Paper 5's physical predictions: identify where ρ vs ρ² matters
+- If predictions differ: recompute with ρ², compare to observed constants
 - Identify which combination produces viable dynamics
 - Plot the Pareto frontier (Experiment 5)
 
@@ -905,11 +1089,13 @@ categories ≈ counting independent dimensions ≈ measuring entropy.
 
 ### Week 9-10: Analysis and Write-Up
 
-- Synthesize findings
-- Determine which information-theoretic formulation works best
-- If successful: draft the revised Paper 1 with computable (κ, ν)
-- If partially successful: document the precise boundary of computability
+- Synthesize findings across all experiments
+- Determine whether proof-rank ν is the right definition
+- Assess Born rule interpretation: does ρ² improve physical predictions?
+- If successful: draft revised Paper 1 with computable (κ, ν) and amplitude ρ
+- If partially successful: document precise boundary of computability
 - If failed: document why and what it implies about mathematical novelty
+- In all cases: document the d=2 sufficiency result and Born rule connection
 
 ---
 
@@ -917,52 +1103,54 @@ categories ≈ counting independent dimensions ≈ measuring entropy.
 
 ### Minimum viable outcome
 
-The Haskell engine produces ν values that preserve the **ordering** of the Genesis
-Sequence for R1-R10, even if absolute values differ. Combined with Kolmogorov κ,
-the selection dynamics ρ ≥ Bar holds for at least 10 steps.
+The Haskell engine produces proof-rank ν values that preserve the **ordering** of
+the Genesis Sequence for R1-R10, even if absolute values differ by ~20-30%.
+Combined with Kolmogorov κ, the selection dynamics ρ ≥ Bar hold for at least
+10 steps. The d=2 bound is confirmed as sufficient.
 
-This would justify: "PEN with information-theoretic measures produces a viable
-mathematical evolution sequence consistent with the known hierarchy."
+This would justify: "PEN with information-theoretic measures and fixed depth d=2
+produces a viable mathematical evolution sequence consistent with the known hierarchy."
 
 ### Good outcome
 
-The bounded enumeration ν approximately matches Genesis ν (within ±20%) for
-R1-R10 at a natural k. The selection loop produces a sequence recognizable as
-"mathematics" (types appear in a logical developmental order).
+Proof-rank ν matches Genesis ν within ±15% for R1-R10 and within ±30% for R11-R16.
+The selection loop produces a recognizable mathematical sequence. The Born rule
+interpretation (ρ²) doesn't break anything and may improve physical predictions.
 
-This would justify: "We have found a computable approximation to mathematical
-novelty that explains most of the Genesis Sequence."
+This would justify: "We have found a computable definition of mathematical novelty
+as proof-rank, grounded in the same d=2 parameter that produces Fibonacci timing."
 
 ### Great outcome
 
-The selection loop, running blind, produces S¹ before S², and group structures
-before bundles, and the sequence clearly traces the development of topology and
-geometry. The machine "rediscovers" the curriculum of a HoTT textbook.
+The selection loop, running blind, produces S¹ before S², group structures before
+bundles. The machine sequence is recognizably "the curriculum of HoTT." The Born
+rule audit of Paper 5 reveals that ρ² gives better agreement with observed physical
+constants than ρ.
 
-This would be: a genuine computational model of mathematical discovery.
+This would be: a computational model of mathematical discovery whose foundational
+selection principle (Born rule) is self-consistently reflected in its physical
+predictions (quantum mechanics).
 
 ### Extraordinary outcome
 
-The machine produces a type at some step that is NOT in the Genesis Sequence
-but is mathematically interesting — a structure that "should" appear at that
-efficiency level but was overlooked. Verifying it by hand reveals a genuine
-mathematical insight produced by the optimization.
+The proof-rank computation reveals that the Genesis ν values are not hand-tuned
+but are the UNIQUE output of the clustering algorithm at d=2. The Born rule
+interpretation produces a specific numerical prediction (e.g., a corrected coupling
+constant) that can be checked against experiment. The machine generates an
+unexpected type at some step that turns out to be mathematically interesting.
 
-This would be: the model teaching us mathematics we didn't know.
+This would be: the framework teaching us both mathematics and physics.
 
-### The outcome that changes everything about PEN's philosophical claims
+### The outcome that unifies the papers
 
-The bounded enumeration ν, at the right k, exactly reproduces the Genesis ν
-values — revealing that the "semantic" novelty that seemed to require mathematical
-judgment is actually just "number of newly inhabited types at complexity horizon k."
-The deep-sounding "enabling power" was counting theorems all along.
+The proof-rank ν exactly matches Genesis for R1-R10. The Born rule ρ² gives
+the right physical constants in Paper 5. The d=2 parameter simultaneously
+determines: Fibonacci timing (Paper 1), depth-2 novelty horizon (this work),
+the Born rule (Paper 5), and the gauge group structure (Paper 4).
 
-This would mean: mathematical novelty IS Shannon surprise. The vocabulary
-problem dissolves because the vocabulary was always just "short provable types."
-The Genesis Sequence is the sequence that maximizes surprise-per-bit on a
-Fibonacci schedule. And PEN reduces to a clean information-theoretic principle:
+One parameter. Four consequences. That would be PEN.
 
-> **The universe instantiates the mathematical structures that maximize
-> surprise per bit of description, subject to Fibonacci-timed integration.**
-
-That would be worth a paper.
+> **The universe instantiates the mathematical structures that maximize the
+> amplitude ν/κ of independent proof paths per bit of description, subject to
+> Fibonacci-timed integration at depth d=2. The realization probability is the
+> Born rule: P ∝ (ν/κ)².**
