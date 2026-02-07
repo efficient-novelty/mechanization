@@ -32,6 +32,43 @@ emergent physics (Paper 5)?**
 
 ---
 
+## Status (Current Implementation Checkpoint)
+
+**What is already implemented (engine + plan alignment):**
+- A depth-2 proof-rank implementation exists in `engine/src/ProofRank.hs`, with
+  derivability-based clustering and novelty filtering wired to a toy run in
+  `engine/src/Main.hs`.
+- The plan already specifies the Haskell/Agda split (enumeration + clustering in
+  Haskell, verification in Agda) and a manifest-based interface.
+
+**What is not yet validated:**
+- The proof-rank output has not been compared against the pencil-calculated ν
+  for Π/Σ and S¹ (targeting the 5–6 cluster expectation).
+- No JSON/YAML library manifest is hooked up from the current Agda library
+  inventory.
+- No witness format has been implemented for Agda-side verification.
+
+**Summary:** The core proof-rank prototype exists, but we still need to validate
+its counts against the pencil targets and connect the engine to the actual Agda
+library inventory.
+
+---
+
+## Proposed Concrete Next Steps (Engine + Validation)
+
+1. **Run and log the toy proof-rank counts** for Π/Σ and S¹ (depth-2) using the
+   existing `engine` prototype; record cluster counts and representative types.
+2. **Add a minimal JSON manifest reader** in the engine and export a stub
+   `agda/library_manifest.json` with Unit/Bool/Π/Σ/S¹ to test the pipe end-to-end.
+3. **Implement a witness sketch format** for inhabitation (e.g., `Const`, `Pair`,
+   `Proj`, `Loop`, `Susp`) and surface it in `ProofRank` results for Agda checks.
+4. **Compare ν outputs** to the pencil-calculated targets; if counts are low,
+   refine derivability or non-trivial cluster filters, and re-run.
+5. **Extend enumeration** with one additional operator from the plan (e.g. `Trunc`
+   or `Omega`) and repeat the validation to ensure the algorithm scales.
+
+---
+
 ## Part 1: The Information-Theoretic Reformulation
 
 ### 1.1 κ as Kolmogorov Complexity
