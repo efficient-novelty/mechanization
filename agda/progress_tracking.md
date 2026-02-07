@@ -402,6 +402,23 @@ agda ObligationGraph/Recurrence.agda
 
 ---
 
+## Information-Theoretic Plan Updates
+
+### Status: IN PROGRESS
+
+Recent updates in `pen_information_theoretic_plan.md`:
+
+1. **Latent capability accounting:** Added a split of ν into immediate vs. latent
+   proof clusters, with a λ discount factor and a computable “future-dependency”
+   proxy for latent clusters. This formalizes the S¹ gap as a tunable, falsifiable
+   parameter rather than an ad hoc adjustment.
+
+2. **Cluster normalization rules:** Added canonicalization rules (unit erasure,
+   currying, terminal arrows, library equivalences) to stabilize cluster counts
+   before derivability checks.
+
+---
+
 ## Next Steps
 
 1. **Calibrate Higher Spheres**: Add domain-specific schema enumeration for S², S³
