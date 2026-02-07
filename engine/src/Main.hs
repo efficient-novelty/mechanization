@@ -10,8 +10,7 @@ import Inhabitation
 import Enumerate
 import KappaNu
 import ProofRank
-import Manifest (loadManifest)
-import Data.List (intercalate)
+import Data.List (sortOn)
 import Text.Printf
 import System.Directory (doesFileExist)
 
@@ -61,16 +60,11 @@ main = do
   mapM_ (\(k, c) -> putStrLn $ "    Complexity " ++ show k ++ ": " ++ show c ++ " types") byLevel
 
   putStrLn ""
-  putStrLn "Proof-rank (depth-2) on toy library:"
-  putStrLn "-----------------------------------"
-  let toyLib = [ LibraryEntry "1" 1 [] False (Just 0)
-               , LibraryEntry "Bool" 2 [] False (Just 0)
-               ]
-      s1Entry = LibraryEntry "S1" 1 [1] True Nothing
-      (rank, clusters) = proofRank s1Entry toyLib 2
-  putStrLn $ "Depth-2 proof-rank ν(S1 | toyLib) = " ++ show rank
-  putStrLn "Clusters:"
-  mapM_ (putStrLn . formatCluster) (zip [1 :: Int ..] clusters)
+  putStrLn "Proof-rank validation (depth-2):"
+  putStrLn "--------------------------------"
+  reportProofRank "Pi/Sigma" 4 3 (5, 6)
+  putStrLn ""
+  reportProofRank "S1" 5 4 (7, 7)
 
   putStrLn ""
   putStrLn "Proof-rank (depth-2) using Agda manifest:"
@@ -114,9 +108,27 @@ structureName 9 = "Hopf"
 structureName 10 = "Lie"
 structureName _ = "???"
 
-formatCluster :: (Int, [TypeExpr]) -> String
-formatCluster (idx, ts) =
-  "  [" ++ show idx ++ "] " ++ intercalate ", " (map prettyTypeExpr ts)
+formatClusterSummary :: (Int, [TypeExpr]) -> String
+formatClusterSummary (idx, ts) =
+  let sorted = sortOn prettyTypeExpr ts
+      representative = case sorted of
+        [] -> "<empty>"
+        (t:_) -> prettyTypeExpr t
+  in "  [" ++ show idx ++ "] size=" ++ show (length ts) ++ " rep=" ++ representative
+
+reportProofRank :: String -> Int -> Int -> (Int, Int) -> IO ()
+reportProofRank label newStep libStep (targetMin, targetMax) = do
+  let entry = genesisEntry newStep
+      lib = buildLibrary libStep
+      (rank, clusters) = proofRank entry lib 2
+      targetNote
+        | rank < targetMin = "below target"
+        | rank > targetMax = "above target"
+        | otherwise = "within target"
+  putStrLn $ label ++ " depth-2 ν = " ++ show rank
+  putStrLn $ "Target range: " ++ show targetMin ++ "–" ++ show targetMax ++ " (" ++ targetNote ++ ")"
+  putStrLn "Clusters (size + representative):"
+  mapM_ (putStrLn . formatClusterSummary) (zip [1 :: Int ..] clusters)
 
 splitLibraryAt :: String -> Library -> Maybe (Library, LibraryEntry)
 splitLibraryAt _ [] = Nothing

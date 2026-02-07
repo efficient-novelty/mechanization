@@ -80,6 +80,48 @@ library inventory.
 
 ---
 
+## Continuation: Validation + Agda Inventory Wiring (Actionable Plan)
+
+### A. Pencil-target validation (Π/Σ and S¹)
+- **Goal:** confirm proof-rank cluster counts match the pencil targets (Π/Σ ≈ 5–6,
+  S¹ ≈ 7) and log representative cluster exemplars for inspection.
+- **Runbook (once GHC is available):**
+  1. Run the toy engine in `engine/src/Main.hs` and capture the cluster list for
+     Π/Σ and S¹ at depth-2.
+  2. Record: total clusters, cluster sizes, and one representative type per
+     cluster.
+  3. Compare against the pencil calculation in `pencil_calculation_S1.md`, and
+     note any under/over-count with a short diagnosis.
+- **If counts are low:** adjust derivability rules (e.g., add currying and
+  transport-based rewrites) before rerunning so that clustered proof techniques
+  align with the pencil interpretation.
+
+### B. Connect the engine to the *actual* Agda library inventory
+- **Source-of-truth locations in Agda (inventory & library growth):**
+  - `agda/OpSchema/Core.agda` defines library entries (name + metadata).
+  - `agda/OpSchema/Novel.agda` builds the Genesis library incrementally.
+- **Action:** add a minimal export step that writes a manifest (JSON/YAML) with
+  the library’s type names + available operators so the Haskell engine can read
+  it instead of using a toy list.
+- **Preferred workflow (minimal moving parts):**
+  1. Add a tiny Agda-side export routine that prints the library inventory
+     (names + structure flags like Π/Σ, Id, Trunc, Susp) into
+     `agda/library_manifest.json`.
+  2. Add a Haskell manifest reader that maps the exported names into
+     `engine/src/Types.hs` library entries and updates the toy runner to consume
+     the manifest instead of a hardcoded list.
+- **Success criteria:** the same engine run (depth-2) can switch between
+  `agda/library_manifest.json` and the toy library while producing comparable
+  results, ensuring the counts are grounded in the real Agda inventory.
+
+### C. Deliverables for the next validation checkpoint
+- `agda/library_manifest.json` committed with Unit/Bool/Π/Σ/S¹ as a minimal
+  exported slice.
+- Engine log excerpt with: (1) cluster count, (2) representative type per
+  cluster, and (3) a short comparison to the pencil targets.
+
+---
+
 ## Part 1: The Information-Theoretic Reformulation
 
 ### 1.1 κ as Kolmogorov Complexity
