@@ -286,8 +286,38 @@ Assuming the system saturates the interface to maximize connectivity, the Integr
 For Intensional systems ($d=2$), this dictates that Latency follows the Fibonacci sequence: $\Delta_n = F_n$.
 \end{lemma}
 
-\subsection{Metrics: Time, Novelty, and Efficiency}
-We explicitly define the metrics that drive the evolutionary selection.
+\subsection{Metrics: Novelty, Efficiency and Time}
+Effort captures cost; we need a dual notion of benefit. A structure is valuable not in itself but for what it enables. The natural numbers are useful because they unlock induction, primitive recursion, and arithmetic. Dependent types are powerful because they enable an entire universe of constructions.
+
+We formalize this through the \emph{frontier}---the set of structures that become accessible within a given effort bound.
+
+\begin{definition}[Canonical Frontier]
+\label{def:frontier}
+Given state $\mathcal{B}$ and effort horizon $H \in \N$, the \emph{frontier} is:
+\[
+\mathcal{S}(\mathcal{B}, H) := \{Y \text{ (sealed schema)} \mid K_{\mathcal{B}}(Y) \leq H\}
+\]
+\end{definition}
+
+The frontier represents the ``reachable mathematical universe'' from a given state within bounded effort. A candidate $X$ is valuable if it expands this frontier---making previously distant structures suddenly accessible.
+
+\begin{definition}[Novelty]
+\label{def:novelty}
+The \emph{novelty} of a sealed candidate $X$ relative to base $\mathcal{B}$ and horizon $H$ counts structures whose derivation becomes cheaper or newly possible:
+\[
+\nu(X \mid \mathcal{B}, H) := \left|\left\{Y \in \mathcal{S}(\mathcal{B}, H) \cup \mathcal{S}(\mathcal{B} \cup \{X\}, H) \,\middle|\, K_{\mathcal{B}}(Y) - K_{\mathcal{B} \cup \{X\}}(Y) \geq 1\right\}\right|
+\]
+\end{definition}
+
+Note that if $K_{\mathcal{B}}(Y) = \infty$ but $K_{\mathcal{B} \cup \{X\}}(Y) < \infty$, then $Y$ contributes to the count---capturing structures that were impossible before $X$ but become reachable after.
+
+
+\begin{definition}[Efficiency]
+The agent selects candidates based on their \emph{Return on Construction Effort}.
+\begin{equation}
+    \rho(X) := \frac{\nu(X)}{\kappa_{\text{def}}(X)}
+\end{equation}
+\end{definition}
 
 \begin{definition}[Realization Time]
 \emph{Realization Time} ($\tau$) is the cumulative Integration Latency expended by the system. It represents the total ``computational cycles'' the system must expend to stabilize the history.
@@ -295,13 +325,6 @@ We explicitly define the metrics that drive the evolutionary selection.
     \tau_n := \sum_{i=1}^{n} \Delta_i = F_{n+2} - 1
 \end{equation}
 \textbf{Note:} Time grows strictly faster than the Fibonacci sequence. This creates \emph{Time Dilation}, where later discoveries require exponentially more historical context.
-\end{definition}
-
-\begin{definition}[Efficiency]
-The agent selects candidates based on their \emph{Return on Construction Effort}.
-\begin{equation}
-    \rho(X) := \frac{\nu(X)}{\kappa_{\text{def}}(X)}
-\end{equation}
 \end{definition}
 
 \subsection{Selection Dynamics: Structural Inflation}
