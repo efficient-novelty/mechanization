@@ -257,6 +257,59 @@ proof cluster. This may close the gap.
 with ν ≈ 5-6 for geometric types, the exact count doesn't matter for the dynamics.
 If it fails, try (c).
 
+### 1.3a Latent Capability Accounting (Immediate vs. Latent ν)
+
+The S¹ gap shows that some proof clusters are **latent**: they are enabled by X,
+but only become *actual* when later structures arrive (e.g., ℤ, pushouts).
+We can model this explicitly by splitting ν into two components:
+
+```
+ν_total(X | L) = ν_immediate(X | L) + λ · ν_latent(X | L)
+```
+
+- **ν_immediate**: clusters among newly inhabited types in L ∪ {X} (as defined).
+- **ν_latent**: clusters whose realization *requires* at least one future operator
+  (e.g., Susp, Deloop, Quot, ℤ, Pushout, HIT with ≥2-paths).
+- **λ ∈ [0,1]**: a discount factor; λ = 0 recovers the strict definition.
+
+**Proxy for ν_latent (computable):**
+
+For each candidate cluster, compute a “future-dependency fingerprint”:
+- If the cluster’s witness requires an operator not yet in L (e.g., Susp, Pushout),
+  mark it as latent.
+- If it requires a **name** of a future type (e.g., ℤ), mark it as latent.
+- If it requires a *theorem* about X that is known to be unavailable without
+  a future type former (e.g., π₁(S¹) ≅ ℤ), mark as latent.
+
+Then:
+```
+ν_latent(X | L) = count(latent clusters)
+```
+
+**Reasonable λ choices:**
+- λ = 0.0 (strict, immediate-only)
+- λ = 0.5 (half-credit for latent capabilities)
+- λ = 1.0 (full credit; approximates Genesis ν for S¹)
+
+**Design principle:** Start with λ = 0. If selection dynamics fail (e.g., Bar clears
+only with latent contributions), introduce λ > 0 as an explicit “future credit.”
+This turns the latent effect into a tunable parameter we can falsify.
+
+### 1.3b Cluster Normalization Rules (Canonical Representatives)
+
+To avoid over-counting clusters that differ only by trivial logical wrapping,
+we define **normal forms** on types before clustering:
+
+1. **Unit erasure:** replace `T × 1` and `1 × T` with `T`.
+2. **Arrow to terminal:** replace `T → 1` with `1` (trivial cluster).
+3. **Currying:** treat `A → (B → T)` and `(A × B) → T` as equivalent.
+4. **Library equivalences:** if L proves `T ≃ U`, normalize to canonical name.
+5. **Definitional equalities:** identify `Ω(X)` with `(base =_X base)` when X has a basepoint.
+
+This normalization should happen *before* graph construction, so each cluster is
+formed over canonical representatives rather than raw types. This reduces the
+pairwise derivability checks and makes ν more stable across syntactic variations.
+
 
 ### 1.4 The Reformulated Efficiency and the Born Rule
 
