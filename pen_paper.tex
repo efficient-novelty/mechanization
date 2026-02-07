@@ -362,14 +362,55 @@ The evolution proceeds via a ``Time-Gated'' optimization loop:
 \item \textbf{Update}: The winner is added. $\tau$ increments by $\Delta_{n+1}$.
 \end{enumerate}
 
-\begin{remark}[Dynamical Consequences]
-This refined model preserves the Genesis Sequence while eliminating the ``Efficiency Collapse'' paradox of the previous formulation:
-\begin{itemize}
-\item \textbf{Survival of Infrastructure ($R_4$):} At $n=4$, the Structural Inflation moderates ($\Phi_4 = 1.50$). With a cumulative baseline of $\Omega_3 = 1.00$, the Bar is $1.50$. This allows Dependent Types ($\rho = 1.67$) to pass safely, securing the necessary infrastructure for future geometric growth. The Fibonacci sequence itself provides the relief: the ``infrastructure dip'' in the interface growth rate ($\Phi_4 = 1.50$ rather than the asymptotic $1.618$) mirrors the ``infrastructure dip'' in efficiency.
+\subsection{The Principle of Efficient Novelty}
 
-\item \textbf{The Singularity ($R_{16}$):} In the late game, $\Phi_n \to \varphi$. Because the Bar is multiplicative, structures with linear efficiency growth eventually fall below the threshold. This forces the system to select the Dynamical Cohesive Topos ($\rho = 18.75$), whose combinatorial novelty ($\nu = 150$) allows it to clear the exponential hurdle.
+We now state the complete framework as five axioms governing the evolution of the system.
+
+\begin{axiom}[Cumulative Growth]
+\label{ax:cumulative}
+For all $\tau$: $R(\tau - 1) \subseteq R(\tau)$. Mathematics only grows; we never remove previously realized structures.
+\end{axiom}
+
+\begin{axiom}[Horizon Policy]
+\label{ax:horizon}
+A global effort horizon $H \in \N$ governs the search space:
+\begin{itemize}
+\item After any realization: $H \leftarrow 2$
+\item After an idle tick (no candidate selected): $H \leftarrow H + 1$
 \end{itemize}
-\end{remark}
+\end{axiom}
+
+The horizon policy implements a ``fresh start'' after each success: the system searches for nearby efficient structures before exploring more distant constructions. This mirrors how mathematical research proceeds: after a breakthrough, we explore its immediate consequences before moving to harder problems.
+
+\begin{axiom}[Admissibility]
+\label{ax:admissibility}
+At time $\tau$, a sealed candidate $X$ over base $\mathcal{B} = R(\tau - 1)$ is \emph{admissible} if and only if:
+\begin{enumerate}
+\item $X$ is derivable from $\mathcal{B}$ (i.e., $K_{\mathcal{B}}(X) < \infty$)
+\item $\kappa(X \mid \mathcal{B}) \leq H$
+\end{enumerate}
+\end{axiom}
+
+\begin{axiom}[Selection Criterion]
+\label{ax:selection}
+From admissible candidates at time $\tau$, select $X$ satisfying $\rho(X) \geq \mathrm{Bar}(\tau)$ with minimal positive overshoot:
+\[
+X \in \arg\min_{Y : \rho(Y) \geq \mathrm{Bar}(\tau)} (\rho(Y) - \mathrm{Bar}(\tau))
+\]
+Ties are broken by minimal $\kappa$; remaining ties realize in superposition. If no candidate clears the bar, the tick idles.
+\end{axiom}
+
+The minimal overshoot criterion ensures we select the candidate that ``just barely'' beats the bar---the most ``natural'' next step rather than an outlier that happens to have exceptional efficiency.
+
+\begin{axiom}[Coherent Integration]
+\label{ax:integration}
+When candidate $X_{n+1}$ is realized at time $\tau_{n+1}$, it must be integrated coherently with the existing state by establishing the necessary coherence witnesses with recently realized structures. This produces an integration layer $L_{n+1}$ that encodes the interaction between $X_{n+1}$ and relevant prior structures. The \emph{integration gap} is $\Delta_{n+1} := \kappa(L_{n+1})$.
+\end{axiom}
+
+\begin{remark}[Abstraction of Integration Strategy]
+\label{rem:integration-abstraction}
+This axiom leaves open the precise specification of which prior structures constitute ``relevant context'' for integration. How many previous layers should be included? \cref{sec:CST} will establish that exactly two layers---the previous two integration layers $L_n$ and $L_{n-1}$---constitute the optimal integration strategy. \end{remark}
+
 
 % ============================================
 % SECTION 4: COHERENCE DIMENSIONS
@@ -430,7 +471,7 @@ In these systems, equality is data (a path). A path $p: a=b$ is distinct from $q
 % ============================================
 % SECTION 5: COMPLEXITY SCALING THEOREM
 % ============================================
-\section{The Complexity Scaling Theorem}
+\section{The Complexity Scaling Theorem} \label{sec:CST}
 
 We now prove the central result of this paper: that Fibonacci-timed evolution is a mathematical necessity for Class 2 foundations under the PEN framework.
 
