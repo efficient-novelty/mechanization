@@ -1,0 +1,32 @@
+cabal-version:      2.4
+name:               pen-engine
+version:            0.1.0.0
+synopsis:           PEN Information-Theoretic Engine
+description:        Computes Kolmogorov complexity (kappa) and Shannon surprise (nu)
+                    for the Genesis sequence of mathematical structures in HoTT.
+license:            MIT
+author:             PEN Research
+maintainer:         pen@example.com
+category:           Math
+build-type:         Simple
+
+executable pen-engine
+    main-is:          Main.hs
+    other-modules:    Types
+                    , Inhabitation
+                    , Enumerate
+                    , KappaNu
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2
+
+library
+    exposed-modules:  Types
+                    , Inhabitation
+                    , Enumerate
+                    , KappaNu
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2

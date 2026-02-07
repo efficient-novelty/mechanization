@@ -1,0 +1,5 @@
+name: pen
+depend:
+  cubical
+include:
+  .
