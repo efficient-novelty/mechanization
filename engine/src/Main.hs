@@ -10,8 +10,10 @@ import Inhabitation
 import Enumerate
 import KappaNu
 import ProofRank
+import Manifest (loadManifest)
 import Data.List (intercalate)
 import Text.Printf
+import System.Directory (doesFileExist)
 
 -- ============================================
 -- Main Entry Point
@@ -70,6 +72,25 @@ main = do
   putStrLn "Clusters:"
   mapM_ (putStrLn . formatCluster) (zip [1 :: Int ..] clusters)
 
+  putStrLn ""
+  putStrLn "Proof-rank (depth-2) using Agda manifest:"
+  putStrLn "-----------------------------------------"
+  let manifestPath = "agda/library_manifest.json"
+  manifestExists <- doesFileExist manifestPath
+  if not manifestExists
+    then putStrLn $ "Manifest not found at " ++ manifestPath
+    else do
+      manifestResult <- loadManifest manifestPath
+      case manifestResult of
+        Left err -> putStrLn $ "Failed to parse manifest: " ++ err
+        Right lib -> case splitLibraryAt "S1" lib of
+          Nothing -> putStrLn "Manifest does not include S1 entry."
+          Just (beforeS1, s1EntryFromManifest) -> do
+            let (manifestRank, manifestClusters) = proofRank s1EntryFromManifest beforeS1 2
+            putStrLn $ "Depth-2 proof-rank ν(S1 | manifest) = " ++ show manifestRank
+            putStrLn "Clusters:"
+            mapM_ (putStrLn . formatCluster) (zip [1 :: Int ..] manifestClusters)
+
 -- | Print comparison for a single step
 printStep :: Int -> Int -> IO ()
 printStep maxK n = do
@@ -96,6 +117,14 @@ structureName _ = "???"
 formatCluster :: (Int, [TypeExpr]) -> String
 formatCluster (idx, ts) =
   "  [" ++ show idx ++ "] " ++ intercalate ", " (map prettyTypeExpr ts)
+
+splitLibraryAt :: String -> Library -> Maybe (Library, LibraryEntry)
+splitLibraryAt _ [] = Nothing
+splitLibraryAt target (entry:rest)
+  | leName entry == target = Just ([], entry)
+  | otherwise = do
+      (prefix, found) <- splitLibraryAt target rest
+      pure (entry : prefix, found)
 
 -- ============================================
 -- Interactive Testing

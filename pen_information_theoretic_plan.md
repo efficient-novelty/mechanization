@@ -40,12 +40,14 @@ emergent physics (Paper 5)?**
   `engine/src/Main.hs`.
 - The plan already specifies the Haskell/Agda split (enumeration + clustering in
   Haskell, verification in Agda) and a manifest-based interface.
+- A JSON library manifest loader now exists in `engine/src/Manifest.hs`, and the
+  Agda inventory stub lives at `agda/library_manifest.json`.
 
 **What is not yet validated:**
 - The proof-rank output has not been compared against the pencil-calculated ν
   for Π/Σ and S¹ (targeting the 5–6 cluster expectation).
-- No JSON/YAML library manifest is hooked up from the current Agda library
-  inventory.
+- The JSON manifest is now wired, but it still needs to be kept in sync with the
+  full Agda library inventory beyond the initial stub.
 - No witness format has been implemented for Agda-side verification.
 
 **Toy proof-rank run log (depth-2):**
@@ -67,8 +69,8 @@ library inventory.
 
 1. **Run and log the toy proof-rank counts** for Π/Σ and S¹ (depth-2) using the
    existing `engine` prototype; record cluster counts and representative types.
-2. **Add a minimal JSON manifest reader** in the engine and export a stub
-   `agda/library_manifest.json` with Unit/Bool/Π/Σ/S¹ to test the pipe end-to-end.
+2. **Keep the JSON manifest in sync** with the Agda library inventory as new
+   structures are added beyond the initial stub.
 3. **Implement a witness sketch format** for inhabitation (e.g., `Const`, `Pair`,
    `Proj`, `Loop`, `Susp`) and surface it in `ProofRank` results for Agda checks.
 4. **Compare ν outputs** to the pencil-calculated targets; if counts are low,
