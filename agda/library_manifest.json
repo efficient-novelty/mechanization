@@ -1,0 +1,76 @@
+{
+  "library": [
+    {
+      "name": "U0",
+      "agdaName": "U₀",
+      "constructors": 0,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": null
+    },
+    {
+      "name": "1",
+      "agdaName": "1",
+      "constructors": 1,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": 0
+    },
+    {
+      "name": "star",
+      "agdaName": "★",
+      "constructors": 1,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": null
+    },
+    {
+      "name": "PiSigma",
+      "agdaName": "Π/Σ",
+      "constructors": 0,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": null
+    },
+    {
+      "name": "S1",
+      "agdaName": "S¹",
+      "constructors": 1,
+      "pathDims": [1],
+      "hasLoop": true,
+      "truncation": null
+    },
+    {
+      "name": "PropTrunc",
+      "agdaName": "‖-‖",
+      "constructors": 0,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": 0
+    },
+    {
+      "name": "S2",
+      "agdaName": "S²",
+      "constructors": 1,
+      "pathDims": [2],
+      "hasLoop": false,
+      "truncation": null
+    },
+    {
+      "name": "S3",
+      "agdaName": "S³",
+      "constructors": 1,
+      "pathDims": [3],
+      "hasLoop": false,
+      "truncation": null
+    },
+    {
+      "name": "Hopf",
+      "agdaName": "Hopf",
+      "constructors": 0,
+      "pathDims": [],
+      "hasLoop": false,
+      "truncation": null
+    }
+  ]
+}

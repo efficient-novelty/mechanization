@@ -12,6 +12,7 @@ import KappaNu
 import ProofRank
 import Data.List (sortOn)
 import Text.Printf
+import System.Directory (doesFileExist)
 
 -- ============================================
 -- Main Entry Point
@@ -65,6 +66,25 @@ main = do
   putStrLn ""
   reportProofRank "S1" 5 4 (7, 7)
 
+  putStrLn ""
+  putStrLn "Proof-rank (depth-2) using Agda manifest:"
+  putStrLn "-----------------------------------------"
+  let manifestPath = "agda/library_manifest.json"
+  manifestExists <- doesFileExist manifestPath
+  if not manifestExists
+    then putStrLn $ "Manifest not found at " ++ manifestPath
+    else do
+      manifestResult <- loadManifest manifestPath
+      case manifestResult of
+        Left err -> putStrLn $ "Failed to parse manifest: " ++ err
+        Right lib -> case splitLibraryAt "S1" lib of
+          Nothing -> putStrLn "Manifest does not include S1 entry."
+          Just (beforeS1, s1EntryFromManifest) -> do
+            let (manifestRank, manifestClusters) = proofRank s1EntryFromManifest beforeS1 2
+            putStrLn $ "Depth-2 proof-rank ν(S1 | manifest) = " ++ show manifestRank
+            putStrLn "Clusters:"
+            mapM_ (putStrLn . formatCluster) (zip [1 :: Int ..] manifestClusters)
+
 -- | Print comparison for a single step
 printStep :: Int -> Int -> IO ()
 printStep maxK n = do
@@ -109,6 +129,14 @@ reportProofRank label newStep libStep (targetMin, targetMax) = do
   putStrLn $ "Target range: " ++ show targetMin ++ "–" ++ show targetMax ++ " (" ++ targetNote ++ ")"
   putStrLn "Clusters (size + representative):"
   mapM_ (putStrLn . formatClusterSummary) (zip [1 :: Int ..] clusters)
+
+splitLibraryAt :: String -> Library -> Maybe (Library, LibraryEntry)
+splitLibraryAt _ [] = Nothing
+splitLibraryAt target (entry:rest)
+  | leName entry == target = Just ([], entry)
+  | otherwise = do
+      (prefix, found) <- splitLibraryAt target rest
+      pure (entry : prefix, found)
 
 -- ============================================
 -- Interactive Testing
