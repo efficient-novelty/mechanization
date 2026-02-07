@@ -9,6 +9,7 @@ import Types
 import Inhabitation
 import Enumerate
 import KappaNu
+import ProofRank
 import Data.List (intercalate)
 import Text.Printf
 
@@ -57,6 +58,18 @@ main = do
   let byLevel = countByComplexity types5
   mapM_ (\(k, c) -> putStrLn $ "    Complexity " ++ show k ++ ": " ++ show c ++ " types") byLevel
 
+  putStrLn ""
+  putStrLn "Proof-rank (depth-2) on toy library:"
+  putStrLn "-----------------------------------"
+  let toyLib = [ LibraryEntry "1" 1 [] False (Just 0)
+               , LibraryEntry "Bool" 2 [] False (Just 0)
+               ]
+      s1Entry = LibraryEntry "S1" 1 [1] True Nothing
+      (rank, clusters) = proofRank s1Entry toyLib 2
+  putStrLn $ "Depth-2 proof-rank ν(S1 | toyLib) = " ++ show rank
+  putStrLn "Clusters:"
+  mapM_ (putStrLn . formatCluster) (zip [1 :: Int ..] clusters)
+
 -- | Print comparison for a single step
 printStep :: Int -> Int -> IO ()
 printStep maxK n = do
@@ -79,6 +92,10 @@ structureName 8 = "S3"
 structureName 9 = "Hopf"
 structureName 10 = "Lie"
 structureName _ = "???"
+
+formatCluster :: (Int, [TypeExpr]) -> String
+formatCluster (idx, ts) =
+  "  [" ++ show idx ++ "] " ++ intercalate ", " (map prettyTypeExpr ts)
 
 -- ============================================
 -- Interactive Testing

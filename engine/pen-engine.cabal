@@ -16,6 +16,7 @@ executable pen-engine
                     , Inhabitation
                     , Enumerate
                     , KappaNu
+                    , ProofRank
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
     hs-source-dirs:   src
     default-language: Haskell2010
@@ -26,6 +27,7 @@ library
                     , Inhabitation
                     , Enumerate
                     , KappaNu
+                    , ProofRank
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
     hs-source-dirs:   src
     default-language: Haskell2010
