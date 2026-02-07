@@ -48,6 +48,15 @@ emergent physics (Paper 5)?**
   inventory.
 - No witness format has been implemented for Agda-side verification.
 
+**Toy proof-rank run log (depth-2):**
+- **Attempted command:** `runghc -iengine/src /tmp/proofrank.hs`
+- **Result:** failed (`runghc`/`ghc`/`cabal` not installed in the environment).
+- **Install attempt:** `apt-get update` failed with repository 403 errors, so GHC
+  could not be installed.
+- **Pending results (needs Haskell toolchain):**
+  - Π/Σ depth-2 clusters: **pending** (will log count + representative types).
+  - S¹ depth-2 clusters: **pending** (will log count + representative types).
+
 **Summary:** The core proof-rank prototype exists, but we still need to validate
 its counts against the pencil targets and connect the engine to the actual Agda
 library inventory.
