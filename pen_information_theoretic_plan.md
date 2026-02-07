@@ -40,12 +40,14 @@ emergent physics (Paper 5)?**
   `engine/src/Main.hs`.
 - The plan already specifies the Haskell/Agda split (enumeration + clustering in
   Haskell, verification in Agda) and a manifest-based interface.
+- A JSON library manifest loader now exists in `engine/src/Manifest.hs`, and the
+  Agda inventory stub lives at `agda/library_manifest.json`.
 
 **What is not yet validated:**
 - The proof-rank output has not been compared against the pencil-calculated ν
   for Π/Σ and S¹ (targeting the 5–6 cluster expectation).
-- No JSON/YAML library manifest is hooked up from the current Agda library
-  inventory.
+- The JSON manifest is now wired, but it still needs to be kept in sync with the
+  full Agda library inventory beyond the initial stub.
 - No witness format has been implemented for Agda-side verification.
 
 **Toy proof-rank run log (depth-2):**
@@ -67,14 +69,56 @@ library inventory.
 
 1. **Run and log the toy proof-rank counts** for Π/Σ and S¹ (depth-2) using the
    existing `engine` prototype; record cluster counts and representative types.
-2. **Add a minimal JSON manifest reader** in the engine and export a stub
-   `agda/library_manifest.json` with Unit/Bool/Π/Σ/S¹ to test the pipe end-to-end.
+2. **Keep the JSON manifest in sync** with the Agda library inventory as new
+   structures are added beyond the initial stub.
 3. **Implement a witness sketch format** for inhabitation (e.g., `Const`, `Pair`,
    `Proj`, `Loop`, `Susp`) and surface it in `ProofRank` results for Agda checks.
 4. **Compare ν outputs** to the pencil-calculated targets; if counts are low,
    refine derivability or non-trivial cluster filters, and re-run.
 5. **Extend enumeration** with one additional operator from the plan (e.g. `Trunc`
    or `Omega`) and repeat the validation to ensure the algorithm scales.
+
+---
+
+## Continuation: Validation + Agda Inventory Wiring (Actionable Plan)
+
+### A. Pencil-target validation (Π/Σ and S¹)
+- **Goal:** confirm proof-rank cluster counts match the pencil targets (Π/Σ ≈ 5–6,
+  S¹ ≈ 7) and log representative cluster exemplars for inspection.
+- **Runbook (once GHC is available):**
+  1. Run the toy engine in `engine/src/Main.hs` and capture the cluster list for
+     Π/Σ and S¹ at depth-2.
+  2. Record: total clusters, cluster sizes, and one representative type per
+     cluster.
+  3. Compare against the pencil calculation in `pencil_calculation_S1.md`, and
+     note any under/over-count with a short diagnosis.
+- **If counts are low:** adjust derivability rules (e.g., add currying and
+  transport-based rewrites) before rerunning so that clustered proof techniques
+  align with the pencil interpretation.
+
+### B. Connect the engine to the *actual* Agda library inventory
+- **Source-of-truth locations in Agda (inventory & library growth):**
+  - `agda/OpSchema/Core.agda` defines library entries (name + metadata).
+  - `agda/OpSchema/Novel.agda` builds the Genesis library incrementally.
+- **Action:** add a minimal export step that writes a manifest (JSON/YAML) with
+  the library’s type names + available operators so the Haskell engine can read
+  it instead of using a toy list.
+- **Preferred workflow (minimal moving parts):**
+  1. Add a tiny Agda-side export routine that prints the library inventory
+     (names + structure flags like Π/Σ, Id, Trunc, Susp) into
+     `agda/library_manifest.json`.
+  2. Add a Haskell manifest reader that maps the exported names into
+     `engine/src/Types.hs` library entries and updates the toy runner to consume
+     the manifest instead of a hardcoded list.
+- **Success criteria:** the same engine run (depth-2) can switch between
+  `agda/library_manifest.json` and the toy library while producing comparable
+  results, ensuring the counts are grounded in the real Agda inventory.
+
+### C. Deliverables for the next validation checkpoint
+- `agda/library_manifest.json` committed with Unit/Bool/Π/Σ/S¹ as a minimal
+  exported slice.
+- Engine log excerpt with: (1) cluster count, (2) representative type per
+  cluster, and (3) a short comparison to the pencil targets.
 
 ---
 
