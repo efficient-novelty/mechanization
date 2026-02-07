@@ -5,7 +5,18 @@
 -- This module enumerates all type expressions up to a given complexity bound.
 -- Used for computing Shannon surprise ν as the count of newly inhabited types.
 
-module Enumerate where
+module Enumerate
+  ( enumerateExact
+  , enumerateBounded
+  , atoms
+  , enumeratePrograms
+  , allPrograms
+  , allTypes
+  , typesInvolving
+  , countByComplexity
+  , filterTypes
+  , allProgramsGated
+  ) where
 
 import Types
 import Data.List (nub)
@@ -152,3 +163,47 @@ typesInvolving name = filter (involves name)
     involves n (THIT _ _) = False
     involves n (TFiber a b) = involves n a || involves n b
     involves n (TDeloop a) = involves n a
+
+-- ============================================
+-- Gated Program Enumeration (for K-based novelty)
+-- ============================================
+
+-- | Enumerate programs with gated atoms/ops:
+--   - PTypeFormerPi/Sigma/Id are NOT free atoms; they're only reachable via PRef when in library
+--   - PTrunc 0 only available when "Trunc" is in library names
+--   - Memoized by cost level to avoid redundant recursion
+allProgramsGated :: Library -> Int -> [TypeProgram]
+allProgramsGated lib maxC = concatMap (levels !!) [1..maxC]
+  where
+    libNames = map leName lib
+    hasTrunc = "Trunc" `elem` libNames
+
+    -- Lazy memoization: levels !! k gives programs of exactly cost k
+    levels :: [[TypeProgram]]
+    levels = map lvl [0..maxC]
+
+    lvl :: Int -> [TypeProgram]
+    lvl 0 = []
+    lvl 1 = PLitUnit : PLitVoid : map (PRef . leName) lib
+    lvl k = unaryAt k ++ binaryAt k ++ hitPrograms k
+
+    unaryAt :: Int -> [TypeProgram]
+    unaryAt k =
+      let args = levels !! (k - 1)
+      in concat
+           [ [PSusp arg | arg <- args]
+           , [POmega arg | arg <- args]
+           , [PDeloop arg | arg <- args]
+           , [PTrunc 0 arg | arg <- args, hasTrunc]
+           ]
+
+    binaryAt :: Int -> [TypeProgram]
+    binaryAt k = do
+      i <- [1 .. k - 2]
+      let j = k - 1 - i
+      if j >= 1
+        then do
+          a <- levels !! i
+          b <- levels !! j
+          [PArrow a b, PProd a b, PCoprod a b, PFiber a b]
+        else []
