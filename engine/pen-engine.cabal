@@ -17,6 +17,7 @@ executable pen-engine
                     , Enumerate
                     , KappaNu
                     , ProofRank
+                    , Cluster
                     , Manifest
                     , Simulation
                     , Capability
@@ -42,6 +43,7 @@ library
                     , Enumerate
                     , KappaNu
                     , ProofRank
+                    , Cluster
                     , Manifest
                     , Simulation
                     , Capability

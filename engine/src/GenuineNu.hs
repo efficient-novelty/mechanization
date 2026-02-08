@@ -1,15 +1,12 @@
 -- | Genuine nu computation for synthesis candidates
 --
--- Combines Equivalence + Independence + ProofRank to compute
--- a genuine nu value for each candidate type.
---
--- For HIT candidates: uses window-based independence rank plus
--- principled bonuses for path-loop, homotopy, and truncation.
+-- For HIT/Suspension candidates: uses proof-rank clustering (Cluster.hs)
+-- which enumerates newly inhabited types, clusters by schema, and adds
+-- a structure-dependent latent capability bonus.
 --
 -- For Foundation candidates: hardcoded (axioms, not discoveries).
--- For Former candidates: context-dependent computation that mirrors
--- the Capability engine's rule structure.
--- For Suspension candidates: window-based plus structural bonuses.
+-- For Former candidates: context-dependent computation.
+-- For Map/Algebra/Modal/Axiom candidates: component-based formulas.
 
 module GenuineNu
   ( genuineNu
@@ -18,11 +15,8 @@ module GenuineNu
 import Types
 import Generator (Candidate(..), candidateToEntry)
 import TheoryState
-import HITEnum (HITDef(..), hitHasLoop, knownHITName)
-import Independence (independenceRank)
-import ProofRank (newlyInhabitedWindow, schemaize)
-import Equivalence (canonicalize)
-import Data.List (nub, sortOn)
+import HITEnum (HITDef(..))
+import Cluster (proofRankNu, DerivCluster(dcMembers))
 
 -- ============================================
 -- Genuine Nu Computation
@@ -90,83 +84,28 @@ genuineNuTrunc ts =
 -- HIT nu computation
 -- ============================================
 
--- | Compute genuine nu for a HIT candidate.
--- Uses the independence rank pipeline plus principled bonuses:
---   1. Window-based independence rank (depth 1)
---   2. Path-loop bonus: each path constructor is an independent proof technique
---   3. Homotopy bonus: fundamental group pi_n contributes independently
---   4. Truncation bonus: if Trunc available and HIT has loops
---   5. Higher-homotopy bonus for spheres with rich structure (S3)
+-- | Compute genuine nu for a HIT candidate via proof-rank clustering.
+-- Enumerates newly inhabited types at depth <= 2, clusters by derivability,
+-- counts non-trivial clusters. Replaces the hand-tuned bonus system.
 genuineNuHIT :: HITDef -> TheoryState -> (Int, [[TypeExpr]])
 genuineNuHIT h ts =
   let entry = candidateToEntry (CHIT h)
       lib = tsLibrary ts
-      (rank, clusters) = independenceRank entry lib
-
-      -- Path-loop bonus: each path constructor is an independent capability
-      -- (loop : base = base is a non-trivial path, counted separately from
-      -- the schema-based rank which only sees inhabitation patterns)
-      pathLoopBonus = length (hitPaths h)
-
-      -- Homotopy bonus: the fundamental group pi_n is an independent generator
-      -- beyond the path constructor itself
-      homotopyBonus = if hitHasLoop h then 1 else 0
-
-      -- Truncation bonus: when truncation is available
-      truncBonus = if hasFormer FTrunc ts && hitHasLoop h then 1 else 0
-
-      -- Higher-homotopy bonus for spheres with rich structure
-      higherBonus = case knownHITName h of
-        Just "S3" -> 3   -- pi_3(S3) + SU(2) quaternionic structure
-        _         -> 0
-
-      totalNu = max 1 (rank + pathLoopBonus + homotopyBonus + truncBonus + higherBonus)
-  in (totalNu, clusters)
+      (nu, clusters) = proofRankNu entry lib
+  in (max 1 nu, map dcMembers clusters)
 
 -- ============================================
 -- Suspension nu computation
 -- ============================================
 
--- | Compute genuine nu for a suspension candidate.
--- Suspension inherits properties from base and adds dimension shift.
+-- | Compute genuine nu for a suspension candidate via proof-rank clustering.
+-- Same algorithm as HITs: enumerate, filter, cluster, count.
 genuineNuSusp :: String -> TheoryState -> (Int, [[TypeExpr]])
 genuineNuSusp baseName ts =
   let entry = candidateToEntry (CSusp baseName)
       lib = tsLibrary ts
-
-      -- Get newly inhabited types
-      newTypes = newlyInhabitedWindow entry lib 1
-
-      -- Canonicalize and deduplicate
-      canonTypes = nub $ map canonicalize newTypes
-
-      -- Schema abstraction
-      name = leName entry
-      typeSchemas = [(t, canonicalize (schemaize name lib t)) | t <- canonTypes]
-
-      -- Group by schema
-      schemaGroups = groupBySchema typeSchemas
-
-      -- Sort by group size
-      sorted = sortOn (negate . length . snd) schemaGroups
-      clusters = map snd sorted
-      windowRank = length clusters
-
-      -- Suspension-specific bonuses:
-      -- Susp(Sn) = S(n+1), inherits base homotopy plus new contributions
-      suspBonus = case baseName of
-        "S1" -> 4    -- S2: existence + homotopy + loop + suspension structure
-        "S2" -> 6    -- S3: existence + homotopy + SU(2) + loop + susp + trunc
-        _    -> 2    -- Generic: existence + loop structure
-
-      -- Truncation bonus for suspensions
-      truncBonus = if hasFormer FTrunc ts then 1 else 0
-
-      -- Cross-interaction bonus: grows with library size
-      crossBonus = max 0 (min 3 (length lib - 3))
-
-      totalNu = max (windowRank + truncBonus + crossBonus) suspBonus
-  in (totalNu, clusters)
+      (nu, clusters) = proofRankNu entry lib
+  in (max 1 nu, map dcMembers clusters)
 
 -- ============================================
 -- Map (fibration) nu computation
@@ -274,13 +213,3 @@ genuineNuAxiom name numOps ts =
       let nu = numOps + max 0 (libSize - 3) + 2
       in (nu, [])
 
--- ============================================
--- Helpers
--- ============================================
-
--- | Group types by their schema
-groupBySchema :: [(TypeExpr, TypeExpr)] -> [(TypeExpr, [TypeExpr])]
-groupBySchema pairs =
-  let schemas = nub $ map snd pairs
-      groups = [(s, [t | (t, s') <- pairs, s' == s]) | s <- schemas]
-  in groups

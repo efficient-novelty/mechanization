@@ -179,8 +179,13 @@ generateCandidates ts horizon =
             let hits = enumerateHITs horizon
                 novel = filter (not . hitInLibrary lib) hits
                 withPoints = filter (\h -> hitNumPoints h > 0) novel
+                -- Dimension bound: a d-dimensional path constructor requires
+                -- (d-1)-dimensional paths already in the library. This enforces
+                -- the natural sphere ordering S1 → S2 → S3.
+                maxDimInLib = maximum (0 : concatMap lePathDims lib)
+                withinDim = filter (\h -> all (\p -> psDimension p <= maxDimInLib + 1) (hitPaths h)) withPoints
                 -- Remove HITs that duplicate suspension candidates
-                noSuspDup = filter (not . duplicatesSusp libNames) withPoints
+                noSuspDup = filter (not . duplicatesSusp libNames) withinDim
             in map CHIT (nubHITs noSuspDup)
 
       -- Suspension candidates (when loopy types exist)
