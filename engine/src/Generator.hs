@@ -32,6 +32,7 @@ data Candidate
   | CAlgebra String String      -- kind carrier (e.g., "Lie" "S3")
   | CModal String Int           -- name numOps (e.g., "Cohesion" 3)
   | CAxiom String Int           -- name numOps (axiomatic extensions: Connections, Curvature, Metric, Hilbert)
+  | CSynthesis String Int       -- name numCompatAxioms (tensor product of independent logics)
   deriving (Eq, Show)
 
 -- ============================================
@@ -64,6 +65,7 @@ candidateName (CMap _ _ _)    = "Hopf"
 candidateName (CAlgebra k _)  = k
 candidateName (CModal n _)    = n
 candidateName (CAxiom n _)    = n
+candidateName (CSynthesis n _) = n
 
 -- ============================================
 -- Candidate to LibraryEntry
@@ -99,6 +101,8 @@ candidateToEntry (CModal name _) =
   LibraryEntry name 0 [] False Nothing
 candidateToEntry (CAxiom name _) =
   LibraryEntry name 0 [] False Nothing
+candidateToEntry (CSynthesis name _) =
+  LibraryEntry name 0 [] False Nothing
 
 -- ============================================
 -- Kappa computation
@@ -132,6 +136,9 @@ candidateKappa (CAxiom "Curvature" _)  _ = 6
 candidateKappa (CAxiom "Metric" _)     _ = 7
 candidateKappa (CAxiom "Hilbert" _)    _ = 9
 candidateKappa (CAxiom _ numOps)       _ = numOps + 1
+-- Synthesis: import Cohesion(1) + import Dynamics(1) + temporal prims(2) + infinitesimal(1) + compat triad(3) = 8
+candidateKappa (CSynthesis "DCT" _)    _ = 8
+candidateKappa (CSynthesis _ n)        _ = n + 2
 
 -- | Compute kappa for a HIT, considering suspension shortcuts.
 hitKappa :: HITDef -> TheoryState -> Int
@@ -242,8 +249,17 @@ generateCandidates ts horizon =
           , "Hilbert" `notElem` libNames ]
         ]
 
+      -- Synthesis candidates: tensor product of independent modal logics
+      -- Requires ALL Level C infrastructure (gated on FHilbert)
+      synthesisCands
+        | Set.member FHilbert formers
+        , "DCT" `notElem` libNames
+        = [CSynthesis "DCT" 3]
+        | otherwise = []
+
       allCands = foundations ++ formerCands ++ hitCands ++ suspCands
              ++ mapCands ++ algebraCands ++ modalCands ++ axiomCands
+             ++ synthesisCands
 
   in filter (\c -> candidateKappa c ts <= horizon) allCands
 

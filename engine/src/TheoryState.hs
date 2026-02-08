@@ -20,7 +20,7 @@ import qualified Data.Set as Set
 -- ============================================
 
 data TypeFormer = FPi | FSigma | FId | FSusp | FTrunc | FHIT | FFibration | FModal
-               | FConnection | FCurvature | FMetric | FHilbert
+               | FConnection | FCurvature | FMetric | FHilbert | FDCT
   deriving (Eq, Ord, Show)
 
 data TheoryState = TheoryState
@@ -70,6 +70,8 @@ addToTheory entry ts = ts
       | name == "Metric" = Set.insert FMetric oldFormers
       -- Adding Hilbert unlocks hilbert former
       | name == "Hilbert" = Set.insert FHilbert oldFormers
+      -- Adding DCT marks synthesis completion
+      | name == "DCT" = Set.insert FDCT oldFormers
       | otherwise = oldFormers
 
 -- | Check if a type former is available
