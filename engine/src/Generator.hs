@@ -28,6 +28,9 @@ data Candidate
   | CFormer TypeFormer     -- Pi/Sigma, Trunc
   | CHIT HITDef            -- Any enumerated HIT
   | CSusp String           -- Susp(X) for X in library
+  | CMap String String String   -- source target fiber (e.g., "S3" "S2" "S1")
+  | CAlgebra String String      -- kind carrier (e.g., "Lie" "S3")
+  | CModal String Int           -- name numOps (e.g., "Cohesion" 3)
   deriving (Eq, Show)
 
 -- ============================================
@@ -56,6 +59,9 @@ candidateName (CHIT h)        = case knownHITName h of
                                   Nothing -> "HIT" ++ show (hitNumPoints h)
                                           ++ "_" ++ show (map psDimension (hitPaths h))
 candidateName (CSusp base)    = suspensionName base
+candidateName (CMap _ _ _)    = "Hopf"
+candidateName (CAlgebra k _)  = k
+candidateName (CModal n _)    = n
 
 -- ============================================
 -- Candidate to LibraryEntry
@@ -83,6 +89,12 @@ candidateToEntry (CSusp base) =
     "S1" -> LibraryEntry "S2" 1 [2] True Nothing
     "S2" -> LibraryEntry "S3" 1 [3] True Nothing
     _    -> LibraryEntry (suspensionName base) 1 [] True Nothing
+candidateToEntry (CMap _ _ _) =
+  LibraryEntry "Hopf" 0 [] True Nothing
+candidateToEntry (CAlgebra kind carrier) =
+  LibraryEntry (kind ++ "(" ++ carrier ++ ")") 0 [] False Nothing
+candidateToEntry (CModal name _) =
+  LibraryEntry name 0 [] False Nothing
 
 -- ============================================
 -- Kappa computation
@@ -102,8 +114,14 @@ candidateKappa (CFormer FTrunc) _ = 3
 candidateKappa (CFormer _)      _ = 3
 -- HITs: use hitCost, considering suspension shortcuts
 candidateKappa (CHIT h) ts = hitKappa h ts
--- Suspensions: PRef(base) cost 1 + PSusp cost 1 = 2
-candidateKappa (CSusp _) _ = 2
+-- Suspensions: north + south (points) + merid (path) = 3 constructors
+candidateKappa (CSusp _) _ = 3
+-- Maps: fiber + total + base + map construction = 4
+candidateKappa (CMap _ _ _) _ = 4
+-- Algebras: carrier + 5 axioms = 6
+candidateKappa (CAlgebra _ _) _ = 6
+-- Modals: 1 + numOps
+candidateKappa (CModal _ numOps) _ = 1 + numOps
 
 -- | Compute kappa for a HIT, considering suspension shortcuts.
 hitKappa :: HITDef -> TheoryState -> Int
@@ -111,8 +129,8 @@ hitKappa h ts =
   let baseCost = hitCost h
       libNames = map leName (tsLibrary ts)
       suspCost = case knownHITName h of
-        Just "S2" | "S1" `elem` libNames -> 2
-        Just "S3" | "S2" `elem` libNames -> 2
+        Just "S2" | "S1" `elem` libNames -> 3
+        Just "S3" | "S2" `elem` libNames -> 3
         _ -> baseCost
   in min baseCost suspCost
 
@@ -166,7 +184,29 @@ generateCandidates ts horizon =
                         , let sName = suspensionName name
                         , sName `notElem` libNames]
 
+      -- Map candidates (fibrations): require S1, S2, S3 all in library
+      mapCands
+        | "S1" `elem` libNames && "S2" `elem` libNames && "S3" `elem` libNames
+        , "Hopf" `notElem` libNames
+        = [CMap "S3" "S2" "S1"]
+        | otherwise = []
+
+      -- Algebra candidates: require S3 in library
+      algebraCands
+        | "S3" `elem` libNames
+        , "Lie(S3)" `notElem` libNames
+        = [CAlgebra "Lie" "S3"]
+        | otherwise = []
+
+      -- Modal candidates: require FFibration former (Hopf realized)
+      modalCands
+        | Set.member FFibration formers
+        , "Cohesion" `notElem` libNames
+        = [CModal "Cohesion" 3]
+        | otherwise = []
+
       allCands = foundations ++ formerCands ++ hitCands ++ suspCands
+             ++ mapCands ++ algebraCands ++ modalCands
 
   in filter (\c -> candidateKappa c ts <= horizon) allCands
 

@@ -19,7 +19,7 @@ import qualified Data.Set as Set
 -- Types
 -- ============================================
 
-data TypeFormer = FPi | FSigma | FId | FSusp | FTrunc | FHIT
+data TypeFormer = FPi | FSigma | FId | FSusp | FTrunc | FHIT | FFibration | FModal
   deriving (Eq, Ord, Show)
 
 data TheoryState = TheoryState
@@ -57,6 +57,10 @@ addToTheory entry ts = ts
           (Set.fromList [FPi, FSigma, FId, FSusp])
       -- Adding Trunc unlocks truncation former
       | name == "Trunc" = Set.insert FTrunc oldFormers
+      -- Adding Hopf unlocks fibration former
+      | name == "Hopf" = Set.insert FFibration oldFormers
+      -- Adding Cohesion unlocks modal former
+      | name == "Cohesion" = Set.insert FModal oldFormers
       | otherwise = oldFormers
 
 -- | Check if a type former is available
