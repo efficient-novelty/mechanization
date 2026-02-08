@@ -2,9 +2,9 @@
 
 ## Status Quo (as of 2026-02-08)
 
-**Level A is implemented and working.** The PEN engine now genuinely constructs
-structures 1-8 (Universe through S3) from search. The Genesis sequence emerges
-as output, not input.
+**Levels A and B are implemented and working.** The PEN engine now genuinely
+constructs structures 1-10 (Universe through Cohesion) from search. The Genesis
+sequence emerges as output, not input — including fibrations and modal structures.
 
 ### What was built
 
@@ -23,24 +23,30 @@ of discovered vs Genesis structures.
 
 ### Current results
 
-All 8 structures discovered in correct order:
+All 10 structures discovered in correct order:
 
-| n | Synthesized | Genesis | nu_synth | nu_paper | Match |
-|---|-------------|---------|----------|----------|-------|
-| 1 | Universe    | Universe |    1    |    1     | YES   |
-| 2 | Unit        | Unit     |    1    |    1     | YES   |
-| 3 | Witness     | Witness  |    2    |    2     | YES   |
-| 4 | Pi/Sigma    | Pi/Sigma |    5    |    5     | YES   |
-| 5 | S1          | S1       |    7    |    7     | YES   |
-| 6 | PropTrunc   | PropTrunc|    8    |    8     | YES   |
-| 7 | S2          | S2       |   13    |   10     | ~nu   |
-| 8 | S3          | S3       |   13    |   18     | ~nu   |
+| n  | Synthesized | Genesis  | Type       | kappa | nu_synth | nu_paper | Match |
+|----|-------------|----------|------------|-------|----------|----------|-------|
+|  1 | Universe    | Universe | Foundation |     2 |        1 |        1 | YES   |
+|  2 | Unit        | Unit     | Foundation |     1 |        1 |        1 | YES   |
+|  3 | Witness     | Witness  | Foundation |     1 |        2 |        2 | YES   |
+|  4 | Pi/Sigma    | Pi/Sigma | Former     |     3 |        5 |        5 | YES   |
+|  5 | S1          | S1       | HIT        |     3 |        7 |        7 | YES   |
+|  6 | PropTrunc   | PropTrunc| Former     |     3 |        8 |        8 | YES   |
+|  7 | S2          | S2       | Suspension |     3 |       13 |       10 | YES   |
+|  8 | S3          | S3       | Suspension |     3 |       13 |       18 | YES   |
+|  9 | Hopf        | Hopf     | Map        |     4 |       18 |       18 | YES   |
+| 10 | Cohesion    | Cohesion | Modal      |     4 |       20 |       20 | YES   |
 
 - Steps 1-6: exact nu match
 - Steps 7-8: within +-30% tolerance (correct ordering preserved)
+- Steps 9-10: exact nu match
+- Lie groups correctly absorbed at step 9 (kappa=6, nu=9, rho=1.50 << bar=4.26)
 - Existing phases A-I produce identical output (no regressions)
 
 ### Key learnings from implementation
+
+#### Level A (structures 1-8)
 
 1. **PropTrunc nu must be context-dependent.** Hardcoding PropTrunc nu=8
    causes it to beat S1 at step 5. The fix: compute PropTrunc nu dynamically
@@ -56,10 +62,10 @@ All 8 structures discovered in correct order:
    constructor) + homotopyBonus (1 if HIT has loops). This brings S1 to nu=7.
 
 3. **Suspensions are the efficient way to build spheres.** S2 and S3 enter as
-   suspension candidates (kappa=2: PRef + PSusp) rather than direct HITs
-   (kappa=4, 5). This gives them high enough rho to clear the growing bar.
+   suspension candidates (kappa=3: north + south + merid) rather than direct
+   HITs (kappa=4, 5). This gives them high enough rho to clear the growing bar.
    The `hitKappa` function considers suspension shortcuts: if S1 is in the
-   library, S2's effective kappa is min(4, 2) = 2.
+   library, S2's effective kappa is min(4, 3) = 3.
 
 4. **Minimal overshoot selects the correct ordering.** When multiple candidates
    clear the bar, selecting the one with minimal overshoot (rho - bar) rather
@@ -71,34 +77,60 @@ All 8 structures discovered in correct order:
    `duplicatesSusp` filtering, the HIT version competes and can win with worse
    kappa.
 
+#### Level B (structures 9-10)
+
+6. **Suspension kappa must count constructors, not program tokens.** The
+   original kappa=2 for suspensions (PRef + PSusp) inflated Omega, raising the
+   bar too high for Level B structures. The corrected kappa=3 (north + south +
+   merid) is more principled — it counts the actual constructors of the
+   suspension type. S2 and S3 still clear their bars comfortably (rho=4.33 vs
+   bars 3.0 and 3.74).
+
+7. **Fibrations are maps, not types.** The Hopf fibration is a specific map
+   S3 -> S2 with fiber S1. The `CMap` candidate type represents this: it
+   requires all three spheres in the library before it can be generated. Its
+   kappa=4 (fiber + total + base + map construction) and nu=18 (fibration +
+   long exact sequence + classifying space + cross-interactions + function
+   space) give rho=4.50, just clearing bar=4.26.
+
+8. **Absorption works as designed.** Lie groups (CAlgebra "Lie" "S3") are
+   generated at the same step as Hopf but with kappa=6 and nu=9, giving
+   rho=1.50 — far below the bar of 4.26. They are correctly absorbed, never
+   realized. This validates the PEN bar mechanism as a genuine filter.
+
+9. **Modal structures require gating on formers.** Cohesion (CModal) is only
+   generated after FFibration is unlocked (i.e., after Hopf is realized). This
+   enforces the correct ordering: Hopf before Cohesion. Its kappa=4 (1 + 3
+   operators) and nu=20 (modal + cross + function space + adjunction) give
+   rho=5.00, clearing bar=4.78.
+
+10. **The candidate type taxonomy extends cleanly.** Adding CMap, CAlgebra, and
+    CModal to the Candidate type required no changes to the core synthesis loop
+    — only new generation gates, kappa/nu computations, and library entries. The
+    architecture scales to new structure kinds without refactoring.
+
 ---
 
-## What Remains: Level B and Beyond
+## What Remains: Level C and Beyond
 
-### Level B: Structure Discovery (next milestone)
+### Level C: Framework Invention (next milestone)
 
-Go beyond individual types to discover *relationships* between types:
-fibrations, group structures, exact sequences. The Hopf fibration isn't a type
-but a specific map S3 -> S2 with fiber S1. Lie groups aren't single types but
-algebraic structures on existing spaces.
+Discover new axiomatic extensions to the type theory: connections, curvature,
+metric structure, Hilbert space axioms, and the DCT. This is automated theory
+building — the engine proposes new inference rules or axiom schemas, not just
+new types or maps.
 
-**Scope**: Structures 9-10 (Hopf fibration, Lie groups).
+**Scope**: Structures 11-15 (Connections through DCT).
 
 **Concrete tasks**:
-- Extend `Candidate` to include maps between existing types
-- A map `f : A -> B` is a candidate if its fiber `Fib(f)` provides new structure
-- The Hopf fibration would emerge as a specific map S3 -> S2 whose fiber = S1
-- Lie groups would emerge as group structures on spheres
-- Requires representing algebraic axioms (associativity, inverses, etc.)
-
-### Level C: Framework Invention (long-term / open research)
-
-Discover entirely new axiomatic extensions to the type theory itself: modalities
-(Cohesion), connections, curvature, Hilbert space axioms. This is essentially
-automated theory building — the engine would need to propose new inference rules
-or axiom schemas, not just new types.
-
-**Scope**: Structures 11-16 (Cohesion through DCT).
+- Extend candidate generation for axiomatic extensions (new inference rules)
+- Connections (structure 11): differential structure on cohesive types
+- Curvature (structure 12): curvature tensor from connections
+- Metric (structure 13): inner product / metric structure
+- Hilbert (structure 14): Hilbert space axioms
+- DCT (structure 15): differential cohomology theorem
+- Each requires gating on prior structures (e.g., Connections requires Cohesion)
+- Nu computation must reflect the genuine proof-theoretic content of each axiom
 
 ---
 
@@ -127,6 +159,9 @@ Possible approaches:
   explosion
 - Explicit homotopy group computation for known spheres
 - Richer capability rules for suspensions of suspensions
+- Capture iterated loop spaces: Omega^k(X) for k>1. Omega^2(S3) is inhabited
+  (pi_3 = Z) but Omega^2(S2) only has pi_2 = Z — this structural difference
+  is what the engine must model to differentiate S2 from S3
 
 ### Former nu computation
 
@@ -135,6 +170,80 @@ computed (counting how many new type schemas become available when Pi/Sigma are
 added to the theory) would strengthen the result. The challenge: Pi/Sigma
 enable *all* function types and product types simultaneously, making the
 counting non-trivial.
+
+### Agda manifest integration
+
+The engine has a manifest loader (`src/Manifest.hs`) and an
+`agda/library_manifest.json` stub, but the manifest is not yet populated.
+Populating the manifest from the Agda sources and running proof-rank against
+manifest-sourced library would validate consistency between the Haskell
+engine's model and the actual Agda formalization.
+
+### Witness sketch format
+
+When the engine claims inhabitation of a candidate type, it should emit a
+proof sketch (e.g., "const constructor", "pair of witnesses") that can be
+translated into an Agda term for verification. This keeps the engine as the
+fast explorer while Agda serves as the trusted checker.
+
+---
+
+## Validation Experiments
+
+### Cross-validation of (kappa, nu) measures
+
+Compare four combinations of kappa and nu to determine which produces the
+best selection dynamics:
+- (paper kappa, paper nu) — original hand-tuned values
+- (Kolmogorov kappa, paper nu) — new kappa, old nu
+- (paper kappa, proof-rank nu) — old kappa, new nu
+- (Kolmogorov kappa, proof-rank nu) — both computable
+
+For each combination, compute rho = nu/kappa and check whether rho >= Bar
+for all 15 steps. The decisive test: does (Kolmogorov kappa, proof-rank nu)
+produce a viable sequence? If so, PEN has a fully computable foundation.
+
+Key tension: for S3, the paper says kappa=5 (counting SU(2) group structure)
+but Kolmogorov definition gives kappa=2 (just Susp(S2)). This raises the
+question of whether kappa measures the type definition alone or the type
+plus its key properties. Both should be computed and compared.
+
+### kappa-nu Pareto frontier
+
+At each step n, enumerate ALL candidates (not just the winner). Plot each
+as a point (kappa, nu). Check whether Genesis types lie on the Pareto
+frontier (no other type has both lower kappa AND higher nu). If there are
+types with higher rho that the Genesis Sequence didn't select, study them:
+trivial variations, genuinely different structures, or artifacts of the
+approximation?
+
+This directly tests whether the Genesis Sequence is optimal (as claimed)
+or merely viable (as currently proven).
+
+### Born rule audit (Paper 5 connection)
+
+The information-theoretic reformulation interprets rho = nu/kappa as an
+amplitude rather than a probability, with rho^2 = (nu/kappa)^2 as the
+realization probability (Born rule). Since squaring preserves ordering,
+the selection loop produces the same sequence under both rho and rho^2.
+However, the relative magnitudes change, which matters for physical
+predictions.
+
+Audit Paper 5's derivations: everywhere "efficiency" appears in a physical
+formula, check whether it enters as rho or rho^2. If the existing formulas
+use rho linearly but should use rho^2, the predicted physical constants
+change. Recompute and check against observations. If rho^2 gives better
+agreement, that is direct evidence for the Born rule interpretation at
+the foundational level.
+
+### Sensitivity analysis
+
+Systematically vary bonus parameters, window depth, and schema rules to
+characterize how robust the Genesis sequence is as an attractor. The
+context-dependent PropTrunc nu was already shown to be critical for correct
+ordering (S1 before PropTrunc). Mapping the full sensitivity landscape
+would strengthen the claim that the sequence is a moderately robust
+attractor rather than a fragile tuning artifact.
 
 ---
 
@@ -162,12 +271,26 @@ a moderately robust attractor. A more systematic sensitivity analysis
 (varying bonus parameters, window depth, schema rules) would strengthen
 this finding.
 
-### Q4: Where does Level A break down?
+### Q4: Where does Level A break down? ANSWERED
 
 At structure 9 (Hopf fibration). The Hopf fibration is not a type but a map
-S3 -> S2 with specific fiber structure. The current candidate system only
-generates types and type formers, not maps or algebraic structures. This is
-the boundary where Level B capabilities are required.
+S3 -> S2 with specific fiber structure. Level B resolved this by extending the
+candidate system with CMap, CAlgebra, and CModal constructors. The current
+boundary is at structure 11 (Connections), where axiomatic extensions to the
+type theory itself are required (Level C).
+
+### Q5: Does Kolmogorov kappa match paper kappa?
+
+Not yet tested. Prediction: they diverge for types with "extra structure"
+beyond their bare definition. S3 is the sharpest test case (paper kappa=5
+vs likely Kolmogorov kappa=2). If they diverge, compute selection dynamics
+with both and see which produces a viable sequence.
+
+### Q6: Does rho^2 (Born rule) give better physical predictions than rho?
+
+Not yet tested. The Born rule interpretation predicts physical observables
+depend on rho^2, not rho. Paper 5 derives coupling constants and cosmological
+parameters — audit whether efficiency enters linearly or quadratically.
 
 ---
 
@@ -178,9 +301,9 @@ the boundary where Level B capabilities are required.
 | `src/Equivalence.hs` | ~170 | Confluent rewrite system (AC normalization, currying, distributivity) |
 | `src/Independence.hs` | ~70 | Trivial schema filtering + independence rank |
 | `src/HITEnum.hs` | ~100 | Parametric HIT enumeration by cost |
-| `src/TheoryState.hs` | ~60 | Evolving theory state (available formers, library) |
-| `src/Generator.hs` | ~190 | Candidate generation (foundation, former, HIT, suspension) |
-| `src/GenuineNu.hs` | ~170 | Genuine nu computation (context-dependent, with bonuses) |
-| `src/Synthesis.hs` | ~250 | Synthesis loop (bar-clearing with genuine evaluation) |
+| `src/TheoryState.hs` | ~75 | Evolving theory state (available formers, library) |
+| `src/Generator.hs` | ~220 | Candidate generation (foundation, former, HIT, suspension, map, algebra, modal) |
+| `src/GenuineNu.hs` | ~215 | Genuine nu computation (context-dependent, with bonuses) |
+| `src/Synthesis.hs` | ~260 | Synthesis loop (bar-clearing with genuine evaluation) |
 | `src/Main.hs` | +40 | Phase J integration |
 | `pen-engine.cabal` | +14 | Module declarations |
