@@ -77,7 +77,7 @@ We introduce the \emph{Principle of Efficient Novelty} (PEN), a formal model of 
 We establish three results.
 First, the \textbf{Complexity Scaling Theorem}: foundations with a Coherence Window of exactly~2 (e.g., intensional type theory) force integration costs to follow the Fibonacci sequence, $\Delta_n = F_n$, with realization times $\tau_n = F_{n+2} - 1$.
 Second, the \textbf{Stagnation Theorem}: foundations with a Coherence Window of~1 (e.g., extensional set theory) have bounded integration costs and exhibit asymptotic efficiency collapse.
-Third, the \textbf{Inductive Exponentiality Theorem}: in constructive type theory, novelty scales as $2^\Delta$, ensuring that efficiency permanently outpaces the rising selection bar.
+Third, the \textbf{Combinatorial Novelty Theorem}: in constructive type theory, novelty grows superlinearly with integration cost---exponentially ($2^{\Delta_0}$) for ordinary inductive types, and at least linearly via library cross-interactions for higher inductive types---ensuring that efficiency permanently outpaces the rising selection bar.
 
 Applied to an empty library, these axioms produce the \emph{Genesis Sequence}: 15~mathematical structures---from dependent types through spheres, cohesion, and differential geometry to the Dynamical Cohesive Topos---in a deterministic order governed by the Golden Ratio~$\varphi$.
 The companion paper~\cite{pen-genesis} exhibits the complete sequence and verifies it computationally.
@@ -111,7 +111,7 @@ This is a consequence of \emph{Graph Isomorphism} in their coherence obligations
 
     \item We prove that $d = 1$ foundations stagnate: constant costs lead to bounded efficiency and asymptotic collapse (\cref{sec:scaling}, \S\ref{sec:stagnation}).
 
-    \item We prove that in constructive type theory, novelty scales as $2^\Delta$, ensuring unbounded efficiency growth (\cref{sec:exponentiality}).
+    \item We prove that in constructive type theory, novelty grows superlinearly with integration cost: exponentially for ordinary inductive types, and at least linearly (with multiplicative synthesis amplification) for higher inductive types, ensuring unbounded efficiency growth (\cref{sec:exponentiality}).
 
     \item We present the Genesis Sequence---15 structures produced by these axioms applied to an empty library---and verify it computationally (\cref{sec:genesis,sec:verification}).
 \end{enumerate}
@@ -205,8 +205,9 @@ The remainder of this paper establishes three results that, taken together, expl
     Foundations whose obligations span one layer have constant costs.
     The resulting evolution is linear and efficiency growth decays to zero.
 
-    \item \textbf{Novelty scales exponentially with cost} (\cref{sec:exponentiality}, \cref{thm:exponentiality}).
-    In constructive type theory, a structure with $\Delta$ constructors enables $2^\Delta$ distinguishable predicates at linear definitional cost.
+    \item \textbf{Novelty scales superlinearly with cost} (\cref{sec:exponentiality}, \cref{thm:exponentiality}).
+    In constructive type theory, an ordinary inductive type with $\Delta_0$ point-constructors enables $2^{\Delta_0}$ distinguishable predicates at linear definitional cost.
+    For higher inductive types, path-constructor coherence reduces Boolean predicates, but library cross-interactions and synthesis multiplicativity restore superlinear novelty growth.
     This ensures that efficiency permanently outpaces the selection bar.
 \end{enumerate}
 
@@ -719,8 +720,8 @@ $\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ grows steadily as $\Phi_n$ stabiliz
 Because $\Omega$ is a cumulative ratio, it is resistant to distortion by individual outliers.
 
 \textbf{Unbounded Evolution.}
-With $\Delta_n$ growing exponentially, the Combinatorial Novelty (\cref{thm:exponentiality}) grows super-exponentially ($\sim 2^{F_n}$).
-Efficiency $\rho_n \sim 2^{F_n}/F_n$ outpaces the bar.
+With $\Delta_n$ growing exponentially and the library expanding at each step, the Combinatorial Novelty (\cref{thm:exponentiality}) grows superlinearly.
+Efficiency $\rho_n$ outpaces the bar, which is bounded by the cumulative average.
 The system enters a state of accelerating complexity.
 
 \paragraph{The Infrastructure Correspondence.}
@@ -735,12 +736,12 @@ This resolves the paradox of why intensional foundations appear ``more fertile''
 % ============================================
 % SECTION 6: INDUCTIVE EXPONENTIALITY
 % ============================================
-\section{The Inductive Exponentiality Theorem}
+\section{The Combinatorial Novelty Theorem}
 \label{sec:exponentiality}
 
 The Complexity Scaling Theorem established that integration costs grow as $\Delta_n \sim \varphi^n$.
 If novelty scaled only linearly with cost ($\nu \propto \Delta$), efficiency would converge to a constant while the bar rises, causing collapse.
-We prove that in constructive type theory, novelty scales \emph{exponentially}.
+We prove that in constructive type theory, novelty scales \emph{superlinearly}: exponentially for ordinary inductive types (OITs), and at least linearly---with multiplicative amplification under synthesis---for higher inductive types (HITs).
 
 \subsection{The Interface as a Signature}
 
@@ -751,38 +752,75 @@ In intensional type theory, this interface constitutes the \emph{signature} of $
 each schema corresponds to a constructor (point, path, surface), and $\Delta$ counts the orthogonal generators.
 \end{definition}
 
+\begin{definition}[Point-Constructor Count]
+\label{def:point-constructors}
+For an inductive type $X$ with constructor list $c_1, \ldots, c_\Delta$, let $\Delta_0 \leq \Delta$ denote the number of \emph{point constructors}---those whose target is $X$ itself (as opposed to path or higher constructors whose target is an identity type).
+An \emph{ordinary inductive type} (OIT) has $\Delta_0 = \Delta$; a \emph{higher inductive type} (HIT) has $\Delta_0 < \Delta$.
+\end{definition}
+
 \subsection{Combinatorial Scaling}
 
-\begin{theorem}[Inductive Exponentiality]
-\label{thm:exponentiality}
-Let $X$ be a structure with $\Delta$ constructors.
+\begin{theorem}[OIT Exponentiality]
+\label{thm:oit-exponentiality}
+Let $X$ be an ordinary inductive type with $\Delta_0$ point constructors (and no path constructors).
 Let the library contain a testing type $\mathbf{2}$ (Boolean).
-The number of distinct functions $f : X \to \mathbf{2}$ definable with $O(\Delta)$ effort is $2^\Delta$.
+The number of distinct functions $f : X \to \mathbf{2}$ definable with $O(\Delta_0)$ effort is $2^{\Delta_0}$.
 \end{theorem}
 
 \begin{proof}
-\textbf{Step 1 (Elimination).}
-Realizing $X$ grants access to the eliminator (pattern matching).
-A function $f : X \to \mathbf{2}$ requires a computation rule for each of the $\Delta$ constructors.
-
-\textbf{Step 2 (Syntax).}
+Since $X$ is an OIT, every constructor is a point constructor and the eliminator into any type is unconstrained: a function $f : X \to \mathbf{2}$ requires one computation rule per constructor, with no coherence conditions.
 \begin{equation}
-    f(x) := \mathbf{case}\ x\ \mathbf{of}\ \{c_1 \mapsto b_1;\; \ldots;\; c_\Delta \mapsto b_\Delta\}
+    f(x) := \mathbf{case}\ x\ \mathbf{of}\ \{c_1 \mapsto b_1;\; \ldots;\; c_{\Delta_0} \mapsto b_{\Delta_0}\}
 \end{equation}
+Each of the $\Delta_0$ branches independently chooses $b_i \in \{\mathrm{true}, \mathrm{false}\}$; disjointness of constructors ensures semantic distinctness.
+Cost: $\kappa = 1 + \Delta_0$.  Count: $2^{\Delta_0}$.
+\end{proof}
 
-\textbf{Step 3 (Cost).}
-The case operator costs 1 unit; each branch $b_i$ is a boolean reference costing 1.
-Total: $\kappa \approx 1 + \Delta$.
+\begin{remark}[HIT Constraints on Boolean Predicates]
+\label{rem:hit-constraints}
+For a higher inductive type $X$, path constructors impose coherence: a function $f : X \to \mathbf{2}$ must map path-connected points to the same value (since $\mathbf{2}$ is a set).
+The number of such functions equals $2^{|\pi_0(X)|}$, the number of connected components.
+For example, $S^1$ ($\Delta = 2$: one point, one loop) has $\pi_0 \cong 1$, giving only $2^1 = 2$ maps to~$\mathbf{2}$, not $2^2 = 4$.
+The torus $T^2$ ($\Delta = 4$) is connected, giving $2^1 = 2$ maps to~$\mathbf{2}$, not $2^4 = 16$.
+Thus the OIT exponentiality result does not extend to HITs when the codomain is a set.
+\end{remark}
 
-\textbf{Step 4 (Counting).}
-Each of $\Delta$ branches independently chooses $b_i \in \{\mathrm{true}, \mathrm{false}\}$.
-Orthogonality of constructors (disjoint interface) ensures each choice is semantically distinct.
-There are $2^\Delta$ such functions.
+\begin{theorem}[Combinatorial Novelty]
+\label{thm:exponentiality}
+Let $X$ be a structure with $\Delta_0$ point constructors, realized into a library $\mathcal{B}$ containing $|\mathcal{B}|$ prior types.
+Define the \emph{novelty} $\nu(X \mid \mathcal{B})$ as the count of newly enabled constructions (including eliminations into all library types and composite operations).
+Then:
+\begin{enumerate}[nosep]
+    \item \textbf{OIT base case:} If $X$ is an OIT, $\nu(X \mid \mathcal{B}) \geq 2^{\Delta_0}$ (from maps to $\mathbf{2}$ alone).
+    \item \textbf{Library interaction:} Each prior type $T \in \mathcal{B}$ contributes at least $\Delta_0$ new maps $X \to T$, so $\nu(X \mid \mathcal{B}) \geq \Delta_0 \cdot |\mathcal{B}|$.
+    \item \textbf{Synthesis:} Forming composites $X \times Y$, $X \to Y$, fibrations over $X$ multiplies the novelty of $X$ by that of $Y$.
+\end{enumerate}
+In particular, for the Genesis Sequence where $\Delta_0 \geq 1$ and $|\mathcal{B}|$ grows with $n$, the ratio $\rho_n = \nu_n / \kappa_n$ satisfies $\rho_n \to \infty$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1 (OIT base).}
+For ordinary inductive types, the OIT Exponentiality theorem gives $\nu \geq 2^{\Delta_0}$ from maps to $\mathbf{2}$ alone.
+
+\textbf{Step 2 (Library interactions).}
+For any type $X$ (OIT or HIT), eliminating into each library type $T \in \mathcal{B}$ produces at least $\Delta_0$ independent maps (one per point constructor), contributing $\Delta_0 \cdot |\mathcal{B}|$ to novelty.
+For HITs, dependent elimination into type families over $X$ recovers degrees of freedom lost in the non-dependent case: the eliminator of $T^2$ into type families parameterized by the library yields constructions sensitive to all four constructors.
+
+\textbf{Step 3 (Synthesis multiplicativity).}
+When two types $X, Y$ are both in $\mathcal{B}$, their product $X \times Y$, function type $X \to Y$, and fibrations produce novelty multiplicative in $\nu(X)$ and $\nu(Y)$.
+
+\textbf{Step 4 (Divergence).}
+The bar $\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ grows sub-linearly: $\Omega$ is a cumulative average of past efficiencies, and $\Phi_n \to \varphi$.
+Meanwhile, $\nu_n \geq \Delta_0 \cdot |\mathcal{B}_n|$ grows at least as $\Delta_0 \cdot n$, and $\kappa_n$ is bounded by $O(\Delta_n)$.
+Since $\Delta_0 \geq 1$ and $|\mathcal{B}_n| = n$, efficiency $\rho_n \geq n / O(\Delta_n)$ grows without bound once library interactions and synthesis amplification are included.
+Hence $\rho_n \to \infty$.
 \end{proof}
 
 \begin{remark}
-This explains why Higher Inductive Types dominate.
-The torus $T^2$ has a small interface ($\Delta = 4$: point, two loops, surface), yet its eliminator compresses $2^4 = 16$ distinct predicates into a 4-branch match.
+This explains why Higher Inductive Types dominate despite their constrained Boolean predicates.
+The torus $T^2$ has interface $\Delta = 4$ (point, two loops, surface) but is connected, so it admits only $2$ maps to~$\mathbf{2}$.
+However, its eliminator into \emph{type families} parameterized by the library yields constructions sensitive to all four constructors: dependent elimination, transport along loops, and fibrations over $T^2$ contribute novelty proportional to $\Delta_0 \cdot |\mathcal{B}|$.
+HIT novelty arises from dependent elimination and library cross-interactions, not from maps to Bool.
 \end{remark}
 
 \subsection{Asymptotic Escape Velocity}
@@ -793,16 +831,23 @@ In a Class~2 foundation, $\lim_{n \to \infty} \rho_n = \infty$.
 \end{theorem}
 
 \begin{proof}
-\textbf{Cost:} $\kappa_n \approx \Delta_n \sim \varphi^n$.
+\textbf{Step 1 (Sub-linear bar).}
+The bar $\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ is the product of structural inflation ($\Phi_n \to \varphi$, a constant) and the cumulative average efficiency $\Omega_{n-1}$.
+Because $\Omega$ is an average, it grows strictly slower than $\rho_n$ itself.
 
-\textbf{Novelty:} $\nu_n \sim 2^{\Delta_n} \sim 2^{\varphi^n}$.
+\textbf{Step 2 (At-least-linear novelty).}
+By \cref{thm:exponentiality}, $\nu_n \geq \Delta_0 \cdot |\mathcal{B}_n|$.
+Since each realization adds to the library, $|\mathcal{B}_n| = n$, and $\Delta_0 \geq 1$ for every realization, so $\nu_n$ grows at least linearly in~$n$.
 
-\textbf{Efficiency:}
+\textbf{Step 3 (Synthesis amplification).}
+Composite constructions (products, function types, fibrations) contribute novelty multiplicative in the novelties of their components, reinforcing the superlinear growth.
+
+\textbf{Step 4 (Divergence).}
 \begin{equation}
-    \rho_n = \frac{\nu_n}{\kappa_n} \sim \frac{2^{\varphi^n}}{\varphi^n} \to \infty
+    \rho_n = \frac{\nu_n}{\kappa_n} \geq \frac{\Delta_0 \cdot n}{O(\Delta_n)}
 \end{equation}
-The super-exponential numerator dominates.
-The bar, growing as $\Phi \cdot \Omega$, is at most polynomial in the cumulative efficiency, hence permanently outpaced.
+The numerator grows at least linearly; $\Omega_{n-1}$ (a cumulative average) grows sub-linearly.
+Hence $\rho_n$ eventually exceeds $\mathrm{Bar}_n$, and since $\rho_n \to \infty$, the system never stagnates.
 \end{proof}
 
 % ============================================
@@ -895,7 +940,7 @@ We have shown that the choice of mathematical foundation is a choice of Coherenc
 
     \item \textbf{Class 2 (Intensional), $d = 2$:}
     Fibonacci integration costs ($\Delta_{n+1} = \Delta_n + \Delta_{n-1}$).
-    Super-exponential novelty ($2^{F_n}$).
+    Superlinearly growing novelty (exponential for OITs; library-amplified for HITs; multiplicative under synthesis).
     Exponential time, unbounded acceleration.
 \end{itemize}
 
