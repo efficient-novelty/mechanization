@@ -178,41 +178,40 @@ $n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $
 4  & 7    & $\Pi$/$\Sigma$ types            & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
 5  & 12   & Circle $S^1$                    & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
 6  & 20   & Prop.\ truncation               & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
-7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.63 & 1.85 & 3.00 \\
-8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.13 & 3.44 \\
+7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
+8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
 9  & 88   & Hopf fibration                  & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
-10 & 143  & Lie groups                      & 55  & 9   & 2 & 4.50  & 1.62 & 2.76 & 4.47 \\
-11 & 232  & Cohesion                        & 89  & 19  & 4 & 4.75  & 1.62 & 2.89 & 4.67 \\
-12 & 376  & Connections                     & 144 & 26  & 5 & 5.20  & 1.62 & 3.13 & 5.06 \\
-13 & 609  & Curvature tensors               & 233 & 34  & 6 & 5.67  & 1.62 & 3.42 & 5.53 \\
-14 & 986  & Metric + frame bundle           & 377 & 43  & 7 & 6.14  & 1.62 & 3.74 & 6.05 \\
-15 & 1596 & Hilbert functional              & 610 & 60  & 9 & 6.67  & 1.62 & 4.08 & 6.60 \\
-16 & 2583 & Dyn.\ Cohesive Topos            & 987 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
+10 & 143  & Cohesion                        & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connections                     & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature tensors               & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
+13 & 609  & Metric + frame bundle           & 233 & 43  & 7 & 6.14  & 1.62 & 3.70 & 5.99 \\
+14 & 986  & Hilbert functional              & 377 & 60  & 9 & 6.67  & 1.62 & 4.06 & 6.58 \\
+15 & 1596 & Dyn.\ Cohesive Topos            & 610 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
 \hline
 \end{tabular}
 \end{table}
 
 \subsection{Guided Reading}
 
-The table records 16 ``realizations''---mathematical structures that the model selects in sequence, starting from an empty library. Each row is characterized by ten quantities. We briefly describe them here; formal definitions are deferred to Section~\ref{sec:framework}.
+The table records 15 ``realizations''---mathematical structures that the model selects in sequence, starting from an empty library. Each row is characterized by ten quantities. We briefly describe them here; formal definitions are deferred to Section~\ref{sec:framework}.
 
 The first three columns identify the realization: its index $n$, the cumulative time $\tau$ at which it becomes integrable, and an informal name. The next column, $\Delta_n$, records the \emph{Integration Latency}---the cost of sealing the new structure against the existing library. The pair $(\nu, \kappa)$ records the structure's \emph{Novelty} (how many new constructions it enables) and \emph{Effort} (its definitional complexity), yielding an \emph{Efficiency} $\rho = \nu/\kappa$. The final three columns govern selection: $\Phi_n$ is the \emph{Structural Inflation} (how fast the interface is growing), $\Omega_{n-1}$ is the \emph{Cumulative Baseline} (the library's historical efficiency), and the \emph{Bar} $= \Phi_n \cdot \Omega_{n-1}$ is the threshold that $\rho$ must clear.
 
 The reader is invited to verify three patterns by inspection:
 
 \paragraph{1. Fibonacci Timing.}
-The $\Delta_n$ column displays the Fibonacci sequence: $1, 1, 2, 3, 5, 8, 13, 21, \ldots, 987$. The $\tau$ column displays its cumulative sums: $\tau_n = F_{n+2} - 1$. This is not a numerical coincidence; we prove in Section~\ref{sec:scaling} that it is the unique cost schedule for foundations with a two-step coherence window.
+The $\Delta_n$ column displays the Fibonacci sequence: $1, 1, 2, 3, 5, 8, 13, 21, \ldots, 610$. The $\tau$ column displays its cumulative sums: $\tau_n = F_{n+2} - 1$. This is not a numerical coincidence; we prove in Section~\ref{sec:scaling} that it is the unique cost schedule for foundations with a two-step coherence window.
 
-\paragraph{2. Universal Survival.}
-Every realization clears the selection bar: $\rho_n \ge \text{Bar}_n$ in every row. The margins vary---some are comfortable ($\rho_{16} = 18.75$ against a Bar of $7.25$), others are tight ($\rho_{10} = 4.50$ against $4.47$). The closest call is at $n=4$, where Dependent Types ($\rho = 1.67$) clear the Bar ($1.50$) by only $0.17$. This narrow passage is structurally necessary: it is the moment when the system must invest in foundational infrastructure before the geometric payoff begins.
+\paragraph{2. Selective Survival.}
+Of the 15 realized structures, every one clears the selection bar: $\rho_n \ge \text{Bar}_n$ in every row. The margins vary---some are comfortable ($\rho_{15} = 18.75$ against a Bar of $7.25$), others are tight. The closest call is at $n=4$, where Dependent Types ($\rho = 1.67$) clear the Bar ($1.50$) by only $0.17$. This narrow passage is structurally necessary: it is the moment when the system must invest in foundational infrastructure before the geometric payoff begins. Notably, not all candidates survive: Lie groups ($\kappa=6$, $\nu=9$, $\rho=1.5$) are \emph{absorbed} rather than realized, as their efficiency falls far below the Selection Bar ($\approx 4.46$) at the time they become reachable.
 
 \paragraph{3. Four Phases.}
 The sequence exhibits four qualitative phases:
 \begin{itemize}
     \item \textbf{Bootstrap} ($n = 1$--$3$): Minimal apparatus---a universe, a type, an inhabitant.
     \item \textbf{Geometric Ascent} ($n = 5$--$9$): After dependent types unlock type formation, the system immediately pivots to geometry: the circle, spheres, and the Hopf fibration.
-    \item \textbf{Framework Abstraction} ($n = 10$--$15$): The system shifts from specific geometric objects to organizing principles---Lie groups, cohesion, connections, curvature, metrics.
-    \item \textbf{Synthesis} ($n = 16$): A qualitative leap. The Dynamical Cohesive Topos unifies geometric, logical, and temporal structure, clearing the Bar by a factor of $2.6$.
+    \item \textbf{Framework Abstraction} ($n = 10$--$14$): The system shifts from specific geometric objects to organizing principles---cohesion, connections, curvature, metrics, and the Hilbert functional.
+    \item \textbf{Synthesis} ($n = 15$): A qualitative leap. The Dynamical Cohesive Topos unifies geometric, logical, and temporal structure, clearing the Bar by a factor of $2.6$.
 \end{itemize}
 
 \subsection{The Claims}
@@ -699,16 +698,15 @@ $n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $
 4  & 7    & $\Pi$/$\Sigma$ types            & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
 5  & 12   & Circle $S^1$                    & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
 6  & 20   & Prop.\ truncation               & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
-7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.63 & 1.85 & 3.00 \\
-8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.13 & 3.44 \\
+7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
+8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
 9  & 88   & Hopf fibration                  & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
-10 & 143  & Lie groups                      & 55  & 9   & 2 & 4.50  & 1.62 & 2.76 & 4.47 \\
-11 & 232  & Cohesion                        & 89  & 19  & 4 & 4.75  & 1.62 & 2.89 & 4.67 \\
-12 & 376  & Connections                     & 144 & 26  & 5 & 5.20  & 1.62 & 3.13 & 5.06 \\
-13 & 609  & Curvature tensors               & 233 & 34  & 6 & 5.67  & 1.62 & 3.42 & 5.53 \\
-14 & 986  & Metric + frame bundle           & 377 & 43  & 7 & 6.14  & 1.62 & 3.74 & 6.05 \\
-15 & 1596 & Hilbert functional              & 610 & 60  & 9 & 6.67  & 1.62 & 4.08 & 6.60 \\
-16 & 2583 & Dyn.\ Cohesive Topos            & 987 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
+10 & 143  & Cohesion                        & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connections                     & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature tensors               & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
+13 & 609  & Metric + frame bundle           & 233 & 43  & 7 & 6.14  & 1.62 & 3.70 & 5.99 \\
+14 & 986  & Hilbert functional              & 377 & 60  & 9 & 6.67  & 1.62 & 4.06 & 6.58 \\
+15 & 1596 & Dyn.\ Cohesive Topos            & 610 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
 \hline
 \end{tabular}
 \end{table}
@@ -728,7 +726,7 @@ Each realization is characterized by:
     \item \textbf{Bar}: Selection threshold ($= \Phi_n \cdot \Omega_{n-1}$)
 \end{itemize}
 
-The Fibonacci structure is visible in two columns simultaneously: $\Delta_n$ displays the sequence $1, 1, 2, 3, 5, \ldots, 987$ directly, while $\tau$ displays its cumulative sums $1, 2, 4, 7, 12, \ldots, 2583$. Efficiency grows from $\rho_1 = 0.50$ to $\rho_{16} = 18.75$---nearly a 40-fold increase, with Realization 16 representing an exceptional outlier that clears the Bar by a factor of $2.6$.
+The Fibonacci structure is visible in two columns simultaneously: $\Delta_n$ displays the sequence $1, 1, 2, 3, 5, \ldots, 610$ directly, while $\tau$ displays its cumulative sums $1, 2, 4, 7, 12, \ldots, 1596$. Efficiency grows from $\rho_1 = 0.50$ to $\rho_{15} = 18.75$---nearly a 40-fold increase, with Realization 15 representing an exceptional outlier that clears the Bar by a factor of $2.6$.
 
 \paragraph{The Infrastructure Correspondence.}
 The most striking feature of the table is the interplay between $\Phi_n$ and $\rho_n$ at the critical infrastructure step $n=4$. The Structural Inflation \emph{dips} to $\Phi_4 = 1.50$ (below the asymptotic $\varphi \approx 1.618$) at precisely the moment when Dependent Types must be installed with a moderate efficiency of $\rho_4 = 1.67$. The margin is narrow ($1.67 > 1.50$) but sufficient. Had we defined inflation via instantaneous time dilation ($\tau_4/\tau_3 = 7/4 = 1.75$), the Bar would have risen to $1.75$, and the infrastructure step would have failed. The Fibonacci sequence's characteristic sub-$\varphi$ oscillation at small $n$ is thus \emph{structurally necessary} for the bootstrap phase.
@@ -810,7 +808,7 @@ data Gene : Type where
           -> Gene
 
   -- 3. Synthesis Genes (The "Framework" Logic)
-  -- This is the key to finding R16 (DCT).
+  -- This is the key to finding R15 (DCT).
   -- "Take two modalities A and B, and assert a compatibility law."
   GSynthesis : (name : String) 
              -> (mods : List ModalitySpec) 
@@ -925,14 +923,14 @@ unquoteDecl R5 = evolve-step R5
 
 -- ...
 
--- Step 16: The Dynamical Cohesive Topos
--- The library contains Cohesion (R11) and Time (R15).
+-- Step 15: The Dynamical Cohesive Topos
+-- The library contains Cohesion (R10) and Hilbert (R14).
 -- The Mutator sees two Modality-rich structures.
 -- It applies `GSynthesis [Cohesion, Time] Commute`.
 -- The Oracle checks: "Does `Next (Flat A) = Flat (Next A)` type-check?"
 -- It does. The interface size (Delta) is massive (combines both APIs).
 -- Efficiency spikes to 18.75. Winner.
-unquoteDecl R16 = evolve-step R16
+unquoteDecl R15 = evolve-step R15
 -- Agda defines the full DCT record structure.
 \end{lstlisting}
 
