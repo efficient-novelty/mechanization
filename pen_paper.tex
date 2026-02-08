@@ -5,30 +5,24 @@
 % ============================================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath,amsthm,amssymb,amsfonts}
+\usepackage{amsmath,amsthm,amssymb}
 \usepackage{mathtools}
 \usepackage{enumitem}
 \usepackage{booktabs}
-\usepackage{array}
-\usepackage{longtable}
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{cleveref}
-\usepackage{listings}
-\usepackage{xcolor}
 \usepackage{float}
-\usepackage{caption}
-\usepackage{subcaption}
+\usepackage{microtype}
+\usepackage{xcolor}
 
-% Page geometry
 \geometry{margin=1in}
 
-% Hyperref setup
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue,
-    citecolor=blue,
-    urlcolor=blue
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black
 }
 
 % ============================================
@@ -43,70 +37,29 @@
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{example}[theorem]{Example}
-\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{axiom}[theorem]{Axiom}
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
 % ============================================
-% CODE LISTINGS
-% ============================================
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\lstdefinestyle{agdastyle}{
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{blue},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
-    breaklines=true,
-    captionpos=b,
-    keepspaces=true,
-    numbers=left,
-    numbersep=5pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    tabsize=2,
-    frame=single
-}
-
-\lstset{style=agdastyle}
-
-% ============================================
 % CUSTOM COMMANDS
 % ============================================
-\newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
-\newcommand{\C}{\mathbb{C}}
-\newcommand{\Q}{\mathbb{Q}}
-\newcommand{\HH}{\mathbb{H}}
+\newcommand{\R}{\mathbb{R}}
 \newcommand{\U}{\mathcal{U}}
-\newcommand{\Type}{\mathsf{Type}}
-\newcommand{\base}{\mathsf{base}}
-\newcommand{\Loop}{\mathsf{loop}}
-\newcommand{\refl}{\mathsf{refl}}
-\newcommand{\Id}{\mathsf{Id}}
-\newcommand{\Disc}{\mathsf{Disc}}
-\newcommand{\ap}{\mathsf{ap}}
-\newcommand{\transport}{\mathsf{transport}}
 
 % ============================================
 % TITLE
 % ============================================
-\title{\textbf{The Principle of Efficient Novelty:\\Coherence Windows and the Nature of Mathematical Construction}}
+\title{\textbf{The Principle of Efficient Novelty:\\
+Coherence Windows and the Nature of Mathematical Construction}}
 
 \author{Halvor Lande\\
-Investment Director and Amateur Mathematician\\
 \texttt{hsl@awc.no}}
 
-\date{January 2026}
+\date{February 2026}
 
 % ============================================
 % DOCUMENT
@@ -119,7 +72,15 @@ Investment Director and Amateur Mathematician\\
 % ABSTRACT
 % ============================================
 \begin{abstract}
-Mathematical foundations differ not just in their logical primitives, but in their \emph{Coherence Window}---the depth of historical context required to stabilize structural obligations. We introduce a formal model of mathematical evolution, the \emph{Principle of Efficient Novelty} (PEN), which models discovery as an optimization process selecting structures that maximize combinatorial enabling power relative to integration cost. We establish two main results. First, the \textbf{Stagnation Theorem}: foundations with a Coherence Window of 1 (e.g., extensional set theory) exhibit bounded integration costs and linear time evolution, leading to asymptotic efficiency collapse. Second, the \textbf{Complexity Scaling Theorem}: foundations with a Coherence Window of exactly 2 (e.g., intensional type theory) induce a disjoint interface aggregation. This forces integration costs to scale according to the Fibonacci sequence ($\Delta_n = F_n$). We explicitly correct previous empirical claims to show that realization times follow the schedule $\tau_n = F_{n+2}-1$, asymptotically approaching a Golden Ratio time dilation ($\Phi \to \varphi$). These results suggest that the ``unreasonable effectiveness'' of geometric structures in modern mathematics is a computable consequence of efficiency optimization within 2-dimensional coherence constraints.
+Mathematical foundations differ not only in their logical primitives, but in their \emph{Coherence Window}---the depth of historical context required to stabilize structural obligations.
+We introduce the \emph{Principle of Efficient Novelty} (PEN), a formal model of mathematical evolution in which a computational agent selects structures maximizing combinatorial enabling power relative to integration cost.
+We establish three results.
+First, the \textbf{Complexity Scaling Theorem}: foundations with a Coherence Window of exactly~2 (e.g., intensional type theory) force integration costs to follow the Fibonacci sequence, $\Delta_n = F_n$, with realization times $\tau_n = F_{n+2} - 1$.
+Second, the \textbf{Stagnation Theorem}: foundations with a Coherence Window of~1 (e.g., extensional set theory) have bounded integration costs and exhibit asymptotic efficiency collapse.
+Third, the \textbf{Inductive Exponentiality Theorem}: in constructive type theory, novelty scales as $2^\Delta$, ensuring that efficiency permanently outpaces the rising selection bar.
+
+Applied to an empty library, these axioms produce the \emph{Genesis Sequence}: 15~mathematical structures---from dependent types through spheres, cohesion, and differential geometry to the Dynamical Cohesive Topos---in a deterministic order governed by the Golden Ratio~$\varphi$.
+The companion paper~\cite{pen-genesis} exhibits the complete sequence and verifies it computationally.
 \end{abstract}
 
 \tableofcontents
@@ -129,89 +90,106 @@ Mathematical foundations differ not just in their logical primitives, but in the
 % SECTION 1: INTRODUCTION
 % ============================================
 \section{Introduction}
+\label{sec:intro}
 
-Why do some mathematical foundations naturally support the emergence of high-dimensional geometric structures, while others remain steadfastly discrete? The historical shift from extensional foundations (e.g., Zermelo-Fraenkel Set Theory, Martin-Löf Type Theory with Uniqueness of Identity Proofs) to intensional foundations (e.g., Homotopy Type Theory, Cubical Type Theory) is often viewed as a semantic refinement regarding the treatment of equality. However, viewed through the lens of computational complexity, this shift represents a \emph{phase transition} in the evolutionary dynamics of the system.
+Why do some mathematical foundations naturally support the emergence of high-dimensional geometric structures, while others remain confined to discrete combinatorics?
+The historical shift from extensional foundations (ZFC, Martin-L\"of Type Theory with UIP) to intensional foundations (Homotopy Type Theory~\cite{hott}, Cubical Type Theory~\cite{cubical}) is often viewed as a semantic refinement regarding the treatment of equality.
+Viewed through the lens of computational complexity, this shift represents a \emph{phase transition} in the evolutionary dynamics of the system.
 
-In an extensional system, equality is a proposition; checking it is a static operation. In an intensional system, equality is data (a path); checking it requires constructing a witness that must cohere with the surrounding topological context. This imposes an \emph{integration cost} on new structures: a candidate definition is not merely a string of symbols, but a node in a dependency graph that must be ``sealed'' against previous layers of the theory.
+In an extensional system, equality is a proposition; checking it is a static operation.
+In an intensional system, equality is data (a path); checking it requires constructing a witness that must cohere with the surrounding topological context.
+This imposes an \emph{integration cost} on new structures: a candidate definition must be ``sealed'' against previous layers of the theory.
 
-This paper proposes that the dynamics of mathematical evolution are determined by the \emph{Coherence Window} of the foundation---the depth of history required to resolve these integration obligations. We introduce a formal framework, the \emph{Principle of Efficient Novelty} (PEN), to model this process.
+This paper proposes that the dynamics of mathematical evolution are determined by the \emph{Coherence Window} of the foundation---the depth of history required to resolve these obligations.
+By abstracting away surface syntax and modeling evolution via \emph{Obligation Graphs}, we resolve a puzzle observed in computational experiments: distinct foundations (e.g., Cubical vs.\ Simplicial Type Theory) generate identical cost trajectories.
+This is a consequence of \emph{Graph Isomorphism} in their coherence obligations---if two foundations share the same Coherence Window, they impose isomorphic integration costs on the abstract structures they realize.
 
-\subsection{The Structuralist Approach}
+\medskip
+\noindent\textbf{Contributions.}
+\begin{enumerate}[label=(\roman*), leftmargin=*]
+    \item We classify foundations by their Coherence Window $d$ and prove that for $d = 2$, integration costs satisfy $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$ (the Fibonacci recurrence), with realization times $\tau_n = F_{n+2} - 1$ (\cref{sec:scaling}).
 
-Previous attempts to model this evolution relied on empirical simulation of specific implementations (measuring lines of code), leading to artifacts where syntax obscured structure. In this work, we replace syntactic metrics with a graph-theoretic model of \emph{Obligation Graphs}.
+    \item We prove that $d = 1$ foundations stagnate: constant costs lead to bounded efficiency and asymptotic collapse (\cref{sec:scaling}, \S\ref{sec:stagnation}).
 
-By abstracting away surface syntax, we resolve a puzzle observed in computational experiments: distinct foundations (e.g., Cubical vs.\ Simplicial Type Theory) generate identical evolutionary cost trajectories. We show this is a consequence of \emph{Graph Isomorphism} in their coherence obligations. If two foundations share the same Coherence Window, they impose isomorphic integration costs on the abstract structures they realize.
+    \item We prove that in constructive type theory, novelty scales as $2^\Delta$, ensuring unbounded efficiency growth (\cref{sec:exponentiality}).
 
-\subsection{Contributions}
-
-We establish the following theoretical results:
-
-\begin{enumerate}[label=(\roman*)]
-    \item \textbf{Formal Definition of Coherence Window}: We classify foundations by the integer $d$ such that constructing a valid interface for the next realization requires exporting schemas from the previous $d$ layers.
-    
-    \item \textbf{The Complexity Scaling Theorem}: We prove that for systems with a Coherence Window of exactly 2, the set of integration obligations scales recursively. Specifically, the integration cost $\Delta_n$ satisfies $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$.
-    
-    \item \textbf{Correction of Dynamical Constants}: We refine previous arithmetic models to strictly define realization time $\tau_n$ as the cumulative sum of integration costs. We show that for 2-dimensional systems, $\tau_n = F_{n+2}-1$, yielding an asymptotic time dilation factor of $\varphi$ (the Golden Ratio).
+    \item We present the Genesis Sequence---15 structures produced by these axioms applied to an empty library---and verify it computationally (\cref{sec:genesis,sec:verification}).
 \end{enumerate}
 
 % ============================================
 % SECTION 2: THE GENESIS SEQUENCE
 % ============================================
 \section{The Genesis Sequence}
+\label{sec:genesis}
 
-Before developing the formal framework, we present its principal output: the \emph{Genesis Sequence}. This is the complete evolutionary trace produced by the Principle of Efficient Novelty applied to an intensional type-theoretic foundation (Cubical Agda). The model operates on abstract Obligation Graphs rather than syntactic artifacts; it generates candidate structures, computes their integration costs, and selects the candidate maximizing efficiency. The reader should treat this table as an empirical fact to be explained; the remainder of the paper defines the model that produces it and proves that its structure is the unique solution for foundations of this class.
-
-\subsection{The Output}
+Before developing the formal framework, we present its principal output: the \emph{Genesis Sequence}.
+This is the complete evolutionary trace produced by the Principle of Efficient Novelty applied to an intensional type-theoretic foundation.
+The model operates on abstract Obligation Graphs rather than syntactic artifacts; it generates candidate structures, computes their integration costs, and selects the candidate maximizing efficiency.
+The reader should treat \cref{tab:genesis} as an empirical fact to be explained; the remainder of the paper defines the model that produces it.
 
 \begin{table}[H]
 \centering
 \caption{The Genesis Sequence}
-\label{tab:genesis-sequence}
+\label{tab:genesis}
 \small
-\begin{tabular}{|c|r|l|r|r|r|r|r|r|r|}
-\hline
+\begin{tabular}{@{}cr l rrrr rrr@{}}
+\toprule
 $n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\
-\hline
-1  & 1    & Universe $\mathcal{U}_0$        & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
-2  & 2    & Unit type $\mathbf{1}$          & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
-3  & 4    & Witness $\star : \mathbf{1}$    & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
-4  & 7    & $\Pi$/$\Sigma$ types            & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
-5  & 12   & Circle $S^1$                    & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
-6  & 20   & Prop.\ truncation               & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
-7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
-8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
-9  & 88   & Hopf fibration                  & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
-10 & 143  & Cohesion                        & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
-11 & 232  & Connections                     & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
-12 & 376  & Curvature tensors               & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
-13 & 609  & Metric + frame bundle           & 233 & 43  & 7 & 6.14  & 1.62 & 3.70 & 5.99 \\
-14 & 986  & Hilbert functional              & 377 & 60  & 9 & 6.67  & 1.62 & 4.06 & 6.58 \\
-15 & 1596 & Dyn.\ Cohesive Topos            & 610 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
-\hline
+\midrule
+1  & 1    & Universe $\U_0$              & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
+2  & 2    & Unit type $\mathbf{1}$       & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
+3  & 4    & Witness $\star : \mathbf{1}$ & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
+4  & 7    & $\Pi$/$\Sigma$ types         & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
+5  & 12   & Circle $S^1$                 & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
+6  & 20   & Propositional truncation     & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
+7  & 33   & Sphere $S^2$                 & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
+8  & 54   & $S^3 \cong \mathrm{SU}(2)$  & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
+9  & 88   & Hopf fibration               & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
+10 & 143  & Cohesion                     & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connections                  & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature tensors            & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
+13 & 609  & Metric + frame bundle        & 233 & 43  & 7 & 6.14  & 1.62 & 3.70 & 5.99 \\
+14 & 986  & Hilbert functional           & 377 & 60  & 9 & 6.67  & 1.62 & 4.06 & 6.58 \\
+15 & 1596 & Dynamical Cohesive Topos     & 610 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Guided Reading}
 
-The table records 15 ``realizations''---mathematical structures that the model selects in sequence, starting from an empty library. Each row is characterized by ten quantities. We briefly describe them here; formal definitions are deferred to Section~\ref{sec:framework}.
+The table records 15 \emph{realizations}---mathematical structures selected in sequence from an empty library.
+Each row is characterized by:
+\begin{itemize}[nosep]
+    \item $n$: realization index.
+    \item $\tau$: cumulative realization time ($= F_{n+2} - 1$).
+    \item $\Delta_n$: \emph{Integration Latency}---the cost of sealing the structure against the library ($= F_n$).
+    \item $\nu$: \emph{Novelty}---the count of newly enabled constructions.
+    \item $\kappa$: \emph{Construction Effort}---the definitional complexity.
+    \item $\rho = \nu/\kappa$: \emph{Efficiency}---the selection score.
+    \item $\Phi_n = \Delta_n / \Delta_{n-1}$: \emph{Structural Inflation}, converging to $\varphi$.
+    \item $\Omega_{n-1}$: \emph{Cumulative Baseline}---the library's historical efficiency ($\sum \nu_i / \sum \kappa_i$).
+    \item $\mathrm{Bar} = \Phi_n \cdot \Omega_{n-1}$: the selection threshold.
+\end{itemize}
 
-The first three columns identify the realization: its index $n$, the cumulative time $\tau$ at which it becomes integrable, and an informal name. The next column, $\Delta_n$, records the \emph{Integration Latency}---the cost of sealing the new structure against the existing library. The pair $(\nu, \kappa)$ records the structure's \emph{Novelty} (how many new constructions it enables) and \emph{Effort} (its definitional complexity), yielding an \emph{Efficiency} $\rho = \nu/\kappa$. The final three columns govern selection: $\Phi_n$ is the \emph{Structural Inflation} (how fast the interface is growing), $\Omega_{n-1}$ is the \emph{Cumulative Baseline} (the library's historical efficiency), and the \emph{Bar} $= \Phi_n \cdot \Omega_{n-1}$ is the threshold that $\rho$ must clear.
-
-The reader is invited to verify three patterns by inspection:
+Three patterns are verifiable by inspection:
 
 \paragraph{1. Fibonacci Timing.}
-The $\Delta_n$ column displays the Fibonacci sequence: $1, 1, 2, 3, 5, 8, 13, 21, \ldots, 610$. The $\tau$ column displays its cumulative sums: $\tau_n = F_{n+2} - 1$. This is not a numerical coincidence; we prove in Section~\ref{sec:scaling} that it is the unique cost schedule for foundations with a two-step coherence window.
+The $\Delta_n$ column is the Fibonacci sequence: $1, 1, 2, 3, 5, 8, 13, 21, \ldots, 610$.
+The $\tau$ column is its cumulative sum: $\tau_n = F_{n+2} - 1$.
+This is not a numerical coincidence; we prove in \cref{sec:scaling} that it is the unique cost schedule for foundations with a two-step coherence window.
 
 \paragraph{2. Selective Survival.}
-Of the 15 realized structures, every one clears the selection bar: $\rho_n \ge \text{Bar}_n$ in every row. The margins vary---some are comfortable ($\rho_{15} = 18.75$ against a Bar of $7.25$), others are tight. The closest call is at $n=4$, where Dependent Types ($\rho = 1.67$) clear the Bar ($1.50$) by only $0.17$. This narrow passage is structurally necessary: it is the moment when the system must invest in foundational infrastructure before the geometric payoff begins. Notably, not all candidates survive: Lie groups ($\kappa=6$, $\nu=9$, $\rho=1.5$) are \emph{absorbed} rather than realized, as their efficiency falls far below the Selection Bar ($\approx 4.46$) at the time they become reachable.
+Every realized structure clears the selection bar: $\rho_n \ge \mathrm{Bar}_n$.
+The tightest margin is at $n = 4$: dependent types ($\rho = 1.67$) clear the bar ($1.50$) by only $0.17$.
+This narrow passage is structurally necessary---the system must invest in foundational infrastructure before the geometric payoff begins.
+Not all candidates survive: Lie groups ($\kappa = 6$, $\nu = 9$, $\rho = 1.50$) are \emph{absorbed} rather than realized, as their efficiency falls far below the bar ($\approx 4.46$) at the time they become reachable.
 
 \paragraph{3. Four Phases.}
-The sequence exhibits four qualitative phases:
-\begin{itemize}
-    \item \textbf{Bootstrap} ($n = 1$--$3$): Minimal apparatus---a universe, a type, an inhabitant.
-    \item \textbf{Geometric Ascent} ($n = 5$--$9$): After dependent types unlock type formation, the system immediately pivots to geometry: the circle, spheres, and the Hopf fibration.
-    \item \textbf{Framework Abstraction} ($n = 10$--$14$): The system shifts from specific geometric objects to organizing principles---cohesion, connections, curvature, metrics, and the Hilbert functional.
-    \item \textbf{Synthesis} ($n = 15$): A qualitative leap. The Dynamical Cohesive Topos unifies geometric, logical, and temporal structure, clearing the Bar by a factor of $2.6$.
+\begin{itemize}[nosep]
+    \item \textbf{Bootstrap} ($n = 1$--$4$): A universe, a type, an inhabitant, dependent types.
+    \item \textbf{Geometric Ascent} ($n = 5$--$9$): The circle, spheres, the Hopf fibration.
+    \item \textbf{Framework Abstraction} ($n = 10$--$14$): Cohesion~\cite{lawvere,schreiber}, connections, curvature, metrics, Hilbert.
+    \item \textbf{Synthesis} ($n = 15$): The Dynamical Cohesive Topos clears the bar by a factor of $2.6$.
 \end{itemize}
 
 \subsection{The Claims}
@@ -219,738 +197,549 @@ The sequence exhibits four qualitative phases:
 The remainder of this paper establishes three results that, taken together, explain why the Genesis Sequence has the structure it does.
 
 \begin{enumerate}[label=\textbf{Claim \arabic*.}, leftmargin=*]
-    \item \textbf{Fibonacci costs are necessary} (Section~\ref{sec:scaling}, Theorem~\ref{thm:scaling}). For any foundation whose coherence obligations span exactly two layers of history, the integration latency satisfies $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$. With minimal initial conditions, $\Delta_n = F_n$.
+    \item \textbf{Fibonacci costs are necessary} (\cref{sec:scaling}, \cref{thm:scaling}).
+    For any foundation whose coherence obligations span exactly two layers, $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$.
+    With minimal initial conditions, $\Delta_n = F_n$.
 
-    \item \textbf{Extensional foundations stagnate} (Section~\ref{sec:scaling}, \S\ref{sec:stagnation}). Foundations whose obligations span only one layer have constant integration costs. The resulting evolution is linear, and efficiency growth decays to zero.
+    \item \textbf{Extensional foundations stagnate} (\cref{sec:scaling}, \S\ref{sec:stagnation}).
+    Foundations whose obligations span one layer have constant costs.
+    The resulting evolution is linear and efficiency growth decays to zero.
 
-    \item \textbf{Novelty scales exponentially with cost} (Section~\ref{sec:exponentiality}, Theorem~\ref{thm:exponentiality}). In constructive type theory, a structure with $\Delta$ constructors enables $2^\Delta$ distinguishable predicates at linear definitional cost. This super-exponential scaling ensures that efficiency permanently outpaces the selection bar, preventing collapse.
+    \item \textbf{Novelty scales exponentially with cost} (\cref{sec:exponentiality}, \cref{thm:exponentiality}).
+    In constructive type theory, a structure with $\Delta$ constructors enables $2^\Delta$ distinguishable predicates at linear definitional cost.
+    This ensures that efficiency permanently outpaces the selection bar.
 \end{enumerate}
 
-These three claims explain, respectively, the $\Delta_n$ column (Fibonacci), the contrast with extensional alternatives (stagnation), and the sustained growth of $\rho_n$ (exponential novelty). The formal definitions required to state and prove them precisely are developed in Section~\ref{sec:framework}.
+These three claims explain, respectively, the $\Delta_n$ column (Fibonacci), the contrast with extensional alternatives (stagnation), and the sustained growth of $\rho_n$ (exponential novelty).
 
 % ============================================
 % SECTION 3: FORMAL FRAMEWORK
 % ============================================
-\section{Formal Framework: The Structural Model}
+\section{Formal Framework}
+\label{sec:framework}
 
-We model mathematical evolution as a discrete time optimization process operating on a state $B$ (the ``Library''). At each step, the system generates candidate extensions, calculates their \emph{Efficiency} ($\rho$)---the ratio of enabled novelty to construction effort---and selects the optimal candidate. We introduce a \textbf{Dual-Cost Architecture} that separates the \emph{Latency} required to witness historical coherence from the \emph{Effort} required to specify new structure.
+We model mathematical evolution as a discrete-time optimization process operating on a state $\mathcal{B}$ (the ``Library'').
+At each step, the system generates candidate extensions, calculates their \emph{Efficiency} $\rho = \nu / \kappa$, and selects the optimal candidate.
+The framework separates the \emph{Latency} required to witness historical coherence from the \emph{Effort} required to specify new structure.
 
 \subsection{State and Candidates}
+
 \begin{definition}[State]
-A \emph{State} $B$ is a monotone context (a category of contexts) closed under derivability. An evolution step $B_n \leadsto B_{n+1}$ is an extension by a single \emph{Sealed Structure}.
+\label{def:state}
+A \emph{State} $\mathcal{B}$ is a monotone context (a category of contexts) closed under derivability.
+An evolution step $\mathcal{B}_n \leadsto \mathcal{B}_{n+1}$ is an extension by a single sealed structure.
 \end{definition}
 
-\begin{definition}[Candidate Structure]
-A \emph{Candidate} $X$ is a tuple $(X_{\text{core}}, \mathcal{G}_{\text{obl}})$, where:
-\begin{itemize}
-\item $X_{\text{core}}$ represents the definitive data (type formers, constructors).
-\item $\mathcal{G}_{\text{obl}}$ is the \emph{Obligation Graph}: the set of atomic coherence obligations required to seal $X$ against the history.
-\end{itemize}
+\begin{definition}[Candidate]
+\label{def:candidate}
+A \emph{Candidate} $X$ is a pair $(X_{\mathrm{core}}, \mathcal{G}_{\mathrm{obl}})$, where $X_{\mathrm{core}}$ is the definitive data (type formers, constructors) and $\mathcal{G}_{\mathrm{obl}}$ is the \emph{Obligation Graph}: the set of atomic coherence obligations required to seal $X$ against the history.
 \end{definition}
 
 \subsection{The Dual-Cost Model}
+
 We distinguish between the cost of \emph{waiting} (Time) and the cost of \emph{building} (Complexity).
 
 \begin{definition}[Integration Latency]
-The \emph{Integration Latency} $\Delta(X|B)$ is the cardinality of the Obligation Graph $\mathcal{G}_{\text{obl}}$. This represents the \textbf{Structural Debt} imposed by the history.
+\label{def:latency}
+The \emph{Integration Latency} $\Delta(X \mid \mathcal{B})$ is the cardinality of the Obligation Graph:
 \begin{equation}
-    \Delta(X|B) := |\mathcal{G}_{\text{obl}}|
+    \Delta(X \mid \mathcal{B}) := |\mathcal{G}_{\mathrm{obl}}|
 \end{equation}
-In the PEN framework, Latency is paid in \textbf{Time}. High latency implies the system must accumulate significant historical context before the structure becomes realizable.
+Latency is paid in \emph{time}: high latency means the system must accumulate significant historical context before the structure becomes realizable.
 \end{definition}
 
 \begin{definition}[Construction Effort]
-The \emph{Construction Effort} $\kappa_{\text{def}}(X)$ is the Kolmogorov complexity of the core definition $X_{\text{core}}$---the count of atomic legislative acts (constructors, axioms) required to specify the structure \emph{given} the interface.
+\label{def:effort}
+The \emph{Construction Effort} $\kappa(X)$ is the count of atomic generators (constructors, axioms) required to specify $X$ given the interface:
 \begin{equation}
-    \kappa_{\text{def}}(X) := |X_{\text{core}}|
+    \kappa(X) := |X_{\mathrm{core}}|
 \end{equation}
-In the PEN framework, Effort is the denominator of \textbf{Efficiency}. It measures the immediate resource cost of selecting the candidate.
+Effort is the denominator of efficiency.
 \end{definition}
 
-\subsection{The Disjoint Interface Basis}
+\subsection{The Disjoint Interface}
+
 The magnitude of the Integration Latency is determined by the foundation's Coherence Window.
 
-\begin{definition}[The Disjoint Interface]
-For a foundation with a Coherence Window of depth $d$, the \emph{Interface Basis} $I_n^{(d)}$ available for sealing the next candidate $X_{n+1}$ is the disjoint union of the schemas exported by the previous $d$ layers:
+\begin{definition}[Interface Basis]
+\label{def:interface}
+For a foundation with Coherence Window $d$, the \emph{Interface Basis} available for sealing candidate $X_{n+1}$ is the disjoint union of the schemas exported by the previous $d$ layers:
 \begin{equation}
     I^{(d)}_n := \biguplus_{j=0}^{d-1} S(L_{n-j})
 \end{equation}
 \end{definition}
 
-\begin{lemma}[The Latency Recurrence]
-Assuming the system saturates the interface to maximize connectivity, the Integration Latency follows the recurrence:
+\begin{lemma}[Latency Recurrence]
+\label{lem:recurrence}
+Assuming the system saturates the interface to maximize connectivity:
 \begin{equation}
     \Delta_{n+1} = |I^{(d)}_n| = \sum_{j=0}^{d-1} \Delta_{n-j}
 \end{equation}
-For Intensional systems ($d=2$), this dictates that Latency follows the Fibonacci sequence: $\Delta_n = F_n$.
+For $d = 2$: $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$, i.e., $\Delta_n = F_n$.
 \end{lemma}
 
-\subsection{Metrics: Novelty, Efficiency and Time}
-Effort captures cost; we need a dual notion of benefit. A structure is valuable not in itself but for what it enables. The natural numbers are useful because they unlock induction, primitive recursion, and arithmetic. Dependent types are powerful because they enable an entire universe of constructions.
+\subsection{Novelty and Efficiency}
 
-We formalize this through the \emph{frontier}---the set of structures that become accessible within a given effort bound.
+Effort captures cost; we need a dual notion of benefit.
+A structure is valuable not in itself but for what it enables.
+Dependent types are powerful not because they are large but because they unlock an entire universe of constructions.
+We formalize this through the \emph{frontier}---the set of structures accessible within a given effort bound.
 
 \begin{definition}[Canonical Frontier]
 \label{def:frontier}
 Given state $\mathcal{B}$ and effort horizon $H \in \N$, the \emph{frontier} is:
-\[
-\mathcal{S}(\mathcal{B}, H) := \{Y \text{ (sealed schema)} \mid K_{\mathcal{B}}(Y) \leq H\}
-\]
+\begin{equation}
+    \mathcal{S}(\mathcal{B}, H) := \{Y \text{ (sealed schema)} \mid K_{\mathcal{B}}(Y) \leq H\}
+\end{equation}
 \end{definition}
-
-The frontier represents the ``reachable mathematical universe'' from a given state within bounded effort. A candidate $X$ is valuable if it expands this frontier---making previously distant structures suddenly accessible.
 
 \begin{definition}[Novelty]
 \label{def:novelty}
-The \emph{novelty} of a sealed candidate $X$ relative to base $\mathcal{B}$ and horizon $H$ counts structures whose derivation becomes cheaper or newly possible:
-\[
-\nu(X \mid \mathcal{B}, H) := \left|\left\{Y \in \mathcal{S}(\mathcal{B}, H) \cup \mathcal{S}(\mathcal{B} \cup \{X\}, H) \,\middle|\, K_{\mathcal{B}}(Y) - K_{\mathcal{B} \cup \{X\}}(Y) \geq 1\right\}\right|
-\]
+The \emph{novelty} of sealed candidate $X$ relative to base $\mathcal{B}$ and horizon $H$:
+\begin{equation}
+    \nu(X \mid \mathcal{B}, H) := \left|\left\{Y \in \mathcal{S}(\mathcal{B}, H) \cup \mathcal{S}(\mathcal{B} \cup \{X\}, H) \,\middle|\, K_{\mathcal{B}}(Y) - K_{\mathcal{B} \cup \{X\}}(Y) \geq 1\right\}\right|
+\end{equation}
+Structures with $K_{\mathcal{B}}(Y) = \infty$ but $K_{\mathcal{B} \cup \{X\}}(Y) < \infty$ contribute---these are constructions that were impossible before $X$ but become reachable after.
 \end{definition}
 
-Note that if $K_{\mathcal{B}}(Y) = \infty$ but $K_{\mathcal{B} \cup \{X\}}(Y) < \infty$, then $Y$ contributes to the count---capturing structures that were impossible before $X$ but become reachable after.
-
-
 \begin{definition}[Efficiency]
-The agent selects candidates based on their \emph{Return on Construction Effort}.
+\label{def:efficiency}
 \begin{equation}
-    \rho(X) := \frac{\nu(X)}{\kappa_{\text{def}}(X)}
+    \rho(X) := \frac{\nu(X)}{\kappa(X)}
 \end{equation}
 \end{definition}
 
 \begin{definition}[Realization Time]
-\emph{Realization Time} ($\tau$) is the cumulative Integration Latency expended by the system. It represents the total ``computational cycles'' the system must expend to stabilize the history.
+\label{def:tau}
+The cumulative Integration Latency:
 \begin{equation}
-    \tau_n := \sum_{i=1}^{n} \Delta_i = F_{n+2} - 1
+    \tau_n := \sum_{i=1}^{n} \Delta_i = F_{n+2} - 1 \quad \text{(for $d = 2$)}
 \end{equation}
-\textbf{Note:} Time grows strictly faster than the Fibonacci sequence. This creates \emph{Time Dilation}, where later discoveries require exponentially more historical context.
 \end{definition}
 
-\subsection{Selection Dynamics: Structural Inflation}
-The system employs a dynamic selection threshold to ensure that realized structures justify the growing cost of the interface. The key insight is that the difficulty of the environment should be anchored to the growth rate of the \emph{Interface Debt} (the Fibonacci recurrence itself), not to the cumulative time.
+\subsection{Selection Dynamics}
 
 \begin{definition}[Structural Inflation]
-The \emph{Inflation Factor} $\Phi_n$ is defined as the ratio of the current latency to the previous latency:
+\label{def:inflation}
 \begin{equation}
-    \Phi_n := \frac{\Delta_n}{\Delta_{n-1}} \xrightarrow{n \to \infty} \varphi \approx 1.618
+    \Phi_n := \frac{\Delta_n}{\Delta_{n-1}} = \frac{F_n}{F_{n-1}} \xrightarrow{n \to \infty} \varphi \approx 1.618
 \end{equation}
-By the properties of the Fibonacci sequence, this converges to the Golden Ratio. Crucially, this ratio fluctuates locally in the early game: at $n=4$, $\Phi_4 = \Delta_4/\Delta_3 = 3/2 = 1.50$, whereas the instantaneous time dilation $\tau_4/\tau_3 = 5/3 \approx 1.67$. This moderation of the inflation factor during the infrastructure phase is essential for the survival of foundational structures.
 \end{definition}
+
+\begin{remark}[Why $\Phi_n \neq \tau_n / \tau_{n-1}$]
+\label{rem:phi-not-tau}
+At $n = 4$, $\tau_4/\tau_3 = 7/4 = 1.75$, which would raise the bar above $\rho_4 = 1.67$, killing the infrastructure phase.
+The correct definition $\Phi_4 = \Delta_4/\Delta_3 = 3/2 = 1.50$ allows dependent types to survive.
+Inflation should measure the \emph{marginal} growth of interface debt, not the cumulative burden.
+\end{remark}
 
 \begin{definition}[Cumulative Baseline]
-The historical benchmark is defined as the \emph{Cumulative Efficiency} of the entire library---the total novelty produced divided by the total effort expended:
+\label{def:omega}
 \begin{equation}
-    \Omega_{n-1} := \frac{\sum_{i=1}^{n-1} \nu_i}{\sum_{i=1}^{n-1} \kappa_{\text{def}, i}}
+    \Omega_{n-1} := \frac{\sum_{i=1}^{n-1} \nu_i}{\sum_{i=1}^{n-1} \kappa_i}
 \end{equation}
-This prevents outliers from distorting the average. Unlike a windowed or arithmetic mean of recent scores, the cumulative ratio is dominated by the bulk of the library, ensuring that a single high-efficiency realization does not instantly render the next step impossible.
+The cumulative ratio is dominated by the bulk of the library, preventing outliers from distorting the threshold.
 \end{definition}
 
-\subsection{The Selection Algorithm}
-The evolution proceeds via a ``Time-Gated'' optimization loop:
-
-\begin{enumerate}
-\item \textbf{Latency Gate}: At step $n$, the system must advance the clock $\tau$ by $\Delta_n$ to reach the realization horizon. A candidate $X$ is reachable only if the system has paid the Integration Latency $\Delta_n$.
-
-\item \textbf{The Bar}: The selection threshold is the Inflated Baseline:
-\begin{equation}
-    \text{Bar}_n := \Phi_n \cdot \Omega_{n-1}
-\end{equation}
-
-\item \textbf{Selection}: Among reachable candidates, the system selects $X$ that maximizes $\rho(X)$, provided $\rho(X) \ge \text{Bar}_n$.
-
-\item \textbf{Update}: The winner is added. $\tau$ increments by $\Delta_{n+1}$.
-\end{enumerate}
-
-\subsection{The Principle of Efficient Novelty}
-
-We now state the complete framework as five axioms governing the evolution of the system.
+\subsection{The Five Axioms}
 
 \begin{axiom}[Cumulative Growth]
 \label{ax:cumulative}
-For all $\tau$: $R(\tau - 1) \subseteq R(\tau)$. Mathematics only grows; we never remove previously realized structures.
+$R(\tau - 1) \subseteq R(\tau)$ for all $\tau$.
+Mathematics only grows; realized structures are never removed.
 \end{axiom}
 
 \begin{axiom}[Horizon Policy]
 \label{ax:horizon}
-A global effort horizon $H \in \N$ governs the search space:
-\begin{itemize}
-\item After any realization: $H \leftarrow 2$
-\item After an idle tick (no candidate selected): $H \leftarrow H + 1$
-\end{itemize}
+A global effort horizon $H \in \N$ governs the search space.
+After each realization: $H \leftarrow 2$.
+After each idle tick: $H \leftarrow H + 1$.
 \end{axiom}
 
-The horizon policy implements a ``fresh start'' after each success: the system searches for nearby efficient structures before exploring more distant constructions. This mirrors how mathematical research proceeds: after a breakthrough, we explore its immediate consequences before moving to harder problems.
+The horizon resets after each success, forcing the system to search locally before exploring more distant constructions.
 
 \begin{axiom}[Admissibility]
 \label{ax:admissibility}
-At time $\tau$, a sealed candidate $X$ over base $\mathcal{B} = R(\tau - 1)$ is \emph{admissible} if and only if:
-\begin{enumerate}
-\item $X$ is derivable from $\mathcal{B}$ (i.e., $K_{\mathcal{B}}(X) < \infty$)
-\item $\kappa(X \mid \mathcal{B}) \leq H$
+A sealed candidate $X$ over base $\mathcal{B} = R(\tau - 1)$ is \emph{admissible} iff:
+\begin{enumerate}[nosep]
+    \item $X$ is derivable from $\mathcal{B}$ (i.e., $K_{\mathcal{B}}(X) < \infty$), and
+    \item $\kappa(X) \leq H$.
 \end{enumerate}
 \end{axiom}
 
-\begin{axiom}[Selection Criterion]
+\begin{axiom}[Selection]
 \label{ax:selection}
-From admissible candidates at time $\tau$, select $X$ satisfying $\rho(X) \geq \mathrm{Bar}(\tau)$ with minimal positive overshoot:
-\[
-X \in \arg\min_{Y : \rho(Y) \geq \mathrm{Bar}(\tau)} (\rho(Y) - \mathrm{Bar}(\tau))
-\]
-Ties are broken by minimal $\kappa$; remaining ties realize in superposition. If no candidate clears the bar, the tick idles.
+The \emph{Selection Bar} is $\mathrm{Bar}_n := \Phi_n \cdot \Omega_{n-1}$.
+From admissible candidates, select $X$ with $\rho(X) \geq \mathrm{Bar}_n$ and minimal positive overshoot:
+\begin{equation}
+    X \in \arg\min_{Y\,:\, \rho(Y) \geq \mathrm{Bar}_n} \bigl(\rho(Y) - \mathrm{Bar}_n\bigr)
+\end{equation}
+Ties are broken by minimal $\kappa$; remaining ties realize in superposition.
+If no candidate clears the bar, the tick idles.
 \end{axiom}
 
-The minimal overshoot criterion ensures we select the candidate that ``just barely'' beats the bar---the most ``natural'' next step rather than an outlier that happens to have exceptional efficiency.
+The minimal-overshoot criterion selects the most ``natural'' next step rather than an efficiency outlier.
 
 \begin{axiom}[Coherent Integration]
 \label{ax:integration}
-When candidate $X_{n+1}$ is realized at time $\tau_{n+1}$, it must be integrated coherently with the existing state by establishing the necessary coherence witnesses with recently realized structures. This produces an integration layer $L_{n+1}$ that encodes the interaction between $X_{n+1}$ and relevant prior structures. The \emph{integration gap} is $\Delta_{n+1} := \kappa(L_{n+1})$.
+When candidate $X_{n+1}$ is realized, it is integrated coherently by establishing coherence witnesses with recently realized structures.
+This produces an integration layer $L_{n+1}$ with \emph{integration gap} $\Delta_{n+1} := \kappa(L_{n+1})$.
 \end{axiom}
 
-\begin{remark}[Abstraction of Integration Strategy]
-\label{rem:integration-abstraction}
-This axiom leaves open the precise specification of which prior structures constitute ``relevant context'' for integration. How many previous layers should be included? \cref{sec:CST} will establish that exactly two layers---the previous two integration layers $L_n$ and $L_{n-1}$---constitute the optimal integration strategy. \end{remark}
-
+\begin{remark}
+\label{rem:integration}
+\cref{ax:integration} leaves open how many prior layers constitute ``relevant context.''
+\cref{sec:scaling} establishes that exactly two layers---$L_n$ and $L_{n-1}$---constitute the optimal strategy for intensional foundations.
+\end{remark}
 
 % ============================================
 % SECTION 4: COHERENCE DIMENSIONS
 % ============================================
-\section{Coherence Dimensions and System Classification}
+\section{Coherence Dimensions}
+\label{sec:coherence}
 
-The formal framework of Section 2 defines the evolution of a library in terms of a generic ``Coherence Window'' $d$. We now apply this framework to classify concrete mathematical foundations. We define ``dimension'' not by the geometric intuitions of the user (e.g., ``points'' vs ``cubes''), but by the operational depth required to stabilize the system's Obligation Graph.
+We now apply the framework to classify concrete mathematical foundations.
+``Dimension'' here is not geometric intuition but the operational depth required to stabilize the Obligation Graph.
 
-\subsection{Induced Obligations and Stabilization}
-
-When a new candidate structure $X$ is considered for integration into a library $B$, it induces a set of coherence obligations. This set depends on how much history the system exposes to $X$.
+\subsection{Induced Obligations}
 
 \begin{definition}[Induced Obligations]
-Let $\mathcal{O}^{(k)}(X)$ denote the set of normalized atomic obligations induced when candidate $X$ is sealed against a history of depth $k$. That is, sealing against the interface $I^{(k)}_n = \biguplus_{j=0}^{k-1} S(L_{n-j})$.
-
-Because the interface is defined as a cumulative disjoint union (Definition 2.5), the set of obligations is monotonically non-decreasing in $k$:
+\label{def:obligations}
+Let $\mathcal{O}^{(k)}(X)$ denote the set of normalized atomic obligations induced when candidate $X$ is sealed against a history of depth $k$.
+Because the interface is a cumulative disjoint union (\cref{def:interface}):
 \begin{equation}
     \mathcal{O}^{(1)}(X) \subseteq \mathcal{O}^{(2)}(X) \subseteq \mathcal{O}^{(3)}(X) \subseteq \cdots
 \end{equation}
 \end{definition}
 
-\begin{definition}[The Coherence Window]
-A foundation has a \emph{Coherence Window} of $d$ if the set of induced obligations stabilizes at depth $d$. Formally, for all valid candidates $X$ and all depths $k \ge d$:
+\begin{definition}[Coherence Window]
+\label{def:window}
+A foundation has Coherence Window $d$ if the induced obligations stabilize at depth $d$:
+for all valid candidates $X$ and all $k \geq d$,
 \begin{equation}
     \mathcal{O}^{(k)}(X) \cong \mathcal{O}^{(d)}(X)
 \end{equation}
-This implies that referencing history beyond $d$ layers adds no new structural constraints; the interface is ``saturated'' at depth $d$.
 \end{definition}
 
-\subsection{Classification of Foundations}
+\subsection{Class 1: Extensional Systems ($d = 1$)}
 
-We classify mathematical foundations based on their minimal Coherence Window.
+\textbf{Examples:} ZFC, Martin-L\"of Type Theory with UIP.
 
-\subsubsection{Class 1: One-Dimensional (Extensional) Systems}
+In these systems, equality is a proposition.
+If $a = b$ and $b = c$, then $a = c$ is true by property; the proof is irrelevant (Uniqueness of Identity Proofs).
+Introducing a new structure requires checking immediate well-formedness, but there is no requirement to prove ``coherence of coherence.''
+An operation defined on layer $L_n$ interacts with $L_n$, but it does not generate distinct, irreducible obligations to $L_{n-1}$.
 
-\textbf{Examples:} Zermelo-Fraenkel Set Theory (ZFC), Martin-Löf Type Theory with UIP (MLTT).
+\textbf{Window:} $d = 1$.
+The interface $I^{(1)}_n = S(L_n)$; integration costs are bounded by the current object alone.
 
-In these systems, equality is a proposition. If $a=b$ and $b=c$, then $a=c$ is true by property, and the proof of that truth is irrelevant (Uniqueness of Identity Proofs).
+\subsection{Class 2: Intensional Systems ($d = 2$)}
 
-\textbf{Operational Behavior:} To introduce a new set or type, one must define its elements and verify its immediate well-formedness. However, there is no requirement to prove ``coherence of coherence.'' An operation defined on layer $L_n$ interacts with $L_n$, but it does not generate distinct, irreducible obligations to $L_{n-1}$ that cannot be derived from local properties.
+\textbf{Examples:} Homotopy Type Theory~\cite{hott}, Cubical Type Theory~\cite{cubical}, Simplicial Type Theory.
 
-\textbf{Window:} $d=1$.
+In these systems, equality is data (a path).
+A path $p : a = b$ is distinct from $q : a = b$; operations must respect this structure.
+Defining composition of paths (layer $n$) requires witnessing that the composition respects points and paths from layer $n - 1$.
+The Interchange Law and higher coherences generate irreducible obligations spanning two layers.
+By the Mac Lane Coherence Theorem (and its type-theoretic analogues), coherence at dimension~2 implies coherence at all higher dimensions.
+Stabilization occurs at $d = 2$.
 
-\textbf{Result:} The interface $I^{(1)}_n$ is simply $S(L_n)$. Integration costs are bounded by the complexity of the current object alone.
-
-\subsubsection{Class 2: Two-Dimensional (Intensional) Systems}
-
-\textbf{Examples:} Homotopy Type Theory (HoTT), Cubical Type Theory (CTT), Simplicial Type Theory (STT).
-
-In these systems, equality is data (a path). A path $p: a=b$ is distinct from $q: a=b$. Operations must respect this structure. Crucially, defining a composition of paths (Layer $n$) requires witnessing that this composition respects the underlying points and paths defined in the previous layer (Layer $n-1$).
-
-\textbf{Operational Behavior:} The ``Interchange Law'' and other higher coherences require relating operations (level $n$) to their arguments (level $n-1$). This generates irreducible obligations spanning two layers. However, due to the Mac Lane Coherence Theorem (and its type-theoretic analogues), coherence at dimension 2 (paths between paths) implies coherence at all higher dimensions. Stabilization occurs at $d=2$.
-
-\textbf{Window:} $d=2$.
-
-\textbf{Result:} The interface $I^{(2)}_n$ is the disjoint union $S(L_n) \uplus S(L_{n-1})$.
+\textbf{Window:} $d = 2$.
+The interface $I^{(2)}_n = S(L_n) \uplus S(L_{n-1})$.
 
 % ============================================
-% SECTION 5: COMPLEXITY SCALING THEOREM
+% SECTION 5: THE COMPLEXITY SCALING THEOREM
 % ============================================
-\section{The Complexity Scaling Theorem} \label{sec:CST}
+\section{The Complexity Scaling Theorem}
+\label{sec:scaling}
 
-We now prove the central result of this paper: that Fibonacci-timed evolution is a mathematical necessity for Class 2 foundations under the PEN framework.
+We prove that Fibonacci-timed evolution is a mathematical necessity for Class~2 foundations under PEN.
 
-\subsection{The Recurrence Derivation}
+\subsection{The Recurrence}
 
-\begin{theorem}[The Complexity Scaling Theorem]
-Consider a foundation with Coherence Dimension $d$, evolving under the Principle of Efficient Novelty with the Saturation Assumption (2.6). The integration cost $\Delta_n$ of the $n$-th realized structure satisfies the recurrence:
+\begin{theorem}[Complexity Scaling]
+\label{thm:scaling}
+For a foundation with Coherence Window $d$, evolving under PEN with the saturation assumption (\cref{lem:recurrence}), the integration cost satisfies:
 \begin{equation}
     \Delta_{n+1} = \sum_{j=0}^{d-1} \Delta_{n-j}
 \end{equation}
 \end{theorem}
 
 \begin{proof}
-\textbf{Step 1 (Window Constraint):} The interface available for sealing the next candidate $X_{n+1}$ is $I^{(d)}_n$.
+\textbf{Step 1 (Window Constraint).}
+The interface available for sealing $X_{n+1}$ is $I^{(d)}_n$.
 
-\textbf{Step 2 (Disjoint Assembly):} By Definition 2.5, this interface is the disjoint union of the schemas exported by the previous $d$ layers:
-\begin{equation}
-    I^{(d)}_n = \biguplus_{j=0}^{d-1} S(L_{n-j})
-\end{equation}
+\textbf{Step 2 (Disjoint Assembly).}
+By \cref{def:interface}: $I^{(d)}_n = \biguplus_{j=0}^{d-1} S(L_{n-j})$.
 
-\textbf{Step 3 (Conservation of Complexity):} By Lemma 2.7, the integration cost $\Delta_{n+1}$ is the cardinality of this interface. Since the union is disjoint, the cardinality is the sum of the parts:
+\textbf{Step 3 (Conservation of Complexity).}
+By \cref{lem:recurrence}, $\Delta_{n+1} = |I^{(d)}_n|$.
+Since the union is disjoint:
 \begin{equation}
     \Delta_{n+1} = \sum_{j=0}^{d-1} |S(L_{n-j})|
 \end{equation}
 
-\textbf{Step 4 (Recursive Substitution):} By Definition 2.4, the magnitude of the exported schemas $|S(L_k)|$ is exactly the integration cost $\Delta_k$ of that layer.
-\begin{equation}
-    \Delta_{n+1} = \sum_{j=0}^{d-1} \Delta_{n-j}
-\end{equation}
+\textbf{Step 4 (Recursive Substitution).}
+By definition, $|S(L_k)| = \Delta_k$: each integration layer exports exactly as many schemas as its integration cost.
 \end{proof}
 
-\begin{corollary}[The Class 2 Recurrence]
-For intensional systems ($d=2$), the recurrence becomes:
-\begin{equation}
-    \Delta_{n+1} = \Delta_n + \Delta_{n-1}
-\end{equation}
-Given the minimal bootstrap conditions ($\Delta_1=1$ for Universe, $\Delta_2=1$ for Unit), this uniquely defines the sequence as the Fibonacci numbers:
-\begin{equation}
-    \Delta_n = F_n
-\end{equation}
+\begin{corollary}
+\label{cor:fibonacci}
+For $d = 2$: $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$.
+With $\Delta_1 = \Delta_2 = 1$ (Universe and Unit), this gives $\Delta_n = F_n$.
 \end{corollary}
 
 \subsection{The Realization Time Formula}
 
-Previous empirical reports suggested $\tau_n = F_{n+1}$. We show here that this is an arithmetic impossibility given the definition of time as cumulative cost. We derive the correct formula.
-
 \begin{theorem}[The Golden Schedule]
-The realization time $\tau_n$ satisfies:
+\label{thm:schedule}
 \begin{equation}
-    \tau_n = F_{n+2} - 1
+    \tau_n = \sum_{i=1}^{n} F_i = F_{n+2} - 1
 \end{equation}
 \end{theorem}
 
 \begin{proof}
-By Definition 2.8, $\tau_n = \sum_{i=1}^n \Delta_i$.
-
-Substituting the result of Corollary 4.2 ($\Delta_i = F_i$):
-\begin{equation}
-    \tau_n = \sum_{i=1}^n F_i
-\end{equation}
-
-We invoke the standard combinatorial identity for the summation of Fibonacci numbers:
-\begin{equation}
-    \sum_{i=1}^n F_i = F_{n+2} - 1
-\end{equation}
+By \cref{def:tau}, $\tau_n = \sum_{i=1}^{n} \Delta_i = \sum_{i=1}^{n} F_i$.
+The identity $\sum_{i=1}^{n} F_i = F_{n+2} - 1$ is standard.
 \end{proof}
 
 \subsection{Dynamical Consequences}
 
-This structural theorem has profound dynamical implications for the evolution of the system. The consequences depend on the interplay between the Complexity Scaling Theorem (which determines $\Delta_n$) and the Selection Dynamics (which determine the Bar via Structural Inflation and the Cumulative Baseline).
+\subsubsection{Stagnation of Class 1 Systems}
+\label{sec:stagnation}
 
-\subsubsection{Case 1: The Stagnation of 1D Systems}
+For $d = 1$: $\Delta_{n+1} = \Delta_n$, so $\Delta_n = C$ (constant).
 
-For a Class 1 system ($d=1$), the recurrence is $\Delta_{n+1} = \Delta_n$.
+\textbf{Inflation:} $\Phi_n = 1$ for all $n$.
+The bar reduces to $\mathrm{Bar}_n = \Omega_{n-1}$.
 
-Assuming an initial nonzero cost $\Delta_1 = C$, the cost remains constant: $\Delta_n = C$.
+\textbf{Time:} $\tau_n = nC$ (linear).
 
-\textbf{Inflation:} The Structural Inflation factor (Definition 2.10) is $\Phi_n = \Delta_n / \Delta_{n-1} = 1$ for all $n$. The Bar reduces to $\text{Bar}_n = 1 \cdot \Omega_{n-1} = \Omega_{n-1}$.
+\textbf{Efficiency Collapse.}
+With constant integration costs, the Cumulative Baseline $\Omega_{n-1}$ converges to a finite limit as the library grows.
+New candidates must clear a fixed efficiency threshold with diminishing returns on novelty.
+The system does not halt, but its rate of producing genuinely novel structure decays to zero.
+This is the \textbf{Stagnation Theorem}: Class~1 foundations are dynamically trapped in linear time.
 
-\textbf{Time:} Realization time grows linearly: $\tau_n = n \cdot C$.
+\subsubsection{Acceleration of Class 2 Systems}
 
-\textbf{Efficiency Collapse:} With constant integration costs, the Cumulative Baseline $\Omega_{n-1}$ converges to a finite limit as the library grows. However, the search space for new novelty expands while the ``leverage'' gained from integration does not scale. New candidates must clear a fixed efficiency threshold with diminishing returns on novelty. This leads to the asymptotic stagnation observed in simulations of extensional systems: the system does not halt, but its rate of producing genuinely novel structure decays to zero.
+For $d = 2$: $\Delta_n = F_n \sim \varphi^n$.
 
-\subsubsection{Case 2: The Acceleration of 2D Systems}
+\textbf{Inflation:} $\Phi_n = F_n / F_{n-1} \to \varphi$.
+The convergence is \emph{from below} in the early game: $\Phi_3 = 2.00$, $\Phi_4 = 1.50$, $\Phi_5 = 1.67$, $\Phi_6 = 1.60$.
+At $n = 4$, the dip to $1.50$ provides breathing room for the infrastructure step ($\rho_4 = 1.67$).
 
-For a Class 2 system ($d=2$), the cost $\Delta_n = F_n$ grows exponentially ($\sim \varphi^n$).
+\textbf{Time:} $\tau_n = F_{n+2} - 1 \sim \varphi^{n+2}/\sqrt{5}$ (exponential).
 
-\textbf{Inflation:} The Structural Inflation factor converges to the Golden Ratio:
-\begin{equation}
-    \Phi_n = \frac{\Delta_n}{\Delta_{n-1}} = \frac{F_n}{F_{n-1}} \xrightarrow{n \to \infty} \varphi \approx 1.618
-\end{equation}
-Crucially, this convergence is \emph{from below} in the early game. The local fluctuation---$\Phi_3 = 2.00$, $\Phi_4 = 1.50$, $\Phi_5 = 1.67$, $\Phi_6 = 1.60$---provides a ``breathing window'' during the infrastructure phase. At $n=4$ (Dependent Types), the inflation dips to $1.50$, precisely when the system must invest in foundational apparatus with moderate efficiency. This is not a coincidence: the Fibonacci sequence's characteristic oscillation around $\varphi$ is structurally coupled to the infrastructure demands of the evolving library.
+\textbf{The Bar.}
+$\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ grows steadily as $\Phi_n$ stabilizes near $\varphi$ and $\Omega_{n-1}$ increases with each realization.
+Because $\Omega$ is a cumulative ratio, it is resistant to distortion by individual outliers.
 
-\textbf{Time:} Realization time grows exponentially: $\tau_n = F_{n+2} - 1 \sim \varphi^{n+2}/\sqrt{5}$.
+\textbf{Unbounded Evolution.}
+With $\Delta_n$ growing exponentially, the Combinatorial Novelty (\cref{thm:exponentiality}) grows super-exponentially ($\sim 2^{F_n}$).
+Efficiency $\rho_n \sim 2^{F_n}/F_n$ outpaces the bar.
+The system enters a state of accelerating complexity.
 
-\textbf{The Bar:} The selection threshold $\text{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ grows steadily as both the inflation factor stabilizes near $\varphi$ and the cumulative baseline $\Omega_{n-1}$ increases with each successful realization. Because $\Omega$ is defined as the cumulative ratio of total novelty to total effort (Definition 2.11), it rises smoothly and is resistant to distortion by individual outliers.
-
-\textbf{Unbounded Evolution:} With $\Delta_n$ growing exponentially, the Combinatorial Novelty (Theorem 5.3) grows super-exponentially ($\sim 2^{F_n}$). Thus, Efficiency ($\rho_n \sim 2^{F_n}/F_n$) outpaces the Selection Bar ($\text{Bar}_n \sim \varphi \cdot \Omega$). The system enters a state of accelerating complexity, continuously producing structures of increasing richness to satisfy the rising efficiency requirements.
-
-\textbf{The Infrastructure Correspondence:} The dynamical viability of the Genesis Sequence rests on a precise correspondence between two manifestations of the Fibonacci sequence:
-\begin{enumerate}
-    \item The \emph{structural} manifestation: the oscillation of $\Phi_n = F_n/F_{n-1}$ around $\varphi$, which modulates the difficulty of the selection threshold.
-    \item The \emph{evolutionary} manifestation: the alternation between ``infrastructure'' realizations (low $\rho$, high enabling power) and ``geometric'' realizations (high $\rho$, exploiting previously laid infrastructure).
+\paragraph{The Infrastructure Correspondence.}
+The viability of the Genesis Sequence rests on a precise correspondence between two manifestations of the Fibonacci sequence:
+\begin{enumerate}[nosep]
+    \item The \emph{structural} oscillation of $\Phi_n = F_n/F_{n-1}$ around $\varphi$, modulating the bar.
+    \item The \emph{evolutionary} alternation between infrastructure realizations (low $\rho$, high enabling power) and geometric ones (high $\rho$, exploiting infrastructure).
 \end{enumerate}
-The fact that the same recurrence governs both phenomena is the central structural insight of the PEN framework.
-
-This derivation resolves the paradox of why intensional foundations appear ``more fertile'' than extensional ones. It is not a philosophical preference; it is a structural necessity for sustaining exponential growth in an efficiency-optimized system.
+The same recurrence governs both.
+This resolves the paradox of why intensional foundations appear ``more fertile'' than extensional ones: it is a structural necessity for sustaining exponential growth.
 
 % ============================================
 % SECTION 6: INDUCTIVE EXPONENTIALITY
 % ============================================
 \section{The Inductive Exponentiality Theorem}
+\label{sec:exponentiality}
 
-The Structural Model (Section 4) established that in Class 2 foundations, the integration cost of new structures grows exponentially: $\Delta_n \sim \varphi^n$. This creates a potential dynamical crisis.
-
-The Selection Bar rises with the system's history: $\text{Bar}_n \propto \Phi \cdot \Omega_{n-1}$. If the Novelty ($\nu$) of a structure scaled only linearly with its complexity (e.g., $\nu \propto \Delta$), the Efficiency $\rho = \nu / \kappa$ would converge to a constant, while the Bar would rise indefinitely. The system would inevitably encounter an \emph{Efficiency Collapse}, halting evolution.
-
-To explain the sustained acceleration observed in 2D systems, we must prove that Novelty scales super-linearly with cost. We now prove that in Constructive Type Theory, the relationship is combinatorial (exponential), derived from the universal property of inductive types.
+The Complexity Scaling Theorem established that integration costs grow as $\Delta_n \sim \varphi^n$.
+If novelty scaled only linearly with cost ($\nu \propto \Delta$), efficiency would converge to a constant while the bar rises, causing collapse.
+We prove that in constructive type theory, novelty scales \emph{exponentially}.
 
 \subsection{The Interface as a Signature}
 
-To quantify Novelty, we must rigorously define the ``enabling power'' of a realized interface.
-
-\begin{definition}[The Interface-Constructor Correspondence]
-Let $X$ be a realized structure saturating an interface of size $\Delta$. In an intensional type theory, this interface constitutes the \emph{Signature} of $X$ as an Inductive (or Higher Inductive) Type.
-\begin{itemize}
-    \item Each schema in the interface corresponds to a \emph{Constructor} (generator) of $X$.
-    \item $\Delta$ is the total count of orthogonal generators (points, paths, surfaces) required to define $X$ relative to the history.
-\end{itemize}
+\begin{definition}[Interface-Constructor Correspondence]
+\label{def:signature}
+Let $X$ be a structure saturating an interface of size $\Delta$.
+In intensional type theory, this interface constitutes the \emph{signature} of $X$ as an inductive type:
+each schema corresponds to a constructor (point, path, surface), and $\Delta$ counts the orthogonal generators.
 \end{definition}
 
-\begin{definition}[Expressive Volume]
-We define the Novelty $\nu(X)$ as the \emph{Expressive Volume} of $X$: the cardinality of the space of distinguishable predicates definable on $X$ within a small constant overhead.
-\begin{equation}
-    \nu(X) \ge |(X \to \mathbf{2})|
-\end{equation}
-where $\mathbf{2}$ is the type of Booleans (or any type with $|T| \ge 2$).
-\end{definition}
+\subsection{Combinatorial Scaling}
 
-\subsection{Deriving Combinatorial Scaling}
-
-We now prove that linear integration costs yield exponential expressive power.
-
-\begin{theorem}[The Inductive Exponentiality Theorem]
-Let $X$ be a structure realizing an interface of size $\Delta$. Let the library contain a testing type $\mathbf{2}$ (Boolean). The number of distinct functions $f: X \to \mathbf{2}$ definable with linear effort $\kappa \approx O(\Delta)$ is $2^\Delta$.
+\begin{theorem}[Inductive Exponentiality]
+\label{thm:exponentiality}
+Let $X$ be a structure with $\Delta$ constructors.
+Let the library contain a testing type $\mathbf{2}$ (Boolean).
+The number of distinct functions $f : X \to \mathbf{2}$ definable with $O(\Delta)$ effort is $2^\Delta$.
 \end{theorem}
 
 \begin{proof}
-\textbf{Step 1 (Elimination Principle):} The realization of $X$ grants the system access to the Eliminator (pattern matching). To define a function $f: X \to \mathbf{2}$, the system must provide a computation rule for each of the $\Delta$ constructors.
+\textbf{Step 1 (Elimination).}
+Realizing $X$ grants access to the eliminator (pattern matching).
+A function $f : X \to \mathbf{2}$ requires a computation rule for each of the $\Delta$ constructors.
 
-\textbf{Step 2 (Syntax):} A definition takes the form:
+\textbf{Step 2 (Syntax).}
 \begin{equation}
-    f(x) := \mathbf{case}\ x\ \mathbf{of}\ \{ c_1 \mapsto b_1; \dots ; c_\Delta \mapsto b_\Delta \}
+    f(x) := \mathbf{case}\ x\ \mathbf{of}\ \{c_1 \mapsto b_1;\; \ldots;\; c_\Delta \mapsto b_\Delta\}
 \end{equation}
 
-\textbf{Step 3 (Cost Analysis):}
-\begin{itemize}
-    \item The case operator costs 1 unit.
-    \item Each branch $b_i$ is a reference to a boolean value (cost 1).
-    \item Total Definitional Effort: $\kappa_{\text{def}} \approx 1 + \Delta$.
-\end{itemize}
+\textbf{Step 3 (Cost).}
+The case operator costs 1 unit; each branch $b_i$ is a boolean reference costing 1.
+Total: $\kappa \approx 1 + \Delta$.
 
-\textbf{Step 4 (Combinatorial Space):} For each of the $\Delta$ branches, we may independently choose $b_i \in \{\text{true}, \text{false}\}$.
-
-\textbf{Step 5 (Counting):} There are $2^\Delta$ distinct tuples of choices. Since constructors are orthogonal generators (by the Disjoint Interface property), each tuple defines a semantically distinct function.
-
-\textbf{Conclusion:} The realization of $X$ places $2^\Delta$ new, distinct terms into the frontier at a cost of only $\approx \Delta$.
+\textbf{Step 4 (Counting).}
+Each of $\Delta$ branches independently chooses $b_i \in \{\mathrm{true}, \mathrm{false}\}$.
+Orthogonality of constructors (disjoint interface) ensures each choice is semantically distinct.
+There are $2^\Delta$ such functions.
 \end{proof}
 
 \begin{remark}
-This theorem explains the evolutionary dominance of Higher Inductive Types (HITs). A HIT like the Torus ($T^2$) has a small interface ($\Delta=4$: Point, Loop1, Loop2, Surface). Yet, its eliminator compresses the combinatorial complexity of all possible torus-mappings into a simple 4-branch pattern match.
+This explains why Higher Inductive Types dominate.
+The torus $T^2$ has a small interface ($\Delta = 4$: point, two loops, surface), yet its eliminator compresses $2^4 = 16$ distinct predicates into a 4-branch match.
 \end{remark}
 
 \subsection{Asymptotic Escape Velocity}
 
-We can now resolve the stability of the system.
-
-\begin{theorem}[The Divergence of Efficiency]
-In a Class 2 foundation ($d=2$), the realized Efficiency $\rho_n$ grows asymptotically without bound.
+\begin{theorem}[Divergence of Efficiency]
+\label{thm:divergence}
+In a Class~2 foundation, $\lim_{n \to \infty} \rho_n = \infty$.
 \end{theorem}
 
 \begin{proof}
-\textbf{Cost:} From the Complexity Scaling Theorem (4.1), $\kappa_n \approx \Delta_n \sim \varphi^n$.
+\textbf{Cost:} $\kappa_n \approx \Delta_n \sim \varphi^n$.
 
-\textbf{Novelty:} From Theorem 5.3, $\nu_n \sim 2^{\Delta_n} \sim 2^{\varphi^n}$.
+\textbf{Novelty:} $\nu_n \sim 2^{\Delta_n} \sim 2^{\varphi^n}$.
 
 \textbf{Efficiency:}
 \begin{equation}
-    \rho_n = \frac{\nu_n}{\kappa_n} \sim \frac{2^{\varphi^n}}{\varphi^n}
+    \rho_n = \frac{\nu_n}{\kappa_n} \sim \frac{2^{\varphi^n}}{\varphi^n} \to \infty
 \end{equation}
-
-Applying standard limits, the super-exponential numerator dominates the exponential denominator:
-\begin{equation}
-    \lim_{n \to \infty} \rho_n = \infty
-\end{equation}
-
-\textbf{The Bar:} The Selection Bar grows as the integral of past efficiency ($\approx \Phi \cdot \Omega$). Since the instantaneous efficiency $\rho_n$ is strictly increasing and convex, it remains permanently above the historical average.
+The super-exponential numerator dominates.
+The bar, growing as $\Phi \cdot \Omega$, is at most polynomial in the cumulative efficiency, hence permanently outpaced.
 \end{proof}
 
 % ============================================
 % SECTION 7: COMPUTATIONAL VERIFICATION
 % ============================================
 \section{Computational Verification}
+\label{sec:verification}
 
-To validate the theoretical predictions of the Complexity Scaling Theorem (Fibonacci Costs) and the arithmetic correction to Realization Time, we implemented the structural model (PEN-Structure) in Cubical Agda.
+We verify the theoretical predictions with two independent implementations.
+The companion paper~\cite{pen-genesis} presents the full computational reconstruction with detailed methodology; here we summarize the key results.
 
-\textbf{Methodology:} The simulation does not measure ``lines of code.'' It generates the Obligation Graph for standard homotopy type theory structures and selects the candidate that maximizes $\rho = 2^\Delta / (\kappa_{\text{def}} + \Delta)$.
+\subsection{The Haskell Engine}
 
-\subsection{The Genesis Sequence}
+A $\sim$3{,}000-line Haskell engine%
+\footnote{Source code: \texttt{engine/}, 17 modules.
+Build: \texttt{cd engine \&\& cabal build}.
+Run: \texttt{cabal run pen-engine}.}
+implements the five PEN axioms as a synthesis loop.
+Starting from an empty library, it generates candidates from nine structural categories---Foundations, Formers, HITs, Suspensions, Maps, Algebras, Modals, Axioms, and Synthesis types---each gated by prerequisites (e.g., suspensions require loopy types in the library; the Hopf fibration requires $S^1$, $S^2$, $S^3$).
 
-The mechanized output matches the theoretical prediction $\Delta_n = F_n$ and $\tau_n = F_{n+2}-1$ with zero deviation. The selection dynamics ($\Phi_n$, $\Omega_{n-1}$, Bar) are computed from the corrected definitions: Structural Inflation (Definition 2.10) and Cumulative Baseline (Definition 2.11).
+Novelty for HITs and suspensions is computed by \emph{proof-rank clustering}, a domain-independent algorithm:
+enumerate newly inhabited types at expression depth~$\leq 1$, abstract each type to a schema (replacing specific names with generic variables), filter trivial schemas, and count the remaining independent clusters.
+For maps, modals, axioms, and synthesis candidates, $\nu$ is computed by component-based structural formulas.
+The synthesis candidate (DCT) uses the Lattice Tensor Product: $\nu = 14 \times 11 - 4 = 150$, gated on Cohesion being present in the library.
+See~\cite{pen-genesis} for the full algorithm and architecture.
 
-\begin{table}[H]
-\centering
-\caption{The Genesis Sequence: Mechanized Output}
-\label{tab:genesis-sequence}
-\small
-\begin{tabular}{|c|r|l|r|r|r|r|r|r|r|}
-\hline
-$n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\
-\hline
-1  & 1    & Universe $\mathcal{U}_0$        & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
-2  & 2    & Unit type $\mathbf{1}$          & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
-3  & 4    & Witness $\star : \mathbf{1}$    & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
-4  & 7    & $\Pi$/$\Sigma$ types            & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
-5  & 12   & Circle $S^1$                    & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
-6  & 20   & Prop.\ truncation               & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
-7  & 33   & Sphere $S^2$                    & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
-8  & 54   & $S^3 \cong \mathrm{SU}(2)$     & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
-9  & 88   & Hopf fibration                  & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
-10 & 143  & Cohesion                        & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
-11 & 232  & Connections                     & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
-12 & 376  & Curvature tensors               & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
-13 & 609  & Metric + frame bundle           & 233 & 43  & 7 & 6.14  & 1.62 & 3.70 & 5.99 \\
-14 & 986  & Hilbert functional              & 377 & 60  & 9 & 6.67  & 1.62 & 4.06 & 6.58 \\
-15 & 1596 & Dyn.\ Cohesive Topos            & 610 & 150 & 8 & 18.75 & 1.62 & 4.48 & 7.25 \\
-\hline
-\end{tabular}
-\end{table}
+\paragraph{Results.}
+The engine discovers all 15 Genesis structures in the correct order.
+Values of $\nu$ match the table exactly for 12 of 15 structures and lie within $\pm 15\%$ for the remaining three ($S^3$, Connections, Hilbert).
+These variations arise from the depth-1 enumeration window, which does not fully capture deep homotopy-theoretic structure (e.g., $\pi_3(S^3) \cong \Z$).
+In all cases the structure clears its bar, and the ordering is preserved.
 
-\paragraph{Reading the Table.}
-Each realization is characterized by:
-\begin{itemize}
-    \item $\boldsymbol{n}$: Realization index
-    \item $\boldsymbol{\tau}$: Realization time ($= F_{n+2}-1$, the cumulative integration latency)
-    \item \textbf{Structure}: Informal name of the realized concept
-    \item $\boldsymbol{\Delta_n}$: Integration Latency ($= F_n$, the Fibonacci cost of sealing against history)
-    \item $\boldsymbol{\nu}$: Novelty (combinatorial enabling power)
-    \item $\boldsymbol{\kappa}$: Effort (definitional complexity)
-    \item $\boldsymbol{\rho}$: Efficiency ($= \nu/\kappa$, must clear the Bar)
-    \item $\boldsymbol{\Phi_n}$: Structural Inflation ($= \Delta_n/\Delta_{n-1}$, converges to $\varphi$)
-    \item $\boldsymbol{\Omega_{n-1}}$: Cumulative Baseline (total $\nu$ / total $\kappa$ through step $n{-}1$)
-    \item \textbf{Bar}: Selection threshold ($= \Phi_n \cdot \Omega_{n-1}$)
+The engine's bar values differ slightly from the table because $S^3$ is discovered as a suspension ($\kappa = 3$) rather than as an SU(2)-equipped type ($\kappa = 5$).
+Both interpretations produce the same sequence; the question of whether $\kappa$ measures the bare type definition or the equipped type remains open.
+
+Four independent cross-validation modes (paper replay, capability computation, capability replay, genuine synthesis) all produce consistent results; see~\cite{pen-genesis} for details.
+
+\subsection{Cubical Agda Mechanization}
+
+The Complexity Scaling Theorem (\cref{thm:scaling}) is proved in Cubical Agda~\cite{cubical-agda}%
+\footnote{Source code: \texttt{agda/}.}:
+for $d = 2$ and the saturation assumption, $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$.
+The proof is machine-checked and covers:
+\begin{itemize}[nosep]
+    \item Initial conditions: $\Delta_1 = \Delta_2 = 1$.
+    \item The Fibonacci recurrence: $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$.
+    \item The cumulative sum identity: $\tau_n = F_{n+2} - 1$.
+    \item Convergence: $\Phi_n \to \varphi$.
 \end{itemize}
 
-The Fibonacci structure is visible in two columns simultaneously: $\Delta_n$ displays the sequence $1, 1, 2, 3, 5, \ldots, 610$ directly, while $\tau$ displays its cumulative sums $1, 2, 4, 7, 12, \ldots, 1596$. Efficiency grows from $\rho_1 = 0.50$ to $\rho_{15} = 18.75$---nearly a 40-fold increase, with Realization 15 representing an exceptional outlier that clears the Bar by a factor of $2.6$.
-
-\paragraph{The Infrastructure Correspondence.}
-The most striking feature of the table is the interplay between $\Phi_n$ and $\rho_n$ at the critical infrastructure step $n=4$. The Structural Inflation \emph{dips} to $\Phi_4 = 1.50$ (below the asymptotic $\varphi \approx 1.618$) at precisely the moment when Dependent Types must be installed with a moderate efficiency of $\rho_4 = 1.67$. The margin is narrow ($1.67 > 1.50$) but sufficient. Had we defined inflation via instantaneous time dilation ($\tau_4/\tau_3 = 7/4 = 1.75$), the Bar would have risen to $1.75$, and the infrastructure step would have failed. The Fibonacci sequence's characteristic sub-$\varphi$ oscillation at small $n$ is thus \emph{structurally necessary} for the bootstrap phase.
+A $\kappa$-oracle using Agda's reflection API (counting constructors of type definitions) is partially implemented.
+The $\nu$-measure and selection loop are not yet mechanized.
+The Haskell engine serves as the fast explorer; Agda serves as the trusted checker for the foundational theorems.
 
 % ============================================
 % SECTION 8: CONCLUSION
 % ============================================
 \section{Conclusion}
+\label{sec:conclusion}
 
-This paper replaces the empirical mysteries of mathematical evolution with structural certainties. We have shown that the choice of mathematical foundation is a choice of \emph{Coherence Window}.
+We have shown that the choice of mathematical foundation is a choice of Coherence Window.
 
-\begin{itemize}
-    \item \textbf{Class 1 (Extensional):} Window=1. Integration costs are constant ($O(1)$). Novelty is constant ($2^{O(1)}$). The system stagnates linearly.
-    
-    \item \textbf{Class 2 (Intensional):} Window=2. Integration costs are recursive ($\Delta_{n+1} = \Delta_n + \Delta_{n-1}$), following the Fibonacci sequence. This exponential cost is the engine that drives Combinatorial Novelty ($2^{\Delta}$), propelling the system into unbounded acceleration.
+\begin{itemize}[nosep]
+    \item \textbf{Class 1 (Extensional), $d = 1$:}
+    Constant integration costs.
+    Bounded novelty ($2^{O(1)}$).
+    Linear time, asymptotic stagnation.
+
+    \item \textbf{Class 2 (Intensional), $d = 2$:}
+    Fibonacci integration costs ($\Delta_{n+1} = \Delta_n + \Delta_{n-1}$).
+    Super-exponential novelty ($2^{F_n}$).
+    Exponential time, unbounded acceleration.
 \end{itemize}
 
-The ``Golden Ratio'' of mathematical evolution is not a mystical constant; it is the dominant eigenvalue of a memory system that looks back exactly two steps. Intensional Type Theory is not just a logical alternative; it is an evolutionary machine tuned for the efficient generation of infinite complexity.
+The Golden Ratio of mathematical evolution is the dominant eigenvalue of a memory system that looks back exactly two steps.
+Intensional type theory is not merely a logical alternative to extensional foundations; it is the unique substrate that sustains exponentially growing structural complexity.
+
+The companion paper~\cite{pen-genesis} exhibits the full Genesis Sequence produced by these axioms---15 structures from dependent types to the Dynamical Cohesive Topos~\cite{nakano,schreiber}---and verifies it with a Haskell engine that discovers all 15 structures from unconstrained search.
+The complete engine source code ($\sim$3{,}000 lines of Haskell) and Cubical Agda proofs are available as supplementary material.
 
 % ============================================
-% SECTION 8: MECHANIZATION IN CUBICAL AGDA
+% REFERENCES
 % ============================================
-\section{Mechanization in Cubical Agda (Overview)}
+\begin{thebibliography}{9}
 
-\subsection{The Core Architecture}
+\bibitem{pen-genesis}
+H.~Lande.
+The Genesis Sequence: A Computational Reconstruction of the Mathematical Hierarchy.
+2026.
 
-The implementation is a \emph{Generative Meta-System} composed of four layers:
+\bibitem{hott}
+Univalent Foundations Program.
+\textit{Homotopy Type Theory: Univalent Foundations of Mathematics}.
+Institute for Advanced Study, 2013.
 
-\begin{enumerate}
-    \item \textbf{The Genome (DSL):} A strictly typed data structure representing ``Valid Mathematical Moves'' (e.g., ``Add Path'', ``Bundle Records'').
-    \item \textbf{The Mutator (Heuristics):} The ``AI'' that proposes candidates based on the current library history.
-    \item \textbf{The Oracle (Reflection):} The engine that compiles Genes into Cubical Agda Terms, type-checks them, and measures their efficiency ($\rho$).
-    \item \textbf{The Driver (Evolution):} The loop that permanently commits winners to the library.
-\end{enumerate}
+\bibitem{cubical}
+C.~Cohen, T.~Coquand, S.~Huber, A.~M\"ortberg.
+Cubical Type Theory: a constructive interpretation of the univalence axiom.
+\textit{TYPES 2015}, 2015.
 
-\subsection{Directory Structure}
+\bibitem{schreiber}
+U.~Schreiber.
+Differential Cohomology in a Cohesive Infinity-Topos.
+arXiv:1310.7930, 2013.
 
-\begin{lstlisting}[language={},caption={Project Structure}]
-src/
-  PEN/
-    Genesis/                 -- The Evolutionary Core
-      Genome.agda            -- The DSL of math structures
-      Mutator.agda           -- Heuristics (The "Idea Generator")
-      Transpiler.agda        -- Gene -> Agda Term (AST generation)
+\bibitem{lawvere}
+F.~W.~Lawvere.
+Axiomatic Cohesion.
+\textit{Theory and Applications of Categories}, 19(3), 2007.
 
-    Oracle/                  -- The Meta-Physics
-      TypeChecker.agda       -- Wraps Agda's TC Monad
-      Metrics.agda           -- Analyzes ASTs to compute kappa and Delta
+\bibitem{nakano}
+H.~Nakano.
+A Modality for Recursion.
+\textit{Proceedings of LICS}, 2000.
 
-    Library/                 -- The "Tape"
-      History.agda           -- Utilities to inspect previous definitions
+\bibitem{cubical-agda}
+A.~Vezzosi, A.~M\"ortberg, A.~Abel.
+Cubical Agda: A Dependently Typed Programming Language with Univalence and Higher Inductive Types.
+\textit{ICFP}, 2019.
 
-    Main.agda                -- The Execution Trace
-\end{lstlisting}
-
-\subsection{The Genome (PEN/Genesis/Genome.agda)}
-
-The Genome constrains the search space to ``things that look like math.''
-
-\begin{lstlisting}[caption={Genome.agda}]
-module PEN.Genesis.Genome where
-
-open import Agda.Builtin.String
-
-data ModalitySpec : Type where
-  Endofunctor : ModalitySpec  -- F : Type -> Type
-
-data Gene : Type where
-  -- 1. Combinatorial Genes (Standard Logic)
-  -- Creates simple records or inductive types
-  GBundle : (name : String) -> (sources : List Name) -> Gene
-  
-  -- 2. Geometric Genes (Cubical Power)
-  -- Defines a HIT by Points and Paths
-  -- This allows the system to "invent" S1, S2, Interval
-  GHIT    : (name : String) 
-          -> (points : List String) 
-          -> (paths : List PathSpec) 
-          -> Gene
-
-  -- 3. Synthesis Genes (The "Framework" Logic)
-  -- This is the key to finding R15 (DCT).
-  -- "Take two modalities A and B, and assert a compatibility law."
-  GSynthesis : (name : String) 
-             -> (mods : List ModalitySpec) 
-             -> (heuristic : SynthesisHeuristic) 
-             -> Gene
-
-data SynthesisHeuristic : Type where
-  Commute    : SynthesisHeuristic -- A (B X) = B (A X)
-  Distribute : SynthesisHeuristic -- A (B X) -> B (A X)
-  Adjoint    : SynthesisHeuristic -- (A X -> Y) = (X -> B Y)
-\end{lstlisting}
-
-\subsection{The Mutator (PEN/Genesis/Mutator.agda)}
-
-Random mutation fails. Mathematical Heuristics are encoded as search strategies.
-
-\begin{lstlisting}[caption={Mutator.agda}]
-module PEN.Genesis.Mutator where
-
--- "The Lazy Mathematician" Logic
-suggest-candidates : List Name -> List Gene
-suggest-candidates history = 
-  let
-    -- Strategy A: Dimensional Ascent
-    -- If we have a type T (e.g., Unit), try adding a Path to it.
-    -- This discovers S1, S2, etc.
-    geo_candidates = [ GHIT (name++"Next") ["base"] [Loop "base" "base"] 
-                     | name <- history ]
-
-    -- Strategy B: Framework Synthesis
-    -- Look for "heavy" structures (high Delta) and try to bridge them.
-    -- This discovers DCT by bridging Cohesion and Time.
-    synthesis_candidates = 
-       [ GSynthesis "NewFramework" [m1, m2] Commute 
-       | m1 <- find-modalities history
-       , m2 <- find-modalities history 
-       ]
-  in
-    geo_candidates ++ synthesis_candidates
-\end{lstlisting}
-
-\subsection{The Oracle (PEN/Oracle/TypeChecker.agda)}
-
-This module connects our DSL to the Agda Compiler via \texttt{Agda.Builtin.Reflection}.
-
-\begin{lstlisting}[caption={TypeChecker.agda}]
-open import Agda.Builtin.Reflection
-
--- The Judge
-evaluate : Gene -> TC (Maybe EfficiencyScore)
-evaluate gene = catchTC
-  (do
-    -- 1. Transpile to Agda AST
-    let (typeTerm, defTerm) = compile-to-ast gene
-    
-    -- 2. "Hypothetical Compilation"
-    -- Ask Agda: "Is this valid Cubical Type Theory?"
-    -- If the paths don't make sense, Agda throws an error here.
-    checkType typeTerm (quote Type)
-    checkType defTerm typeTerm
-    
-    -- 3. Measure
-    -- If valid, we inspect the AST to count nodes (kappa) and constructors (Delta).
-    let kappa = count-nodes defTerm
-    let Delta = count-interface typeTerm
-    let rho = (2.0 ^ Delta) / kappa
-    
-    return (just rho))
-  -- If invalid, return Nothing
-  (return nothing)
-\end{lstlisting}
-
-\subsection{The Main Loop (PEN/Main.agda)}
-
-We use Agda's \texttt{unquoteDecl} to execute the evolution step-by-step. The system ``writes'' the definition into the file at compile time.
-
-\begin{lstlisting}[caption={Main.agda}]
-module PEN.Main where
-open import PEN.Genesis.Mutator
-open import PEN.Oracle.TypeChecker
-
--- THE EVOLUTIONARY MACRO
-macro
-  evolve-step : Name -> TC T
-  evolve-step epochName = do
-    -- 1. Read the Library
-    history <- get-context
-    
-    -- 2. Generate
-    genes <- suggest-candidates history
-    
-    -- 3. Evaluate (The "Bar")
-    results <- mapM evaluate genes
-    let winner = select-max-efficiency results
-    
-    -- 4. Incorporate
-    -- This is the magic. It defines the winner as a real Agda type.
-    declareDef (vArg epochName) (winner.typeAST)
-    defineFun epochName (winner.bodyAST)
-
--- EXECUTION TRACE
-
--- Step 1: Bootstrap
-unquoteDecl R1 = evolve-step R1
--- Agda defines R1 = Universe
-
--- Step 5: The Geometric Turn
--- The Mutator suggests "Add Loop to Unit".
--- The Oracle confirms S1 is valid and has high efficiency (Path Algebra).
-unquoteDecl R5 = evolve-step R5 
--- Agda defines: data R5 = base | loop : base == base
-
--- ...
-
--- Step 15: The Dynamical Cohesive Topos
--- The library contains Cohesion (R10) and Hilbert (R14).
--- The Mutator sees two Modality-rich structures.
--- It applies `GSynthesis [Cohesion, Time] Commute`.
--- The Oracle checks: "Does `Next (Flat A) = Flat (Next A)` type-check?"
--- It does. The interface size (Delta) is massive (combines both APIs).
--- Efficiency spikes to 18.75. Winner.
-unquoteDecl R15 = evolve-step R15
--- Agda defines the full DCT record structure.
-\end{lstlisting}
-
-% ============================================
-% BIBLIOGRAPHY PLACEHOLDER
-% ============================================
-\section*{References}
-
-\begin{enumerate}
-    \item Univalent Foundations Program, \textit{Homotopy Type Theory: Univalent Foundations of Mathematics}, Institute for Advanced Study, 2013.
-    
-    \item Cohen, C., Coquand, T., Huber, S., Mörtberg, A., ``Cubical Type Theory: a constructive interpretation of the univalence axiom,'' \textit{TYPES 2015}, 2015.
-    
-    \item Schreiber, U., ``Differential cohomology in a cohesive infinity-topos,'' arXiv:1310.7930, 2013.
-    
-    \item Lawvere, F.W., ``Axiomatic cohesion,'' \textit{Theory and Applications of Categories}, Vol. 19, No. 3, 2007.
-    
-    \item Nakano, H., ``A modality for recursion,'' \textit{Proceedings of LICS 2000}, 2000.
-    
-    \item Vezzosi, A., Mörtberg, A., Abel, A., ``Cubical Agda: A Dependently Typed Programming Language with Univalence and Higher Inductive Types,'' \textit{ICFP 2019}, 2019.
-\end{enumerate}
+\end{thebibliography}
 
 \end{document}
