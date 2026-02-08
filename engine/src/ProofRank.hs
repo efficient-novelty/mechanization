@@ -31,6 +31,7 @@ module ProofRank
   , derivableStructural
   , buildCostMap
   , kNovelty
+  , kNoveltyWithBaseline
   ) where
 
 import Types
@@ -279,8 +280,16 @@ buildCostMap lib maxCost =
 -- Returns (schema count, clusters) like 'proofRank'.
 kNovelty :: LibraryEntry -> Library -> Int -> (Int, [[TypeExpr]])
 kNovelty newType lib horizon =
+  let costBefore = buildCostMap lib horizon
+  in kNoveltyWithBaseline newType lib horizon costBefore
+
+-- | Like 'kNovelty' but accepts a pre-computed @costBefore@ map.
+-- This avoids rebuilding the baseline cost map when evaluating multiple
+-- candidates within a single simulation tick.
+kNoveltyWithBaseline :: LibraryEntry -> Library -> Int
+                     -> Map.Map TypeExpr Int -> (Int, [[TypeExpr]])
+kNoveltyWithBaseline newType lib horizon costBefore =
   let fullLib   = newType : lib
-      costBefore = buildCostMap lib horizon
       costAfter  = buildCostMap fullLib horizon
       defaultK   = horizon + 1
 

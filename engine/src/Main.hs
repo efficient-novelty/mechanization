@@ -14,7 +14,9 @@ import Inhabitation
 import Enumerate
 import KappaNu
 import ProofRank
+import Capability (genesisDescriptor, computeNu, computedNuSimple, CapTrace(..))
 import Manifest (loadManifest)
+import Simulation (runSimulation, formatSimTable, defaultConfig, capabilityConfig, trCleared, trName)
 import Data.List (sortOn, intercalate)
 import qualified Data.Map.Strict as Map
 import System.Directory (doesFileExist)
@@ -133,6 +135,82 @@ main = do
       , ("S2 (Sphere)",  7)
       , ("S3",           8)
       ]
+
+  -- Phase G: PEN Axiom Simulation
+  putStrLn ""
+  putStrLn "Phase G: PEN Axiom Simulation"
+  putStrLn "=============================="
+  putStrLn ""
+  putStrLn "Tick-by-tick simulation of the five PEN axioms."
+  putStrLn "Paper mode: uses paperKappa/paperNu reference values."
+  putStrLn ""
+
+  simResults <- runSimulation defaultConfig
+  putStrLn (formatSimTable simResults)
+
+  let nCleared = length (filter trCleared simResults)
+      nTotal   = length simResults
+  putStrLn $ show nCleared ++ "/" ++ show nTotal ++ " candidates realized (out of 16 Genesis structures)."
+
+  -- Phase H: Capability Engine Validation
+  putStrLn ""
+  putStrLn "Phase H: Capability Engine Validation"
+  putStrLn "======================================"
+  putStrLn ""
+  putStrLn "Per-structure capability breakdown: computed ν vs paper ν."
+  putStrLn ""
+  putStrLn " n  | Structure      | ν_comp | ν_paper | Match | Rule breakdown"
+  putStrLn "----|----------------|--------|---------|-------|-------------------------------------------"
+
+  mapM_ (\n -> do
+    let sd = genesisDescriptor n
+        priors = [genesisDescriptor i | i <- [1..n-1]]
+        (nuComp, traces) = computeNu sd priors
+        nuPaper = paperNu n
+        match = if nuComp == nuPaper then "YES" else " NO"
+        activeTraces = filter (\t -> ctCount t > 0) traces
+        traceStr = intercalate ", " [ctRule t ++ "(" ++ show (ctCount t) ++ ")"
+                                    | t <- activeTraces]
+    putStrLn $ padR 3 (show n) ++ " | "
+            ++ padR 14 (structureName n) ++ " | "
+            ++ padR 6 (show nuComp) ++ " | "
+            ++ padR 7 (show nuPaper) ++ " | "
+            ++ padR 5 match ++ " | "
+            ++ traceStr
+    ) [1..16]
+
+  let allMatch = all (\n -> computedNuSimple n == paperNu n) [1..16]
+  putStrLn ""
+  if allMatch
+    then putStrLn "ALL 16 structures: ν_computed == ν_paper (MATCH)"
+    else putStrLn "WARNING: Some structures do NOT match!"
+
+  -- Phase I: Capability-Mode Simulation
+  putStrLn ""
+  putStrLn "Phase I: Capability-Mode Simulation"
+  putStrLn "===================================="
+  putStrLn ""
+  putStrLn "Tick-by-tick simulation using capability-computed ν values."
+  putStrLn ""
+
+  capResults <- runSimulation capabilityConfig
+  putStrLn (formatSimTable capResults)
+
+  let nClearedCap = length (filter trCleared capResults)
+      nTotalCap   = length capResults
+  putStrLn $ show nClearedCap ++ "/" ++ show nTotalCap ++ " candidates realized (CapabilityMode)."
+
+  -- Compare Phase G vs Phase I
+  putStrLn ""
+  let paperNames = map (\r -> trName r) simResults
+      capNames   = map (\r -> trName r) capResults
+      identical  = paperNames == capNames
+  if identical
+    then putStrLn "Phase G vs Phase I: IDENTICAL realization sequences."
+    else do
+      putStrLn "Phase G vs Phase I: DIFFERENT realization sequences!"
+      putStrLn $ "  Paper mode:      " ++ intercalate ", " paperNames
+      putStrLn $ "  Capability mode: " ++ intercalate ", " capNames
 
   putStrLn ""
   putStrLn "=== Engine run complete ==="
@@ -256,17 +334,23 @@ showWitnessBrief (WPiIntro _) = "λ"
 showWitnessBrief (WSigmaIntro _ _) = "sigma"
 
 structureName :: Int -> String
-structureName 1 = "Universe"
-structureName 2 = "Unit"
-structureName 3 = "Witness"
-structureName 4 = "Pi/Sigma"
-structureName 5 = "S1"
-structureName 6 = "PropTrunc"
-structureName 7 = "S2"
-structureName 8 = "S3"
-structureName 9 = "Hopf"
+structureName 1  = "Universe"
+structureName 2  = "Unit"
+structureName 3  = "Witness"
+structureName 4  = "Pi/Sigma"
+structureName 5  = "S1"
+structureName 6  = "PropTrunc"
+structureName 7  = "S2"
+structureName 8  = "S3"
+structureName 9  = "Hopf"
 structureName 10 = "Lie"
-structureName _ = "???"
+structureName 11 = "Cohesion"
+structureName 12 = "Connections"
+structureName 13 = "Curvature"
+structureName 14 = "Metric"
+structureName 15 = "Hilbert"
+structureName 16 = "DCT"
+structureName _  = "???"
 
 padR :: Int -> String -> String
 padR n s = s ++ replicate (max 0 (n - length s)) ' '

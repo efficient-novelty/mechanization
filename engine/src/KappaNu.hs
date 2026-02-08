@@ -11,6 +11,7 @@ module KappaNu where
 import Types
 import Inhabitation
 import Enumerate
+import Capability (computedNuSimple)
 import Data.List (minimumBy, sortBy)
 import Data.Ord (comparing)
 import Data.Maybe (mapMaybe)
@@ -178,6 +179,10 @@ paperNu 14 = 43  -- Metric
 paperNu 15 = 60  -- Hilbert
 paperNu 16 = 150 -- DCT
 paperNu _ = 0
+
+-- | Computed ν via capability engine (should match paperNu)
+computedNu :: Int -> Int
+computedNu = computedNuSimple
 
 -- ============================================
 -- Comparison and Analysis
