@@ -29,11 +29,12 @@
 
 module Cluster
   ( proofRankNu
+  , proofRankNuD
   , DerivCluster(..)
   ) where
 
 import Types
-import ProofRank (windowAtoms, enumWindowBounded, schemaize, normalize)
+import ProofRank (windowAtoms, windowAtomsD, enumWindowBounded, schemaize, normalize)
 import Inhabitation (isNewlyInhabited)
 import Equivalence (canonicalize)
 import Data.List (nub)
@@ -52,7 +53,11 @@ data DerivCluster = DerivCluster
 -- Core Algorithm: proofRankNu
 -- ============================================
 
--- | Compute nu via proof-rank: enumerate, filter, cluster, count.
+-- | Compute nu via proof-rank using the default d=2 window (backward compatible).
+proofRankNu :: LibraryEntry -> Library -> (Int, [DerivCluster])
+proofRankNu = proofRankNuD 2
+
+-- | Compute nu via proof-rank parameterized by coherence window depth d.
 -- Returns (nu, clusters) where nu = non-trivial schema count + latent bonus.
 --
 -- The latent bonus captures capabilities that depth-1 enumeration cannot
@@ -62,9 +67,9 @@ data DerivCluster = DerivCluster
 --
 -- Schema rank already captures cross-interactions via L->X, X->L, L*X, L+X
 -- schemas, so no separate cross-interaction bonus is needed.
-proofRankNu :: LibraryEntry -> Library -> (Int, [DerivCluster])
-proofRankNu candidate lib =
-  let enumerated = enumerateTypes candidate lib
+proofRankNuD :: Int -> LibraryEntry -> Library -> (Int, [DerivCluster])
+proofRankNuD d candidate lib =
+  let enumerated = enumerateTypesD d candidate lib
       newThms    = filterNewlyInhabited enumerated candidate lib
       clusters   = clusterBySchema newThms candidate lib
       nonTrivial = filterTrivialClusters clusters
@@ -96,12 +101,16 @@ proofRankNu candidate lib =
 -- Step 1: Enumerate types at depth <= 1
 -- ============================================
 
--- | Enumerate all types at expression depth <= 1 using the 2-step window.
+-- | Enumerate all types at expression depth <= 1 using the default 2-step window.
 -- Depth 1 captures the essential novelty: existence, loop space,
 -- suspension, truncation, function space, products, coproducts.
 enumerateTypes :: LibraryEntry -> Library -> [TypeExpr]
-enumerateTypes candidate lib =
-  let atoms = windowAtoms candidate lib
+enumerateTypes = enumerateTypesD 2
+
+-- | Enumerate types parameterized by coherence window depth d.
+enumerateTypesD :: Int -> LibraryEntry -> Library -> [TypeExpr]
+enumerateTypesD d candidate lib =
+  let atoms = windowAtomsD d candidate lib
       fullLib = candidate : lib
       allTypes = enumWindowBounded atoms fullLib 1
       candidateName = leName candidate

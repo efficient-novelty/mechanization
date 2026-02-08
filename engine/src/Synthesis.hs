@@ -24,6 +24,7 @@ module Synthesis
 import Generator
 import GenuineNu (genuineNu)
 import TheoryState
+import CoherenceWindow (dBonacciDelta, dBonacciTau, defaultWindow)
 import Data.List (minimumBy)
 import Data.Ord (comparing)
 
@@ -36,6 +37,7 @@ data SynthConfig = SynthConfig
   , scMaxIdle     :: Int    -- ^ Stop after this many consecutive idle ticks
   , scHMax        :: Int    -- ^ Maximum horizon cap
   , scInitHorizon :: Int    -- ^ Initial admissibility horizon
+  , scWindow      :: Int    -- ^ Coherence window depth d (1=constant, 2=Fibonacci, 3=tribonacci)
   } deriving (Eq, Show)
 
 defaultSynthConfig :: SynthConfig
@@ -44,6 +46,7 @@ defaultSynthConfig = SynthConfig
   , scMaxIdle     = 50
   , scHMax        = 20
   , scInitHorizon = 2
+  , scWindow      = defaultWindow
   }
 
 -- ============================================
@@ -68,37 +71,35 @@ data SynthResult = SynthResult
   } deriving (Show)
 
 -- ============================================
--- Fibonacci sequence (mirrors Simulation.hs)
+-- d-Bonacci sequence (parameterized by window depth)
 -- ============================================
 
-fibs :: [Int]
-fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
+-- | Integration gap delta_n for window depth d (1-indexed).
+-- d=2 gives the Fibonacci sequence (backward compatible).
+fibDelta :: Int -> Int -> Int
+fibDelta d n = dBonacciDelta d n
 
-fibDelta :: Int -> Int
-fibDelta n
-  | n < 1     = 1
-  | otherwise = fibs !! (n - 1)
-
-fibTau :: Int -> Int
-fibTau n = sum (take n fibs)
+-- | Cumulative sum tau_n for window depth d.
+fibTau :: Int -> Int -> Int
+fibTau d n = dBonacciTau d n
 
 -- ============================================
 -- Bar computation (Axiom 1)
 -- ============================================
 
-computeBar :: Int -> Int -> Int -> Double
-computeBar n cumNu cumKappa
+computeBar :: Int -> Int -> Int -> Int -> Double
+computeBar d n cumNu cumKappa
   | n <= 1    = 0.0
   | cumKappa == 0 = 0.0
   | otherwise = phi * omega
   where
-    phi   = fromIntegral (fibDelta n) / fromIntegral (fibDelta (n - 1))
+    phi   = fromIntegral (fibDelta d n) / fromIntegral (fibDelta d (n - 1))
     omega = fromIntegral cumNu / fromIntegral cumKappa
 
-computePhi :: Int -> Double
-computePhi n
+computePhi :: Int -> Int -> Double
+computePhi d n
   | n <= 1    = 0.0
-  | otherwise = fromIntegral (fibDelta n) / fromIntegral (fibDelta (n - 1))
+  | otherwise = fromIntegral (fibDelta d n) / fromIntegral (fibDelta d (n - 1))
 
 computeOmega :: Int -> Int -> Double
 computeOmega cumNu cumKappa
@@ -185,8 +186,9 @@ synthLoop cfg st
   | ssRealN st >= scMaxSteps cfg = return st
   | ssIdleStreak st >= scMaxIdle cfg = return st
   | otherwise = do
-      let nextN   = ssRealN st + 1
-          bar     = computeBar nextN (ssCumNu st) (ssCumKappa st)
+      let w       = scWindow cfg
+          nextN   = ssRealN st + 1
+          bar     = computeBar w nextN (ssCumNu st) (ssCumKappa st)
           horizon = ssHorizon st
           ts      = ssTheory st
 
@@ -217,14 +219,14 @@ synthLoop cfg st
               winKappa = ceKappa winner
               winName = ceName winner
 
-              -- Fibonacci integration gap
-              delta = fibDelta nextN
-              tau = fibTau nextN
+              -- d-bonacci integration gap
+              delta = fibDelta w nextN
+              tau = fibTau w nextN
 
               -- After realization: H = delta + 1 (resets to 2, then grows by delta-1)
               newH = min (delta + 1) (scHMax cfg)
 
-              phi = computePhi nextN
+              phi = computePhi w nextN
               omega = computeOmega (ssCumNu st) (ssCumKappa st)
 
               result = SynthResult

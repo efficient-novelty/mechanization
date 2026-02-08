@@ -16,19 +16,31 @@ import KappaNu
 import ProofRank
 import Capability (genesisDescriptor, computeNu, computedNuSimple, CapTrace(..))
 import Manifest (loadManifest)
-import Simulation (runSimulation, formatSimTable, defaultConfig, capabilityConfig, trCleared, trName)
-import Synthesis (runSynthesis, formatSynthTable, formatSynthComparison, defaultSynthConfig)
+import Simulation (runSimulation, formatSimTable, defaultConfig, capabilityConfig, trCleared, trName, SimConfig(..))
+import Synthesis (runSynthesis, formatSynthTable, formatSynthComparison, defaultSynthConfig, SynthConfig(..), SynthResult(..))
+import CoherenceWindow (dBonacci, dBonacciDelta, defaultWindow)
 import Data.List (sortOn, intercalate)
 import qualified Data.Map.Strict as Map
 import System.Directory (doesFileExist)
+import System.Environment (getArgs)
 
 -- ============================================
 -- Main Entry Point
 -- ============================================
 
+-- | Parse --window d from command line args (default 2)
+parseWindow :: [String] -> Int
+parseWindow [] = defaultWindow
+parseWindow ("--window":ds:_) = case reads ds of
+  [(d, "")] | d >= 1 && d <= 5 -> d
+  _ -> defaultWindow
+parseWindow (_:rest) = parseWindow rest
+
 main :: IO ()
 main = do
-  putStrLn "PEN Information-Theoretic Engine v0.4"
+  args <- getArgs
+  let d = parseWindow args
+  putStrLn $ "PEN Information-Theoretic Engine v0.5 (window d=" ++ show d ++ ")"
   putStrLn "====================================="
   putStrLn ""
 
@@ -146,7 +158,7 @@ main = do
   putStrLn "Paper mode: uses paperKappa/paperNu reference values."
   putStrLn ""
 
-  simResults <- runSimulation defaultConfig
+  simResults <- runSimulation defaultConfig { cfgWindow = d }
   putStrLn (formatSimTable simResults)
 
   let nCleared = length (filter trCleared simResults)
@@ -194,7 +206,7 @@ main = do
   putStrLn "Tick-by-tick simulation using capability-computed ν values."
   putStrLn ""
 
-  capResults <- runSimulation capabilityConfig
+  capResults <- runSimulation capabilityConfig { cfgWindow = d }
   putStrLn (formatSimTable capResults)
 
   let nClearedCap = length (filter trCleared capResults)
@@ -223,10 +235,53 @@ main = do
   putStrLn "and selected by the PEN axioms — not replayed from a table."
   putStrLn ""
 
-  synthResults <- runSynthesis defaultSynthConfig
+  synthResults <- runSynthesis defaultSynthConfig { scWindow = d }
   putStrLn (formatSynthTable synthResults)
   putStrLn ""
   putStrLn (formatSynthComparison synthResults)
+
+  -- Phase K: Saturation Assumption Test
+  putStrLn ""
+  putStrLn "Phase K: Saturation Assumption Test"
+  putStrLn "===================================="
+  putStrLn ""
+  putStrLn "|S(L_k)| vs Delta_k for each Genesis step (d=2):"
+  putStrLn "  n  | Structure      | Delta_n | Schema_count | Match"
+  putStrLn " ----|----------------|---------|--------------|------"
+  mapM_ (\n -> do
+    let entry = genesisEntry n
+        lib = buildLibrary (n - 1)
+        (schemaCount, _clusters) = proofRank entry lib 1
+        delta_n = if n <= 15 then dBonacciDelta 2 n else 0
+        matchStr = if schemaCount == delta_n then "YES"
+                   else if abs (schemaCount - delta_n) <= max 1 (delta_n * 30 `div` 100) then "~"
+                   else " NO"
+    putStrLn $ "  " ++ padR 3 (show n) ++ " | "
+            ++ padR 14 (structureName n) ++ " | "
+            ++ padR 7 (show delta_n) ++ " | "
+            ++ padR 12 (show schemaCount) ++ " | "
+            ++ matchStr
+    ) [1..15]
+  putStrLn ""
+
+  -- Phase L: Coherence Window Comparison (d=1,2,3)
+  putStrLn ""
+  putStrLn "Phase L: Coherence Window Comparison (d=1,2,3)"
+  putStrLn "==============================================="
+  putStrLn ""
+  putStrLn "d-bonacci sequences and synthesis results for d=1,2,3:"
+  putStrLn ""
+
+  mapM_ (\dVal -> do
+    putStrLn $ "--- d=" ++ show dVal ++ " ---"
+    putStrLn $ "  Sequence: " ++ show (take 10 (dBonacci dVal))
+    synthD <- runSynthesis defaultSynthConfig { scWindow = dVal, scMaxSteps = 15 }
+    let nDiscovered = length synthD
+        names = map (\r -> srName r) synthD
+    putStrLn $ "  Structures discovered: " ++ show nDiscovered
+    putStrLn $ "  Names: " ++ intercalate ", " names
+    putStrLn ""
+    ) [1, 2, 3]
 
   putStrLn ""
   putStrLn "=== Engine run complete ==="

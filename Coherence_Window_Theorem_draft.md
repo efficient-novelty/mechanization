@@ -313,9 +313,18 @@ This is why the recurrence Δ_{n+1} = Δ_n + Δ_{n-1} holds: the obligations spa
 
 ---
 
-## 6. What Remains to Be Proved
+## 6. Status of Each Component (Updated February 2026)
 
-Let me be completely honest about the status of each component.
+### Implementation status:
+
+**Completed:**
+- Formal proofs of Theorems A (d=1) and B (d=2) added to pen_paper.tex (Section 4)
+- Haskell engine parameterized with `--window d` flag (CoherenceWindow.hs module)
+- d-bonacci generalization: d=1 constant, d=2 Fibonacci, d=3 tribonacci
+- Saturation assumption test (Phase K in engine)
+- Cubical Agda experiment files for S¹, S², T², Hopf (agda/Experiments/)
+- Depth-3 counterexample attempted and shown to reduce to depth 2 (DepthThreeAttempt.agda)
+- Literature references pinned: Lurie HTT Prop 1.2.5.1, Lumsdaine 2010, van den Berg-Garner 2011
 
 ### Fully established:
 

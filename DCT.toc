@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Motivation}{1}{section.1}%
+\contentsline {section}{\numberline {2}Definition}{2}{section.2}%
+\contentsline {paragraph}{1. Spatial Logic (Cohesion).}{2}{section*.2}%
+\contentsline {paragraph}{2. Temporal Logic.}{2}{section*.3}%
+\contentsline {paragraph}{3. Infinitesimals.}{2}{section*.4}%
+\contentsline {paragraph}{4. Compatibility Triad.}{2}{section*.5}%
+\contentsline {section}{\numberline {3}Effort: $\kappa = 8$}{3}{section.3}%
+\contentsline {section}{\numberline {4}Novelty: $\nu = 150$ via the Lattice Tensor Product}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The Structural Computation}{3}{subsection.4.1}%
+\contentsline {paragraph}{Step A: Spatial Lattice ($|\mathcal {L}_S| = 14$).}{3}{section*.6}%
+\contentsline {paragraph}{Step B: Temporal Lattice ($|\mathcal {L}_T| = 11$).}{3}{section*.7}%
+\contentsline {paragraph}{Step C: Tensor Product.}{3}{section*.8}%
+\contentsline {paragraph}{Step D: Infinitesimal Correction.}{4}{section*.9}%
+\contentsline {subsection}{\numberline {4.2}Semantic Audit}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}The Efficiency Singularity}{4}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Key Theorems}{5}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Internal Tangent Bundle}{5}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Temporal Type Dynamics}{5}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Hamiltonian Flows}{6}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Representative Applications}{6}{section.6}%
+\contentsline {section}{\numberline {7}Relation to Existing Work}{7}{section.7}%

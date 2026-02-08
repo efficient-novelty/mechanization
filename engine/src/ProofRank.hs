@@ -25,9 +25,12 @@ module ProofRank
   ( depth
   , normalize
   , windowAtoms
+  , windowAtomsD
   , enumWindowBounded
   , newlyInhabitedWindow
+  , newlyInhabitedWindowD
   , proofRank
+  , proofRankD
   , schemaize
   , groupBySchema
   , derivableStructural
@@ -110,9 +113,15 @@ normalize t = let t' = normStep t
 -- 2-Step Window Enumeration
 -- ============================================
 
+-- | Window atoms using the default d=2 window (backward compatible).
 windowAtoms :: LibraryEntry -> Library -> [TypeExpr]
-windowAtoms newType lib =
-  let windowEntries = take 2 (reverse lib)
+windowAtoms = windowAtomsD 2
+
+-- | Window atoms parameterized by coherence depth d.
+-- Takes d library entries (the most recent d) as the visible window.
+windowAtomsD :: Int -> LibraryEntry -> Library -> [TypeExpr]
+windowAtomsD d newType lib =
+  let windowEntries = take d (reverse lib)
       windowRefs = map (TRef . leName) windowEntries
       newRef = TRef (leName newType)
   in nub $ [TUnit, TVoid, newRef] ++ windowRefs
@@ -218,28 +227,38 @@ schemaize newName _lib = canon . go
 -- Proof-Rank (v0.5 — schema counting)
 -- ============================================
 
--- | Newly inhabited types at depth ≤ d using the 2-step window.
+-- | Newly inhabited types at depth <= d using the default 2-step window.
 -- Uses the FULL library (including newType) for available formers.
 newlyInhabitedWindow :: LibraryEntry -> Library -> Int -> [TypeExpr]
-newlyInhabitedWindow newType lib d =
-  let windowAts = windowAtoms newType lib
+newlyInhabitedWindow = newlyInhabitedWindowD 2
+
+-- | Newly inhabited types at expression depth <= exprD using a w-step window.
+-- First argument is the coherence window depth w; second is the new type;
+-- third is the existing library; fourth is the expression depth.
+newlyInhabitedWindowD :: Int -> LibraryEntry -> Library -> Int -> [TypeExpr]
+newlyInhabitedWindowD w newType lib exprD =
+  let windowAts = windowAtomsD w newType lib
       fullLib = newType : lib  -- Include new type for former availability
-      types = enumWindowBounded windowAts fullLib d
+      types = enumWindowBounded windowAts fullLib exprD
       relevant = typesInvolving (leName newType) types
       normalized = nub $ map normalize relevant
       nonUnit = filter (/= TUnit) normalized
       nonVoid = filter (/= TVoid) nonUnit
   in filter (\t -> isNewlyInhabited t newType lib) nonVoid
 
--- | Compute proof-rank as the number of distinct type schemas.
--- Each schema = one independent "proof technique."
--- ν = number of distinct schemas = rank of the novelty module.
---
--- Returns (ν, clusters) where each "cluster" is the list of concrete
--- types that map to the same schema. Sorted by cluster size descending.
+-- | Compute proof-rank using the default 2-step window (backward compatible).
 proofRank :: LibraryEntry -> Library -> Int -> (Int, [[TypeExpr]])
-proofRank newType lib d =
-  let newTypes = newlyInhabitedWindow newType lib d
+proofRank = proofRankD 2
+
+-- | Compute proof-rank parameterized by coherence window depth w.
+-- Each schema = one independent "proof technique."
+-- nu = number of distinct schemas = rank of the novelty module.
+--
+-- Returns (nu, clusters) where each "cluster" is the list of concrete
+-- types that map to the same schema. Sorted by cluster size descending.
+proofRankD :: Int -> LibraryEntry -> Library -> Int -> (Int, [[TypeExpr]])
+proofRankD w newType lib exprD =
+  let newTypes = newlyInhabitedWindowD w newType lib exprD
       name = leName newType
       -- Compute schema for each newly inhabited type
       typeSchemas = [(t, normalize (schemaize name lib t)) | t <- newTypes]

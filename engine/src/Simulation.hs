@@ -23,6 +23,7 @@ module Simulation
 import Types
 import KappaNu (genesisEntry, paperKappa, paperNu, computedNu)
 import ProofRank (buildCostMap, kNoveltyWithBaseline)
+import CoherenceWindow (dBonacciDelta, dBonacciTau, defaultWindow)
 import qualified Data.Map.Strict as Map
 import Data.List (minimumBy)
 import Data.Ord (comparing)
@@ -39,6 +40,7 @@ data SimConfig = SimConfig
   , cfgHMax         :: Int   -- ^ Maximum horizon (cap on H)
   , cfgMaxIdleTicks :: Int   -- ^ Stop after this many consecutive idle ticks
   , cfgComputedH    :: Int   -- ^ Horizon for computed-mode cost maps
+  , cfgWindow       :: Int   -- ^ Coherence window depth d (1=constant, 2=Fibonacci, 3=tribonacci)
   } deriving (Eq, Show)
 
 defaultConfig :: SimConfig
@@ -47,6 +49,7 @@ defaultConfig = SimConfig
   , cfgHMax         = 20
   , cfgMaxIdleTicks = 50
   , cfgComputedH    = 5
+  , cfgWindow       = defaultWindow
   }
 
 capabilityConfig :: SimConfig
@@ -55,6 +58,7 @@ capabilityConfig = SimConfig
   , cfgHMax         = 20
   , cfgMaxIdleTicks = 50
   , cfgComputedH    = 5
+  , cfgWindow       = defaultWindow
   }
 
 type Candidate = (Int, LibraryEntry)  -- (genesis index, entry)
@@ -88,21 +92,17 @@ data TickResult = TickResult
   } deriving (Show)
 
 -- ============================================
--- Fibonacci Sequence
+-- d-Bonacci Sequence (parameterized by window depth)
 -- ============================================
 
-fibs :: [Int]
-fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
+-- | Integration gap delta_n for window depth d (1-indexed).
+-- d=2 gives the Fibonacci sequence (backward compatible).
+fibDelta :: Int -> Int -> Int
+fibDelta d n = dBonacciDelta d n
 
--- | Fibonacci number F_n (1-indexed: F_1=1, F_2=1, F_3=2, ...)
-fibDelta :: Int -> Int
-fibDelta n
-  | n < 1     = 1
-  | otherwise = fibs !! (n - 1)
-
--- | Cumulative Fibonacci sum: τₙ = Σᵢ₌₁ⁿ Fᵢ
-fibTau :: Int -> Int
-fibTau n = sum (take n fibs)
+-- | Cumulative sum tau_n for window depth d.
+fibTau :: Int -> Int -> Int
+fibTau d n = dBonacciTau d n
 
 -- ============================================
 -- Bar Computation (Axiom 1)
@@ -110,20 +110,20 @@ fibTau n = sum (take n fibs)
 
 -- | Compute Bar(τₙ) = Φₙ · Ωₙ₋₁
 --   where Φₙ = Fₙ / Fₙ₋₁ and Ωₙ₋₁ = Σνᵢ / Σκᵢ
-computeBar :: Int -> Int -> Int -> Double
-computeBar n cumNu cumKappa
+computeBar :: Int -> Int -> Int -> Int -> Double
+computeBar d n cumNu cumKappa
   | n <= 1    = 0.0
   | cumKappa == 0 = 0.0
   | otherwise = phi * omega
   where
-    phi   = fromIntegral (fibDelta n) / fromIntegral (fibDelta (n - 1))
+    phi   = fromIntegral (fibDelta d n) / fromIntegral (fibDelta d (n - 1))
     omega = fromIntegral cumNu / fromIntegral cumKappa
 
 -- | Get Φₙ = Fₙ / Fₙ₋₁
-computePhi :: Int -> Double
-computePhi n
+computePhi :: Int -> Int -> Double
+computePhi d n
   | n <= 1    = 0.0
-  | otherwise = fromIntegral (fibDelta n) / fromIntegral (fibDelta (n - 1))
+  | otherwise = fromIntegral (fibDelta d n) / fromIntegral (fibDelta d (n - 1))
 
 -- | Get Ωₙ₋₁ = Σνᵢ / Σκᵢ
 computeOmega :: Int -> Int -> Double
@@ -244,8 +244,9 @@ simLoop cfg st
   | null (ssCandidates st) = return st
   | ssIdleStreak st >= cfgMaxIdleTicks cfg = return st
   | otherwise = do
-      let nextN   = ssRealizationN st + 1
-          bar     = computeBar nextN (ssCumNu st) (ssCumKappa st)
+      let w       = cfgWindow cfg
+          nextN   = ssRealizationN st + 1
+          bar     = computeBar w nextN (ssCumNu st) (ssCumKappa st)
           horizon = ssHorizon st
 
           -- Evaluate all remaining candidates
@@ -282,15 +283,15 @@ simLoop cfg st
               winNu = ceNu winner
               winKappa = ceKappa winner
 
-              -- Compute Fibonacci integration gap
-              delta = fibDelta nextN
-              tau = fibTau nextN
+              -- Compute d-bonacci integration gap
+              delta = fibDelta w nextN
+              tau = fibTau w nextN
 
-              -- After realization, H resets to 2, then grows by (Δ-1)
-              -- because Δ ticks pass: H = 2 + (Δ - 1) = Δ + 1
+              -- After realization, H resets to 2, then grows by (delta-1)
+              -- because delta ticks pass: H = 2 + (delta - 1) = delta + 1
               newH = min (delta + 1) (cfgHMax cfg)
 
-              phi = computePhi nextN
+              phi = computePhi w nextN
               omega = computeOmega (ssCumNu st) (ssCumKappa st)
 
               result = TickResult
