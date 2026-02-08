@@ -28,6 +28,8 @@ module ProofRank
   , enumWindowBounded
   , newlyInhabitedWindow
   , proofRank
+  , schemaize
+  , groupBySchema
   , derivableStructural
   , buildCostMap
   , kNovelty

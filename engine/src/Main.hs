@@ -17,6 +17,7 @@ import ProofRank
 import Capability (genesisDescriptor, computeNu, computedNuSimple, CapTrace(..))
 import Manifest (loadManifest)
 import Simulation (runSimulation, formatSimTable, defaultConfig, capabilityConfig, trCleared, trName)
+import Synthesis (runSynthesis, formatSynthTable, formatSynthComparison, defaultSynthConfig)
 import Data.List (sortOn, intercalate)
 import qualified Data.Map.Strict as Map
 import System.Directory (doesFileExist)
@@ -211,6 +212,21 @@ main = do
       putStrLn "Phase G vs Phase I: DIFFERENT realization sequences!"
       putStrLn $ "  Paper mode:      " ++ intercalate ", " paperNames
       putStrLn $ "  Capability mode: " ++ intercalate ", " capNames
+
+  -- Phase J: Synthesis Mode (Object Construction from Primitives)
+  putStrLn ""
+  putStrLn "Phase J: Synthesis Mode (Object Construction from Primitives)"
+  putStrLn "============================================================="
+  putStrLn ""
+  putStrLn "Discovering Genesis structures via genuine search."
+  putStrLn "Candidates are generated, evaluated (genuine nu + kappa),"
+  putStrLn "and selected by the PEN axioms — not replayed from a table."
+  putStrLn ""
+
+  synthResults <- runSynthesis defaultSynthConfig
+  putStrLn (formatSynthTable synthResults)
+  putStrLn ""
+  putStrLn (formatSynthComparison synthResults)
 
   putStrLn ""
   putStrLn "=== Engine run complete ==="

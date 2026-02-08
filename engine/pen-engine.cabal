@@ -20,6 +20,13 @@ executable pen-engine
                     , Manifest
                     , Simulation
                     , Capability
+                    , Equivalence
+                    , Independence
+                    , HITEnum
+                    , TheoryState
+                    , Generator
+                    , GenuineNu
+                    , Synthesis
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
@@ -38,6 +45,13 @@ library
                     , Manifest
                     , Simulation
                     , Capability
+                    , Equivalence
+                    , Independence
+                    , HITEnum
+                    , TheoryState
+                    , Generator
+                    , GenuineNu
+                    , Synthesis
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
