@@ -120,7 +120,7 @@ metric structure, Hilbert space axioms, and the DCT. This is automated theory
 building — the engine proposes new inference rules or axiom schemas, not just
 new types or maps.
 
-**Scope**: Structures 11-15 (Connections through DCT).
+**Scope**: Structures 11-14 (Connections through Hilbert Functional).
 
 **Concrete tasks**:
 - Extend candidate generation for axiomatic extensions (new inference rules)
@@ -131,6 +131,125 @@ new types or maps.
 - DCT (structure 15): differential cohomology theorem
 - Each requires gating on prior structures (e.g., Connections requires Cohesion)
 - Nu computation must reflect the genuine proof-theoretic content of each axiom
+
+### Level D: Genuine new mathematical discovery and construction
+
+Discover/Construct novel mathematical object
+
+**Scope**: Structure 15, Dynamical Cohesive Topos
+\paragraph{What It Is.}
+The Dynamical Cohesive Topos (DCT) is a type-theoretic framework that simultaneously:
+\begin{itemize}
+\item Has cohesive structure (discrete vs. continuous)
+\item Has temporal structure (past/present/future modalities)
+\item Internalizes fiber bundles and connections
+\item Supports smooth infinitesimal analysis
+\item Encodes dynamical systems and flows
+\item Unifies geometric quantization and classical mechanics
+\end{itemize}
+
+\paragraph{Why It's Exceptional.}
+Previous realizations (R1-R14) either introduced single concepts (like $S^1$) or frameworks for existing concepts. DCT is a \emph{synthetic framework}—it provides a \emph{new foundation} for doing geometry, analysis, and dynamics simultaneously, with internal consistency conditions ensuring that geometric structure, temporal evolution, and logical reasoning are mutually compatible.
+
+Its efficiency $\rho=18.75$ reflects that it subsumes and unifies vast amounts of previous structure:
+\begin{itemize}
+\item All of R11-R14 can be \emph{internalized} within DCT
+\item Temporal logic and modal logic are built in
+\item Smooth manifolds, flows, and Hamiltonian systems are first-class citizens  
+\item Quantum-classical correspondence is encoded geometrically
+\end{itemize}
+
+
+**Concrete tasks**:
+To make geometry \emph{dynamic}, we need three additional ingredients:
+
+\begin{enumerate}
+\item \textbf{Temporal structure}: A notion of "time" or "evolution" built into the type theory itself
+
+\item \textbf{Preservation}: The cohesive structure (discrete/continuous distinction) should be preserved by evolution—flows should be smooth if the initial data is smooth
+
+\item \textbf{Synthesis}: Temporal logic (reasoning about "always," "eventually," "until") and geometric structure should be unified, not separate layers
+\end{enumerate}
+
+The Dynamical Cohesive Topos provides precisely this synthesis.
+
+\subsection{Technical Definition}
+
+\begin{definition}[Dynamical Cohesive Topos]
+\label{def:dct}
+A \textbf{Dynamical Cohesive Topos} is a type theory equipped with:
+
+\paragraph{1. Cohesive Structure:}
+Four modalities $\flat, \sharp, \Pi, \text{Disc}$ satisfying adjunctions
+\[
+\text{Disc} \dashv \flat \dashv \sharp, \qquad \Pi \dashv \text{Disc}
+\]
+
+\paragraph{2. Temporal Modalities:}
+Three temporal operators:
+\begin{itemize}
+\item $\bigcirc : \mathcal{U} \to \mathcal{U}$ ("next" modality)
+\item $\bigcirc^{-1} : \mathcal{U} \to \mathcal{U}$ ("previous" modality)  
+\item $\Diamond : \mathcal{U} \to \mathcal{U}$ ("eventually" modality)
+\end{itemize}
+
+\paragraph{3. Dynamical Structure:}
+For each type $X : \mathcal{U}$, a \textbf{flow} is a map:
+\[
+\Phi : \mathbb{R} \times X \to X
+\]
+satisfying:
+\begin{itemize}
+\item $\Phi(0, x) = x$ (identity at time zero)
+\item $\Phi(s, \Phi(t, x)) = \Phi(s+t, x)$ (group property)
+\item $\Phi$ is smooth (cohesively: $\flat\Phi$ is constant on discrete parts)
+\end{itemize}
+
+\paragraph{4. Compatibility Axioms:}
+The cohesive and temporal structures must be compatible:
+
+\begin{enumerate}[label=\textbf{(C\arabic*)}, leftmargin=*]
+\item \textbf{Temporal coherence}: $\bigcirc(\flat X) \simeq \flat(\bigcirc X)$ 
+\[
+\text{(temporal evolution preserves discrete structure)}
+\]
+
+\item \textbf{Flow preservation}: For any flow $\Phi$ on $X$, the induced flow on $\flat X$ is constant:
+\[
+\flat\Phi(t, x) = \flat\Phi(0, x)
+\]
+\text{(discrete parts don't flow)}
+
+\item \textbf{Shape stability}: $\Pi(\bigcirc X) \simeq \bigcirc(\Pi X)$
+\[
+\text{(homotopy type is preserved by temporal evolution)}
+\]
+
+\item \textbf{Eventually-flat}: $\Diamond(\flat X) \simeq \flat(\Diamond X)$
+\[
+\text{(eventual discrete equals discrete eventual)}
+\]
+
+\item \textbf{Connection compatibility}: For a principal $G$-bundle $P \to M$ with connection $\omega$, parallel transport $\tau_\gamma$ along a path $\gamma$ commutes with flows:
+\[
+\tau_{\Phi(t,\gamma)} = \Phi_P(t, \tau_\gamma)
+\]
+where $\Phi_P$ is the lifted flow on $P$.
+\end{enumerate}
+
+\paragraph{5. Infinitesimal Structure:}
+A type of \textbf{infinitesimals} $\mathbb{D} : \mathcal{U}$ satisfying:
+\begin{itemize}
+\item $\mathbb{D}$ is cohesively non-discrete: $\flat\mathbb{D} \not\simeq \mathbb{D}$
+\item $\mathbb{D}$ contains $0 : \mathbb{D}$
+\item For any $d : \mathbb{D}$ with $d \neq 0$, we have $d \cdot d = 0$ (nilpotent)
+\item Smooth functions $X \to Y$ are those that preserve infinitesimal structure:
+\[
+f(x + d) = f(x) + \text{linear in } d
+\]
+\end{itemize}
+\end{definition}
+
 
 ---
 
@@ -220,22 +339,6 @@ approximation?
 This directly tests whether the Genesis Sequence is optimal (as claimed)
 or merely viable (as currently proven).
 
-### Born rule audit (Paper 5 connection)
-
-The information-theoretic reformulation interprets rho = nu/kappa as an
-amplitude rather than a probability, with rho^2 = (nu/kappa)^2 as the
-realization probability (Born rule). Since squaring preserves ordering,
-the selection loop produces the same sequence under both rho and rho^2.
-However, the relative magnitudes change, which matters for physical
-predictions.
-
-Audit Paper 5's derivations: everywhere "efficiency" appears in a physical
-formula, check whether it enters as rho or rho^2. If the existing formulas
-use rho linearly but should use rho^2, the predicted physical constants
-change. Recompute and check against observations. If rho^2 gives better
-agreement, that is direct evidence for the Born rule interpretation at
-the foundational level.
-
 ### Sensitivity analysis
 
 Systematically vary bonus parameters, window depth, and schema rules to
@@ -285,12 +388,6 @@ Not yet tested. Prediction: they diverge for types with "extra structure"
 beyond their bare definition. S3 is the sharpest test case (paper kappa=5
 vs likely Kolmogorov kappa=2). If they diverge, compute selection dynamics
 with both and see which produces a viable sequence.
-
-### Q6: Does rho^2 (Born rule) give better physical predictions than rho?
-
-Not yet tested. The Born rule interpretation predicts physical observables
-depend on rho^2, not rho. Paper 5 derives coupling constants and cosmological
-parameters — audit whether efficiency enters linearly or quadratically.
 
 ---
 
