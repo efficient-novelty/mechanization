@@ -20,6 +20,7 @@ import qualified Data.Set as Set
 -- ============================================
 
 data TypeFormer = FPi | FSigma | FId | FSusp | FTrunc | FHIT | FFibration | FModal
+               | FConnection | FCurvature | FMetric | FHilbert
   deriving (Eq, Ord, Show)
 
 data TheoryState = TheoryState
@@ -61,6 +62,14 @@ addToTheory entry ts = ts
       | name == "Hopf" = Set.insert FFibration oldFormers
       -- Adding Cohesion unlocks modal former
       | name == "Cohesion" = Set.insert FModal oldFormers
+      -- Adding Connections unlocks connection former
+      | name == "Connections" = Set.insert FConnection oldFormers
+      -- Adding Curvature unlocks curvature former
+      | name == "Curvature" = Set.insert FCurvature oldFormers
+      -- Adding Metric unlocks metric former
+      | name == "Metric" = Set.insert FMetric oldFormers
+      -- Adding Hilbert unlocks hilbert former
+      | name == "Hilbert" = Set.insert FHilbert oldFormers
       | otherwise = oldFormers
 
 -- | Check if a type former is available

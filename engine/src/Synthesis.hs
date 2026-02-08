@@ -40,7 +40,7 @@ data SynthConfig = SynthConfig
 
 defaultSynthConfig :: SynthConfig
 defaultSynthConfig = SynthConfig
-  { scMaxSteps    = 10      -- Discover structures 1-10
+  { scMaxSteps    = 14      -- Discover structures 1-14 (through Hilbert)
   , scMaxIdle     = 50
   , scHMax        = 20
   , scInitHorizon = 2
@@ -267,6 +267,7 @@ showCandType (CSusp _)        = "Suspension"
 showCandType (CMap _ _ _)     = "Map"
 showCandType (CAlgebra _ _)   = "Algebra"
 showCandType (CModal _ _)     = "Modal"
+showCandType (CAxiom _ _)    = "Axiom"
 
 -- ============================================
 -- Output formatting
@@ -308,10 +309,12 @@ formatSynthComparison results = unlines $
   ] ++ map formatCompRow (zip [1..] results)
   where
     genesisNames :: [String]
-    genesisNames = ["Universe", "Unit", "Witness", "Pi/Sigma", "S1", "PropTrunc", "S2", "S3", "Hopf", "Cohesion"]
+    genesisNames = [ "Universe", "Unit", "Witness", "Pi/Sigma", "S1", "PropTrunc"
+                   , "S2", "S3", "Hopf", "Cohesion"
+                   , "Connections", "Curvature", "Metric", "Hilbert" ]
 
     paperNus :: [Int]
-    paperNus = [1, 1, 2, 5, 7, 8, 10, 18, 18, 20]
+    paperNus = [1, 1, 2, 5, 7, 8, 10, 18, 18, 20, 26, 34, 43, 60]
 
     formatCompRow :: (Int, SynthResult) -> String
     formatCompRow (i, r) =

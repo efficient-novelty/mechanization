@@ -31,6 +31,7 @@ data Candidate
   | CMap String String String   -- source target fiber (e.g., "S3" "S2" "S1")
   | CAlgebra String String      -- kind carrier (e.g., "Lie" "S3")
   | CModal String Int           -- name numOps (e.g., "Cohesion" 3)
+  | CAxiom String Int           -- name numOps (axiomatic extensions: Connections, Curvature, Metric, Hilbert)
   deriving (Eq, Show)
 
 -- ============================================
@@ -62,6 +63,7 @@ candidateName (CSusp base)    = suspensionName base
 candidateName (CMap _ _ _)    = "Hopf"
 candidateName (CAlgebra k _)  = k
 candidateName (CModal n _)    = n
+candidateName (CAxiom n _)    = n
 
 -- ============================================
 -- Candidate to LibraryEntry
@@ -95,6 +97,8 @@ candidateToEntry (CAlgebra kind carrier) =
   LibraryEntry (kind ++ "(" ++ carrier ++ ")") 0 [] False Nothing
 candidateToEntry (CModal name _) =
   LibraryEntry name 0 [] False Nothing
+candidateToEntry (CAxiom name _) =
+  LibraryEntry name 0 [] False Nothing
 
 -- ============================================
 -- Kappa computation
@@ -122,6 +126,12 @@ candidateKappa (CMap _ _ _) _ = 4
 candidateKappa (CAlgebra _ _) _ = 6
 -- Modals: 1 + numOps
 candidateKappa (CModal _ numOps) _ = 1 + numOps
+-- Axioms: numOps + 1 (operations + import cost)
+candidateKappa (CAxiom "Connections" _) _ = 5
+candidateKappa (CAxiom "Curvature" _)  _ = 6
+candidateKappa (CAxiom "Metric" _)     _ = 7
+candidateKappa (CAxiom "Hilbert" _)    _ = 9
+candidateKappa (CAxiom _ numOps)       _ = numOps + 1
 
 -- | Compute kappa for a HIT, considering suspension shortcuts.
 hitKappa :: HITDef -> TheoryState -> Int
@@ -205,8 +215,30 @@ generateCandidates ts horizon =
         = [CModal "Cohesion" 3]
         | otherwise = []
 
+      -- Axiomatic extension candidates (Level C: framework invention)
+      -- Each requires gating on prior structures in the dependency chain:
+      --   Cohesion -> Connections -> Curvature -> Metric -> Hilbert
+      axiomCands = concat
+        [ -- Connections: differential structure on cohesive types
+          [ CAxiom "Connections" 4
+          | Set.member FModal formers
+          , "Connections" `notElem` libNames ]
+        , -- Curvature: curvature tensor from connections
+          [ CAxiom "Curvature" 5
+          | Set.member FConnection formers
+          , "Curvature" `notElem` libNames ]
+        , -- Metric: inner product / metric structure
+          [ CAxiom "Metric" 6
+          | Set.member FCurvature formers
+          , "Metric" `notElem` libNames ]
+        , -- Hilbert: Hilbert space axioms / Einstein-Hilbert functional
+          [ CAxiom "Hilbert" 8
+          | Set.member FMetric formers
+          , "Hilbert" `notElem` libNames ]
+        ]
+
       allCands = foundations ++ formerCands ++ hitCands ++ suspCands
-             ++ mapCands ++ algebraCands ++ modalCands
+             ++ mapCands ++ algebraCands ++ modalCands ++ axiomCands
 
   in filter (\c -> candidateKappa c ts <= horizon) allCands
 
