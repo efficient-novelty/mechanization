@@ -19,6 +19,8 @@ import Manifest (loadManifest)
 import Simulation (runSimulation, formatSimTable, defaultConfig, capabilityConfig, trCleared, trName, SimConfig(..))
 import Synthesis (runSynthesis, formatSynthTable, formatSynthComparison, defaultSynthConfig, SynthConfig(..), SynthResult(..))
 import CoherenceWindow (dBonacci, dBonacciDelta, defaultWindow)
+import ExactNu (computeExactNuAtDepth)
+import Cluster (proofRankNu)
 import Data.List (sortOn, intercalate)
 import qualified Data.Map.Strict as Map
 import System.Directory (doesFileExist)
@@ -282,6 +284,73 @@ main = do
     putStrLn $ "  Names: " ++ intercalate ", " names
     putStrLn ""
     ) [1, 2, 3]
+
+  -- Phase M: Exact ν Oracle (WP 2.1)
+  putStrLn ""
+  putStrLn "Phase M: Exact ν Oracle (all library atoms, depths 1-3)"
+  putStrLn "========================================================"
+  putStrLn ""
+  putStrLn "Compares proof-rank ν (2-step window + latent bonus) against exact ν"
+  putStrLn "(all atoms, depths 1-3). Sanity: d1 schemas should match PR schemas."
+  putStrLn ""
+
+  putStrLn " n  | Structure      | ν_paper | ν_PR | exact_d1 | exact_d2 | exact_d3 | d1==PR?"
+  putStrLn "----|----------------|---------|------|----------|----------|----------|--------"
+
+  mapM_ (\n -> do
+    let entry = genesisEntry n
+        lib = buildLibrary (n - 1)
+        (nuPR, _clusters) = proofRankNu entry lib
+        pNu = paperNu n
+
+        -- Exact nu at depths 1 and 2 for all steps
+        (_, sc1, _) = computeExactNuAtDepth entry lib 1
+        (_, sc2, _) = computeExactNuAtDepth entry lib 2
+
+        -- Depth 3 only for steps 1-5 (performance)
+        sc3 = if n <= 5
+               then let (_, s, _) = computeExactNuAtDepth entry lib 3 in s
+               else -1
+
+        -- Sanity check: depth-1 exact schema count == PR schema count (no bonus)
+        -- PR schema-only count = nuPR minus bonus
+        pathBonus = length (lePathDims entry)
+        maxPathDim = if null (lePathDims entry) then 0
+                     else maximum (lePathDims entry)
+        homotopyBonus = maxPathDim * maxPathDim
+        totalBonus = pathBonus + homotopyBonus
+        prSchemaOnly = nuPR - totalBonus
+        sanity = if sc1 == prSchemaOnly then "YES" else "NO(" ++ show sc1 ++ "v" ++ show prSchemaOnly ++ ")"
+
+        sc3Str = if sc3 < 0 then "   -   " else padR 8 (show sc3)
+
+    putStrLn $ padR 3 (show n) ++ " | "
+            ++ padR 14 (structureName n) ++ " | "
+            ++ padR 7 (show pNu) ++ " | "
+            ++ padR 4 (show nuPR) ++ " | "
+            ++ padR 8 (show sc1) ++ " | "
+            ++ padR 8 (show sc2) ++ " | "
+            ++ sc3Str ++ " | "
+            ++ sanity
+    ) [1..7]
+
+  -- Detailed schema dump for S¹ (step 5) at depth 2
+  putStrLn ""
+  putStrLn "--- S¹ (step 5) depth-2 schema detail ---"
+  let s1Entry = genesisEntry 5
+      s1Lib = buildLibrary 4
+      (_, _, schemas1) = computeExactNuAtDepth s1Entry s1Lib 1
+      (_, _, schemas2) = computeExactNuAtDepth s1Entry s1Lib 2
+      schemas1Set = map (prettyTypeExpr . fst) schemas1
+      newInD2 = filter (\(s, _) -> prettyTypeExpr s `notElem` schemas1Set) schemas2
+  putStrLn $ "  Depth-1 schemas: " ++ show (length schemas1)
+  mapM_ (\(s, members) ->
+    putStrLn $ "    " ++ prettyTypeExpr s ++ "  (" ++ show (length members) ++ " members)"
+    ) schemas1
+  putStrLn $ "  New at depth-2: " ++ show (length newInD2)
+  mapM_ (\(s, members) ->
+    putStrLn $ "    " ++ prettyTypeExpr s ++ "  (" ++ show (length members) ++ " members)"
+    ) newInD2
 
   putStrLn ""
   putStrLn "=== Engine run complete ==="

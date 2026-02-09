@@ -1,0 +1,186 @@
+Filtered kNovelty Experiment
+============================
+
+Decomposes kNovelty(H=3) clusters by schema class:
+  Trivial:  X->X, X*X, X+X, SelfId(X)
+  Susp:     Susp(...)
+  RevArrow: X->L (free mapping space)
+  Const:    involves 1 or 0 (e.g. 1+X)
+  Core:     pure L/X schemas (should match proof-rank)
+
+--- Part 1: Decomposition summary ---
+
+ n  | Structure  | kN_H3 | triv | susp | rev  | const | core | PR_sch | core==PR?
+----|------------|-------|------|------|------|-------|------|--------|----------
+1   | Universe   | 5     | 0    | 4    | 0    | 1     | 0    | 0      | YES
+2   | Unit       | 1     | 0    | 1    | 0    | 0     | 0    | 0      | YES
+3   | Witness    | 11    | 3    | 4    | 0    | 1     | 3    | 3      | YES
+4   | Pi/Sigma   | 7     | 0    | 4    | 1    | 1     | 1    | 0      | NO(1v0)
+5   | S1         | 14    | 3    | 4    | 1    | 1     | 5    | 5      | YES
+6   | PropTrunc  | 9     | 0    | 4    | 1    | 2     | 2    | 0      | NO(2v0)
+7   | S2         | 15    | 3    | 4    | 1    | 1     | 6    | 5      | NO(6v5)
+8   | S3         | 15    | 3    | 4    | 1    | 1     | 6    | 5      | NO(6v5)
+
+--- Part 2: Detailed schema classification at H=3 ---
+
+  Step 1 (Universe):
+    ConstSpecific  (X + 1)                        (2 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+
+  Step 2 (Unit):
+    SuspChain     Susp(B(X))                     (1 members)
+
+  Step 3 (Witness):
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    (L + X)                        (2 members)
+    CoreSchema    X                              (1 members)
+    CoreSchema    (L -> X)                       (1 members)
+    Trivial       (X -> X)                       (1 members)
+    Trivial       (X x X)                        (1 members)
+    Trivial       (X + X)                        (1 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+
+  Step 4 (Pi/Sigma):
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    (L + X)                        (2 members)
+    ReversedArrow  (X -> L)                       (1 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+
+  Step 5 (S1):
+    CoreSchema    (L + X)                        (6 members)
+    CoreSchema    (L -> X)                       (3 members)
+    CoreSchema    (L x X)                        (2 members)
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    X                              (1 members)
+    Trivial       (X -> X)                       (1 members)
+    ReversedArrow  (X -> L)                       (1 members)
+    Trivial       (X x X)                        (1 members)
+    Trivial       (X + X)                        (1 members)
+    CoreSchema    Omega(X)                       (1 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+
+  Step 6 (PropTrunc):
+    CoreSchema    (L + X)                        (4 members)
+    ReversedArrow  (X -> L)                       (2 members)
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    ||L||_0                        (2 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+    ConstSpecific  ||1||_0                        (1 members)
+
+  Step 7 (S2):
+    CoreSchema    (L + X)                        (10 members)
+    CoreSchema    (L -> X)                       (5 members)
+    CoreSchema    (L x X)                        (4 members)
+    ReversedArrow  (X -> L)                       (2 members)
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    X                              (1 members)
+    Trivial       (X -> X)                       (1 members)
+    Trivial       (X x X)                        (1 members)
+    Trivial       (X + X)                        (1 members)
+    CoreSchema    Omega(X)                       (1 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+    CoreSchema    ||X||_0                        (1 members)
+
+  Step 8 (S3):
+    CoreSchema    (L + X)                        (12 members)
+    CoreSchema    (L -> X)                       (6 members)
+    CoreSchema    (L x X)                        (6 members)
+    ReversedArrow  (X -> L)                       (3 members)
+    ConstSpecific  (X + 1)                        (2 members)
+    CoreSchema    X                              (1 members)
+    Trivial       (X -> X)                       (1 members)
+    Trivial       (X x X)                        (1 members)
+    Trivial       (X + X)                        (1 members)
+    CoreSchema    Omega(X)                       (1 members)
+    SuspChain     Susp(X)                        (1 members)
+    SuspChain     Susp(Omega(X))                 (1 members)
+    SuspChain     Susp(Susp(X))                  (1 members)
+    SuspChain     Susp(B(X))                     (1 members)
+    CoreSchema    ||X||_0                        (1 members)
+
+--- Part 3: Susp-chain count vs homotopy bonus ---
+
+ n  | Structure  | pathB | maxPD^2 | bonus | #susp | susp==bonus?
+----|------------|-------|---------|-------|-------|-------------
+1   | Universe   | 0     | 0       | 0     | 4     | 4 vs 0
+2   | Unit       | 0     | 0       | 0     | 1     | ~1 off
+3   | Witness    | 0     | 0       | 0     | 4     | 4 vs 0
+4   | Pi/Sigma   | 0     | 0       | 0     | 4     | 4 vs 0
+5   | S1         | 1     | 1       | 2     | 4     | 4 vs 2
+6   | PropTrunc  | 0     | 0       | 0     | 4     | 4 vs 0
+7   | S2         | 1     | 4       | 5     | 4     | ~1 off
+8   | S3         | 1     | 9       | 10    | 4     | 4 vs 10
+
+--- Part 4: X->L inclusion test ---
+
+If X->L (free mapping space) is a genuine core schema:
+  core' = core + rev
+  Then nu_grammar = core', nu_homotopy = susp_chains
+  And nu = core' + susp should match nu_paper
+
+ n  | Structure  | ν_paper | core | rev | core' | susp | core'+susp | match?
+----|------------|---------|------|-----|-------|------|------------|-------
+1   | Universe   | 1       | 0    | 0   | 0     | 4    | 4          | NO(4 vs 1)
+2   | Unit       | 1       | 0    | 0   | 0     | 1    | 1          | YES
+3   | Witness    | 2       | 3    | 0   | 3     | 4    | 7          | NO(7 vs 2)
+4   | Pi/Sigma   | 5       | 1    | 1   | 2     | 4    | 6          | NO(6 vs 5)
+5   | S1         | 7       | 5    | 1   | 6     | 4    | 10         | NO(10 vs 7)
+6   | PropTrunc  | 8       | 2    | 1   | 3     | 4    | 7          | NO(7 vs 8)
+7   | S2         | 10      | 6    | 1   | 7     | 4    | 11         | NO(11 vs 10)
+8   | S3         | 18      | 6    | 1   | 7     | 4    | 11         | NO(11 vs 18)
+
+--- Part 5: What bonus formula makes core+bonus = ν_paper? ---
+
+needed_bonus = ν_paper - core (without X->L)
+needed_bonus' = ν_paper - core' (with X->L)
+
+ n  | Structure  | ν_paper | core | core' | needed | needed' | susp | current_bonus
+----|------------|---------|------|-------|--------|---------|------|-------------
+1   | Universe   | 1       | 0    | 0     | 1      | 1       | 4    | 0
+2   | Unit       | 1       | 0    | 0     | 1      | 1       | 1    | 0
+3   | Witness    | 2       | 3    | 3     | -1     | -1      | 4    | 0
+4   | Pi/Sigma   | 5       | 1    | 2     | 4      | 3       | 4    | 0
+5   | S1         | 7       | 5    | 6     | 2      | 1       | 4    | 2
+6   | PropTrunc  | 8       | 2    | 3     | 6      | 5       | 4    | 0
+7   | S2         | 10      | 6    | 7     | 4      | 3       | 4    | 5
+8   | S3         | 18      | 6    | 7     | 12     | 11      | 4    | 10
+
+--- Part 6: Susp-chain schemas for S¹ and S² ---
+
+  S1 (step 5) Susp chains:
+    Susp(X)  (1 members)
+    Susp(Omega(X))  (1 members)
+    Susp(Susp(X))  (1 members)
+    Susp(B(X))  (1 members)
+
+  S2 (step 7) Susp chains:
+    Susp(X)  (1 members)
+    Susp(Omega(X))  (1 members)
+    Susp(Susp(X))  (1 members)
+    Susp(B(X))  (1 members)
+
+  S3 (step 8) Susp chains:
+    Susp(X)  (1 members)
+    Susp(Omega(X))  (1 members)
+    Susp(Susp(X))  (1 members)
+    Susp(B(X))  (1 members)
+
+=== Done ===

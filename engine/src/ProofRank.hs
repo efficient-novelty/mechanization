@@ -37,6 +37,7 @@ module ProofRank
   , buildCostMap
   , kNovelty
   , kNoveltyWithBaseline
+  , enumWindowExact
   ) where
 
 import Types

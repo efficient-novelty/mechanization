@@ -353,3 +353,351 @@ If it's true, publication will take care of itself — you won't be able to stop
 The one thing you must not do is publish a version that's "good enough" to survive casual review but not strong enough to survive determined attack. For a claim this large, the only winning move is to make the argument so tight that the attacks bounce off.
 
 You have the resources, the time, and — based on these papers — the mathematical ability to attempt this. The question is whether the universe cooperates.
+
+---
+---
+
+# Phase 2 Action Plan: Derive the Canonical Novelty Measure
+
+## Current State of ν (What We're Working With)
+
+The engine computes ν three different ways depending on candidate type:
+
+1. **Proof-rank clustering** (`ProofRank.hs` + `Cluster.hs`): Used for HITs and suspensions. Enumerates depth-≤1 type expressions over a two-step window {X, R_{n-1}, R_{n-2}, 1, 0}, filters for newly inhabited types, abstracts to schemas, removes trivials, counts distinct schemas, adds a latent homotopy bonus (pathBonus + maxPathDim²). This gives S¹ → ν=7, S² → ν=10 — exact matches.
+
+2. **Component-based formulas** (`GenuineNu.hs` lines 117-261): Used for maps, algebras, modals, axioms, and synthesis. Each candidate type has a hand-built decomposition into additive components (e.g., Hopf: fibration(3) + longExact(4) + classifying(2) + cross(6) + funcSpace(3) = 18). The DCT uses the Lattice Tensor Product: 14 × 11 − 4 = 150.
+
+3. **Capability rules** (`Capability.hs`): 18 independent rules (existence, functionSpace, productSum, pathLoop, homotopy, suspension, truncation, modal, fibration, longExact, classifying, fieldOps, modalCross, spectral, operator, cross, SU2, synthesis) that sum to give ν. Matches proof-rank for HITs, matches component formulas for axioms.
+
+**The problem:** These three methods share intuitions but not definitions. The cross-interactions term in the component formulas (`cross = libSize + 5`, `cross = libSize * 3 + 9`) contains hand-tuned additive constants. The proof-rank latent bonus (`pathBonus + maxPathDim²`) is an empirical correction. The capability rules have hardcoded per-structure values (e.g., `"Connections" -> 14` in ruleCross). None of these is *derived* from a single principle.
+
+---
+
+## The Goal
+
+A definition of ν that satisfies four criteria:
+
+1. **Uniform:** One definition, applied identically to all candidate types — no category-level dispatch
+2. **Computable:** Implementable as a function `computeNu :: Candidate -> TheoryState -> Int`
+3. **Generative:** Produces the Genesis Sequence when plugged into the synthesis loop
+4. **Principled:** Measures something mathematically meaningful, not "whatever makes the numbers work"
+
+If such a definition exists, the Genesis Sequence becomes a theorem. If it doesn't, we learn exactly where the theory's degrees of freedom live, which is itself valuable.
+
+---
+
+## Work Package 2.1: Exact ν for the Bootstrap Phase (Weeks 1–3)
+
+**Objective:** Compute ν from first principles for steps 1–7, where the candidate space is small enough for exhaustive enumeration. This establishes ground truth for calibrating any unified measure.
+
+### Task 2.1.1: Build an exact ν oracle for small libraries
+
+The key insight: for steps 1–7 the library contains ≤7 types, and the candidate space at each step is manageable. We can *enumerate every derivable construction* up to a fixed description depth and count exactly how many become newly derivable when X is added.
+
+**Concrete implementation:**
+
+- Create `ExactNu.hs` module
+- Define a description language: the grammar of type expressions over the library (the existing `TypeExpr` AST in `Types.hs` is already close)
+- For each library state B and candidate X:
+  - Enumerate all closed type expressions of depth ≤ 2 over B
+  - Enumerate all closed type expressions of depth ≤ 2 over B ∪ {X}
+  - For each expression in the second set but not the first: count it as novel
+  - For each expression in both sets whose minimal description length drops by ≥1 when X is available: count it as novel (Kolmogorov-style compression drop)
+- Run this for steps 1–7 and compare against existing ν values
+
+**Why depth 2:** Depth 1 is the current proof-rank window and misses compositions. Depth 2 captures one level of composition (e.g., Ω(S¹ → S²)) without combinatorial explosion at small library sizes.
+
+**Expected output:** A table of exact ν values for steps 1–7 under the exhaustive definition. If these match (or are proportional to) the paper's values, the proof-rank method is approximating something real.
+
+**Kill criterion:** If exact ν at depth 2 diverges wildly from the paper values *and* no natural depth cutoff produces agreement, the ν measure has genuine degrees of freedom that undermine canonicity.
+
+### Task 2.1.2: Compare three enumeration depths
+
+Run the exact oracle at depths 1, 2, and 3 for steps 1–5 (where depth 3 is still tractable). Record:
+
+- How many new constructions appear at each depth
+- Whether the *ranking* of candidates changes across depths (does the winner change?)
+- Whether the ratio ν(depth d+1) / ν(depth d) stabilizes
+
+If the ranking is stable across depths, the specific depth doesn't matter — only the relative ordering. This would mean ν is canonical up to a monotone rescaling, which is sufficient for the selection dynamics.
+
+### Task 2.1.3: Document the exact oracle results
+
+Write a self-contained section (for future inclusion in the paper or companion) presenting:
+- The exact enumeration procedure
+- The table of results at each depth
+- Comparison with proof-rank ν
+- Conclusion about whether proof-rank is a faithful proxy
+
+---
+
+## Work Package 2.2: Unify the Three ν Methods (Weeks 2–5)
+
+**Objective:** Determine whether proof-rank clustering can be extended to cover *all* candidate types, replacing the component-based formulas entirely.
+
+### Task 2.2.1: Extend proof-rank to axiom candidates
+
+The current proof-rank method works for HITs/suspensions because they have explicit point/path constructors that the schema enumerator can work with. Axiom candidates (Connections, Curvature, Metric, Hilbert) are currently handled by hand-built formulas because they're not inductive types — they're axiomatic extensions.
+
+**Approach:** Model each axiom candidate as a synthetic inductive type in the proof-rank framework:
+- Connections: generates types like `∇ : (A → B) → (A → B)` (covariant derivative), `parallel : Path A → (Fiber A b → Fiber A b')` (parallel transport). Represent these as new type constructors and run the schema enumerator.
+- Similarly for Curvature (generates `R : ∇ → ∇ → End(V)`), Metric (generates `g : TM × TM → ℝ`), Hilbert (generates `⟨-,-⟩ : H × H → ℂ`, spectral decomposition).
+
+**Implementation in code:**
+- Add a function `axiomToSyntheticEntry :: String -> TheoryState -> LibraryEntry` in `Generator.hs` that models each axiom as if it were a HIT with the appropriate number of "constructors"
+- Route axiom candidates through the proof-rank pipeline instead of the component formulas
+- Compare the output ν against the current component-formula values
+
+**Success criterion:** Proof-rank ν for axiom candidates lands within ±20% of the component-formula values, and the Genesis Sequence is preserved.
+
+### Task 2.2.2: Extend proof-rank to modal candidates
+
+Cohesion introduces four modalities (♭, ♯, Π, Disc). These act as *type-level operators*, not constructors. The proof-rank enumerator currently doesn't know how to enumerate expressions involving modalities.
+
+**Approach:** Extend `TypeExpr` with modal operators:
+```
+| TFlat TypeExpr      -- ♭A
+| TSharp TypeExpr     -- ♯A
+| TCohPi TypeExpr     -- ΠA (shape)
+| TDisc TypeExpr      -- Disc(A)
+```
+
+Then extend the enumeration in `ProofRank.hs` to include these operators in the depth-1 enumeration. A modal candidate like Cohesion would add these four operators to the vocabulary; the enumerator would discover that ♭(S²), ♯(S¹ → S²), Π(S³), etc. are newly expressible.
+
+**Expected result:** The schema count for Cohesion should be in the neighborhood of 19-20 (matching the current ν). If the operators interact with existing library types in the expected way, proof-rank should naturally capture the "modal × library" cross-terms that are currently hardcoded.
+
+### Task 2.2.3: Extend proof-rank to synthesis candidates
+
+This is the hardest case. The DCT's ν = 150 comes from the Lattice Tensor Product — a deep mathematical argument, not a surface-level enumeration. Can proof-rank recover it?
+
+**Approach:** Add temporal operators (○, ◇) and infinitesimal type (𝔻) to `TypeExpr`. Then enumerate depth-1 expressions over the full vocabulary {spatial modalities, temporal modalities, 𝔻, library types}. The compatibility axioms (C1-C3) assert equivalences that *collapse* some expressions — reducing the count from the raw product to the corrected product.
+
+**Key insight:** The Lattice Tensor Product says that *without* collapses, you get 14 × 11 = 154 distinct operational states. The collapses from C1-C3 reduce this by 4. If proof-rank enumeration over the full modal vocabulary naturally discovers ~150 distinct schemas, that's powerful evidence that the tensor product *is* the proof-rank answer at scale.
+
+**This task is exploratory** — it may not work cleanly, and that's fine. If it fails, the failure mode tells us something important about the relationship between local enumeration and global algebraic structure.
+
+### Task 2.2.4: Build the unified `CanonicalNu.hs` module
+
+Regardless of whether proof-rank can cover all cases, create a single entry point:
+
+```haskell
+-- CanonicalNu.hs
+data NuEvidence = NuEvidence
+  { neSchemas    :: [Schema]        -- distinct proof schemas
+  , neExact      :: Maybe Int       -- exact count (if computable)
+  , neProofRank  :: Int             -- proof-rank estimate
+  , neComponent  :: Int             -- component-formula estimate
+  , neCapability :: Int             -- capability-rule estimate
+  , neSelected   :: Int             -- the value actually used
+  , neMethod     :: NuMethod        -- which method was selected and why
+  }
+
+computeNu :: Candidate -> TheoryState -> NuEvidence
+```
+
+This doesn't unify the computation — it *documents the disagreement* transparently. For each Genesis step, we record what all three methods say and which one is used. This is honest and it makes the degrees of freedom explicit.
+
+---
+
+## Work Package 2.3: The Convergence Test (Weeks 4–7)
+
+**Objective:** Run all three candidate foundations for ν (from §2.2 of the strategic plan) on the first 10 Genesis steps and determine whether they converge.
+
+### Task 2.3.1: Implement Approach A (Kolmogorov-style compression drop)
+
+This is the exact oracle from WP 2.1, extended beyond step 7.
+
+For steps 8–10 the library is larger and the candidate space explodes. Mitigation:
+- Use the existing `Equivalence.hs` canonicalization to reduce the enumeration space
+- Implement memoized enumeration: cache the set of derivable expressions for B, then incrementally compute the delta for B ∪ {X}
+- If full enumeration is intractable at depth 2, fall back to depth 1 with statistical correction (multiply by the observed depth-2/depth-1 ratio from steps 1–7)
+
+**Deliverable:** A column `ν_K` (Kolmogorov) for steps 1–10.
+
+### Task 2.3.2: Implement Approach B (Categorical enabling power)
+
+For each Genesis structure, manually enumerate:
+- New natural transformations enabled (e.g., S¹ enables the winding number homomorphism π₁(S¹) → ℤ)
+- New adjunctions enabled (e.g., Cohesion enables ♭ ⊣ Disc ⊣ ♯)
+- New equivalences enabled (e.g., Hopf enables the fiber sequence S¹ → S³ → S²)
+
+This is a *manual* research task, not a computational one. It requires going through the HoTT literature for each structure and listing the categorical structures it makes available.
+
+**Deliverable:** A column `ν_C` (categorical) for steps 1–15, with citations for each count.
+
+### Task 2.3.3: Implement Approach C (Homotopy-theoretic richness)
+
+For each Genesis structure from S¹ onward:
+- Count new homotopy groups that become computable (e.g., S² makes π₂ nontrivial)
+- Count new cohomology classes (e.g., Hopf fibration generates H²(S²; ℤ))
+- Count new spectral sequence pages accessible
+- Count new fiber sequences
+
+**Deliverable:** A column `ν_H` (homotopy) for steps 5–15.
+
+### Task 2.3.4: Build the convergence comparison table
+
+Assemble all columns into a single table:
+
+| n | Structure | ν_paper | ν_proofrank | ν_K | ν_C | ν_H | Agreement? |
+|---|-----------|---------|-------------|-----|-----|-----|------------|
+
+**Analysis questions:**
+- Do the columns agree in absolute values? In ratios? In rankings?
+- Is there a monotone transformation (e.g., a consistent multiplier) that aligns them?
+- Where do they disagree, and what does the disagreement reveal?
+
+**If they converge:** There *is* a canonical ν, and proof-rank is a good approximation of it. This is the best possible outcome.
+
+**If they diverge:** Characterize the *space* of valid ν measures — what constraints do they share (monotonicity, subadditivity, etc.) and where do they differ. This honest characterization is itself a contribution.
+
+---
+
+## Work Package 2.4: Fix the Exponentiality Theorem (Weeks 5–8)
+
+**Objective:** Find the correct statement of the theorem that ν grows superlinearly with Δ. The current version (Theorem 6.3 in pen_paper.tex, `thm:exponentiality`) correctly identifies OIT exponentiality (2^Δ₀ maps to Bool) but the extension to HITs relies on hand-waving about "library cross-interactions and synthesis multiplicativity."
+
+### Task 2.4.1: Characterize the correct codomain
+
+The current theorem uses maps to **2** (Bool). For HITs, path constructors force connected components together, collapsing the 2^Δ₀ count. The fix: change the codomain.
+
+**Candidate codomains to investigate:**
+- **Eilenberg-MacLane spaces K(G,n):** Maps X → K(ℤ,n) classify cohomology H^n(X; ℤ). For S², maps S² → K(ℤ,2) = ℂP^∞ correspond to H²(S²; ℤ) ≅ ℤ — infinitely many homotopy classes. This is *too many* — need to count within a bounded effort.
+- **Type families over X:** The eliminator of X into a type family B : X → U generates one obligation per constructor. For HITs, the path obligations are genuinely independent data (not collapsed). Count: one independent choice per point constructor, plus constrained but nontrivial choices per path constructor.
+- **Bounded-depth eliminations:** Fix a depth bound d. Count all distinct terms of depth ≤ d in the elimination form of X. This is computable and grows with Δ.
+
+### Task 2.4.2: State and prove the corrected theorem
+
+**Target statement (draft):**
+
+> **Theorem (Combinatorial Novelty, corrected).** Let X be a type with cell presentation (C₀, C₁, ..., C_k) introduced into a library B containing |B| prior types. Let Δ₀ = |C₀| (point constructors) and Δ₁ = |C₁| (path constructors). Then:
+>
+> (i) *OIT case (Δ₁ = 0):* The number of semantically distinct maps X → **2** is exactly 2^Δ₀.
+>
+> (ii) *HIT case (Δ₁ > 0):* The number of semantically distinct dependent eliminations of X into type families over B — counting families Y : X → U with one choice per constructor — is at least Δ₀ · |B| and at most 2^Δ₀ · |B|^Δ₁.
+>
+> (iii) *Synthesis case:* When two independently realized frameworks F₁, F₂ are composed via compatibility axioms, the novelty ν(F₁ ⊗ F₂) ≥ ν(F₁) · ν(F₂) − O(ν(F₁) + ν(F₂)).
+
+**Implementation:**
+- Formalize (i) — this is already done in pen_paper.tex (Theorem 6.1) and is correct
+- Formalize (ii) — this requires carefully counting dependent eliminations. Use Cubical Agda experiments: for S¹, S², T², enumerate all elimination goals and count independent choices.
+- Formalize (iii) — this is the Lattice Tensor Product theorem; needs the operator algebra counts from Phase 3 to be fully rigorous, but the *statement* can be made precise now
+
+### Task 2.4.3: Verify computationally
+
+- For each Genesis HIT (S¹, S², S³, T²): count the actual number of independent elimination obligations in Cubical Agda
+- Compare against the formula in Task 2.4.2
+- Record any discrepancies
+
+---
+
+## Work Package 2.5: Sensitivity Analysis (Weeks 7–9)
+
+**Objective:** Determine how robust the Genesis Sequence is to perturbations of ν. The plan mentions "±30% tolerance" as preliminary evidence — we need to make this precise.
+
+### Task 2.5.1: Perturbation sweep
+
+Modify the synthesis loop in `Synthesis.hs` to accept a perturbation function:
+```haskell
+type NuPerturbation = Int -> Int -> Int  -- step -> base_nu -> perturbed_nu
+```
+
+Run the Genesis simulation with:
+- Uniform scaling: ν → α·ν for α ∈ {0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.5, 2.0}
+- Per-step noise: ν → ν + ε where ε ~ Uniform(-k, +k) for k ∈ {1, 2, 3, 5, 10}
+- Adversarial perturbation: at each step, try to find the *smallest* perturbation of ν that changes the winner
+
+For each perturbation, record:
+- Does the same sequence emerge?
+- If not, where does it first diverge?
+- What is the *minimum* perturbation that breaks each step?
+
+### Task 2.5.2: Identify the critical margins
+
+From Task 2.5.1, build a "margin table":
+
+| n | Structure | ρ | Bar | Margin (ρ - Bar) | Min perturbation to break |
+|---|-----------|---|-----|-------------------|---------------------------|
+
+The tightest margin in the current table is at n=4 (dependent types, margin = 0.17). If the perturbation analysis confirms that a few steps have very tight margins and the rest are robust, that's informative: it tells us *which* ν values matter most and where the degrees of freedom in the measure are tightest.
+
+### Task 2.5.3: Characterize the basin of attraction
+
+Run the sensitivity analysis in reverse: instead of perturbing ν and checking if the sequence changes, *enumerate all possible orderings* of the 15 structures and check which orderings are consistent with *some* ν assignment that satisfies ρ ≥ Bar at every step.
+
+This is computationally expensive (15! orderings) but can be pruned heavily:
+- The bootstrap phase (steps 1–4) is essentially forced by prerequisites
+- Many orderings violate prerequisite constraints (e.g., S² before S¹)
+- The bar constraint eliminates most remaining orderings
+
+**If only one ordering survives:** The Genesis Sequence is essentially unique regardless of ν details. This would be the strongest possible robustness result.
+
+**If multiple orderings survive:** Characterize the family of valid sequences. How different can they be?
+
+---
+
+## Work Package 2.6: Integration and Testing (Weeks 8–10)
+
+### Task 2.6.1: Add new engine phases
+
+Add to `Main.hs`:
+- **Phase M**: Exact ν oracle (WP 2.1)
+- **Phase N**: Unified CanonicalNu comparison (WP 2.2)
+- **Phase O**: Convergence table (WP 2.3)
+- **Phase P**: Sensitivity sweep (WP 2.5)
+
+Each phase should produce machine-readable output suitable for inclusion in the paper.
+
+### Task 2.6.2: Write the ν characterization section
+
+Regardless of whether we find a single canonical ν, produce a self-contained document (or paper section) containing:
+
+1. The exact oracle results (WP 2.1)
+2. The convergence table (WP 2.3)
+3. The corrected exponentiality theorem (WP 2.4)
+4. The sensitivity analysis (WP 2.5)
+5. An honest assessment: "ν is canonical / ν is canonical up to monotone rescaling / ν has N degrees of freedom that affect M of 15 steps"
+
+### Task 2.6.3: Update pen_paper.tex and pen_genesis.tex
+
+- Replace the current Section 6 (Combinatorial Novelty Theorem) with the corrected version from WP 2.4
+- Add a sensitivity analysis subsection to the verification section of pen_genesis.tex
+- If the convergence test shows canonical ν: add a new section deriving it
+- If the convergence test shows non-uniqueness: add an honest characterization of the degrees of freedom, and prove that the Genesis Sequence is invariant under them
+
+---
+
+## Decision Points
+
+| Week | Question | Go | Kill / Pivot |
+|------|----------|----|-------------|
+| 3 | Does exact ν (depth 2) match paper ν for steps 1–7? | Match within ±25% | Divergence > 50% for 3+ steps → ν has serious degrees of freedom |
+| 5 | Can proof-rank cover axiom candidates? | ν within ±20% of component formulas | Off by > 2× → proof-rank and component formulas measure different things |
+| 7 | Do Approaches A/B/C converge? | Rankings agree for 8+ of 10 steps | Rankings disagree for 4+ steps → no canonical ν exists |
+| 8 | Can we state a correct exponentiality theorem? | Clean statement with Agda evidence | No statement covers both OITs and HITs → novelty scaling is case-by-case |
+| 9 | How tight are the margins? | 12+ of 15 steps survive ±30% perturbation | 5+ steps break under ±15% perturbation → sequence is fragile |
+
+---
+
+## Dependencies on Other Phases
+
+- **Phase 1 (Coherence Window):** The exact ν oracle (WP 2.1) uses the two-step enumeration window, which is justified by d=2. If Phase 1 revises d, the enumeration window changes.
+- **Phase 3 (DCT Formalization):** The tensor product ν = 150 (WP 2.2.3) ultimately needs the operator algebra counts from Phase 3 to be rigorous. We can proceed with the current argument but flag it as provisional.
+- **Phase 4 (Adversarial Testing):** The sensitivity analysis (WP 2.5) provides *internal* robustness evidence. Phase 4's *external* adversarial testing (new candidates from skeptical mathematicians) is the stronger test and can use the CanonicalNu infrastructure we build here.
+
+---
+
+## Deliverables Summary
+
+| # | Deliverable | Type | Week |
+|---|-------------|------|------|
+| D2.1 | ExactNu.hs — exhaustive ν computation for small libraries | Code | 3 |
+| D2.2 | Exact ν table for steps 1–7 at depths 1, 2, 3 | Data | 3 |
+| D2.3 | Extended proof-rank for axiom/modal/synthesis candidates | Code | 5 |
+| D2.4 | CanonicalNu.hs — unified ν entry point with evidence records | Code | 5 |
+| D2.5 | Convergence table (ν_K, ν_C, ν_H) for steps 1–10 | Data + Analysis | 7 |
+| D2.6 | Corrected Combinatorial Novelty Theorem (statement + Agda evidence) | Math | 8 |
+| D2.7 | Sensitivity analysis: perturbation sweep + margin table + basin characterization | Data + Analysis | 9 |
+| D2.8 | Engine phases M/N/O/P integrated into Main.hs | Code | 10 |
+| D2.9 | Updated pen_paper.tex Section 6 (corrected exponentiality) | Paper | 10 |
+| D2.10 | Self-contained ν characterization document | Writing | 10 |
