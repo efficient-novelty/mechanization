@@ -218,18 +218,30 @@ For a foundation with Coherence Window $d$, the interface available for sealing 
 where $S(L_k)$ denotes the schemas exported by integration layer $L_k$.
 \end{definition}
 
-\begin{lemma}[Integration Trace Principle]
+\begin{theorem}[Integration Trace Principle]
 \label{lem:trace}
 Each integration layer $L_k$ exports exactly $|S(L_k)| = \Delta_k$ schemas.
 These schemas are the \emph{integration trace}: the set of resolved obligations from sealing $X_k$.
 Each resolved obligation becomes one opaque export (\emph{elimination duality}), and each export generates one obligation for the subsequent candidate (\emph{one-per-face correspondence}).
-\end{lemma}
+\end{theorem}
 
-\begin{proof}[Proof sketch]
-\emph{Elimination duality.}
-The eliminator of $X_k$ provides exactly one datum for each obligation in $\mathcal{G}_{\mathrm{obl}}$; each datum becomes a theorem in $L_k$'s interface.
-\emph{Sealing encapsulation} (\cref{rem:encapsulation}): resolved obligations become opaque exports of the sealed layer; future types interact with $L_k$'s interface, not with underlying layers.
-Verified by explicit obligation enumeration at steps~7 ($13 = 8 + 5$) and~8 ($21 = 13 + 8$), and machine-checked in Cubical Agda (\texttt{Saturation/AbstractionBarrier.agda}); see \S\ref{sec:verification}.
+\begin{proof}
+\emph{Linearity of Elimination.}
+The recursor $\mathrm{rec}_X$ distributes over type formers: it acts independently on each constructor and each path constructor of~$X_k$.
+Consequently, the behavior of $\mathrm{rec}_X$ is determined by an \emph{atomic basis}---the set of clauses, one per cell of~$X_k$---and the obligation graph $\mathcal{G}_{\mathrm{obl}}$ decomposes into independent atoms indexed by this basis.
+For maps (as at step~9), the two functorial operations (pullback and postcomposition) play the role of $\mathrm{rec}_X$, distributing over domain and codomain cells respectively.
+
+\emph{Context Extension Principle.}
+The active interface $I^{(d)}_n$ forms a \emph{context telescope}: an ordered sequence of typed entries, each well-formed in the context of its predecessors.
+Sealing $X_{n+1}$ against this telescope requires exactly one clause per entry:
+\emph{at least one} by constructive completeness (the eliminator would be stuck on an unhandled entry),
+\emph{at most one} by confluence (the clause is uniquely determined by the entry's type).
+Hence $|\mathcal{G}_{\mathrm{obl}}| = |I^{(d)}_n|$.
+
+\emph{Sealing Encapsulation} (\cref{rem:encapsulation}): resolved obligations become opaque exports of the sealed layer; future types interact with $L_k$'s interface, not with underlying layers.
+
+\emph{Verification scope:} steps~3--9, uniform across HITs (steps~3--8) and maps (step~9, the Hopf fibration);
+machine-checked abstraction barrier at steps~8--9 in Cubical Agda (\texttt{Saturation/AbstractionBarrier.agda}, \texttt{AbstractionBarrier9.agda}); see \S\ref{sec:verification}.
 \end{proof}
 
 \begin{lemma}[Latency Recurrence]
@@ -489,7 +501,7 @@ Stage~3 above uses a general principle: when layer $L_k$ is sealed, its resolved
 Future types interact with $L_k$'s interface---the theorems it proved---not with the underlying layers from which those theorems were derived.
 In the notation of Stage~3, the coherence data for $(q, r)$ is an $L_{n-1}$ theorem, not raw $L_{n-2}$ data.
 This encapsulation is essential for the Fibonacci recurrence: without it, inherited obligations would reference earlier layers directly, breaking the two-term structure.
-The principle is verified by machine-checked Cubical Agda (\texttt{Saturation/AbstractionBarrier.agda}), where Group~B obligations at step~8 are discharged from an opaque $L_7$~record with no PropTrunc import.
+The principle is verified by machine-checked Cubical Agda: at step~8, Group~B obligations are discharged from an opaque $L_7$~record with no PropTrunc import (\texttt{Saturation/AbstractionBarrier.agda}); at step~9, inherited obligations for the Hopf fibration are discharged from an opaque $L_8$~record (\texttt{Saturation/AbstractionBarrier9.agda}).
 \end{remark}
 
 \begin{remark}[Dimensional-to-temporal correspondence]
@@ -552,6 +564,15 @@ $\Delta_{n+1} = |I^{(d)}_n| = \sum_{j=0}^{d-1} \Delta_{n-j}$.
 \label{cor:fibonacci}
 For $d = 2$ with $\Delta_1 = \Delta_2 = 1$: $\Delta_n = F_n$ and $\tau_n = F_{n+2} - 1$.
 \end{corollary}
+
+\begin{remark}[Internal vs.\ external complexity]
+\label{rem:int-ext-complexity}
+The obligation count $\Delta$ measures \emph{external} complexity: the number of laws the interface imposes on future candidates.
+The specification size $\kappa$ measures \emph{internal} complexity: the amount of data required to define the candidate itself.
+These can diverge sharply.
+For example, the Riemann curvature tensor on an $N$-manifold has $N^4$ components, but the validation space for Connections (step~12) has $\Delta = 144$ basis elements---89 inherited from Connections' interface and 55 from Cohesion---because the interface is organized by the 144 independent algebraic symmetries, not by the raw component count.
+The Fibonacci recurrence governs $\Delta$ (external), not $\kappa$ (internal).
+\end{remark}
 
 \subsection{Stagnation of Class~1 Systems}
 \label{sec:stagnation}
@@ -900,11 +921,12 @@ Coherence Obligation Experiments trace the obligations for $S^1$, $S^2$, $T^2$, 
 In all cases: all obligations reference at most 2 layers, at least one genuinely references 2, and none references 3.
 
 \paragraph{Obligation decomposition and the abstraction barrier.}
-Explicit obligation enumeration at steps~7 and~8 verifies the Integration Trace Principle (\cref{lem:trace}):
-$S^2$ resolves $13 = 8 + 5$ obligations (8~from PropTrunc, 5~from~$S^1$), and $S^3$ resolves $21 = 13 + 8$ (13~from~$S^2$, 8~from~PropTrunc).
-The 13~obligations from~$S^2$ decompose into 5~structural and 8~inherited from~$S^2$'s resolved PropTrunc interactions.
+Explicit obligation enumeration at steps~7--9 verifies the Integration Trace Principle (\cref{lem:trace}):
+$S^2$ resolves $13 = 8 + 5$ obligations (8~from PropTrunc, 5~from~$S^1$), $S^3$ resolves $21 = 13 + 8$ (13~from~$S^2$, 8~from~PropTrunc), and the Hopf fibration resolves $34 = 21 + 13$ (21~from~$S^3$, 13~from~$S^2$).
+The Hopf fibration (step~9) crosses the phase boundary from types to maps: the 21~domain-side obligations arise from postcomposition constraints on~$S^3$, while the 13~codomain-side obligations arise from pullback constraints on~$S^2$, demonstrating a natural domain/codomain duality within the two-layer window.
 A Cubical Agda module (\texttt{Saturation/AbstractionBarrier.agda}, \texttt{-{}-cubical -{}-safe}) defines $L_7$'s interface as an opaque record and discharges all Group~B obligations (8.6--8.10) from record fields alone, with no PropTrunc import.
-This machine-checks Sealing Encapsulation (\cref{rem:encapsulation}): resolved obligations are depth-1 references to $L_7$, not depth-2 leaks to~$L_6$.
+At step~9, the same methodology extends: inherited obligations for the Hopf fibration are discharged from an opaque $L_8$~record (\texttt{Saturation/AbstractionBarrier9.agda}).
+This machine-checks Sealing Encapsulation (\cref{rem:encapsulation}): resolved obligations are depth-1 references to the preceding layer, not depth-2 leaks to earlier layers.
 
 \subsection{Coherence Window Stress-Testing}
 
@@ -925,9 +947,9 @@ This provides computational evidence that $d = 2$ uniquely supports sustained ev
 \paragraph{Proved.}
 \begin{itemize}[nosep]
     \item The Coherence Window Theorems (\cref{thm:ext-window,thm:int-window}): $d = 1$ for extensional foundations, $d = 2$ for intensional, with full proofs.
-    \item The Integration Trace Principle (\cref{lem:trace}): each layer exports $|S(L_k)| = \Delta_k$ schemas, verified by explicit obligation enumeration at steps~3--8 and machine-checked abstraction barrier in Cubical Agda.
+    \item The Integration Trace Principle (\cref{lem:trace}): each layer exports $|S(L_k)| = \Delta_k$ schemas, verified by explicit obligation enumeration at steps~3--9, including the phase boundary from types to maps at step~9.  Machine-checked abstraction barrier at steps~8--9 in Cubical Agda.
     The Complexity Scaling Theorem (\cref{thm:scaling}) follows: $\Delta_n = F_n$ for $d = 2$.
-    \item Sealing Encapsulation (\cref{rem:encapsulation}): resolved obligations become opaque $L_k$ exports; machine-checked for Group~B obligations at step~8 (\texttt{AbstractionBarrier.agda}).
+    \item Sealing Encapsulation (\cref{rem:encapsulation}): resolved obligations become opaque $L_k$ exports; machine-checked at step~8 (\texttt{AbstractionBarrier.agda}) and step~9 (\texttt{AbstractionBarrier9.agda}).
     \item The Divergence of Efficiency (\cref{thm:divergence}): $\rho_n \to \infty$, using only the conservative library-interaction bound.
     \item Grammar Canonicality (\cref{prop:grammar-canonical}): depth-1 schemas are window-independent, verified computationally for steps 1--7.
     \item The $S^2 \equiv S^3$ Grammar Identity (\cref{prop:s2s3}).
@@ -935,7 +957,7 @@ This provides computational evidence that $d = 2$ uniquely supports sustained ev
 
 \paragraph{Assumed.}
 \begin{itemize}[nosep]
-    \item The Integration Trace Principle is verified for steps~3--8 and the abstraction barrier is machine-checked, but a general proof for all $k$ remains open.
+    \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and axiomatic extensions) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
     \item The $\nu$ values in \cref{tab:genesis}: for 12 of 15 structures, $\nu$ is computed from first principles by the engine; for 3 ($S^3$, Connections, Hilbert), the engine's depth-1 window approximates but does not exactly match, and the table values incorporate domain knowledge.
     \item The DCT lattice count ($14 \times 11 - 4 = 150$): the factor counts are standard (Kuratowski's 14~\cite{kuratowski}, LTL's 11~\cite{pnueli}), but the correction $-4$ is an estimate.
 \end{itemize}
