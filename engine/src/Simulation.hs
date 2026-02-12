@@ -24,6 +24,8 @@ import Types
 import KappaNu (genesisEntry, paperKappa, paperNu, computedNu)
 import ProofRank (buildCostMap, kNoveltyWithBaseline)
 import CoherenceWindow (dBonacciDelta, dBonacciTau, defaultWindow)
+import InferenceNu (inferenceNu)
+import UniformNu (genesisLibrarySteps, GenesisStep(..))
 import qualified Data.Map.Strict as Map
 import Data.List (minimumBy)
 import Data.Ord (comparing)
@@ -32,7 +34,7 @@ import Data.Ord (comparing)
 -- Data Types
 -- ============================================
 
-data SimMode = PaperMode | ComputedMode | CapabilityMode
+data SimMode = PaperMode | ComputedMode | CapabilityMode | InferenceMode
   deriving (Eq, Show)
 
 data SimConfig = SimConfig
@@ -204,6 +206,45 @@ evalCandidateCapability idx entry horizon bar =
     , ceOvershoot  = r - bar
     }
 
+-- | Evaluate a single candidate in inference mode (uses InferenceNu)
+evalCandidateInference :: Int -> LibraryEntry -> Library -> Int -> Double -> CandidateEval
+evalCandidateInference idx entry lib horizon bar =
+  let k = paperKappa idx
+      -- Find the matching GenesisStep for this index
+      genesisStep = findGenesisStep idx
+      dn = case genesisStep of
+             Just gs -> inferenceNu gs lib
+             Nothing -> DecomposedNu 0 0 0 0
+      v = dnTotal dn
+      r = if k > 0 then fromIntegral v / fromIntegral k else 0.0
+      admissible = k <= horizon
+      clears = r >= bar
+  in CandidateEval
+    { ceIndex      = idx
+    , ceEntry      = entry
+    , ceKappa      = k
+    , ceNu         = v
+    , ceRho        = r
+    , ceAdmissible = admissible
+    , ceClearsBar  = clears
+    , ceOvershoot  = r - bar
+    }
+
+-- | Find a GenesisStep by its engine index.
+-- The engine uses indices 1-16 (10=Lie), while genesisLibrarySteps uses 1-15 (no Lie).
+-- We map engine index to the step whose gsStep matches.
+findGenesisStep :: Int -> Maybe GenesisStep
+findGenesisStep idx =
+  case filter (\gs -> gsStep gs == paperToUniformStep idx) genesisLibrarySteps of
+    (gs:_) -> Just gs
+    []     -> Nothing
+  where
+    -- Map engine index (1-16, with 10=Lie) to uniform step (1-15, no Lie)
+    paperToUniformStep i
+      | i <= 9  = i
+      | i == 10 = 0  -- Lie is absorbed, no matching step
+      | otherwise = i - 1  -- shift down by 1 after Lie
+
 -- ============================================
 -- Selection (Axiom 4)
 -- ============================================
@@ -261,6 +302,9 @@ simLoop cfg st
                  | (idx, entry) <- ssCandidates st]
             CapabilityMode ->
               [evalCandidateCapability idx entry horizon bar
+              | (idx, entry) <- ssCandidates st]
+            InferenceMode ->
+              [evalCandidateInference idx entry (ssLibrary st) horizon bar
               | (idx, entry) <- ssCandidates st]
 
           -- Filter: admissible AND clears bar

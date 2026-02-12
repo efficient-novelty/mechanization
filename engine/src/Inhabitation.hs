@@ -106,13 +106,13 @@ checkInhab (TSelfId a) lib = case checkInhab a lib of
 -- Conservative: only know it's inhabited if we can prove a ≡ b
 checkInhab (TId _ _ _) _ = Unknown
 
--- Rule 9: Ω(A) is inhabited if A has a non-trivial loop
-checkInhab (TOmega (TRef name)) lib = case getEntry name lib of
-  Just entry
-    | leHasLoop entry -> Inhabited (WLoop name)
-    | otherwise -> Unknown  -- Might still have a loop we don't know about
-  Nothing -> Unknown
-checkInhab (TOmega _) _ = Unknown
+-- Rule 9: Ω(A) is inhabited if A is inhabited
+-- In HoTT, for any point a:A, refl_a : (a =_A a) inhabits the loop space.
+-- This is a fundamental fact: the based loop space of any pointed type
+-- contains at least the trivial loop (refl).
+checkInhab (TOmega a) lib = case checkInhab a lib of
+  Inhabited _ -> Inhabited WRefl  -- refl : a =_A a
+  _ -> Unknown
 
 -- Rule 10: Susp(A) is always inhabited (has north pole)
 checkInhab (TSusp _) _ = Inhabited WNorth
@@ -144,6 +144,44 @@ checkInhab (TFiber _ _) _ = Unknown
 
 -- Rule 16: Delooping BA - inhabited if it's classifying a group
 checkInhab (TDeloop _) _ = Unknown
+
+-- Rule 17: Modal operators — conservative: preserve inhabitation
+-- ♭X is the discrete part of X; inhabited if X is inhabited
+checkInhab (TFlat a) lib = checkInhab a lib
+-- ♯X is the codiscrete part of X; inhabited if X is inhabited
+checkInhab (TSharp a) lib = checkInhab a lib
+-- Disc(X) embeds discrete into continuous; inhabited if X is inhabited
+checkInhab (TDisc a) lib = checkInhab a lib
+-- Π_coh (shape) inhabited if X is inhabited
+checkInhab (TPiCoh a) lib = checkInhab a lib
+
+-- Rule 18: Temporal operators — preserve inhabitation
+-- ○X (next) inhabited if X is inhabited
+checkInhab (TNext a) lib = checkInhab a lib
+-- ◇X (eventually) inhabited if X is inhabited
+checkInhab (TEventually a) lib = checkInhab a lib
+
+-- Rule 19: Differential/Axiomatic — gated on library axioms
+-- X^D (infinitesimal) inhabited if X is inhabited (constant infinitesimal paths)
+checkInhab (TInf a) lib = checkInhab a lib
+-- TX (tangent bundle) inhabited if X is inhabited (zero section)
+checkInhab (TTangent a) lib = checkInhab a lib
+-- Connection on X: inhabited if Connections axiom is in library and X is inhabited
+checkInhab (TConnection a) lib
+  | any ((== "Connections") . leName) lib = checkInhab a lib
+  | otherwise = Unknown
+-- Curvature of X: inhabited if Curvature axiom is in library and X is inhabited
+checkInhab (TCurvature a) lib
+  | any ((== "Curvature") . leName) lib = checkInhab a lib
+  | otherwise = Unknown
+-- Metric on X: inhabited if Metric axiom is in library and X is inhabited
+checkInhab (TMetric a) lib
+  | any ((== "Metric") . leName) lib = checkInhab a lib
+  | otherwise = Unknown
+-- Hilbert functional on X: inhabited if Hilbert axiom is in library and X is inhabited
+checkInhab (THilbert a) lib
+  | any ((== "Hilbert") . leName) lib = checkInhab a lib
+  | otherwise = Unknown
 
 -- ============================================
 -- Extended Inhabitation Checking

@@ -42,6 +42,21 @@ mapChildren f (TSigma v a b) = TSigma v (f a) (f b)
 mapChildren _ (THIT p d) = THIT p d
 mapChildren f (TFiber a b) = TFiber (f a) (f b)
 mapChildren f (TDeloop a) = TDeloop (f a)
+-- Modal operators
+mapChildren f (TFlat a) = TFlat (f a)
+mapChildren f (TSharp a) = TSharp (f a)
+mapChildren f (TDisc a) = TDisc (f a)
+mapChildren f (TPiCoh a) = TPiCoh (f a)
+-- Temporal operators
+mapChildren f (TNext a) = TNext (f a)
+mapChildren f (TEventually a) = TEventually (f a)
+-- Differential/Axiomatic
+mapChildren f (TInf a) = TInf (f a)
+mapChildren f (TTangent a) = TTangent (f a)
+mapChildren f (TConnection a) = TConnection (f a)
+mapChildren f (TCurvature a) = TCurvature (f a)
+mapChildren f (TMetric a) = TMetric (f a)
+mapChildren f (THilbert a) = THilbert (f a)
 
 -- ============================================
 -- Flattening for AC normalization
@@ -82,9 +97,9 @@ canonicalize t =
 
 -- | Apply one round of rewrite rules (outermost).
 -- Rules are applied in order: unit/void simplification,
--- distributivity, currying, AC normalization, suspension.
+-- distributivity, currying, AC normalization, suspension, modal.
 rewriteOnce :: TypeExpr -> TypeExpr
-rewriteOnce = ruleF . ruleAC . ruleD . ruleE . ruleA
+rewriteOnce = ruleModal . ruleF . ruleAC . ruleD . ruleE . ruleA
 
 -- ============================================
 -- Group A: Unit/Void simplification
@@ -104,6 +119,19 @@ ruleA (TCoprod TVoid b) = b
 ruleA (TArrow _ TUnit) = TUnit        -- A -> 1 ≃ 1
 ruleA (TArrow TVoid _) = TUnit        -- 0 -> A ≃ 1
 ruleA (TArrow TUnit b) = b            -- 1 -> A ≃ A
+-- Pi/Sigma with unit/void (non-dependent cases)
+ruleA (TPi _ _ TUnit) = TUnit         -- Pi(x:A, 1) ≃ 1
+ruleA (TPi _ TVoid _) = TUnit         -- Pi(x:0, B) ≃ 1
+ruleA (TPi _ TUnit b) = b              -- Pi(x:1, B) ≃ B
+ruleA (TSigma _ _ TVoid) = TVoid      -- Sigma(x:A, 0) ≃ 0
+ruleA (TSigma _ TVoid _) = TVoid      -- Sigma(x:0, B) ≃ 0
+ruleA (TSigma _ TUnit b) = b          -- Sigma(x:1, B) ≃ B
+ruleA (TSigma _ a TUnit) = a          -- Sigma(x:A, 1) ≃ A
+-- Truncation idempotence
+ruleA (TTrunc n (TTrunc m a))
+  | n >= m    = TTrunc m a            -- ||·||_n (||A||_m) ≃ ||A||_m when n >= m
+ruleA (TTrunc _ TUnit) = TUnit        -- ||1||_n ≃ 1
+ruleA (TTrunc _ TVoid) = TVoid        -- ||0||_n ≃ 0
 -- SelfId/Omega of trivial types
 ruleA (TSelfId TUnit) = TUnit
 ruleA (TSelfId TVoid) = TVoid
@@ -171,6 +199,52 @@ ruleF (TSusp (THIT 1 [1])) = TRef "S2"
 ruleF (TSusp (TRef "S2")) = TRef "S3"
 ruleF (TSusp (THIT 1 [2])) = TRef "S3"
 ruleF x = x
+
+-- ============================================
+-- Group M: Modal operator normalization
+-- Idempotence, Kuratowski collapses, compatibility axioms (C1-C3).
+-- ============================================
+
+ruleModal :: TypeExpr -> TypeExpr
+-- Idempotence: ♭(♭X) ≃ ♭X, ♯(♯X) ≃ ♯X
+ruleModal (TFlat (TFlat a)) = TFlat a
+ruleModal (TSharp (TSharp a)) = TSharp a
+ruleModal (TDisc (TDisc a)) = TDisc a
+ruleModal (TPiCoh (TPiCoh a)) = TPiCoh a
+-- Kuratowski-style collapses: ♭(♯X) ≃ ♭X, ♯(♭X) ≃ ♯X
+ruleModal (TFlat (TSharp a)) = TFlat a
+ruleModal (TSharp (TFlat a)) = TSharp a
+-- Disc/PiCoh adjunction collapses
+ruleModal (TDisc (TPiCoh a)) = TDisc a
+ruleModal (TPiCoh (TDisc a)) = TPiCoh a
+-- Compatibility axioms (C1): ○(♭X) ≃ ♭(○X)
+ruleModal (TNext (TFlat a)) = TFlat (TNext a)
+-- Compatibility axioms (C2): ○(ΠX) ≃ Π(○X) — shape commutes with next
+ruleModal (TNext (TPiCoh a)) = TPiCoh (TNext a)
+-- Compatibility axioms (C3): ○(X^D) ≃ (○X)^D
+ruleModal (TNext (TInf a)) = TInf (TNext a)
+-- Temporal idempotence
+ruleModal (TNext (TNext a)) = TNext (TNext a)  -- not idempotent, keep as is
+ruleModal (TEventually (TEventually a)) = TEventually a  -- ◇◇X ≃ ◇X
+-- Modal on unit/void
+ruleModal (TFlat TUnit) = TUnit
+ruleModal (TFlat TVoid) = TVoid
+ruleModal (TSharp TUnit) = TUnit
+ruleModal (TSharp TVoid) = TVoid
+ruleModal (TDisc TUnit) = TUnit
+ruleModal (TDisc TVoid) = TVoid
+ruleModal (TPiCoh TUnit) = TUnit
+ruleModal (TPiCoh TVoid) = TVoid
+ruleModal (TNext TUnit) = TUnit
+ruleModal (TNext TVoid) = TVoid
+ruleModal (TEventually TUnit) = TUnit
+ruleModal (TEventually TVoid) = TVoid
+-- Differential on unit/void
+ruleModal (TInf TUnit) = TUnit
+ruleModal (TInf TVoid) = TVoid
+ruleModal (TTangent TUnit) = TUnit
+ruleModal (TTangent TVoid) = TVoid
+ruleModal x = x
 
 -- ============================================
 -- Equivalence checking

@@ -134,6 +134,21 @@ involvesName name (TPi _ a b) = involvesName name a || involvesName name b
 involvesName name (TSigma _ a b) = involvesName name a || involvesName name b
 involvesName name (TFiber a b) = involvesName name a || involvesName name b
 involvesName name (TDeloop a) = involvesName name a
+-- Modal operators
+involvesName name (TFlat a) = involvesName name a
+involvesName name (TSharp a) = involvesName name a
+involvesName name (TDisc a) = involvesName name a
+involvesName name (TPiCoh a) = involvesName name a
+-- Temporal operators
+involvesName name (TNext a) = involvesName name a
+involvesName name (TEventually a) = involvesName name a
+-- Differential/Axiomatic
+involvesName name (TInf a) = involvesName name a
+involvesName name (TTangent a) = involvesName name a
+involvesName name (TConnection a) = involvesName name a
+involvesName name (TCurvature a) = involvesName name a
+involvesName name (TMetric a) = involvesName name a
+involvesName name (THilbert a) = involvesName name a
 involvesName _ _ = False
 
 -- ============================================

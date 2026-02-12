@@ -1,0 +1,80 @@
+\contentsline {section}{\numberline {1}The Genesis Sequence}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Reading the Table}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Three Patterns}{4}{subsection.1.2}%
+\contentsline {paragraph}{1. Fibonacci Timing.}{4}{section*.2}%
+\contentsline {paragraph}{2. Selective Survival.}{4}{section*.3}%
+\contentsline {paragraph}{3. Four Phases.}{5}{section*.4}%
+\contentsline {subsection}{\numberline {1.3}The Synthesis Singularity}{5}{subsection.1.3}%
+\contentsline {section}{\numberline {2}The Model}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}State and Candidates}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The Dual-Cost Model}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Novelty: Generative Capacity}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Selection Dynamics}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}The Five Axioms}{7}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Realization Time}{7}{subsection.2.6}%
+\contentsline {section}{\numberline {3}Coherence Windows}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Induced Obligations}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Theorem A: Extensional Systems ($d = 1$)}{8}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Theorem B: Intensional Systems ($d = 2$)}{8}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Upper Bound: $d \leq 2$}{8}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Lower Bound: $d \geq 2$}{9}{subsubsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.4}The Categorical Imperative: The Event Horizon of Logic}{10}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Cohomological Upper Bound: Spectral Degeneration}{10}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Topological Lower Bound: The Clutching Family}{11}{subsection.3.6}%
+\contentsline {section}{\numberline {4}The Complexity Scaling Theorem}{12}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Stagnation of Class~1 Systems}{12}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Acceleration of Class~2 Systems}{12}{subsection.4.2}%
+\contentsline {section}{\numberline {5}The Combinatorial Novelty Theorem}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}OIT Exponentiality}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}HIT Constraints}{12}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Restoring Superlinear Growth}{13}{subsection.5.3}%
+\contentsline {paragraph}{Mechanism 1: Dependent Elimination.}{13}{section*.5}%
+\contentsline {paragraph}{Mechanism 2: Library Cross-Interaction.}{13}{section*.6}%
+\contentsline {paragraph}{Mechanism 3: Composite Constructions.}{13}{section*.7}%
+\contentsline {subsection}{\numberline {5.4}Combinatorial Schema Synthesis}{13}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Divergence of Efficiency}{13}{subsection.5.5}%
+\contentsline {section}{\numberline {6}The Spectral Decomposition}{14}{section.6}%
+\contentsline {subsection}{\numberline {6.1}The Three Axes}{14}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}The Spectral Decomposition Table}{14}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Independence of Axes}{15}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Equal-Weight Property}{15}{subsection.6.4}%
+\contentsline {paragraph}{Method.}{15}{section*.8}%
+\contentsline {paragraph}{1D Windows.}{16}{section*.9}%
+\contentsline {paragraph}{2D Sweep.}{16}{section*.10}%
+\contentsline {paragraph}{Non-Additive Rules.}{16}{section*.11}%
+\contentsline {subsection}{\numberline {6.5}Interpretation: The Balanced Universe}{16}{subsection.6.5}%
+\contentsline {paragraph}{Critical Margins.}{17}{section*.12}%
+\contentsline {section}{\numberline {7}Computational Verification}{17}{section.7}%
+\contentsline {subsection}{\numberline {7.1}The Haskell Engine}{17}{subsection.7.1}%
+\contentsline {paragraph}{Novelty computation.}{17}{section*.13}%
+\contentsline {paragraph}{Results.}{17}{section*.14}%
+\contentsline {paragraph}{Cross-validation.}{17}{section*.15}%
+\contentsline {subsection}{\numberline {7.2}Schema Canonicality Verification}{17}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Uniform Nu Verification}{18}{subsection.7.3}%
+\contentsline {paragraph}{Algorithm.}{18}{section*.16}%
+\contentsline {paragraph}{Results.}{18}{section*.17}%
+\contentsline {paragraph}{Analysis of the Extensional Boundary.}{18}{section*.18}%
+\contentsline {subsection}{\numberline {7.4}Meta-Theoretic Rule Audit}{19}{subsection.7.4}%
+\contentsline {paragraph}{Results.}{19}{section*.19}%
+\contentsline {subsection}{\numberline {7.5}Combination Rule Sweep}{20}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Cubical Agda Mechanization}{20}{subsection.7.6}%
+\contentsline {paragraph}{Obligation decomposition and the abstraction barrier.}{20}{section*.20}%
+\contentsline {subsection}{\numberline {7.7}Coherence Window Stress-Testing}{21}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Discussion}{21}{section.8}%
+\contentsline {subsection}{\numberline {8.1}What Is Proved, What Is Assumed, What Is Open}{21}{subsection.8.1}%
+\contentsline {paragraph}{Proved.}{21}{section*.21}%
+\contentsline {paragraph}{Assumed.}{21}{section*.22}%
+\contentsline {paragraph}{Open.}{22}{section*.23}%
+\contentsline {subsection}{\numberline {8.2}Limitations}{22}{subsection.8.2}%
+\contentsline {paragraph}{The sample size for the spectral decomposition.}{22}{section*.24}%
+\contentsline {paragraph}{Elimination rules as residual.}{22}{section*.25}%
+\contentsline {paragraph}{The $\nu \ge 105$ computation.}{22}{section*.26}%
+\contentsline {subsection}{\numberline {8.3}The Physics of Mathematics}{23}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Falsifiability}{23}{subsection.8.4}%
+\contentsline {section}{\numberline {9}Conclusion}{23}{section.9}%
+\contentsline {section}{\numberline {A}DCT: Key Theorems and Applications}{24}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Internal Tangent Bundle}{24}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Temporal Evolution}{24}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{24}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Representative Applications}{24}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}Semantic Audit of DCT Novelty}{24}{subsection.A.5}%

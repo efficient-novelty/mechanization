@@ -30,14 +30,21 @@ executable pen-engine
                     , Synthesis
                     , CoherenceWindow
                     , ExactNu
+                    , Parallel
+                    , UniformNu
+                    , InferenceNu
+                    , AdjunctionDetect
+                    , Kolmogorov
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
                     , containers
                     , directory
+                    , parallel
+                    , deepseq
     hs-source-dirs:   src
     default-language: Haskell2010
-    ghc-options:      -Wall -O2 -rtsopts
+    ghc-options:      -Wall -O2 -threaded -rtsopts "-with-rtsopts=-N8"
 
 executable k-horizon
     main-is:          RunKHorizon.hs
@@ -91,6 +98,55 @@ executable phase-m
     default-language: Haskell2010
     ghc-options:      -Wall -O2
 
+executable dct-audit
+    main-is:          RunDCTAudit.hs
+    other-modules:    Types
+                    , Inhabitation
+                    , Enumerate
+                    , ProofRank
+                    , Equivalence
+                    , Independence
+                    , UniformNu
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+                    , containers
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2
+
+executable inference-nu
+    main-is:          RunInferenceNu.hs
+    other-modules:    Types
+                    , Inhabitation
+                    , Enumerate
+                    , ProofRank
+                    , Equivalence
+                    , Independence
+                    , UniformNu
+                    , InferenceNu
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+                    , containers
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2
+
+executable uniform-nu
+    main-is:          RunUniformNu.hs
+    other-modules:    Types
+                    , Inhabitation
+                    , Enumerate
+                    , ProofRank
+                    , Equivalence
+                    , Independence
+                    , UniformNu
+                    , Parallel
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+                    , containers
+                    , parallel
+                    , deepseq
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2 -threaded -rtsopts "-with-rtsopts=-N8"
+
 library
     exposed-modules:  Types
                     , Inhabitation
@@ -110,10 +166,17 @@ library
                     , Synthesis
                     , CoherenceWindow
                     , ExactNu
+                    , Parallel
+                    , UniformNu
+                    , InferenceNu
+                    , AdjunctionDetect
+                    , Kolmogorov
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
                     , containers
+                    , parallel
+                    , deepseq
     hs-source-dirs:   src
     default-language: Haskell2010
     ghc-options:      -Wall -O2

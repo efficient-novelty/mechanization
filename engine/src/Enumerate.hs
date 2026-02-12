@@ -163,6 +163,21 @@ typesInvolving name = filter (involves name)
     involves n (THIT _ _) = False
     involves n (TFiber a b) = involves n a || involves n b
     involves n (TDeloop a) = involves n a
+    -- Modal operators
+    involves n (TFlat a) = involves n a
+    involves n (TSharp a) = involves n a
+    involves n (TDisc a) = involves n a
+    involves n (TPiCoh a) = involves n a
+    -- Temporal operators
+    involves n (TNext a) = involves n a
+    involves n (TEventually a) = involves n a
+    -- Differential/Axiomatic
+    involves n (TInf a) = involves n a
+    involves n (TTangent a) = involves n a
+    involves n (TConnection a) = involves n a
+    involves n (TCurvature a) = involves n a
+    involves n (TMetric a) = involves n a
+    involves n (THilbert a) = involves n a
 
 -- ============================================
 -- Gated Program Enumeration (for K-based novelty)

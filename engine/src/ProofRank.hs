@@ -38,6 +38,7 @@ module ProofRank
   , kNovelty
   , kNoveltyWithBaseline
   , enumWindowExact
+  , availableFormers
   ) where
 
 import Types
@@ -67,6 +68,21 @@ depth (TSigma _ a b) = 1 + max (depth a) (depth b)
 depth (THIT _ _) = 0
 depth (TFiber a b) = 1 + max (depth a) (depth b)
 depth (TDeloop a) = 1 + depth a
+-- Modal operators
+depth (TFlat a) = 1 + depth a
+depth (TSharp a) = 1 + depth a
+depth (TDisc a) = 1 + depth a
+depth (TPiCoh a) = 1 + depth a
+-- Temporal operators
+depth (TNext a) = 1 + depth a
+depth (TEventually a) = 1 + depth a
+-- Differential/Axiomatic
+depth (TInf a) = 1 + depth a
+depth (TTangent a) = 1 + depth a
+depth (TConnection a) = 1 + depth a
+depth (TCurvature a) = 1 + depth a
+depth (TMetric a) = 1 + depth a
+depth (THilbert a) = 1 + depth a
 
 -- ============================================
 -- Type Normalization (Section 1.3b of plan)
@@ -108,6 +124,20 @@ normalize t = let t' = normStep t
     normStep (TOmega a) = TOmega (normalize a)
     normStep (TSusp a) = TSusp (normalize a)
     normStep (TTrunc n a) = TTrunc n (normalize a)
+    -- Modal operators
+    normStep (TFlat a) = TFlat (normalize a)
+    normStep (TSharp a) = TSharp (normalize a)
+    normStep (TDisc a) = TDisc (normalize a)
+    normStep (TPiCoh a) = TPiCoh (normalize a)
+    normStep (TNext a) = TNext (normalize a)
+    normStep (TEventually a) = TEventually (normalize a)
+    -- Differential/Axiomatic
+    normStep (TInf a) = TInf (normalize a)
+    normStep (TTangent a) = TTangent (normalize a)
+    normStep (TConnection a) = TConnection (normalize a)
+    normStep (TCurvature a) = TCurvature (normalize a)
+    normStep (TMetric a) = TMetric (normalize a)
+    normStep (THilbert a) = THilbert (normalize a)
     normStep x = x
 
 -- ============================================
@@ -131,10 +161,28 @@ availableFormers :: Library -> [String]
 availableFormers lib =
   let names = map leName lib
       base = ["Arrow", "Prod", "Coprod", "SelfId"]
-      withOmega = if any leHasLoop lib then "Omega" : base else base
+      withPi    = if "Pi" `elem` names then "Pi" : "Sigma" : base else base
+      withOmega = if any leHasLoop lib then "Omega" : withPi else withPi
       withSusp  = if length lib >= 5 then "Susp" : withOmega else withOmega
       withTrunc = if "Trunc" `elem` names then "Trunc" : withSusp else withSusp
-  in withTrunc
+      -- Modal operators: gated on Cohesion being in library
+      withModal = if "Cohesion" `elem` names
+                  then "Flat" : "Sharp" : "Disc" : "PiCoh" : withTrunc
+                  else withTrunc
+      -- Temporal operators: gated on DCT
+      withTemp  = if "DCT" `elem` names
+                  then "Next" : "Eventually" : withModal
+                  else withModal
+      -- Differential: gated on Connections
+      withDiff  = if "Connections" `elem` names
+                  then "Inf" : "Tangent" : withTemp
+                  else withTemp
+      -- Connection/Curvature/Metric/Hilbert: gated on respective entries
+      withConn  = if "Connections" `elem` names then "Connection" : withDiff else withDiff
+      withCurv  = if "Curvature" `elem` names then "Curvature" : withConn else withConn
+      withMet   = if "Metric" `elem` names then "Metric" : withCurv else withCurv
+      withHilb  = if "Hilbert" `elem` names then "Hilbert" : withMet else withMet
+  in withHilb
 
 enumWindowExact :: [TypeExpr] -> Library -> Int -> [TypeExpr]
 enumWindowExact windowAts lib d
@@ -150,11 +198,31 @@ enumWindowExact windowAts lib d
       [ [TOmega a | a <- subMaxD, "Omega" `elem` formers]
       , [TSusp a | a <- subMaxD, "Susp" `elem` formers]
       , [TSelfId a | a <- subMaxD]
+      , [TTrunc 0 a | a <- subMaxD, "Trunc" `elem` formers]
+      -- Modal operators
+      , [TFlat a | a <- subMaxD, "Flat" `elem` formers]
+      , [TSharp a | a <- subMaxD, "Sharp" `elem` formers]
+      , [TDisc a | a <- subMaxD, "Disc" `elem` formers]
+      , [TPiCoh a | a <- subMaxD, "PiCoh" `elem` formers]
+      -- Temporal operators
+      , [TNext a | a <- subMaxD, "Next" `elem` formers]
+      , [TEventually a | a <- subMaxD, "Eventually" `elem` formers]
+      -- Differential/Axiomatic
+      , [TInf a | a <- subMaxD, "Inf" `elem` formers]
+      , [TTangent a | a <- subMaxD, "Tangent" `elem` formers]
+      , [TConnection a | a <- subMaxD, "Connection" `elem` formers]
+      , [TCurvature a | a <- subMaxD, "Curvature" `elem` formers]
+      , [TMetric a | a <- subMaxD, "Metric" `elem` formers]
+      , [THilbert a | a <- subMaxD, "Hilbert" `elem` formers]
       ]
     binaryOps = concat
       [ [TArrow a b | a <- sub, b <- sub, max (depth a) (depth b) == d - 1]
       , [TProd a b | a <- sub, b <- sub, max (depth a) (depth b) == d - 1]
       , [TCoprod a b | a <- sub, b <- sub, max (depth a) (depth b) == d - 1]
+      , [TPi "x" a b | a <- sub, b <- sub, max (depth a) (depth b) == d - 1
+                      , "Pi" `elem` formers]
+      , [TSigma "x" a b | a <- sub, b <- sub, max (depth a) (depth b) == d - 1
+                         , "Pi" `elem` formers]  -- Sigma gated on same "Pi" entry
       ]
 
 enumWindowBounded :: [TypeExpr] -> Library -> Int -> [TypeExpr]
@@ -207,6 +275,20 @@ schemaize newName _lib = canon . go
     go (THIT p d) = THIT p d
     go (TFiber a b) = TFiber (go a) (go b)
     go (TDeloop a) = TDeloop (go a)
+    -- Modal operators — kept as structural, not abstracted to L
+    go (TFlat a) = TFlat (go a)
+    go (TSharp a) = TSharp (go a)
+    go (TDisc a) = TDisc (go a)
+    go (TPiCoh a) = TPiCoh (go a)
+    go (TNext a) = TNext (go a)
+    go (TEventually a) = TEventually (go a)
+    -- Differential/Axiomatic
+    go (TInf a) = TInf (go a)
+    go (TTangent a) = TTangent (go a)
+    go (TConnection a) = TConnection (go a)
+    go (TCurvature a) = TCurvature (go a)
+    go (TMetric a) = TMetric (go a)
+    go (THilbert a) = THilbert (go a)
 
     -- Canonicalize commutative operations by sorting operands
     canon (TProd a b) = let a' = canon a; b' = canon b
@@ -222,6 +304,22 @@ schemaize newName _lib = canon . go
     canon (TOmega a) = TOmega (canon a)
     canon (TSusp a) = TSusp (canon a)
     canon (TTrunc n a) = TTrunc n (canon a)
+    canon (TFiber a b) = TFiber (canon a) (canon b)
+    canon (TDeloop a) = TDeloop (canon a)
+    -- Modal operators
+    canon (TFlat a) = TFlat (canon a)
+    canon (TSharp a) = TSharp (canon a)
+    canon (TDisc a) = TDisc (canon a)
+    canon (TPiCoh a) = TPiCoh (canon a)
+    canon (TNext a) = TNext (canon a)
+    canon (TEventually a) = TEventually (canon a)
+    -- Differential/Axiomatic
+    canon (TInf a) = TInf (canon a)
+    canon (TTangent a) = TTangent (canon a)
+    canon (TConnection a) = TConnection (canon a)
+    canon (TCurvature a) = TCurvature (canon a)
+    canon (TMetric a) = TMetric (canon a)
+    canon (THilbert a) = THilbert (canon a)
     canon x = x
 
 -- ============================================

@@ -25,24 +25,35 @@ import Data.List (nub, sortOn)
 -- Trivially-Derivable Schema Detection
 -- ============================================
 
--- | A schema is trivially derivable if its ONLY inhabitants come from
--- generic constructions available for any inhabited type:
---   X * X  -> pair(base, base)
---   X + X  -> inl(base)
---   X -> X -> id
---   x =_X x -> refl
+-- | A schema is trivially derivable if it uses only basic type algebra
+-- (arrows, products, coproducts, identity types) over {X, L, 1, 0}.
+-- These schemas are inhabited for ANY two inhabited types X and L via
+-- generic constructions: const, pair, inl/inr, id, refl.
+--
+-- The one exception: bare X is non-trivial — it represents the core
+-- existence novelty of adding a new type.
+--
+-- Non-trivial schemas use structural operations: Omega, Susp, Trunc,
+-- Pi, Sigma, flat, sharp, Tangent, Connection, etc.
 isTrivialSchema :: TypeExpr -> Bool
--- pair(base, base) — trivially derivable for any inhabited X
-isTrivialSchema (TProd (TRef "X") (TRef "X")) = True
--- inl(base) — trivially derivable for any inhabited X
-isTrivialSchema (TCoprod (TRef "X") (TRef "X")) = True
--- id — trivially derivable for any type X
-isTrivialSchema (TArrow (TRef "X") (TRef "X")) = True
--- refl — trivially derivable for any inhabited X
-isTrivialSchema (TSelfId (TRef "X")) = True
--- Also trivial: L*L, L+L, L->L, SelfId(L) — but these shouldn't appear
--- in newly-inhabited types (they were already inhabited before X).
-isTrivialSchema _ = False
+isTrivialSchema t
+  | t == TRef "X" = False       -- bare X = existence novelty, non-trivial
+  | otherwise     = trivClosure t
+  where
+    trivClosure TUnit              = True
+    trivClosure TVoid              = True
+    trivClosure (TRef "X")         = True
+    trivClosure (TRef "L")         = True
+    trivClosure (TArrow a b)       = trivClosure a && trivClosure b
+    trivClosure (TProd a b)        = trivClosure a && trivClosure b
+    trivClosure (TCoprod a b)      = trivClosure a && trivClosure b
+    trivClosure (TSelfId a)        = trivClosure a
+    trivClosure (TId a x y)        = trivClosure a && trivClosure x && trivClosure y
+    -- Pi/Sigma with all-trivial arguments: same as Arrow/Prod
+    -- (non-dependent Pi ≅ Arrow in our model)
+    trivClosure (TPi _ a b)        = trivClosure a && trivClosure b
+    trivClosure (TSigma _ a b)     = trivClosure a && trivClosure b
+    trivClosure _                  = False
 
 -- ============================================
 -- Independence Rank

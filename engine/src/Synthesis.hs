@@ -317,7 +317,7 @@ formatSynthComparison results = unlines $
                    , "Connections", "Curvature", "Metric", "Hilbert", "DCT" ]
 
     paperNus :: [Int]
-    paperNus = [1, 1, 2, 5, 7, 8, 10, 18, 18, 20, 26, 34, 43, 60, 150]
+    paperNus = [1, 1, 2, 5, 7, 8, 10, 18, 18, 20, 26, 34, 43, 60, 105]
 
     formatCompRow :: (Int, SynthResult) -> String
     formatCompRow (i, r) =

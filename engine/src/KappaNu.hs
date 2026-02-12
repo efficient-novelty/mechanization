@@ -177,7 +177,7 @@ paperNu 12 = 26  -- Connections
 paperNu 13 = 34  -- Curvature
 paperNu 14 = 43  -- Metric
 paperNu 15 = 60  -- Hilbert
-paperNu 16 = 150 -- DCT
+paperNu 16 = 105 -- DCT
 paperNu _ = 0
 
 -- | Computed ν via capability engine (should match paperNu)

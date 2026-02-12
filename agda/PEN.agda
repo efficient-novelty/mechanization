@@ -15,6 +15,19 @@ open import Core.Sequence public
 open import ObligationGraph.Interface public
 open import ObligationGraph.Recurrence public
 
+-- Saturation formalization
+open import Saturation.CellPresentation public
+open import Saturation.ExportedSchema public
+open import Saturation.ObligationDuality public
+open import Saturation.Axiom public
+open import Saturation.Enumeration public
+open import Saturation.Decomposition public
+open import Saturation.AbstractionBarrier public
+
+-- Adjunction depth formalization
+open import Adjunction.AdjunctionDepth public
+open import Adjunction.TriangleIdentity public
+
 -- ============================================
 -- Main Results (Phase 1)
 -- ============================================

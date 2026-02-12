@@ -33,7 +33,62 @@ data TypeExpr
   | THIT Int [Int]                -- ^ HIT with k points and paths of given dimensions
   | TFiber TypeExpr TypeExpr      -- ^ Fiber of a map f : A → B over point b
   | TDeloop TypeExpr              -- ^ Delooping BA (classifying space)
+  -- Modal operators (Cohesion)
+  | TFlat TypeExpr                -- ^ Flat modality ♭X (discrete)
+  | TSharp TypeExpr               -- ^ Sharp modality ♯X (codiscrete)
+  | TDisc TypeExpr                -- ^ Disc modality (discrete → continuous)
+  | TPiCoh TypeExpr               -- ^ Cohesive shape Π_coh (continuous → discrete)
+  -- Temporal operators (LTL)
+  | TNext TypeExpr                -- ^ Next modality ○X
+  | TEventually TypeExpr          -- ^ Eventually modality ◇X
+  -- Differential/Axiomatic
+  | TInf TypeExpr                 -- ^ Infinitesimal type X^D (tangent microbundle)
+  | TTangent TypeExpr             -- ^ Tangent bundle TX
+  | TConnection TypeExpr          -- ^ Connection on X (∇ : TX → TX)
+  | TCurvature TypeExpr           -- ^ Curvature of a connection on X
+  | TMetric TypeExpr              -- ^ Metric structure on X
+  | THilbert TypeExpr             -- ^ Hilbert space functional on X
   deriving (Eq, Ord, Show, Generic)
+
+-- ============================================
+-- Inference Rules (for Generative Capacity)
+-- ============================================
+
+-- | Classification of inference rules into spectral axes
+data RuleClass = Intro | Elim | Comp
+  deriving (Eq, Ord, Show, Generic)
+
+-- | Atomic inference rule in the derivation logic
+data InferenceRule
+  = IntroRule
+      { irName   :: String
+      , irOutput :: TypeExpr     -- type of the constructed term
+      }
+  | ElimRule
+      { irName   :: String
+      , irInput  :: TypeExpr     -- type being analyzed
+      , irOutput :: TypeExpr     -- type of the result
+      }
+  | CompRule
+      { irName   :: String
+      , irLHS    :: TypeExpr     -- left-hand side of reduction
+      , irRHS    :: TypeExpr     -- right-hand side
+      }
+  deriving (Eq, Ord, Show, Generic)
+
+-- | Get the class (spectral axis) of an inference rule
+ruleClass :: InferenceRule -> RuleClass
+ruleClass (IntroRule {}) = Intro
+ruleClass (ElimRule {})  = Elim
+ruleClass (CompRule {})  = Comp
+
+-- | Decomposed novelty: spectral decomposition into three axes
+data DecomposedNu = DecomposedNu
+  { dnIntro :: Int    -- ^ nu_G: Introduction rules (Grammar/syntactic)
+  , dnElim  :: Int    -- ^ nu_C: Elimination rules (Capability/logical)
+  , dnComp  :: Int    -- ^ nu_H: Computation rules (Homotopy/topological)
+  , dnTotal :: Int    -- ^ nu = nu_G + nu_C + nu_H
+  } deriving (Eq, Show, Generic)
 
 -- | Syntactic complexity of a type expression
 complexity :: TypeExpr -> Int
@@ -53,6 +108,21 @@ complexity (TSigma _ a b) = 1 + complexity a + complexity b
 complexity (THIT pts paths) = 1 + pts + sum paths
 complexity (TFiber a b) = 1 + complexity a + complexity b
 complexity (TDeloop a) = 1 + complexity a
+-- Modal operators
+complexity (TFlat a) = 1 + complexity a
+complexity (TSharp a) = 1 + complexity a
+complexity (TDisc a) = 1 + complexity a
+complexity (TPiCoh a) = 1 + complexity a
+-- Temporal operators
+complexity (TNext a) = 1 + complexity a
+complexity (TEventually a) = 1 + complexity a
+-- Differential/Axiomatic
+complexity (TInf a) = 1 + complexity a
+complexity (TTangent a) = 1 + complexity a
+complexity (TConnection a) = 1 + complexity a
+complexity (TCurvature a) = 1 + complexity a
+complexity (TMetric a) = 1 + complexity a
+complexity (THilbert a) = 1 + complexity a
 
 -- ============================================
 -- Type Programs (for Kolmogorov κ)
@@ -177,3 +247,18 @@ prettyTypeExpr (TSigma x a b) = "((" ++ x ++ " : " ++ prettyTypeExpr a ++ ") x "
 prettyTypeExpr (THIT pts paths) = "HIT(" ++ show pts ++ ", [" ++ intercalate "," (map show paths) ++ "])"
 prettyTypeExpr (TFiber a b) = "Fiber(" ++ prettyTypeExpr a ++ ", " ++ prettyTypeExpr b ++ ")"
 prettyTypeExpr (TDeloop a) = "B(" ++ prettyTypeExpr a ++ ")"
+-- Modal operators
+prettyTypeExpr (TFlat a) = "flat(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TSharp a) = "sharp(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TDisc a) = "Disc(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TPiCoh a) = "PiCoh(" ++ prettyTypeExpr a ++ ")"
+-- Temporal operators
+prettyTypeExpr (TNext a) = "Next(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TEventually a) = "Ev(" ++ prettyTypeExpr a ++ ")"
+-- Differential/Axiomatic
+prettyTypeExpr (TInf a) = prettyTypeExpr a ++ "^D"
+prettyTypeExpr (TTangent a) = "T(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TConnection a) = "Conn(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TCurvature a) = "Curv(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (TMetric a) = "Met(" ++ prettyTypeExpr a ++ ")"
+prettyTypeExpr (THilbert a) = "Hilb(" ++ prettyTypeExpr a ++ ")"
