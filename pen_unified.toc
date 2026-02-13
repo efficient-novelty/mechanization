@@ -33,7 +33,7 @@
 \contentsline {paragraph}{Mechanism 3: Composite Constructions.}{13}{section*.7}%
 \contentsline {subsection}{\numberline {5.4}Combinatorial Schema Synthesis}{13}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}Divergence of Efficiency}{13}{subsection.5.5}%
-\contentsline {subsection}{\numberline {5.6}The Tangent Topos Hypothesis: The End of History}{14}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.6}The Tangent Topos Hypothesis: The G\"odelian Horizon}{14}{subsection.5.6}%
 \contentsline {section}{\numberline {6}The Spectral Decomposition}{15}{section.6}%
 \contentsline {subsection}{\numberline {6.1}The Three Axes}{15}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}The Spectral Decomposition Table}{17}{subsection.6.2}%
@@ -72,10 +72,24 @@
 \contentsline {paragraph}{The $\nu \ge 105$ computation.}{26}{section*.26}%
 \contentsline {subsection}{\numberline {8.3}The Physics of Mathematics}{26}{subsection.8.3}%
 \contentsline {subsection}{\numberline {8.4}Falsifiability}{26}{subsection.8.4}%
-\contentsline {section}{\numberline {9}Conclusion}{26}{section.9}%
-\contentsline {section}{\numberline {A}DCT: Key Theorems and Applications}{27}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Internal Tangent Bundle}{27}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Temporal Evolution}{27}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{27}{subsection.A.3}%
-\contentsline {subsection}{\numberline {A.4}Representative Applications}{27}{subsection.A.4}%
-\contentsline {subsection}{\numberline {A.5}Semantic Audit of DCT Novelty}{27}{subsection.A.5}%
+\contentsline {section}{\numberline {9}Metamathematical Boundaries and Algorithmic Limits}{26}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Algorithmic Criticality}{26}{subsection.9.1}%
+\contentsline {paragraph}{The objection.}{26}{section*.27}%
+\contentsline {paragraph}{The response: criticality, not overfitting.}{27}{section*.28}%
+\contentsline {subsection}{\numberline {9.2}The Algorithmic Inefficiency of the Discrete}{27}{subsection.9.2}%
+\contentsline {paragraph}{The objection.}{27}{section*.29}%
+\contentsline {paragraph}{The response: the discrete is algorithmically expensive.}{27}{section*.30}%
+\contentsline {subsection}{\numberline {9.3}The G\"odelian Horizon}{28}{subsection.9.3}%
+\contentsline {paragraph}{The objection.}{28}{section*.31}%
+\contentsline {paragraph}{The concession.}{28}{section*.32}%
+\contentsline {paragraph}{The reinterpretation.}{28}{section*.33}%
+\contentsline {subsection}{\numberline {9.4}The Adjoint Completion Principle}{29}{subsection.9.4}%
+\contentsline {paragraph}{The objection.}{29}{section*.34}%
+\contentsline {paragraph}{The response: univalent equivalence classes, not raw syntax.}{29}{section*.35}%
+\contentsline {section}{\numberline {10}Conclusion}{30}{section.10}%
+\contentsline {section}{\numberline {A}DCT: Key Theorems and Applications}{30}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Internal Tangent Bundle}{30}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Temporal Evolution}{30}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{31}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Representative Applications}{31}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}Semantic Audit of DCT Novelty}{31}{subsection.A.5}%
