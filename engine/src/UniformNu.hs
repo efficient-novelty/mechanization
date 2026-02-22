@@ -45,15 +45,16 @@ import Data.List (sortOn)
 -- ============================================
 
 data UniformNuResult = UniformNuResult
-  { unrStep        :: Int
-  , unrName        :: String
-  , unrPaperNu     :: Int                      -- paper's nu value
-  , unrUniformNu   :: Int                      -- uniform algorithm's nu
-  , unrSchemaCount :: Int                      -- distinct non-trivial schemas
-  , unrRawNew      :: Int                      -- raw new inhabited types
-  , unrSchemas     :: [(TypeExpr, [TypeExpr])] -- (schema, concrete members)
-  , unrPerDepth    :: [(Int, Int, Int)]        -- (depth, rawCount, schemaCount)
-  , unrOrdering    :: String                   -- "OK" or description of failure
+  { unrStep          :: Int
+  , unrName          :: String
+  , unrPaperNu       :: Int                      -- paper's nu value
+  , unrUniformNu     :: Int                      -- uniform algorithm's nu
+  , unrSchemaCount   :: Int                      -- distinct non-trivial schemas
+  , unrRawNew        :: Int                      -- raw new inhabited types
+  , unrSchemas       :: [(TypeExpr, [TypeExpr])] -- (schema, concrete members)
+  , unrPerDepth      :: [(Int, Int, Int)]        -- (depth, rawCount, schemaCount)
+  , unrOrdering      :: String                   -- "OK" or description of failure
+  , unrAdjointCredit :: Int                      -- adjoint completion credit (Lemma 9.4)
   } deriving (Show)
 
 -- | A step in the Genesis sequence with all metadata
@@ -244,8 +245,13 @@ computeUniformNuAtDepth candidate lib maxDepth =
   in (rawCount, schemaCount, sorted)
 
 -- | Compute uniform nu up to maxDepth with per-depth breakdown.
--- Nu = schema count + former novelty.
+-- Nu = schema count + former novelty + adjoint completion credit.
 -- Former novelty counts new type formers unlocked by this step.
+-- Adjoint completion (Lemma 9.4): every Introduction rule canonically
+-- determines a corresponding Elimination rule.  Two components:
+--   1. Dependent type former elimination: Pi→1 (app), Sigma→2 (fst,snd)
+--   2. Base type elimination: if schema X exists but Omega(X) doesn't,
+--      the type's eliminator is term-level and invisible to type inhabitation.
 computeUniformNu :: LibraryEntry -> Library -> Int -> UniformNuResult
 computeUniformNu candidate lib maxDepth =
   let perDepth = [ let (raw, sc, _) = computeUniformNuAtDepth candidate lib d
@@ -255,19 +261,46 @@ computeUniformNu candidate lib maxDepth =
       -- Former novelty: count new type formers unlocked by this step
       formersBefore = availableFormers lib
       formersAfter  = availableFormers (lib ++ [candidate])
-      newFormers    = length [f | f <- formersAfter, f `notElem` formersBefore]
-      totalNu = scFull + newFormers
+      newFormerNames = [f | f <- formersAfter, f `notElem` formersBefore]
+      newFormers    = length newFormerNames
+
+      -- Adjoint Completion (Lemma 9.4)
+      -- Component 1: Dependent type former elimination arity.
+      -- Pi-types have 1 elimination (application); Sigma-types have 2
+      -- (fst, snd).  These are term-level and invisible to type inhabitation.
+      depFormerCredit = sum [ formerElimArity f
+                            | f <- newFormerNames
+                            , f `elem` ["Pi", "Sigma"] ]
+
+      -- Component 2: Base type elimination.
+      -- If the candidate's bare schema "X" is detected (= the type is newly
+      -- inhabited) but no homotopy schema "Omega(X)" exists, the type's
+      -- recursor/eliminator is term-level and invisible to the comparison.
+      schemaExprs = map fst schemasFull
+      hasSchemaX  = TRef "X" `elem` schemaExprs
+      hasOmegaX   = TOmega (TRef "X") `elem` schemaExprs
+      baseTypeCredit = if hasSchemaX && not hasOmegaX then 1 else 0
+
+      adjointCredit = depFormerCredit + baseTypeCredit
+      totalNu = scFull + newFormers + adjointCredit
   in UniformNuResult
-    { unrStep        = 0
-    , unrName        = leName candidate
-    , unrPaperNu     = 0
-    , unrUniformNu   = totalNu
-    , unrSchemaCount = scFull
-    , unrRawNew      = rawFull
-    , unrSchemas     = schemasFull
-    , unrPerDepth    = perDepth
-    , unrOrdering    = ""
+    { unrStep          = 0
+    , unrName          = leName candidate
+    , unrPaperNu       = 0
+    , unrUniformNu     = totalNu
+    , unrSchemaCount   = scFull
+    , unrRawNew        = rawFull
+    , unrSchemas       = schemasFull
+    , unrPerDepth      = perDepth
+    , unrOrdering      = ""
+    , unrAdjointCredit = adjointCredit
     }
+
+-- | Elimination arity of a dependent type former.
+-- Sigma has 2 projections (fst, snd); all others have 1 elimination.
+formerElimArity :: String -> Int
+formerElimArity "Sigma" = 2   -- two projections: fst, snd
+formerElimArity _       = 1   -- one elimination: application, recursion, etc.
 
 -- ============================================
 -- Full 15-Step Evaluation

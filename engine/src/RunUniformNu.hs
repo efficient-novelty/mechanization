@@ -60,8 +60,9 @@ printComparisonTable :: [UniformNuResult] -> IO ()
 printComparisonTable results = do
   putStrLn $ padR 4 "Step" ++ padR 14 "Structure"
           ++ padR 10 "Paper-nu" ++ padR 12 "Uniform-nu"
+          ++ padR 10 "Adjoint"
           ++ padR 8 "Delta" ++ "Ordering"
-  putStrLn $ replicate 70 '-'
+  putStrLn $ replicate 80 '-'
   mapM_ printRow results
   where
     printRow r =
@@ -69,10 +70,14 @@ printComparisonTable results = do
           deltaStr = if delta == 0 then "  0"
                      else if delta > 0 then " +" ++ show delta
                      else " " ++ show delta
+          adjStr = if unrAdjointCredit r > 0
+                   then "+" ++ show (unrAdjointCredit r)
+                   else "  0"
       in putStrLn $ padR 4 (show (unrStep r))
                  ++ padR 14 (unrName r)
                  ++ padR 10 (show (unrPaperNu r))
                  ++ padR 12 (show (unrUniformNu r))
+                 ++ padR 10 adjStr
                  ++ padR 8 deltaStr
                  ++ unrOrdering r
 

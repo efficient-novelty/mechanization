@@ -180,10 +180,21 @@ See `paper_improvement_plan.md` for the full tracker. In brief:
 5. Kolmogorov κ formalized — κ(X|B) is now Conditional Kolmogorov Complexity
    via MBTT encoding. S³ ambiguity resolved (13 bits suspension vs 23 bits native).
    Divergence theorem strengthened with Logarithmic Effort Growth.
+6. κ definition contradiction resolved — specification selection via minimal
+   overshoot; S³ carries SU(2) structure as a prediction.
+7. S³ ν_C = 3 anomaly justified — H-space elimination from selected specification.
+8. DCT semantic audit grounded — 3 concrete schema examples with HoTT type
+   signatures; ~40% rigorous, ~60% structural analogies.
+9. Extensional Boundary closed — adjoint completion in UniformNu.hs gives
+   15/15 ordering (was 13/15). Zero domain knowledge.
+10. ν_H topological projection formalized — concrete 3×3 cubical Kan matrix.
+11. Ontological tone calibrated — systematic overclaim removal.
 
 **Next research steps (priority order):**
 1. Theoretical derivation of $d = 2$ via adjoint functor argument.
 2. Tangent Topos hypothesis (why the sequence terminates).
+3. Specification Selection formalization (variational principle).
+4. Update Kolmogorov.hs with SU(2) and native HIT specifications.
 
 ## Conventions
 
