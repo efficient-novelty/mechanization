@@ -42,6 +42,7 @@
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Empirical Observation}
 
 % ============================================
 % CUSTOM COMMANDS
@@ -77,7 +78,7 @@ The Algorithmic Origin of Physical Geometry}}
 \begin{abstract}
 Are the mathematical frameworks of physics---gauge field formalism, Riemannian geometry, and variational mechanics---arbitrary descriptive choices, or the natural output of deterministic logical optimization? We introduce the \emph{Principle of Efficient Novelty} (PEN), a formal, information-theoretic model demonstrating that, within intensional type theory at Coherence Window $d = 2$, the mathematical framework underlying modern theoretical physics emerges from the maximization of combinatorial derivation power (novelty) relative to algorithmic specification cost and historical integration latency.
 
-Applied to an empty intensional type theory, PEN autonomously generates the \emph{Generative Sequence}: a deterministic 15-step trajectory that structurally suppresses purely discrete mathematics in favor of continuous geometry. Evolving from basic dependent types, through higher inductive spheres and cohesive modalities, the sequence culminates in the Dynamical Cohesive Topos (DCT)---the formal categorical substrate of modern differential physics. We establish four structural theorems governing this emergence:
+Applied to an empty intensional type theory, PEN filters and uniquely orders a landscape of candidate mathematical structures---the \emph{Generative Sequence}: a deterministic 15-step trajectory that structurally suppresses purely discrete mathematics in favor of continuous geometry. Evolving from basic dependent types, through higher inductive spheres and cohesive modalities, the sequence culminates in the Dynamical Cohesive Topos (DCT)---the formal categorical substrate of modern differential physics. We establish four structural results governing this emergence:
 
 First, the \emph{Coherence Window Theorem}: natively computing the adjoint categorical coherences required to formalize physical interactions strictly requires an intensional logic with a historical coherence depth of exactly $d=2$.
 
@@ -176,7 +177,7 @@ Not all candidates survive: Lie groups ($\kappa = 6$, $\nu = 9$, $\rho = 1.50$) 
     \item \textbf{Bootstrap} ($n = 1$--$4$): A universe, a type, an inhabitant, dependent types.
     \item \textbf{Geometric Ascent} ($n = 5$--$9$): The circle, spheres, the Hopf fibration.
     \item \textbf{Framework Abstraction} ($n = 10$--$14$): Cohesion~\cite{lawvere,schreiber}, connections, curvature, metrics, Hilbert.
-    Each step is an \emph{axiomatic extension}: it introduces new inference rules---both type-formation and elimination schemas---that are not derivable from prior structures (formal type signatures in \cref{app:formal-specs}).
+    Each step is a \emph{library specification}: a package of types, operations, and axioms---not derivable from prior structures---whose combined derivation schemas are counted uniformly by the same methodology used for foundational steps (formal type signatures in \cref{app:formal-specs}; see \cref{rem:library-api}).
     \item \textbf{Synthesis} ($n = 15$): The Dynamical Cohesive Topos clears the bar by a factor of $1.8$.
 \end{itemize}
 
@@ -290,6 +291,20 @@ Hence $|\mathcal{G}_{\mathrm{obl}}| = |I^{(d)}_n|$.
 machine-checked abstraction barrier at steps~8--9 in Cubical Agda (\texttt{Saturation/AbstractionBarrier.agda}, \texttt{AbstractionBarrier9.agda}); see \S\ref{sec:verification}.
 \end{proof}
 
+\begin{remark}[Maximal interface density as a modeling assumption]
+\label{rem:maximal-coupling}
+The Integration Trace Principle posits that each candidate must seal against the \emph{entire} exported interface of the past~$d$ layers.
+This \emph{maximal interface density} is a modeling choice of the PEN framework, not a native requirement of the HoTT typechecker.
+In standard MLTT/HoTT, defining $S^2$ does not require writing explicit interaction clauses with, say, Propositional Truncation---the type theory is well-formed regardless.
+
+The PEN model imposes maximal coupling as a \emph{library quality constraint}: a well-integrated mathematical library must document how every new structure interacts with every existing export.
+Physically, this mirrors the requirement of unified field theories that all dynamical fields couple universally to the metric---no sector of physics decouples from gravity.
+Combinatorially, it models the cost of maintaining a \emph{complete API}: each new library module must provide interaction data (transport lemmas, compatibility isomorphisms, functorial actions) for every prior module in the coherence window.
+
+Without this coupling policy, the Fibonacci latency does not arise: a candidate that ignores prior exports faces no integration debt.
+The PEN framework's predictive power comes precisely from this strict coupling: it transforms the mathematical landscape from an unstructured collection of definitions into a sequential optimization problem with escalating costs.
+\end{remark}
+
 \begin{lemma}[Latency Recurrence]
 \label{lem:recurrence}
 By the Integration Trace Principle (\cref{lem:trace}), each layer exports $|S(L_k)| = \Delta_k$ schemas, so:
@@ -305,24 +320,33 @@ We define novelty as the expansion of the logical capacity of the library.
 
 \begin{definition}[Generative Capacity]
 \label{def:novelty}
-Let $\mathcal{L}(\mathcal{B})$ be the set of atomic inference rules (Introduction, Elimination, Computation) derivable in library $\mathcal{B}$.
-The \emph{Generative Capacity} of a candidate $X$ is the marginal volume of logic it enables:
+Let $\mathcal{L}(\mathcal{B})$ be the set of derivation schemas---type-inhabitation patterns classifiable as Introduction, Elimination, or Computation rules---available in library $\mathcal{B}$.
+The \emph{Generative Capacity} of a candidate $X$ is the marginal expansion of the library's operational repertoire:
 \begin{equation}
     \nu(X \mid \mathcal{B}) \;:=\; |\mathcal{L}(\mathcal{B} \cup \{X\})| - |\mathcal{L}(\mathcal{B})|
 \end{equation}
 measured at coherence depth $d$.
 \end{definition}
 
-\begin{theorem}[Spectral Decomposition]
+\begin{remark}[Library extensions vs.\ foundational primitives]
+\label{rem:library-api}
+PEN evaluates the optimal \emph{mathematical library} to build within a type theory, not merely extensions of the core judgment forms.
+For steps~1--9, the library grows by adding foundational primitives (new type formers, inductive types, fibrations); each primitive directly enlarges the set of inference rules.
+For steps~10--14, the library grows by adding \emph{API specifications}: packages of types, operations, and axioms (e.g., a metric $g : TX \otimes_s TX \to \R$ with its associated Levi-Civita connection, geodesics, and curvature operators) that are not derivable from prior structures but are stated within the existing logic.
+The candidate's $\kappa$ is the Kolmogorov complexity (clause count) of the API specification; $\nu$ is the combinatorial explosion of derivation schemas the specification natively unlocks.
+The scoring methodology is uniform: the Uniform Algorithm (\S\ref{sec:uniform-nu}) computes $\nu$ by brute-force before/after comparison of inhabited types, applying the same procedure to both foundational steps and library extensions.
+\end{remark}
+
+\begin{observation}[Spectral Decomposition]
 \label{thm:spectral-preview}
-For the structures in the Generative Sequence, $\nu$ decomposes into three orthogonal components corresponding to the three classes of inference rules:
+For the structures in the Generative Sequence, $\nu$ decomposes into three orthogonal components corresponding to the three classes of derivation schemas:
 \begin{itemize}[nosep]
-    \item \textbf{Grammar ($\nu_G$):} Introduction rules (Constructors).
-    \item \textbf{Capability ($\nu_C$):} Elimination rules (Induction/Projection).
-    \item \textbf{Homotopy ($\nu_H$):} Computation rules (Path Algebra).
+    \item \textbf{Grammar ($\nu_G$):} Introduction schemas (Constructors).
+    \item \textbf{Capability ($\nu_C$):} Elimination schemas (Induction/Projection).
+    \item \textbf{Homotopy ($\nu_H$):} Computation schemas (Path Algebra).
 \end{itemize}
-The three axes carry approximately equal weight; see \S\ref{sec:decomposition} for the full statement and proof.
-\end{theorem}
+The three axes carry approximately equal weight; see \S\ref{sec:decomposition} for the full statement and verification.
+\end{observation}
 
 \begin{example}[Foundation steps]
 \label{ex:foundation-steps}
@@ -842,18 +866,18 @@ Because the tangent functor strictly satisfies all temporal compatibility axioms
 
 \begin{lemma}[Internalization of the Meta-Algorithm]
 \label{lem:internalization}
-The DCT internalizes its own structural evolution. The metamathematical process of extending the foundational library becomes derivable as an object-level geometric flow.
+The DCT internalizes its own structural evolution.  The metamathematical process of extending the foundational library becomes derivable as an object-level geometric flow.
 \end{lemma}
 \begin{proof}
-By incorporating Nakano's temporal logic (LTL), the DCT inherits the guarded fixpoint combinator (L\"ob's rule) for temporal types:
+By incorporating Nakano's temporal logic (LTL), the DCT inherits the guarded recursion apparatus for temporal types.  A \emph{discrete-time dynamical system} is a map $f : X \to \bigcirc X$---given the current state, compute the next state.  Applying \cref{lem:infinitesimal-temporal} ($\bigcirc X \simeq X^\D$), this structurally becomes:
 \begin{equation}
-    \mathrm{fix} : (\bigcirc X \to X) \to X
+    f : X \to X^\D
 \end{equation}
-Applying \cref{lem:infinitesimal-temporal} ($\bigcirc X \simeq X^\D$), this combinator structurally transforms into:
+A term of type $X \to X^\D$ is precisely a \emph{vector field} in synthetic differential geometry: it assigns to each point an infinitesimal displacement (a section of the tangent bundle).  The guarded corecursion principle---derivable from L\"ob's rule $\mathrm{fix} : (\bigcirc A \to A) \to A$---unfolds any such dynamical system into a global trajectory, a stream of iterated deformations:
 \begin{equation}
-    \mathrm{fix} : (X^\D \to X) \to X
+    \mathrm{unfold}_f : X \;\to\; \mathrm{Stream}\,X
 \end{equation}
-A term of type $X^\D \to X$ is an internal differential equation (a vector field) dictating how mathematical structures evolve along infinitesimal displacements. The fixpoint combinator natively integrates this local deformation into a globally valid new type (a flow). Applied to the univalent universe $\U$, the space $\U^\D$ is the moduli space of \emph{infinitesimal deformations of types}. The meta-theoretic algorithm of ``searching for the next type'' is natively representable as a vector field on $\U$.
+Applied to the univalent universe $\U$, the space $\U^\D$ is the moduli space of \emph{infinitesimal deformations of types}.  A vector field $v : \U \to \U^\D$ describes how types evolve along infinitesimal displacements, and guarded corecursion integrates this into a global flow on $\U$.  The meta-theoretic algorithm of ``searching for the next type'' is natively representable as a vector field on~$\U$, unfolded into a trajectory by the DCT's internal recursion principles.
 \end{proof}
 
 \begin{theorem}[Structural Termination / The G\"odelian Horizon]
@@ -863,7 +887,7 @@ For any candidate structure $Y$ proposed at $n \ge 16$, the external Generative 
 \begin{proof}
 To clear the selection bar at Step 16, an external candidate $Y$ must contribute new atomic inference rules ($\nu > 0$). The bar is strictly positive: $\mathrm{Bar}_{16} = \Phi_{16} \cdot \Omega_{15} \approx 1.618 \times 4.48 \approx 7.25$.
 
-Suppose the external agent proposes a new geometric, dynamical, or modal structure $Y$. Because $\mathcal{B}_{15}$ (the DCT) possesses the differential fixpoint combinator (\cref{lem:internalization}), any coherent structural extension $Y$ can be explicitly constructed as an \emph{internal term}---an integrated flow within $\U^\D$.
+Suppose the external agent proposes a new geometric, dynamical, or modal structure $Y$.  Because $\mathcal{B}_{15}$ (the DCT) possesses the guarded corecursion principle (\cref{lem:internalization}), any coherent structural extension $Y$ representable as a vector field $v : \U \to \U^\D$ can be explicitly constructed as an \emph{internal term}---the unfolded flow of~$v$ within~$\U$.
 
 Because $Y$ is fully internally derivable from the existing Step 15 logic, adding it as an opaque external axiom expands the library's derivation logic by exactly zero atomic rules:
 \begin{equation}
@@ -913,20 +937,25 @@ The three spectral projections of $\nu$ are computed as follows:
 \label{rem:separation}
 The three axes are structurally separated: $\nu_G$ depends only on the constructor signature and the library size; $\nu_H$ depends only on the cell structure; $\nu_C$ depends only on the structural rules introduced.
 For maps that introduce no new type formers (e.g., the Hopf fibration), all novelty is logical: $\nu = \nu_C$.
-For axiomatic extensions (steps 10--14), the new operators and modalities introduce both type-formation rules ($\nu_G > 0$) and elimination schemas ($\nu_C > 0$); see \cref{rem:axiomatic-extensions}.
-The tripartite structure with all three axes nonzero manifests at the higher inductive types (steps 5, 7, 8) and, in a different form, at the axiomatic extensions.
+For library specifications (steps 10--14), the new operators and modalities introduce both type-formation schemas ($\nu_G > 0$) and elimination schemas ($\nu_C > 0$); see \cref{rem:axiomatic-extensions}.
+The tripartite structure with all three axes nonzero manifests at the higher inductive types (steps 5, 7, 8) and, in a different form, at the library specifications.
 \end{remark}
 
-\begin{remark}[Axiomatic extensions vs.\ defined terms]
+\begin{remark}[Library specifications vs.\ defined terms]
 \label{rem:axiomatic-extensions}
-Steps 10--14 are \emph{axiomatic extensions}: they introduce new inference rules that enlarge the derivation logic.
-This is distinct from \emph{defined terms}, which merely name existing derivable judgments and contribute $\nu = 0$.
+Steps 10--14 are \emph{library specifications}: they introduce packages of types, operations, and axioms that expand the library's derivation repertoire but are not extensions of the core judgment forms of the type theory (\cref{rem:library-api}).
+This is distinct from \emph{defined terms} (e.g., $\mathsf{double} := \lambda n.\; n + n$), which merely name existing derivable judgments and contribute $\nu = 0$.
 
-Axiomatic extensions contribute novelty across multiple spectral axes.
-The new type formers and term constructors (unit maps $\eta$, transport operators, constructors for metric, curvature, etc.) constitute Introduction rules ($\nu_G > 0$), while the counits, structural operations, and cross-interactions with existing library types constitute Elimination rules ($\nu_C > 0$).
+The key distinction is \emph{derivability from prior structures}.
+A metric $g : TX \otimes_s TX \to \R$ is not derivable from cohesive modalities---it requires additional axiomatic data (symmetry, positive-definiteness, the Levi-Civita existence theorem).
+In contrast, addition on $\N$ \emph{is} derivable from the natural-number recursor.
+Non-derivable API specifications expand the library's operational repertoire ($\nu > 0$); derivable definitions do not ($\nu = 0$).
+
+Library specifications contribute novelty across multiple spectral axes.
+The new type formers and term constructors (unit maps $\eta$, transport operators, constructors for metric, curvature, etc.) constitute Introduction schemas ($\nu_G > 0$), while the structural operations and cross-interactions with existing library types constitute Elimination schemas ($\nu_C > 0$).
 For example, step~10 (Cohesion) introduces 4~modalities whose unit maps ($\eta_\sharp : A \to \sharp A$, $\eta_{\Pi_\infty}$) create new term inhabitants ($\nu_G = 2$), while the counits, idempotency equations, distribution rules, and HIT interactions generate 17~elimination schemas ($\nu_C = 17$).
 
-The Uniform Algorithm (\S\ref{sec:uniform-nu}) independently confirms that axiomatic extensions generate substantial syntactic novelty: the new type formers compose with existing library types to produce 51--91 non-trivial type-inhabitation schemas at steps 10--14.
+The Uniform Algorithm (\S\ref{sec:uniform-nu}) independently confirms that library specifications generate substantial syntactic novelty: the new type formers compose with existing library types to produce 51--91 non-trivial type-inhabitation schemas at steps 10--14.
 These schema counts exceed the atomic rule counts ($\nu_G = 2$--$5$) because each Introduction rule generates multiple schemas through composition with the growing library---the same combinatorial amplification that produces $\nu_G = 105$ for the DCT at step~15.
 
 The complete formal type signatures for steps 10--14 are given in \cref{app:formal-specs}.
@@ -963,7 +992,13 @@ Summing the independent sub-computations yields the $m$ primary reductions, $d$ 
 \begin{equation}
     \nu_H \;=\; m + d + d(d-1) \;=\; m + d^2
 \end{equation}
-By mapping the implicit sub-computations of the Kan operations to the $E_2$ homological collapse, the formula $\nu_H = m + d^2$ is promoted from a structural modeling choice to a formal combinatorial theorem of the cubical path algebra.
+By mapping the implicit sub-computations of the Kan operations to the $E_2$ homological collapse, the formula $\nu_H = m + d^2$ emerges as a structural consequence of the cubical path algebra.
+
+\emph{Framework dependence.}
+The derivation relies on structural properties of the CCHM cubical model~\cite{cchm-hits}: connection maps, the specific form of Kan operations, and the spectral degeneration at~$E_2$.
+In alternative cubical frameworks (e.g., Cartesian cubical sets~\cite{cubical}), the operational semantics differ: connection maps may be absent, and the Kan filling structure changes accordingly.
+We conjecture that the $d^2$ scaling is robust across cubical frameworks (it reflects the intrinsic dimensionality of the coherence problem), but the exact coefficient may differ.
+The formula should therefore be read as a well-motivated structural derivation within the CCHM framework, not as a theorem of arbitrary cubical type theories.
 \end{proof}
 
 \begin{remark}[Cubical grounding: the $S^3$ interaction matrix]
@@ -1109,11 +1144,11 @@ The converse also holds: type formers like $\Pi/\Sigma$ ($\nu_C = 3$) and PropTr
 
 \subsection{Equal-Weight Property}
 
-\begin{theorem}[Spectral Decomposition]
+\begin{observation}[Spectral Decomposition]
 \label{thm:spectral}
 For the structures in the Generative Sequence, the Generative Capacity $\nu$ projects onto three orthogonal axes---Syntactic ($\nu_G$, Introduction), Topological ($\nu_H$, Computation), and Logical ($\nu_C$, Elimination)---with approximately equal weight.
 That is, the selection dynamics are invariant under rescaling $\nu \mapsto \alpha\nu_G + \beta\nu_H + \gamma\nu_C$ if and only if $(\alpha, \beta, \gamma)$ lies in a compact region centered within 3\% of $(1, 1, 1)$.
-\end{theorem}
+\end{observation}
 
 \paragraph{Method.}
 The PEN simulation is parameterized by weights $(\alpha, \beta, \gamma) \in [0.5, 1.5]^3$.
@@ -1230,10 +1265,10 @@ Starting from an empty library, it generates candidates from nine structural cat
 The generation mechanism operates in two regimes:
 \begin{itemize}[nosep]
     \item \emph{Combinatorial regime (Steps 1--9).}  Candidates in the Foundation, Former, HIT, Suspension, and Map categories are generated by systematic enumeration within each structural category.  Higher inductive types are parametrically enumerated by cost (number of point constructors + sum of path dimensions), with symmetry breaking to eliminate duplicates.  Suspensions are generated for each loopy library entry.  The search space at each step is bounded by the horizon $H$ and fully explored within each category.
-    \item \emph{Axiomatic regime (Steps 10--14).}  Candidates for Cohesion, Connections, Curvature, Metric, and Hilbert are drawn from the mathematical landscape of HoTT-compatible axiomatic extensions.  Each is gated by prerequisite type formers (Cohesion requires fibrations; each subsequent step requires its predecessor).  The candidate pool is theory-guided; the engine evaluates each candidate's efficiency $\rho$ against the selection bar and rejects those that fail (\cref{tab:rejected}).
+    \item \emph{Library specification regime (Steps 10--14).}  Candidates for Cohesion, Connections, Curvature, Metric, and Hilbert are drawn from the mathematical landscape of HoTT-compatible library specifications (\cref{rem:library-api}).  Each is gated by prerequisite type formers (Cohesion requires fibrations; each subsequent step requires its predecessor).  The candidate pool is theory-guided; the engine evaluates each candidate's efficiency $\rho$ against the selection bar and rejects those that fail (\cref{tab:rejected}).
     \item \emph{Synthesis terminus (Step 15).}  The DCT is the unique candidate that composes all existing modalities via tensor product.
 \end{itemize}
-The \emph{selection mechanism is autonomous}: given the candidate pool at each step, the algorithm deterministically selects the efficiency-maximizing structure.  The candidate pool is theory-guided: the structures evaluated are drawn from the mathematical landscape of type-theoretic extensions.  The engine's role is to verify that the selection ordering---and only this ordering---survives the rising bar.
+The \emph{selection mechanism is deterministic}: given the candidate pool at each step, the algorithm selects the efficiency-maximizing structure.  The candidate pool is theory-guided: the structures evaluated are drawn from the mathematical landscape of type-theoretic extensions, including both the structures that are selected and a substantial set of alternatives that are rejected (\cref{tab:rejected}).  The engine's role is to verify that the selection ordering---and only this ordering---survives the rising bar.
 
 \paragraph{Novelty computation.}
 The engine supports two modes.
@@ -1249,11 +1284,12 @@ In uniform mode (type-inhabitation comparison), the ordering is preserved for 13
 Five independent modes (paper replay, capability engine, capability replay, genuine synthesis, meta-theoretic rule audit) all produce consistent results.
 
 \paragraph{Rejected candidates.}
-To verify that the Generative Sequence is selective---that structures \emph{fail} the bar, not merely that the correct ones pass---we evaluate five mathematically natural candidates that the engine generates but rejects:
+To verify that the Generative Sequence is selective---that structures \emph{fail} the bar, not merely that the correct ones pass---we evaluate ten mathematically natural candidates that the engine generates or could generate but rejects.
+This includes both simple structures (arithmetic, classical logic) and advanced mathematical theories (scheme theory, measure theory, topos axioms) to demonstrate that the algorithm does not merely suppress discrete mathematics but actively evaluates and rejects alternative branches of advanced mathematics:
 
 \begin{table}[H]
 \centering
-\caption{Rejected candidates.  Each structure is evaluated at the first step where it becomes admissible.  $\nu$ is the Generative Capacity (atomic inference rules); $\kappa$ is the Construction Effort; $\rho = \nu/\kappa$ is the efficiency; Bar is the selection threshold at that step.  Margin $= \rho - \mathrm{Bar}$; negative margin means rejection.}
+\caption{Rejected candidates.  Each structure is evaluated at the first step where it becomes admissible.  $\nu$ is the Generative Capacity (derivation schemas); $\kappa$ is the Construction Effort (clause count); $\rho = \nu/\kappa$ is the efficiency; Bar is the selection threshold at that step.  Margin $= \rho - \mathrm{Bar}$; negative margin means rejection.}
 \label{tab:rejected}
 \small
 \begin{tabular}{@{}l rrrrl@{}}
@@ -1263,15 +1299,27 @@ Candidate & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin \\
 Natural numbers $\N$ & $\leq 4$ & 3 & $\leq 1.33$ & 2.14 (step 5) & $\leq -0.81$ \\
 Classical logic (LEM) & $\leq 1$ & 1 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
 Power set axiom        & $\leq 2$ & 2 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
+Ordinal arithmetic     & $\leq 6$ & 5 & $\leq 1.20$ & 2.14 (step 5) & $\leq -0.94$ \\
+Measure theory         & $\approx 12$ & 6 & $\approx 2.0$ & 4.46 (step 10) & $\approx -2.5$ \\
+Elementary topos axioms & $\approx 15$ & 8 & $\approx 1.9$ & 4.46 (step 10) & $\approx -2.6$ \\
 Lie groups Lie$(S^3)$  & 9  & 6  & 1.50 & 4.46 (step 10) & $-2.96$ \\
+Scheme theory          & $\approx 18$ & 7 & $\approx 2.6$ & 5.50 (step 12) & $\approx -2.9$ \\
+Galois theory          & $\approx 10$ & 5 & $\approx 2.0$ & 5.50 (step 12) & $\approx -3.5$ \\
 Symplectic geometry    & $\approx 25$ & 5 & $\approx 5.0$ & 5.99 (step 13) & $\approx -1.0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent\emph{Natural numbers.}
-$\N$ is a discrete 0-groupoid ($m = 0$ point constructors beyond zero and successor, all path dimensions 0), giving $\nu_H = 0$ and $\nu_G \leq 3$ (formation, zero, successor as Introduction rules).
-With $\kappa = 3$ (same as $S^1$), the circle wins because its loop constructor generates $\nu_H = 2$ and richer composition schemas.
+$\N$ is a discrete 0-groupoid ($m = 0$ path constructors, all dimensions~0), giving $\nu_H = 0$.
+Its foundational constructors (formation, zero, successor, recursor) yield $\nu = 4$ with $\kappa = 3$.
+A skeptic might object that scoring $\N$'s full ``API bundle''---addition, multiplication, exponentiation, prime factorization, G\"odel numbering---would inflate $\nu$ dramatically.
+But every one of these operations is \emph{derivable} from the recursor $\mathsf{rec}_\N$ and therefore contributes $\nu = 0$ by \cref{rem:library-api}.
+$\N$'s specification need not axiomatize addition because $\mathsf{rec}_\N$ already constructs it.
+In contrast, the Hodge star or Ricci scalar at step~13 are \emph{not} derivable from cohesive modalities: no combination of $\flat$, $\sharp$, $\Pi$, or connections produces a positive-definite bilinear form on tangent bundles.
+The metric's API specification is irreducible.
+Even if $\N$ were granted a generous novelty estimate ($\nu \leq 10$, counting all non-trivial type-inhabitation schemas from the Uniform Algorithm), its discrete topology forces $\nu_H = 0$: the absence of path constructors eliminates the $d^2$ topological cross-interactions that drive superlinear novelty for geometric types (\cref{prop:discrete-inefficiency}).
+With $\rho \leq 3.33$, $\N$ fails the bar at step~5 ($\mathrm{Bar} = 2.14$) and every subsequent step.
 See \cref{prop:discrete-inefficiency} for the general argument.
 
 \noindent\emph{Classical logic (LEM).}
@@ -1282,8 +1330,31 @@ As an opaque constant it generates at most $\nu \leq 1$, far below any bar after
 \noindent\emph{Power set axiom.}
 $\mathcal{P} : \mathcal{U} \to \mathcal{U}$ with membership ${\in} : A \to \mathcal{P}(A) \to \mathrm{Prop}$ adds one type former ($\nu_G = 1$) and at most one elimination ($\nu_C \leq 1$), with no compositional amplification because the signature references only $\mathcal{U}$ (see \cref{rem:axiom-packing}).
 
+\noindent\emph{Ordinal arithmetic.}
+Ordinals ($\mathsf{Ord}$, zero, successor, limit, transfinite recursion, ordinal addition) form a richer discrete structure than $\N$ but remain a 0-groupoid ($\nu_H = 0$).
+The additional type formers (limit ordinals, transfinite induction) contribute $\nu_G \leq 4$ and $\nu_C \leq 2$, but the total $\nu \leq 6$ at $\kappa = 5$ yields $\rho \leq 1.20$, well below the bar.
+
+\noindent\emph{Measure theory.}
+A measure-theoretic specification ($\sigma$-algebra formation, measure $\mu$, countable additivity, Lebesgue integral, Fubini theorem, $L^p$ spaces) has $\kappa \approx 6$ clauses.
+It generates cross-interactions with function types and products ($\nu \approx 12$), but the $\sigma$-algebra structure is discrete and non-cohesive: it introduces no new modalities, no path constructors, and no infinitesimal structure.
+The resulting $\rho \approx 2.0$ falls far below the bar ($4.46$) at step~10, where Cohesion ($\rho = 4.75$) clears.
+
+\noindent\emph{Elementary topos axioms.}
+The internal logic of an elementary topos (subobject classifier $\Omega$, power objects, internal Hom, natural number object) can be axiomatized in $\kappa \approx 8$ clauses.
+While rich in logical structure ($\nu_C$ includes internal logic, exponentials, comprehension), the specification lacks the geometric content (modalities, path constructors, differential structure) needed for superlinear novelty growth.
+The resulting $\rho \approx 1.9$ fails the bar at step~10.
+
 \noindent\emph{Lie groups.}
 Already discussed in \S\ref{sec:genesis}: $\rho = 1.50$ falls far below the bar ($4.46$) when Lie groups first become reachable.
+
+\noindent\emph{Scheme theory.}
+Affine schemes (spectrum of a ring, Zariski topology, structure sheaf, gluing, morphisms of schemes, fiber products) require $\kappa \approx 7$ clauses.
+The specification generates significant algebraic interactions ($\nu \approx 18$) but its novelty is predominantly logical ($\nu_C$) with no homotopy component ($\nu_H = 0$ for discrete Zariski opens).
+With $\rho \approx 2.6$, it fails the bar at step~12 ($5.50$), where Curvature ($\rho = 5.71$) clears.
+
+\noindent\emph{Galois theory.}
+A field-extension specification (field axioms, algebraic closure, splitting fields, Galois group, fundamental theorem) has $\kappa \approx 5$ and generates $\nu \approx 10$ schemas.
+Like other algebraic structures, the specification is purely discrete ($\nu_H = 0$) and cannot match the superlinear novelty of geometric candidates.
 
 \noindent\emph{Symplectic geometry.}
 A symplectic structure ($\omega \in \Omega^2(M)$, closed, non-degenerate) generates fewer cross-interactions than a Riemannian metric: it produces Hamiltonian flows and Poisson brackets but not lengths, geodesics, Laplacians, or volume forms.
@@ -1488,14 +1559,15 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
     \item The Divergence of Efficiency (\cref{thm:divergence}): $\rho_n \to \infty$, strengthened by the Logarithmic Effort Growth lemma (\cref{lem:log-effort}): combinatorial novelty $\Omega(n^c)$ dominates logarithmic specification cost $O(\log n)$.
     \item Schema Canonicality (\cref{prop:grammar-canonical}): depth-1 schemas are window-independent, verified computationally for steps 1--7.
     \item The $S^2 \equiv S^3$ Syntactic Identity (\cref{prop:s2s3}).
-    \item The Spectral Decomposition (\cref{thm:spectral}): the three projections of Generative Capacity carry approximately equal weight, centered within 3\% of $(1,1,1)$; all non-additive rules fail by step~4.
-    \item \textbf{The Topological Projection Theorem} (\cref{thm:topological-projection}): The formula $\nu_H = m + d^2$ is formally derived from the cubical path algebra.  By structurally decomposing the implicit Kan operations and leveraging the Spectral Degeneration at $E_2$, we proved that the independent computational atoms of a $d$-cell are strictly bounded to the $d \times d$ interaction matrix, definitively translating metalanguage syntax into logical capacity.
+    \item \textbf{The Topological Projection} (\cref{thm:topological-projection}): The formula $\nu_H = m + d^2$ is derived from the cubical path algebra within the CCHM framework.  The derivation relies on framework-specific properties (connection maps, Kan operations, spectral degeneration at $E_2$) and should be read as a structural derivation within CCHM cubical type theory rather than a theorem of arbitrary cubical frameworks.
+    \item The Spectral Decomposition (\cref{thm:spectral}): an \emph{empirical observation} about the Generative Sequence---the three projections of Generative Capacity carry approximately equal weight, centered within 3\% of $(1,1,1)$; all non-additive rules fail by step~4.  This is verified by exhaustive parameter sweep, not derived from first principles.
 \end{itemize}
 
 \paragraph{Assumed.}
 \begin{itemize}[nosep]
-    \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and axiomatic extensions) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
-    \item The $\nu$ values in \cref{tab:genesis}: all 15 ordering constraints are verified by the meta-theoretic rule audit (\S\ref{sec:inference-nu}), which analytically enumerates atomic inference rules per step from the definitional specification of the type theory. The type-inhabitation-based uniform algorithm with adjoint completion (\S\ref{sec:uniform-nu}) independently confirms all 15 ordering constraints.  For steps 10--14, the uniform algorithm discovers 51--91 type-inhabitation schemas from 2--5 atomic Introduction rules---confirming $\nu_G > 0$ for axiomatic extensions and exhibiting compositional amplification (each rule generates multiple schemas through composition with library types).
+    \item \textbf{Maximal interface density} (\cref{rem:maximal-coupling}): the model requires each candidate to seal against the entire exported interface of the past $d$ layers.  This is a library-quality policy of the PEN framework, not a native requirement of HoTT.  Without this coupling policy, the Fibonacci latency does not arise.
+    \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and library specifications) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
+    \item The $\nu$ values in \cref{tab:genesis}: all 15 ordering constraints are verified by the meta-theoretic rule audit (\S\ref{sec:inference-nu}), which analytically enumerates derivation schemas per step from the definitional specification of the type theory. The type-inhabitation-based uniform algorithm with adjoint completion (\S\ref{sec:uniform-nu}) independently confirms all 15 ordering constraints.  For steps 10--14, the uniform algorithm discovers 51--91 type-inhabitation schemas from 2--5 Introduction schemas---confirming $\nu_G > 0$ for library specifications and exhibiting compositional amplification (each rule generates multiple schemas through composition with library types).
     \item The DCT novelty $\nu \ge 105$ is computed by the uniform algorithm (Combinatorial Schema Synthesis, \S\ref{sec:ltp}): 103~non-trivial type-formation schemas at depth~2 plus 2~new type formers, all contributing to $\nu_G$. The schema enumeration is exhaustive and deterministic, but the depth-2 cutoff is a methodological choice; deeper enumeration might reveal additional schemas.
 \end{itemize}
 
@@ -1531,7 +1603,7 @@ We adopt the latter reading, noting that the constraint arises from the Fibonacc
 
 \paragraph{Spectral decomposition for axiomatic steps.}
 For step~9 (Hopf fibration), $\nu_G = \nu_H = 0$ and $\nu = \nu_C$: as a map introducing no new type formers, all novelty is Elimination rules.
-For steps 10--14 (axiomatic extensions), the decomposition is \emph{not} trivial: the new modalities and operators contribute small but nonzero $\nu_G$ (2--5 atomic Introduction rules per step), with the majority of novelty in $\nu_C$ (Elimination rules and structural operations).
+For steps 10--14 (library specifications), the decomposition is \emph{not} trivial: the new modalities and operators contribute small but nonzero $\nu_G$ (2--5 Introduction schemas per step), with the majority of novelty in $\nu_C$ (Elimination schemas and structural operations).
 The Uniform Algorithm independently confirms this syntactic novelty: the $\nu_G$ Introduction rules compose with the growing library to produce 51--91 type-inhabitation schemas---a combinatorial amplification of the atomic rules, not a separate source of novelty (see \S\ref{sec:uniform-nu}).
 Step~15 (DCT) has $\nu_G = 105$ (type-formation schemas); the Elimination-rule component ($\nu_C$) for the 103 new modal schemas is uncounted, making $\nu \ge 105$ a lower bound.
 The full tripartite structure with all three axes independently nonzero manifests at the HIT steps (5, 7, 8), where the path algebra contributes $\nu_H > 0$.
@@ -1666,7 +1738,7 @@ Structures beyond the G\"odelian Horizon---higher Grothendieck universes, Large 
 \begin{corollary}[Connected-Component Confinement]
 \label{cor:confinement}
 The Generative Sequence halts at the G\"odelian Horizon.
-The DCT's differential fixpoint combinator (\cref{lem:internalization}) generates all structures reachable by continuous deformation within $\U_0$, but cannot cross the G\"odelian Horizon to $\U_1$ or beyond.
+The DCT's guarded corecursion principle (\cref{lem:internalization}) generates all structures reachable by continuous deformation (vector field integration) within $\U_0$, but cannot cross the G\"odelian Horizon to $\U_1$ or beyond.
 \end{corollary}
 
 \paragraph{The reinterpretation.}
@@ -1872,9 +1944,10 @@ Steps 10--14 extend the type theory with differential-geometric structure.
 This appendix provides the exact formal type signatures for each, clarifying their axiomatic status and showing how the inference-rule counts ($\nu_G$, $\nu_C$) arise.
 
 \paragraph{Axiomatic status.}
-Steps 10--14 are \emph{axiomatic extensions}: they introduce new inference rules that are not derivable from the prior library.
-Unlike defined terms (which have $\nu = 0$ because they add no new derivation power), axiomatic extensions enlarge the derivation logic itself.
-Each step adds Introduction rules (unit maps, constructors, type-formation side-effects) and Elimination schemas (counits, structural operations, cross-interactions).
+Steps 10--14 are \emph{library specifications} (\cref{rem:library-api}): packages of types, operations, and axioms that expand the library's derivation repertoire.
+Unlike defined terms (which have $\nu = 0$ because they name existing derivable judgments), these specifications introduce structure that is \emph{not derivable} from the prior library.
+Each step adds Introduction schemas (unit maps, constructors, type-formation side-effects) and Elimination schemas (counits, structural operations, cross-interactions).
+The $\nu$ counts reflect the total number of derivation schemas natively unlocked by the specification, scored by the same methodology used for foundational steps~1--9.
 
 \subsection{Step 10: Cohesion (Adjoint Quadruple of Modalities)}
 \label{app:cohesion-spec}
@@ -1997,10 +2070,12 @@ A Riemannian metric is a symmetric, positive-definite bilinear form on the tange
         && \text{(Ricci tensor / scalar curvature)}
 \end{alignat*}
 
-\paragraph{Derived inference rules ($\nu = 43$: $\nu_G = 4$, $\nu_C = 39$).}
-Of the 7~self-interaction rules, 4 are Introduction-type (the metric $g$, Levi-Civita connection $\nabla_g$, geodesic equation, and volume form each construct new objects), while 3 are Elimination-type (Hodge star, Laplacian, Ricci extraction).
-The remaining rules are Elimination schemas: 10~cross-interactions with cohesion, connections, and curvature + 2~function-space rules + 24~library cross-interactions (metric on spheres, Hopf bundles, modality compositions).
+\paragraph{Derivation schemas ($\nu = 43$: $\nu_G = 4$, $\nu_C = 39$).}
+Of the 7~self-interaction schemas, 4 are Introduction-type (the metric $g$, Levi-Civita connection $\nabla_g$, geodesic equation, and volume form each construct new objects), while 3 are Elimination-type (Hodge star, Laplacian, Ricci extraction).
+The remaining schemas are Elimination-type: 10~cross-interactions with cohesion, connections, and curvature + 2~function-space schemas + 24~library cross-interactions (metric on spheres, Hopf bundles, modality compositions).
 Total: $4\;(\nu_G) + 3 + 10 + 2 + 24\;(\nu_C) = 43$.
+These schemas are counted as \emph{derivation patterns natively unlocked} by the metric specification, not as inference rules of the core type theory (\cref{rem:library-api}).
+The Hodge star, for example, becomes available only after the metric is specified; it is not derivable from prior structures.
 
 \paragraph{Why not definable.}
 In cohesive HoTT, types carry smooth structure via the adjoint modalities, but no intrinsic notion of distance or angle.
