@@ -43,28 +43,28 @@
 \contentsline {paragraph}{1D Windows.}{19}{section*.9}%
 \contentsline {paragraph}{2D Sweep.}{19}{section*.10}%
 \contentsline {paragraph}{Non-Additive Rules.}{19}{section*.11}%
-\contentsline {subsection}{\numberline {6.5}Interpretation: The Balanced Universe}{19}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.5}Interpretation: The Balanced Universe}{20}{subsection.6.5}%
 \contentsline {paragraph}{Critical Margins.}{20}{section*.12}%
 \contentsline {section}{\numberline {7}Computational Verification}{20}{section.7}%
 \contentsline {subsection}{\numberline {7.1}The Haskell Engine}{20}{subsection.7.1}%
-\contentsline {paragraph}{Novelty computation.}{20}{section*.13}%
-\contentsline {paragraph}{Results.}{20}{section*.14}%
+\contentsline {paragraph}{Novelty computation.}{21}{section*.13}%
+\contentsline {paragraph}{Results.}{21}{section*.14}%
 \contentsline {paragraph}{Cross-validation.}{21}{section*.15}%
 \contentsline {subsection}{\numberline {7.2}Schema Canonicality Verification}{21}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Uniform Nu Verification}{21}{subsection.7.3}%
 \contentsline {paragraph}{Algorithm.}{21}{section*.16}%
-\contentsline {paragraph}{Results.}{21}{section*.17}%
+\contentsline {paragraph}{Results.}{22}{section*.17}%
 \contentsline {paragraph}{Analysis of the Extensional Boundary.}{22}{section*.18}%
 \contentsline {subsection}{\numberline {7.4}Meta-Theoretic Rule Audit}{22}{subsection.7.4}%
 \contentsline {paragraph}{Results.}{23}{section*.19}%
 \contentsline {subsection}{\numberline {7.5}Combination Rule Sweep}{23}{subsection.7.5}%
 \contentsline {subsection}{\numberline {7.6}Cubical Agda Mechanization}{23}{subsection.7.6}%
-\contentsline {paragraph}{Obligation decomposition and the abstraction barrier.}{23}{section*.20}%
+\contentsline {paragraph}{Obligation decomposition and the abstraction barrier.}{24}{section*.20}%
 \contentsline {subsection}{\numberline {7.7}Coherence Window Stress-Testing}{24}{subsection.7.7}%
 \contentsline {section}{\numberline {8}Discussion}{24}{section.8}%
 \contentsline {subsection}{\numberline {8.1}What Is Proved, What Is Assumed, What Is Open}{24}{subsection.8.1}%
 \contentsline {paragraph}{Proved.}{24}{section*.21}%
-\contentsline {paragraph}{Assumed.}{24}{section*.22}%
+\contentsline {paragraph}{Assumed.}{25}{section*.22}%
 \contentsline {paragraph}{Open.}{25}{section*.23}%
 \contentsline {subsection}{\numberline {8.2}Limitations}{25}{subsection.8.2}%
 \contentsline {paragraph}{The sample size and formula sensitivity.}{25}{section*.24}%
@@ -78,11 +78,11 @@
 \contentsline {paragraph}{The response: criticality, not overfitting.}{27}{section*.28}%
 \contentsline {subsection}{\numberline {9.2}The Algorithmic Inefficiency of the Discrete}{27}{subsection.9.2}%
 \contentsline {paragraph}{The objection.}{27}{section*.29}%
-\contentsline {paragraph}{The response: the discrete is algorithmically expensive.}{27}{section*.30}%
+\contentsline {paragraph}{The response: the discrete is algorithmically expensive.}{28}{section*.30}%
 \contentsline {subsection}{\numberline {9.3}The G\"odelian Horizon}{28}{subsection.9.3}%
 \contentsline {paragraph}{The objection.}{28}{section*.31}%
 \contentsline {paragraph}{The concession.}{28}{section*.32}%
-\contentsline {paragraph}{The reinterpretation.}{28}{section*.33}%
+\contentsline {paragraph}{The reinterpretation.}{29}{section*.33}%
 \contentsline {subsection}{\numberline {9.4}The Adjoint Completion Principle}{29}{subsection.9.4}%
 \contentsline {paragraph}{The objection.}{29}{section*.34}%
 \contentsline {paragraph}{The response: univalent equivalence classes, not raw syntax.}{29}{section*.35}%
@@ -93,8 +93,30 @@
 \contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{31}{subsection.A.3}%
 \contentsline {subsection}{\numberline {A.4}Representative Applications}{31}{subsection.A.4}%
 \contentsline {subsection}{\numberline {A.5}Semantic Audit of DCT Novelty}{31}{subsection.A.5}%
-\contentsline {section}{\numberline {A}The MBTT Encoding Audit}{32}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}The MBTT Grammar}{32}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Full Audit: Clause Counts vs.\ MBTT Bit-Lengths}{33}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Per-Clause Breakdown: Steps 13--15}{33}{subsection.A.3}%
-\contentsline {subsection}{\numberline {A.4}Canonicality of the Encoding}{34}{subsection.A.4}%
+\contentsline {section}{\numberline {B}Formal Type-Theoretic Specifications: Steps 10--14}{32}{appendix.B}%
+\contentsline {paragraph}{Axiomatic status.}{32}{section*.36}%
+\contentsline {subsection}{\numberline {B.1}Step 10: Cohesion (Adjoint Quadruple of Modalities)}{32}{subsection.B.1}%
+\contentsline {paragraph}{Type formation axioms ($\kappa = 4$ clauses).}{32}{section*.37}%
+\contentsline {paragraph}{Elimination rules ($\nu _C = 19$).}{32}{section*.38}%
+\contentsline {subsection}{\numberline {B.2}Step 11: Connections ($\nabla $ on Cohesive Types)}{32}{subsection.B.2}%
+\contentsline {paragraph}{Axioms ($\kappa = 5$ clauses).}{33}{section*.39}%
+\contentsline {paragraph}{Elimination rules ($\nu _C = 26$).}{33}{section*.40}%
+\contentsline {paragraph}{Why not definable.}{33}{section*.41}%
+\contentsline {subsection}{\numberline {B.3}Step 12: Curvature ($R = d\nabla + \nabla \wedge \nabla $)}{33}{subsection.B.3}%
+\contentsline {paragraph}{Axioms ($\kappa = 6$ clauses).}{33}{section*.42}%
+\contentsline {paragraph}{Elimination rules ($\nu _C = 34$).}{33}{section*.43}%
+\contentsline {paragraph}{Why not definable.}{33}{section*.44}%
+\contentsline {subsection}{\numberline {B.4}Step 13: Metric ($g : TX \otimes TX \to \mathbb {R}$)}{33}{subsection.B.4}%
+\contentsline {paragraph}{Axioms ($\kappa = 7$ clauses).}{34}{section*.45}%
+\contentsline {paragraph}{Elimination rules ($\nu _C = 43$).}{34}{section*.46}%
+\contentsline {paragraph}{Why not definable.}{34}{section*.47}%
+\contentsline {subsection}{\numberline {B.5}Step 14: Hilbert Functional (Operator Algebra)}{34}{subsection.B.5}%
+\contentsline {paragraph}{Axioms ($\kappa = 9$ clauses).}{34}{section*.48}%
+\contentsline {paragraph}{Elimination rules ($\nu _C = 60$).}{34}{section*.49}%
+\contentsline {paragraph}{Why not definable.}{34}{section*.50}%
+\contentsline {paragraph}{Why Step~14 is the critical margin.}{35}{section*.51}%
+\contentsline {section}{\numberline {C}The MBTT Encoding Audit}{35}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}The MBTT Grammar}{35}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Full Audit: Clause Counts vs.\ MBTT Bit-Lengths}{36}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Per-Clause Breakdown: Steps 13--15}{36}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.4}Canonicality of the Encoding}{37}{subsection.C.4}%
