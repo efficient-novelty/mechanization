@@ -70,7 +70,7 @@
 \contentsline {paragraph}{The sample size and formula sensitivity.}{25}{section*.24}%
 \contentsline {paragraph}{Elimination rules as residual.}{25}{section*.25}%
 \contentsline {paragraph}{The $\nu \ge 105$ computation.}{26}{section*.26}%
-\contentsline {subsection}{\numberline {8.3}The Physics of Mathematics}{26}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.3}Physical Implications}{26}{subsection.8.3}%
 \contentsline {subsection}{\numberline {8.4}Falsifiability}{26}{subsection.8.4}%
 \contentsline {section}{\numberline {9}Metamathematical Boundaries and Algorithmic Limits}{26}{section.9}%
 \contentsline {subsection}{\numberline {9.1}Algorithmic Criticality}{26}{subsection.9.1}%
