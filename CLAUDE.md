@@ -35,21 +35,36 @@ PEN/
 
 ## Key Concepts
 
-- **Generative Capacity** ($\nu$): Novelty metric. Defined as the count of
-  atomic inference rules (Introduction, Elimination, Computation) added to
-  the library's derivation logic by a candidate structure.
+- **Generative Capacity** ($\nu$): Novelty metric. Defined as the marginal
+  expansion of the library's operational repertoire — the count of derivation
+  schemas (type-inhabitation patterns classifiable as Introduction, Elimination,
+  Computation) added by a candidate structure. For foundational steps (1–9),
+  these coincide with core inference rules. For library specification steps
+  (10–14), these are the derivation schemas natively unlocked by the API spec.
 - **Spectral Decomposition**: $\nu$ projects onto three orthogonal axes —
   Grammar ($\nu_G$, Intro), Capability ($\nu_C$, Elim), Homotopy ($\nu_H$,
-  Comp) — with approximately equal weight. This is an emergent property,
-  not a parameter choice.
-- **Construction Effort** ($\kappa$): Definitional complexity of a candidate.
+  Comp) — with approximately equal weight. This is an empirical observation
+  about the Generative Sequence, not a parameter choice or derived theorem.
+- **Construction Effort** ($\kappa$): Clause count of the candidate's
+  specification. For library specifications, this is the Kolmogorov complexity
+  (AST node count) of the API spec.
 - **Efficiency** ($\rho = \nu / \kappa$): Selection score.
 - **Integration Latency** ($\Delta_n = F_n$): Fibonacci-governed cost of
-  sealing a structure against the library.
+  sealing a structure against the library. Arises from PEN's **maximal
+  interface density** assumption: each candidate must seal against the entire
+  exported interface of the past $d$ layers. This is a modeling choice of
+  the PEN framework (analogous to universal coupling in physics), not a
+  native requirement of HoTT.
 - **Selection Bar**: $\text{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ — the
   rising threshold each candidate must clear.
 - **Coherence Window** ($d$): Depth of historical context for obligations.
   $d = 2$ for HoTT (gives Fibonacci), $d = 1$ for extensional (stagnates).
+- **Library Specifications vs. Defined Terms**: Steps 10–14 are library
+  specifications (non-derivable API packages, $\nu > 0$), not defined terms
+  (derivable from prior structures, $\nu = 0$). The derivability criterion
+  resolves the scoring methodology: e.g., ℕ's addition is derivable from
+  rec_ℕ ($\nu = 0$), but a metric's Hodge star is not derivable from
+  cohesion ($\nu > 0$).
 
 ## The Haskell Engine
 
@@ -78,8 +93,9 @@ cabal run pen-engine -- --window 3   # Stress-test with d=3
   count distinct non-trivial schemas + homotopy bonus.
 - `GenuineNu.hs` — Dispatches $\nu$ by structure category (Foundation → hardcoded,
   HIT → Cluster, Modal → operator count, DCT → lattice tensor product).
-- `UniformNu.hs` — Before/after type inhabitation comparison. Works for 13/15
-  steps; fails at Witness and Π/Σ (misses Elimination rules).
+- `UniformNu.hs` — Before/after type inhabitation comparison with adjoint
+  completion. Works for all 15/15 steps (adjoint completion closes the
+  Extensional Boundary at steps 3–4).
 - `Independence.hs` — Trivial schema filter (derivable for any inhabited type).
 - `ProofRank.hs` — Schema enumeration, schematization, normalization.
 - `Capability.hs` — Hand-tuned capability rules (older approach, for comparison).
@@ -156,13 +172,14 @@ Requires Agda 2.6.4+ with the `cubical` library.
 | Section | Content |
 |---------|---------|
 | §1 | Generative Sequence table (15 structures) |
-| §2 | The Model: state, candidates, dual-cost, **Generative Capacity**, selection |
-| §3 | Coherence Window Theorems ($d=1$ extensional, $d=2$ intensional) |
+| §2 | The Model: state, candidates, dual-cost, **Generative Capacity**, library API remark, selection |
+| §3 | Coherence Window Theorems ($d=1$ extensional, $d=2$ intensional), maximal coupling remark |
 | §4 | Complexity Scaling Theorem ($\Delta_n = F_n$) |
-| §5 | Combinatorial Novelty Theorem (superlinear growth, Combinatorial Schema Synthesis) |
-| §6 | **Spectral Decomposition** (equal-weight property, 12.7% island, sweep) |
-| §7 | Computational verification (engine, schema canonicality, uniform $\nu$) |
+| §5 | Combinatorial Novelty Theorem (superlinear growth, Combinatorial Schema Synthesis), Gödelian Horizon |
+| §6 | **Spectral Decomposition** (Empirical Observation, equal-weight property, sweep) |
+| §7 | Computational verification (engine, 10 rejected candidates, schema canonicality, uniform $\nu$) |
 | §8 | Discussion (proved/assumed/open, limitations, falsifiability) |
+| §9 | Metamathematical Boundaries (algorithmic criticality, discrete inefficiency, Gödelian Horizon, adjoint completion) |
 
 Build: `pdflatex pen_unified.tex` (run twice for cross-references).
 
@@ -170,31 +187,37 @@ Build: `pdflatex pen_unified.tex` (run twice for cross-references).
 
 See `paper_improvement_plan.md` for the full tracker. In brief:
 
-**Completed:**
-1. Integration Trace Principle — proved, machine-checked at steps 8-9.
-2. Generative Capacity reframing — novelty is now a single intrinsic metric;
-   Spectral Decomposition is an emergent property.
-3. Inference-rule counter — 15/15 exact match, all steps verified.
-4. DCT singularity resolved — ν(DCT) = 105 via Combinatorial Schema Synthesis
-   (replaces incorrect Lattice Tensor Product formula of 150).
-5. Kolmogorov κ formalized — κ(X|B) is now Conditional Kolmogorov Complexity
-   via MBTT encoding. S³ ambiguity resolved (13 bits suspension vs 23 bits native).
-   Divergence theorem strengthened with Logarithmic Effort Growth.
-6. κ definition contradiction resolved — specification selection via minimal
-   overshoot; S³ carries SU(2) structure as a prediction.
-7. S³ ν_C = 3 anomaly justified — H-space elimination from selected specification.
-8. DCT semantic audit grounded — 3 concrete schema examples with HoTT type
-   signatures; ~40% rigorous, ~60% structural analogies.
-9. Extensional Boundary closed — adjoint completion in UniformNu.hs gives
-   15/15 ordering (was 13/15). Zero domain knowledge.
-10. ν_H topological projection formalized — concrete 3×3 cubical Kan matrix.
-11. Ontological tone calibrated — systematic overclaim removal.
+**Completed (latest round):**
+1. Fixed vector field type error in Gödelian Horizon — `X^D → X` corrected
+   to `X → X^D` (a vector field in SDG). Proof rewritten using guarded
+   corecursion to unfold dynamical systems into global trajectories.
+2. Resolved "axiom vs. definition" scoring double standard — Steps 10–14
+   reframed as "library specifications" with derivability criterion. ℕ's
+   ops are derivable from rec_ℕ (ν=0); metric's Hodge star is not derivable
+   from cohesion (ν>0). New Remark 2.6 (rem:library-api).
+3. Integration Trace clarified as systemic constraint — new remark
+   (rem:maximal-coupling) states maximal interface density is PEN's modeling
+   assumption, not HoTT's requirement. Added to "Assumed" in Discussion.
+4. Epistemological rhetoric downgraded — Spectral Decomposition from Theorem
+   to Empirical Observation. Topological Projection keeps Theorem but adds
+   CCHM framework-dependence caveat.
+5. Candidate pool demystified — abstract softened ("autonomously generates"
+   → "filters and uniquely orders"). Rejected candidates table expanded
+   from 5 to 10 (added ordinals, measure theory, topos axioms, scheme
+   theory, Galois theory).
+
+**Previously completed:** Integration Trace Principle, Generative Capacity
+reframing, inference-rule counter (15/15), DCT singularity, Kolmogorov κ,
+specification selection, S³ ν_C=3, DCT semantic audit, Extensional Boundary,
+ν_H formalization, ontological tone calibration. See `paper_improvement_plan.md`.
 
 **Next research steps (priority order):**
 1. Theoretical derivation of $d = 2$ via adjoint functor argument.
 2. Tangent Topos hypothesis (why the sequence terminates).
 3. Specification Selection formalization (variational principle).
 4. Update Kolmogorov.hs with SU(2) and native HIT specifications.
+5. Compute ν estimates for new rejected candidates in the Haskell engine.
+6. Investigate d² scaling robustness across cubical frameworks (CCHM vs Cartesian).
 
 ## Conventions
 
