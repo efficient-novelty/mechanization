@@ -63,7 +63,7 @@ data MBTTExpr
   | Shape MBTTExpr                 -- ^ Π_coh shape (Prefix: 11111110, 8 bits)
   | Next MBTTExpr                  -- ^ ○ temporal (Prefix: 111111110, 9 bits)
   | Eventually MBTTExpr            -- ^ ◇ temporal (Prefix: 111111111, 9 bits)
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 
 -- ============================================
 -- 2. Prefix-Free Bit Length Evaluator
