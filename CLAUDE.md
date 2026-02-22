@@ -5,7 +5,7 @@
 A mathematical theory (with computational engine and formal proofs) proposing
 that mathematical structures emerge in a deterministic order governed by
 efficiency optimization. Starting from an empty library, the model produces the
-**Genesis Sequence**: 15 structures — from dependent types through spheres,
+**Generative Sequence**: 15 structures — from dependent types through spheres,
 cohesion, and differential geometry to the Dynamical Cohesive Topos — with
 Fibonacci-governed integration costs.
 
@@ -155,7 +155,7 @@ Requires Agda 2.6.4+ with the `cubical` library.
 
 | Section | Content |
 |---------|---------|
-| §1 | Genesis Sequence table (15 structures) |
+| §1 | Generative Sequence table (15 structures) |
 | §2 | The Model: state, candidates, dual-cost, **Generative Capacity**, selection |
 | §3 | Coherence Window Theorems ($d=1$ extensional, $d=2$ intensional) |
 | §4 | Complexity Scaling Theorem ($\Delta_n = F_n$) |
