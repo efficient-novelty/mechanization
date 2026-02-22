@@ -167,6 +167,45 @@ hasLibPointer _              = False
 --   Cohesion, Connections, Curvature, Metric, Hilbert, DCT
 detectCanonicalName :: Telescope -> Library -> String
 detectCanonicalName tele lib =
+  let tentative = detectStructuralName tele lib
+  in if hasPrerequisites tentative lib
+     then tentative
+     else "candidate"
+
+-- | Prerequisite chain: each canonical name requires specific prior structures
+-- in the library. This prevents gaming where e.g. "Trunc" is assigned to a
+-- telescope when the library is empty (you can't truncate without types).
+--
+-- The chain mirrors the Generative Sequence's logical dependencies:
+--   Universe → Unit → Witness → Pi → S1 → Trunc → S2 → S3 → Hopf →
+--   Cohesion → Connections → Curvature → Metric → Hilbert → DCT
+hasPrerequisites :: String -> Library -> Bool
+hasPrerequisites name lib =
+  let names = map leName lib
+      has n = n `elem` names
+  in case name of
+    "Universe"    -> True                       -- bootstrap: no prerequisites
+    "Unit"        -> has "Universe"             -- Unit lives in U
+    "Witness"     -> has "Unit"                 -- ★ : 1 needs 1
+    "Pi"          -> has "Witness"              -- dependent types need inhabitants
+    "S1"          -> has "Pi"                   -- HITs need dependent types
+    "Trunc"       -> has "S1"                   -- truncation needs HITs to motivate
+    "S2"          -> has "S1"                   -- Susp(S¹) = S²
+    "S3"          -> has "S2"                   -- Susp(S²) = S³
+    "Hopf"        -> has "S3" && has "S1"       -- h : S³ → S² with S¹ fiber
+    "Cohesion"    -> has "Hopf"                 -- modalities need higher structure
+    "Connections" -> has "Cohesion"             -- ∇ needs cohesive types
+    "Curvature"   -> has "Connections"          -- R = d∇ + ∇∧∇
+    "Metric"      -> has "Curvature"            -- g needs curvature for Levi-Civita
+    "Hilbert"     -> has "Metric"               -- functional analysis needs geometry
+    "DCT"         -> has "Hilbert" && has "Cohesion"  -- temporal + spatial
+    _             -> True                       -- unknown names pass through
+
+-- | Detect the structural name for a telescope based on its MBTT structure,
+-- WITHOUT checking library prerequisites. This is the classification step;
+-- `detectCanonicalName` adds the prerequisite gate.
+detectStructuralName :: Telescope -> Library -> String
+detectStructuralName tele lib =
   let cls = classifyTelescope tele lib
       entries = teleEntries tele
       exprs = map teType entries
@@ -195,10 +234,14 @@ detectCanonicalName tele lib =
 
     TCSuspension -> detectSuspName tele lib
 
-    -- Hopf needs at least 2 entries (map + fiber)
+    -- Map: a function between existing library types.
+    -- Hopf is the prototypical map (S³ → S² with S¹ fiber).
+    -- Only assign "Hopf" if the library has HITs (path dims > 0) and the
+    -- telescope has κ ≤ 4 (maps are small, focused structures).
     TCMap
-      | kappa >= 2 -> "Hopf"
-      | otherwise  -> "candidate"
+      | kappa >= 2, kappa <= 4
+      , any (\e -> not (null (lePathDims e)) && leHasLoop e) lib -> "Hopf"
+      | otherwise -> "candidate"
 
     -- Cohesion requires at least 3 of the 4 modalities (Flat, Sharp, Disc, Shape)
     TCModal
