@@ -2,7 +2,7 @@
 
 ## For Researchers Verifying the Genesis Sequence
 
-**Version:** 0.4 (all levels A-D complete)
+**Version:** 0.5 (ab initio engine + strictness audit)
 **Language:** Haskell (GHC 9.6+)
 **Build:** `cd engine && cabal build`
 **Run:** `cd engine && cabal run pen-engine`
@@ -17,6 +17,49 @@ The Genesis Sequence is a list of 15 mathematical structures (Universe, Unit, Wi
 
 ---
 
+## Evaluation Modes
+
+The engine operates in several modes that differ in how ν (novelty) and κ (construction effort) are computed. Understanding these modes is critical for interpreting results.
+
+### Ab Initio Modes (RunAbInitio.hs)
+
+| Mode | CLI Flag | Bar Computation | Library Insertion | Candidate ν/κ |
+|------|----------|----------------|-------------------|---------------|
+| **PaperCalibrated** | (default) | Paper ν/κ for Ω_{n-1} | Fallback to paper entries | Paper values for canonical names |
+| **StrictAbInitio** | `--strict` | Discovered ν/κ history | Discovered entry only | Paper values for canonical names* |
+
+\* **Known limitation**: Both modes currently route through `effectiveNu`/`effectiveKappa` in TelescopeEval.hs, which returns paper values for any structurally recognized canonical name. This means strict mode is "bar-strict, evaluator-calibrated" — the bar is genuinely self-consistent, but the ν/κ values fed into selection come from paper tables when `detectCanonicalName` matches. See `physics_creation.md` L14 for the planned EvalMode refactor.
+
+### Simulation Modes (Simulation.hs / Main.hs Phases G-J)
+
+| Mode | Phase | ν Source | κ Source | Purpose |
+|------|-------|----------|----------|---------|
+| **PaperMode** | G | `paperNu` (KappaNu.hs) | `paperKappa` (KappaNu.hs) | Replay paper values — validates bar dynamics |
+| **CapabilityMode** | H-I | 18 hand-tuned rules (Capability.hs) | Same as PaperMode | Cross-validates computed ν against paper |
+| **ComputedMode** | J | GenuineNu.hs dispatch | Generator.hs `candidateKappa` | Genuine synthesis — the core claim |
+
+### ν Definitions by Source
+
+| Source | Definition | Typical DCT value | Used in |
+|--------|-----------|-------------------|---------|
+| `paperNu` (KappaNu.hs) | Hand-counted independent schemas | 105 | PaperMode, effectiveNu |
+| `computeUniformNu` (UniformNu.hs) | Before/after inhabitation comparison | 105 (at depth 2) | StrictAbInitio (after refactor) |
+| `genuineNu` (GenuineNu.hs) | Dispatch by structure category | 150 (lattice tensor) | ComputedMode (Phase J) |
+| `capabilityNu` (Capability.hs) | 18 domain-specific rules | 150 | CapabilityMode (Phase H-I) |
+
+**Important**: The ν=105 vs ν=150 discrepancy for DCT is a known documentation issue. The paper uses ν=105 (lower bound, independent schemas only). GenuineNu and Capability compute ν=150 (lattice tensor product: 14×11−4). These are different metrics with different semantics. The paper's ν=105 is the publication-canonical value.
+
+### κ Definitions by Source
+
+| Source | Definition | Typical Pi value | Notes |
+|--------|-----------|-----------------|-------|
+| `paperKappa` (KappaNu.hs) | Clause count of specification | 3 | Paper convention |
+| `teleKappa` (Telescope.hs) | Telescope entry count | 5 | MBTT encoding — often different |
+| `teleBitCost` (Telescope.hs) | MBTT binary encoding length | varies | Kolmogorov-style |
+| `effectiveKappa` (TelescopeEval.hs) | Paper κ for canonical names, teleKappa otherwise | 3 | Mixed — used in current evaluator |
+
+---
+
 ## Quick Start: What to Run and What to Look For
 
 ```bash
@@ -26,6 +69,17 @@ cabal run pen-engine 2>&1 | less
 ```
 
 The output is organized into 10 phases (A through J). **If you only have time to check one thing, skip to Phase J** -- it's the genuine synthesis run where structures are discovered from scratch.
+
+### Ab Initio Engine (separate executable)
+
+```bash
+cd engine
+cabal run ab-initio                  # Paper-calibrated mode
+cabal run ab-initio -- --strict      # Strict mode (no paper bar fallback)
+```
+
+The ab initio engine starts from an empty library and discovers all 15
+structures using exhaustive enumeration (κ ≤ 3) + MCTS (κ > 3).
 
 ### Key output to verify in Phase J:
 
@@ -45,6 +99,10 @@ The output is organized into 10 phases (A through J). **If you only have time to
 2. Every structure has "YES" in the Cleared column (rho >= Bar)
 3. The Delta column follows the Fibonacci sequence: 1,1,2,3,5,8,13,21,34,55,89,144,233,377,610
 4. DCT achieves rho=18.75, far exceeding its Bar (~7.73)
+
+**Note**: Phase J uses GenuineNu.hs which reports DCT ν=150. The paper
+uses ν=105 (independent schema lower bound). Both are correct measures;
+they answer different questions about novelty.
 
 ---
 
@@ -73,6 +131,17 @@ The output is organized into 10 phases (A through J). **If you only have time to
             erate   itation        |        |        |
              .hs     .hs     TheoryState.hs |   Cluster.hs
                                         HITEnum.hs
+
+                    RunAbInitio.hs
+                   (ab initio engine)
+                       |
+    +---------+---------+---------+
+    |         |         |         |
+ TelescopeGen  TelescopeEval  MCTS.hs
+ (enumerate)   (evaluate)    (search κ>3)
+    |              |
+ Telescope.hs  TelescopeCheck.hs
+ (data types)  (well-formedness)
 ```
 
 ### Data Flow in Phase J (the one that matters):
@@ -97,6 +166,31 @@ The output is organized into 10 phases (A through J). **If you only have time to
 7. Advance Fibonacci clock: Delta_{n+1} = F_{n+1}, tau += Delta
        |
 8. Repeat until 15 structures found or no candidates survive
+```
+
+### Data Flow in Ab Initio Engine (RunAbInitio.hs):
+
+```
+1. Empty library B = {}
+       |
+2. At step n:
+   a. Exhaustive enumeration: enumerateTelescopes(B, κ_max=3)
+   b. Type checking: checkAndFilter(B, telescopes)
+   c. MCTS (if κ > 3): mctsSearchStep(cfg, B, bar)
+   d. Reference telescope: referenceTelescope(n)
+       |
+3. For each telescope:
+   a. evaluateTelescope(tele, B, 2, "candidate")
+      -> detectCanonicalName -> effectiveKappa/effectiveNu -> (ν, κ, ρ)
+   b. Filter: ρ >= bar (or step ≤ 2)
+       |
+4. Selection: canonical names prioritized, then minimal overshoot
+       |
+5. Insert winner into library B
+       |
+6. Record (ν, κ) in discovery history
+       |
+7. Repeat
 ```
 
 ---
@@ -138,8 +232,18 @@ data LibraryEntry = LibraryEntry
   , lePathDims     :: [Int]     -- path constructor dimensions
   , leHasLoop      :: Bool      -- has non-trivial loops?
   , leIsTruncated  :: Maybe Int -- truncation level
+  -- Structural capability flags (added for ab initio engine):
+  , leHasDependentFunctions :: Bool  -- gates Pi, Sigma formers
+  , leHasModalOps          :: Bool  -- gates Flat, Sharp, Disc, PiCoh
+  , leHasDifferentialOps   :: Bool  -- gates Inf, Tangent, Connection
+  , leHasCurvature         :: Bool  -- gates Curvature formers
+  , leHasMetric            :: Bool  -- gates Metric formers
+  , leHasHilbert           :: Bool  -- gates Hilbert formers
+  , leHasTemporalOps       :: Bool  -- gates Next, Eventually
   }
 ```
+
+**Smart constructor:** `mkLibraryEntry :: String -> Int -> [Int] -> Bool -> Maybe Int -> LibraryEntry` creates an entry with all capability flags defaulting to `False`.
 
 **Verification point:** Check that the 16 `genesisEntry` definitions in `KappaNu.hs` correctly model the mathematical structures. For example, S1 should have 1 constructor and path dimension [1], meaning one point and one 1-dimensional path (the loop).
 
@@ -221,6 +325,8 @@ Synthesis (DCT)   -> lattice tensor product (spatial 14 x temporal 11 - correcti
 
 **Verification point:** The DCT nu=150 computation is the most important to verify. Look at the `genuineNu` case for `CSynthesis`. It checks whether Cohesion is in the library (for spatialLattice=14) and computes 14*11-4=150. Without Cohesion, spatialLattice=0 and DCT cannot form. This demonstrates that DCT's novelty genuinely depends on library state.
 
+**Note:** The paper uses ν=105 for DCT (independent derivation schemas only). GenuineNu reports ν=150 (lattice tensor product). These measure different things — 105 is the publication-canonical lower bound.
+
 ---
 
 #### `Capability.hs` (~200 lines)
@@ -229,6 +335,15 @@ Synthesis (DCT)   -> lattice tensor product (spatial 14 x temporal 11 - correcti
 **18 rules:** existence, function-space, product-sum, path-loop, homotopy, suspension, truncation, modal, fibration, long-exact, classifying, field-ops, modal-cross, spectral, operator, cross-interactions, su2, synthesis.
 
 **Verification point:** Phase H output shows rule-by-rule breakdowns for each structure. Every structure's computed nu should match the paper nu exactly (16/16). This validates that the paper's nu values are self-consistent.
+
+---
+
+#### `UniformNu.hs` (~250 lines)
+**What:** Uniform before/after inhabitation comparison for all 15 steps. Works with adjoint completion to handle the Extensional Boundary at steps 3-4.
+
+**Key function:** `computeUniformNu :: LibraryEntry -> Library -> Int -> UniformNuResult`
+
+**Used by:** TelescopeEval.hs (for non-canonical telescope evaluation), and will become the primary ν source for strict mode after the EvalMode refactor.
 
 ---
 
@@ -329,7 +444,88 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 
 ---
 
-### Layer 5: Supporting Modules
+### Layer 5: Ab Initio Engine
+
+#### `Telescope.hs` (~530 lines)
+**What:** Core data types for MBTT context telescopes — the universal
+representation for candidate structures.
+
+**Key types:**
+```haskell
+data TeleEntry = TeleEntry String MBTTExpr
+newtype Telescope = Telescope { teleEntries :: [TeleEntry] }
+```
+
+**Key functions:**
+- `teleKappa :: Telescope -> Int` — entry count (κ metric)
+- `teleBitCost :: Telescope -> Int` — MBTT binary encoding cost
+- `teleIsConnected :: Telescope -> Bool` — Structural Unity filter
+- `teleReferencesWindow :: Telescope -> Int -> Bool` — Interface Density filter
+- `isTriviallyDerivable :: Telescope -> Library -> Bool` — redundancy filter
+- `teleToEntry :: Telescope -> Library -> String -> LibraryEntry` — convert for UniformNu
+- `referenceTelescope :: Int -> Telescope` — paper's 15 structures as MBTT telescopes
+- `mbttToTypeExpr :: MBTTExpr -> Library -> TypeExpr` — bridge to Type layer
+
+---
+
+#### `TelescopeGen.hs` (~380 lines)
+**What:** Type-directed telescope generation via hole-filling.
+
+**Key functions:**
+- `enumerateTelescopes :: Library -> Int -> [Telescope]` — exhaustive for small κ
+- `validActions :: Hole -> Library -> [Action]` — contextual pruning with capability gating
+- `actionPriority :: Int -> Action -> Int` — heuristic bias for search
+
+---
+
+#### `TelescopeEval.hs` (~600 lines)
+**What:** Classification, naming, and evaluation of telescopes.
+
+**Key functions:**
+- `evaluateTelescope :: Telescope -> Library -> Int -> String -> (Int, Int, Double)` — returns (ν, κ, ρ)
+- `detectCanonicalName :: Telescope -> Library -> String` — structural name assignment
+- `hasPrerequisites :: String -> Library -> Bool` — prerequisite chain gating
+- `effectiveKappa :: String -> Telescope -> Int` — paper κ for known names, teleKappa otherwise
+- `effectiveNu :: String -> LibraryEntry -> Library -> Int -> Int` — paper ν for known names, UniformNu otherwise
+
+**Paper value lookup tables** (will be bypassed in strict mode after EvalMode refactor):
+- `paperKappaByName :: [(String, Int)]` — 15 canonical names → paper κ values
+- `paperNuByName :: [(String, Int)]` — 15 canonical names → paper ν values
+
+---
+
+#### `TelescopeCheck.hs` (~150 lines)
+**What:** Conservative well-formedness checker for telescopes.
+
+**Checks:** Library/variable reference bounds, scope validity through binders, empty telescope rejection, bare Univ-as-argument rejection.
+
+**API:** `checkTelescope :: Library -> Telescope -> CheckResult`, `checkAndFilter :: Library -> [Telescope] -> ([Telescope], Int)`
+
+---
+
+#### `MCTS.hs` (~480 lines)
+**What:** Monte Carlo Tree Search for discovering structures at κ > 3.
+
+**Full UCT cycle:** selection (UCT formula), expansion, rollout (random completion + evaluation), backpropagation.
+
+**Note:** MCTS always evaluates with name "candidate", so paper value lookup does NOT apply to MCTS-discovered telescopes.
+
+---
+
+#### `RunAbInitio.hs` (~330 lines)
+**What:** The ab initio synthesis orchestrator. Combines exhaustive enumeration, MCTS, and reference telescopes with minimal overshoot selection.
+
+**Key types:**
+```haskell
+data AbInitioMode = PaperCalibrated | StrictAbInitio
+data DiscoveryRecord = DiscoveryRecord { drNu :: Int, drKappa :: Int }
+```
+
+**Selection logic:** Canonical names are prioritized over generic candidates (justified by structural completeness + prerequisite chain). Within each priority tier, minimal overshoot (ρ − bar), then κ ascending.
+
+---
+
+### Layer 6: Supporting Modules
 
 #### `Equivalence.hs` (~170 lines)
 **What:** Confluent rewrite system for type isomorphisms. Normalizes type expressions so structurally equivalent types are recognized as equal.
@@ -349,7 +545,7 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 ---
 
 #### `ProofRank.hs` (~200 lines)
-**What:** Earlier version of schema-based proof-rank. Used in Phase D. Superseded by Cluster.hs for HITs but still used for validation.
+**What:** Schema-based proof-rank computation. The `availableFormers` function uses **structural capability predicates** (not name-based gating) to determine which type formers are available given the current library.
 
 ---
 
@@ -360,8 +556,18 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 
 ---
 
+#### `Kolmogorov.hs` (~200 lines)
+**What:** MBTT-based Conditional Kolmogorov Complexity κ(X | B). Prefix-free binary encoding with Elias Gamma library pointers.
+
+---
+
 #### `Manifest.hs` (~50 lines)
 **What:** JSON manifest loader for Agda library integration. Currently stubbed.
+
+---
+
+#### `CoherenceWindow.hs` (~50 lines)
+**What:** d-Bonacci sequences for coherence window depth d. d=1 gives constant Δ, d=2 gives Fibonacci, d=3 gives tribonacci.
 
 ---
 
@@ -383,6 +589,8 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 
 **What to audit:** Read `Generator.hs` to verify that the candidate generation is generic (no "if step==5 then generate S1" logic). Read `GenuineNu.hs` to verify that nu computation doesn't hardcode genesis values for HITs/suspensions (it uses proof-rank clustering). The hardcoded components are for foundations (trivially correct) and axioms/synthesis (where the formulas encode structural theorems like the Kuratowski lattice).
 
+**Ab initio audit:** Run `cabal run ab-initio -- --strict` and verify all 15 canonical names are discovered in order. Note the caveat in `physics_creation.md` L13/L14: the ν/κ values in the current evaluator still route through paper tables for recognized names. The EvalMode refactor (Sprint 3A) will resolve this.
+
 ### Claim 3: "DCT achieves rho=18.75 via lattice tensor product"
 
 **Where to check:** In `GenuineNu.hs`, find the `CSynthesis` case. Verify:
@@ -392,6 +600,8 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 - nu = 14 * 11 - 4 = 150
 - kappa = 8 (from `candidateKappa` in `Generator.hs`)
 - rho = 150/8 = 18.75
+
+**Paper vs engine:** The paper reports DCT ν=105 (independent derivation schema count, the lower bound). GenuineNu computes ν=150 (lattice tensor product). Both produce rho well above the bar. The paper value is canonical for publication.
 
 ### Claim 4: "Lie groups are absorbed"
 
@@ -415,22 +625,28 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 
 5. **Horizon policy.** After each realization, the horizon resets to `delta + 1`. This is slightly different from the paper's "H <- 2" rule but produces identical dynamics because the Fibonacci gaps are always >= 1.
 
+6. **Evaluator paper-value coupling in strict mode.** `evaluateTelescope` returns paper ν/κ for recognized canonical names even when called from strict mode. This makes the reported "exact agreement" (356/356 ν, 64/64 κ) partially tautological. The ordering discovery is genuine, but the numerical match will be requalified after the EvalMode refactor. See `physics_creation.md` L13/L14.
+
+7. **DCT ν discrepancy.** Phase J (GenuineNu) reports ν=150; the paper uses ν=105. These are different metrics: lattice tensor product vs independent schema count. The paper value (105) is canonical.
+
 ---
 
 ## File Sizes and Complexity Budget
 
 | File | Lines | Purpose | Complexity |
 |------|-------|---------|------------|
-| Types.hs | ~120 | Type AST | Low - just data types |
+| Types.hs | ~120 | Type AST + capability flags | Low - data types |
 | Inhabitation.hs | ~150 | Inhabitation heuristic | Medium - 14 rules |
 | Enumerate.hs | ~100 | Type enumeration | Low - recursive generation |
 | HITEnum.hs | ~100 | HIT parameterization | Low - partition enumeration |
 | Equivalence.hs | ~170 | Type normalization | Medium - rewrite rules |
 | Independence.hs | ~70 | Schema filtering | Low |
 | Cluster.hs | ~130 | Proof-rank clustering | **High** - core algorithm |
-| ProofRank.hs | ~200 | Legacy proof-rank | Medium |
+| ProofRank.hs | ~200 | Legacy proof-rank + structural gating | Medium |
 | Capability.hs | ~200 | Capability engine | Medium - 18 rules |
 | KappaNu.hs | ~150 | Paper reference values | Low - lookup tables |
+| UniformNu.hs | ~250 | Uniform ν algorithm | **High** - core evaluation |
+| Kolmogorov.hs | ~200 | MBTT Kolmogorov complexity | Medium |
 | Manifest.hs | ~50 | JSON loader | Low |
 | TheoryState.hs | ~85 | Theory tracking | Low - state management |
 | Generator.hs | ~275 | Candidate generation | **High** - 9 candidate types |
@@ -438,9 +654,16 @@ Implements the same 5 PEN axioms but with paper reference values instead of comp
 | Synthesis.hs | ~350 | Synthesis loop | **High** - main algorithm |
 | Simulation.hs | ~200 | Paper-mode replay | Medium |
 | Main.hs | ~375 | Phase runner | Medium - orchestration |
-| **Total** | **~3,085** | | |
+| Telescope.hs | ~530 | MBTT telescope data types | **High** - core representation |
+| TelescopeGen.hs | ~380 | Telescope generation | **High** - type-directed search |
+| TelescopeEval.hs | ~600 | Telescope evaluation | **High** - classification + naming |
+| TelescopeCheck.hs | ~150 | Well-formedness checker | Medium |
+| MCTS.hs | ~480 | Monte Carlo Tree Search | **High** - UCT cycle |
+| RunAbInitio.hs | ~330 | Ab initio orchestrator | **High** - synthesis loop |
+| CoherenceWindow.hs | ~50 | d-Bonacci sequences | Low |
+| **Total** | **~6,385** | | |
 
-The entire engine is ~3,000 lines of Haskell. A careful reader can audit the complete system in a few hours.
+The engine is ~6,400 lines of Haskell. The original synthesis engine (~3,100 lines) plus the ab initio engine (~2,300 lines) plus supporting modules (~1,000 lines). A careful reader can audit the complete system in a day.
 
 ---
 
@@ -455,14 +678,23 @@ git clone <repository>
 cd PEN/engine
 cabal build
 
-# Run all 10 phases
+# Run all 10 phases (original engine)
 cabal run pen-engine
 
-# The output is ~500 lines. Key sections:
+# Run ab initio engine
+cabal run ab-initio                  # Paper-calibrated mode
+cabal run ab-initio -- --strict      # Strict mode
+
+# The pen-engine output is ~500 lines. Key sections:
 # Phase D: proof-rank validation (schemas and counts)
 # Phase G: paper-mode simulation (15 structures clear bars)
 # Phase H: capability validation (16/16 nu match)
 # Phase J: genuine synthesis (15/15 discovered from search)
+
+# The ab-initio output shows:
+# Phase 0: Reference telescope validation (15/15 non-zero ν)
+# Phase 1: Step-by-step discovery with ν, κ, ρ, bar, source
+# Summary: Discovered vs paper comparison table
 ```
 
 ---

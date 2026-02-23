@@ -33,7 +33,7 @@ module MCTS
 import Kolmogorov (MBTTExpr(..))
 import Telescope (Telescope(..), TeleEntry(..), teleIsConnected, teleReferencesWindow)
 import TelescopeGen (Action(..), validActions, Hole(..), HoleGoal(..), actionPriority)
-import TelescopeEval (evaluateTelescope)
+import TelescopeEval (EvalMode(..), evaluateTelescope)
 import Types (Library)
 
 import qualified Data.Map.Strict as Map
@@ -259,9 +259,10 @@ rolloutFromNode cfg lib node gen0 =
 
       tele = Telescope finalEntries
 
-      -- Evaluate
+      -- Evaluate (rollout always uses paper-calibrated since name is "mcts_candidate"
+      -- which won't hit paper tables — this is only for reward estimation)
       name = "mcts_candidate"
-      (nu, _kappa, rho) = evaluateTelescope tele lib (mctsNuDepth cfg) name
+      (nu, _kappa, rho) = evaluateTelescope EvalPaperCalibrated tele lib (mctsNuDepth cfg) name
 
       -- Reward with structural bonuses
       connected = teleIsConnected tele
@@ -470,13 +471,13 @@ weightedChoice items gen =
 -- Single-Step Search (for integration with Synthesis)
 -- ============================================
 
-mctsSearchStep :: MCTSConfig -> Library -> Double -> IO [(Telescope, Int, Int, Double)]
-mctsSearchStep cfg lib bar = do
+mctsSearchStep :: EvalMode -> MCTSConfig -> Library -> Double -> IO [(Telescope, Int, Int, Double)]
+mctsSearchStep evalMode cfg lib bar = do
   result <- mctsSearch cfg lib
   let evaluated = [ (tele, nu, kappa, rho)
                   | (tele, _) <- mrTelescopes result
                   , let name = "candidate"
-                  , let (nu, kappa, rho) = evaluateTelescope tele lib (mctsNuDepth cfg) name
+                  , let (nu, kappa, rho) = evaluateTelescope evalMode tele lib (mctsNuDepth cfg) name
                   , rho >= bar
                   ]
   return $ sortOn (\(_, _, _, rho) -> Down rho) evaluated

@@ -11,11 +11,17 @@
 -- MBTT expression tree.
 
 module TelescopeEval
-  ( -- * Evaluation
-    evaluateTelescope
+  ( -- * Evaluation Modes
+    EvalMode(..)
+    -- * Evaluation
+  , evaluateTelescope
   , evaluateTelescopeDetailed
   , effectiveKappa
   , effectiveNu
+  , strictKappa
+    -- * Tracing
+  , EvalTrace(..)
+  , evaluateTelescopeTrace
     -- * Conversion
   , telescopeToCandidate
   , classifyTelescope
@@ -33,6 +39,38 @@ import Types (LibraryEntry(..), Library, mkLibraryEntry)
 import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, GenesisStep(..))
 
 import qualified Data.Set as Set
+
+-- ============================================
+-- Evaluation Modes
+-- ============================================
+
+-- | Evaluation mode for telescope scoring.
+--
+-- Controls whether the evaluator uses paper ν/κ values (for replay/comparison)
+-- or computes them strictly from the telescope + library (for genuine discovery).
+--
+-- This is the key architectural distinction for the strictness audit:
+-- - EvalPaperCalibrated: routes through effectiveNu/effectiveKappa, which
+--   return paper values for known canonical names.
+-- - EvalStrictComputed: NEVER reads paper tables. ν comes from computeUniformNu,
+--   κ comes from strictKappa (teleKappa + explicit suspension policy).
+data EvalMode
+  = EvalPaperCalibrated     -- ^ Use paper ν/κ for canonical names (effectiveNu/effectiveKappa)
+  | EvalStrictComputed      -- ^ Never use paper ν/κ; compute from telescope + UniformNu
+  deriving (Show, Eq)
+
+-- | Evaluation trace for transparency logging.
+-- Records what happened during evaluation so callers can audit paper-value usage.
+data EvalTrace = EvalTrace
+  { etCanonName      :: !String       -- ^ Detected canonical name (or "candidate")
+  , etMode           :: !EvalMode     -- ^ Which evaluation mode was used
+  , etNuComputed     :: !Int          -- ^ ν from computeUniformNu (always computed)
+  , etNuUsed         :: !Int          -- ^ ν actually used for scoring
+  , etNuFromPaper    :: !(Maybe Int)  -- ^ Paper ν if applicable (Nothing in strict mode)
+  , etKappaEntry     :: !Int          -- ^ Raw teleKappa (entry count)
+  , etKappaUsed      :: !Int          -- ^ κ actually used for scoring
+  , etKappaFromPaper :: !(Maybe Int)  -- ^ Paper κ if applicable (Nothing in strict mode)
+  } deriving (Show)
 
 -- ============================================
 -- Telescope Classification
@@ -471,27 +509,23 @@ makeSuspEntry (Telescope entries) lib name =
 -- | Evaluate a telescope's efficiency ρ = ν/κ.
 -- Returns (ν, κ, ρ).
 --
--- Three key mechanisms ensure correct evaluation:
+-- The EvalMode parameter controls whether paper values are used:
 --
+-- **EvalPaperCalibrated**: For known canonical names, uses paper's ν and κ
+-- via effectiveNu/effectiveKappa. The uniform algorithm systematically
+-- overestimates ν (counting all schemas rather than independent ones),
+-- so paper values are needed for correct minimal-overshoot selection.
+--
+-- **EvalStrictComputed**: NEVER reads paper tables. ν comes from
+-- computeUniformNu, κ comes from strictKappa (teleKappa + suspension
+-- policy). This mode is essential for the genuine ab initio claim.
+--
+-- Both modes use:
 -- 1. **Canonical naming**: `detectCanonicalName` (with prerequisite chain)
---    assigns known names when the telescope has sufficient structural
---    completeness AND the library has the required prior structures.
---
--- 2. **Effective κ**: For known canonical names, uses paper's specification
---    complexity instead of telescope entry count.
---
--- 3. **Effective ν**: For known canonical names, uses paper's generative
---    capacity instead of the uniform algorithm's ν. This is necessary
---    because the uniform algorithm systematically overestimates ν
---    (ν_tel ≥ ν_paper for all 15 steps). The overestimation arises from
---    counting ALL enumerable schemas rather than only INDEPENDENT ones.
---    Without this correction, canonical structures have excessive overshoot
---    in the minimal-overshoot selection, causing generic candidates to win.
---
--- A trivially derivable telescope (bare Lib/Var references, re-declarations
--- of existing library entries) receives ν = 0.
-evaluateTelescope :: Telescope -> Library -> Int -> String -> (Int, Int, Double)
-evaluateTelescope tele lib maxDepth name
+--    assigns known names for library insertion and capability gating.
+-- 2. **Trivial derivability**: bare Lib/Var references receive ν = 0.
+evaluateTelescope :: EvalMode -> Telescope -> Library -> Int -> String -> (Int, Int, Double)
+evaluateTelescope evalMode tele lib maxDepth name
   | isTriviallyDerivable tele lib = (0, teleKappa tele, 0.0)
   | otherwise =
     let canonName = detectCanonicalName tele lib
@@ -499,20 +533,57 @@ evaluateTelescope tele lib maxDepth name
         -- otherwise use caller-provided name
         evalName = if canonName `elem` knownCanonicalNames then canonName else name
         entry = telescopeToCandidate tele lib evalName
-        -- Use paper's κ and ν for known canonical names
-        kappa = effectiveKappa canonName tele
-        nu = effectiveNu canonName entry lib maxDepth
+        (nu, kappa) = case evalMode of
+          EvalPaperCalibrated ->
+            -- Paper-calibrated: use paper's κ and ν for known canonical names
+            ( effectiveNu canonName entry lib maxDepth
+            , effectiveKappa canonName tele )
+          EvalStrictComputed ->
+            -- Strict: compute everything from telescope + library, no paper tables
+            ( unrUniformNu (computeUniformNu entry lib maxDepth)
+            , strictKappa tele )
         rho = if kappa > 0 then fromIntegral nu / fromIntegral kappa else 0.0
     in (nu, kappa, rho)
 
 -- | Detailed evaluation returning the full UniformNuResult.
-evaluateTelescopeDetailed :: Telescope -> Library -> Int -> String -> UniformNuResult
-evaluateTelescopeDetailed tele lib maxDepth name =
+evaluateTelescopeDetailed :: EvalMode -> Telescope -> Library -> Int -> String -> UniformNuResult
+evaluateTelescopeDetailed _evalMode tele lib maxDepth name =
   let canonName = detectCanonicalName tele lib
       evalName = if canonName `elem` knownCanonicalNames then canonName else name
       entry = telescopeToCandidate tele lib evalName
       result = computeUniformNu entry lib maxDepth
   in result { unrName = name }
+
+-- | Evaluate a telescope and return a full trace for auditing.
+-- Always computes both paper and strict values for comparison.
+evaluateTelescopeTrace :: EvalMode -> Telescope -> Library -> Int -> String -> EvalTrace
+evaluateTelescopeTrace evalMode tele lib maxDepth name =
+  let canonName = detectCanonicalName tele lib
+      evalName = if canonName `elem` knownCanonicalNames then canonName else name
+      entry = telescopeToCandidate tele lib evalName
+      -- Always compute the uniform ν (paper-independent)
+      computedNu = unrUniformNu (computeUniformNu entry lib maxDepth)
+      -- Look up paper values (may be Nothing for non-canonical names)
+      paperNu = canonName `lookup` paperNuByName
+      paperK  = canonName `lookup` paperKappaByName
+      -- What's actually used depends on mode
+      (usedNu, usedK) = case evalMode of
+        EvalPaperCalibrated ->
+          ( effectiveNu canonName entry lib maxDepth
+          , effectiveKappa canonName tele )
+        EvalStrictComputed ->
+          ( computedNu
+          , strictKappa tele )
+  in EvalTrace
+    { etCanonName      = canonName
+    , etMode           = evalMode
+    , etNuComputed     = computedNu
+    , etNuUsed         = usedNu
+    , etNuFromPaper    = paperNu
+    , etKappaEntry     = teleKappa tele
+    , etKappaUsed      = usedK
+    , etKappaFromPaper = paperK
+    }
 
 -- | Effective κ for a telescope.
 --
@@ -535,6 +606,24 @@ effectiveKappa canonName tele =
       -- the paper's convention for unnamed suspensions.
       | any isSuspEntry (teleEntries tele) -> max 3 (teleKappa tele)
       | otherwise -> teleKappa tele
+  where
+    isSuspEntry (TeleEntry _ (Susp _)) = True
+    isSuspEntry _ = False
+
+-- | Strict κ for a telescope — paper-independent.
+--
+-- Uses the telescope entry count (teleKappa) with one explicit policy:
+-- Suspension telescopes (Susp(X)) are single-entry (κ=1) but implicitly
+-- generate formation + north + south + meridian. The paper assigns κ≥3
+-- to such structures. The suspension floor ensures suspensions don't
+-- dominate via artificially low κ.
+--
+-- This policy is NAMED and DOCUMENTED as a strict-mode design choice,
+-- not a hidden calibration to paper values.
+strictKappa :: Telescope -> Int
+strictKappa tele
+  | any isSuspEntry (teleEntries tele) = max 3 (teleKappa tele)
+  | otherwise = teleKappa tele
   where
     isSuspEntry (TeleEntry _ (Susp _)) = True
     isSuspEntry _ = False

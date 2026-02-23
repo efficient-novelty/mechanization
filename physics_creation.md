@@ -345,7 +345,7 @@ The function checks `map leName lib` against the full chain. `detectCanonicalNam
 calls `hasPrerequisites` before assigning any canonical name, preventing
 out-of-order discovery.
 
-### L8: Theory/Implementation Drift — Paper Coupling in "Ab Initio" Loop [RESOLVED]
+### L8: Theory/Implementation Drift — Paper Coupling in "Ab Initio" Loop [PARTIALLY RESOLVED]
 
 The ab initio loop in RunAbInitio.hs had residual paper-value dependencies:
 
@@ -359,14 +359,11 @@ The ab initio loop in RunAbInitio.hs had residual paper-value dependencies:
    estimate; `StrictAbInitio` mode uses step-based heuristic (3/6/9).
    **RESOLVED** via mode flag.
 
-**Remaining**: The MCTS κ heuristic in strict mode (3 for steps 1-8, 6 for
-9-12, 9 for 13-15) is crude. Could be improved by adapting based on the
-actual κ of previously discovered structures.
-
-**Update (Session 5)**: Strict mode now achieves EXACT paper agreement for
-all 15 steps. The paper coupling is fully eliminated: the engine discovers
-the complete Generative Sequence from an empty library with zero paper fallback.
-See L13.
+4. **Evaluator paper override** — `evaluateTelescope` calls
+   `effectiveKappa`/`effectiveNu` which look up paper values via
+   `paperKappaByName`/`paperNuByName` for any structurally recognized
+   canonical name. This happens IRRESPECTIVE of the synthesis mode.
+   **NOT RESOLVED** — see L14.
 
 ### L9: Name-Based Gating Requires 4-Location Updates [PARTIALLY RESOLVED]
 
@@ -431,29 +428,54 @@ A full bidirectional type checker (with universe level tracking, Pi domain/codom
 checking, inhabitation verification) would filter more aggressively but requires
 significant investment in MBTT normalization machinery.
 
-### L13: Strict Mode Achieves Exact Paper Agreement — The Central Result
+### L13: Strict Mode Paper Agreement — Requires Requalification
 
-**This is the key finding of the ab initio engine work.** Running in strict
-mode (no paper fallback whatsoever), the engine discovers:
-- All 15 canonical structure names in the correct order
-- Exact paper ν values (Σ = 356)
-- Exact paper κ values (Σ = 64)
+**Previous claim (Sessions 4-5)**: Running in strict mode, the engine
+discovers all 15 canonical structure names in correct order with exact
+paper ν values (Σ = 356) and exact paper κ values (Σ = 64).
 
-This means the PEN Generative Sequence is not merely an ordering imposed
-by paper values — it is the *unique attractor* of the efficiency optimization
-algorithm when started from an empty library. The structural capability flags
-(L1), prerequisite chain (L7), and minimal overshoot selection (L2) together
-are sufficient to recover the full sequence autonomously.
+**Critical re-assessment**: The "exact agreement" is partially circular.
+`evaluateTelescope` (TelescopeEval.hs:493-506) calls `detectCanonicalName`
+to structurally identify the telescope, then routes through
+`effectiveKappa`/`effectiveNu` which look up paper values via
+`paperKappaByName`/`paperNuByName`. This happens for ALL evaluation modes
+— both `PaperCalibrated` and `StrictAbInitio`. The strict mode IS strict
+at the bar computation layer (uses discovered history for Ω_{n-1}) and
+at the library insertion layer (no paper fallback), but the per-candidate
+ν and κ values fed into the selection decision are paper values for any
+structurally recognized canonical telescope.
 
-The paper-calibrated mode over-reports ν because its bar (computed from paper
-ν/κ) differs from the bar computed from discovered values. The paper bar is
-calibrated to the paper's sequence, so it lets non-canonical candidates through.
-The strict bar is self-consistent: each step's bar depends only on previously
-discovered structures, creating a clean inductive construction.
+**What this means**: The discovery of the correct ORDERING is genuine
+(structural gating + prerequisite chain + minimal overshoot). But the
+numerical ν/κ agreement is tautological — the evaluator returns paper
+values for recognized structures, so of course disc_ν = pap_ν.
 
-**Implication for the paper**: This result directly supports the paper's central
-claim. The engine can be cited as computational evidence that the Generative
-Sequence is a deterministic consequence of the five PEN axioms at d=2.
+**What needs to happen**: Introduce an `EvalMode` type into
+`evaluateTelescope` so that strict mode computes ν from
+`computeUniformNu` and κ from `teleKappa` or a strict κ policy,
+bypassing `effectiveNu`/`effectiveKappa` entirely. Then re-run
+the ablation study to see what the ACTUAL discovered ν/κ values are.
+See Sprint 3A.
+
+### L14: The Evaluator Paper Override — The Critical Gap
+
+Three parallel paths inject paper values into the evaluation:
+
+| Path | Location | What it does | Strict-mode impact |
+|------|----------|-------------|-------------------|
+| `effectiveNu` | TelescopeEval.hs:560-564 | Looks up `paperNuByName` for canonical names | **Active** — returns paper ν for recognized telescopes |
+| `effectiveKappa` | TelescopeEval.hs:528-540 | Looks up `paperKappaByName` for canonical names | **Active** — returns paper κ for recognized telescopes |
+| `computeBar` (paper mode) | RunAbInitio.hs:308-315 | Uses `genesisLibrarySteps` for Ω | **Inactive in strict mode** ✓ |
+
+The first two paths are the problem. In strict mode, bar computation and
+library insertion are genuinely paper-free, but the ν/κ values used to
+RANK candidates and SELECT the winner come from paper tables when
+`detectCanonicalName` identifies a known structure. This makes strict mode
+"bar-strict, evaluator-calibrated" rather than "fully strict."
+
+**Resolution**: Sprint 3A (EvalMode refactor). After the refactor, strict
+mode will be "bar-strict AND evaluator-strict" — a genuinely paper-free
+discovery pipeline.
 
 ---
 
@@ -485,7 +507,7 @@ New code: ~2,300 lines of Haskell across 6 new + 8 modified modules.
 
 ## Execution Plan
 
-### Sprint 1 (Week 1): Foundation Hardening
+### Sprint 1 (Week 1): Foundation Hardening [DONE]
 
 #### 1A. Add strict mode flags to RunAbInitio [DONE]
 
@@ -592,44 +614,164 @@ Design decisions:
 | 15   | DCT           | 105        | 8          | DCT         | 105      | 8        | 105     | 8       |
 |      |               | **Σ=537**  | **Σ=69**   |             | **Σ=356**| **Σ=64** | **Σ=356** | **Σ=64** |
 
-**Result: Strict mode achieves EXACT paper agreement (356/356 ν, 64/64 κ).**
-Paper-calibrated mode over-reports ν (537 vs 356) because the paper-derived
-bar allows different (non-canonical) candidates to clear. Strict mode is
-strictly superior for ab initio discovery.
+**Result: Strict mode discovers all 15 canonical names in correct order.**
 
-### Sprint 3 (Week 3): Strengthening and Publication Readiness [NEXT]
+**CAVEAT (see L13, L14):** The ν/κ numerical agreement (356/356, 64/64)
+is partially circular — `evaluateTelescope` uses `effectiveNu`/`effectiveKappa`
+which return paper values for recognized canonical names. The ordering and
+name discovery are genuine; the exact numerical match needs requalification
+after Sprint 3A.
 
-#### 3A. Eliminate REF fallback in strict mode [NEXT]
+### Sprint 3 (Week 3): Strict Mode Purity + κ Tri-Metric [CURRENT]
 
-Strict mode uses REF (reference telescope) as winner at steps 2, 10, 14, 15.
-These are cases where neither ENUM nor MCTS found a better candidate. To
-make the engine truly autonomous:
-- Investigate why ENUM misses these at κ≤3
-- Consider increasing ENUM κ_max to 4 or 5 for specific steps
-- Improve MCTS rollout quality (type-checked rollouts)
-- Goal: 15/15 steps discovered via ENUM/MCTS with zero REF fallback
+This sprint addresses the critical epistemic gap identified in the external
+review: strict mode's evaluator still reads paper ν/κ tables for canonical
+names, making the "exact agreement" claim partially circular.
 
-#### 3B. Reproduce strict mode result with different seeds
+#### 3A. Make StrictAbInitio truly paper-independent end-to-end [DONE]
 
-Run strict mode with 5 different MCTS seeds to verify determinism:
+**The problem**: `evaluateTelescope` (TelescopeEval.hs:493-506) always calls
+`effectiveKappa`/`effectiveNu`, which look up `paperKappaByName`/`paperNuByName`
+for any structurally recognized canonical name. This makes strict mode
+"bar-strict, evaluator-calibrated" — the bar uses discovered history, but the
+ν/κ values themselves come from paper tables.
+
+**The fix**: Add an `EvalMode` type to the evaluation path:
+
+```haskell
+data EvalMode
+  = EvalPaperCalibrated     -- use paper ν/κ for canonical names
+  | EvalStrictComputed      -- never use paper ν/κ; compute from telescope + UniformNu
+  deriving (Show, Eq)
+```
+
+**Files to change:**
+1. **TelescopeEval.hs** (primary refactor):
+   - Add `EvalMode` type
+   - `evaluateTelescope :: EvalMode -> Telescope -> Library -> Int -> String -> (Int, Int, Double)`
+   - In `EvalStrictComputed`: ν from `computeUniformNu`, κ from `strictKappa`
+   - Keep `EvalPaperCalibrated` with existing semantics
+   - Add `strictKappa :: Telescope -> Int` with explicit suspension policy
+   - Add `EvalTrace` record for transparency logging
+
+2. **RunAbInitio.hs** (wire strict mode):
+   - Add `toEvalMode :: AbInitioMode -> EvalMode`
+   - Replace all `evaluateTelescope tele lib 2 "candidate"` calls with
+     `evaluateTelescope (toEvalMode mode) tele lib 2 "candidate"`
+
+3. **MCTS.hs** (if evaluation is internalized):
+   - Thread `EvalMode` through `mctsSearchStep`
+
+**Acceptance criteria:**
+- `ab-initio --strict` never calls `effectiveNu`/`effectiveKappa` or
+  `paperNuByName`/`paperKappaByName`
+- Paper-calibrated mode produces identical output to current behavior
+- Strict mode produces potentially different ν/κ values (this is the point)
+
+**Deliverable**: Independence audit table showing strict mode reads zero
+paper ν/κ pathways.
+
+#### 3B. Resolve κ as a first-class research object [TODO]
+
+The κ metric mismatch (L3) is the strongest foreseeable reviewer attack
+("overfitting through κ definition").
+
+**Action**: Define and compare three κ metrics at every step:
+
+| Metric | Definition | Source |
+|--------|-----------|--------|
+| κ_clause | Clause count of specification | Paper convention |
+| κ_MBTT | MBTT bit-cost (Elias Gamma encoding) | Kolmogorov.hs |
+| κ_entry | Telescope entry count (`teleKappa`) | Engine convention |
+
+**Implementation**:
+- Add `KappaTriMetric` record to TelescopeEval.hs
+- Compute all three at each step in both modes
+- Report sequence stability: does the ORDERING change under each metric?
+- Move suspension floor (max 3 for Susp) into named policy with justification
+
+**Deliverable**: 15-row table showing all three κ values per step, with
+ordering stability analysis.
+
+#### 3C. Upgrade type-checking from conservative filter to correctness gate [TODO]
+
+TelescopeCheck is deliberately conservative. Tightening it reduces spurious
+high-ρ candidates and provides cleaner evidence that the selected sequence
+reflects structure, not generator noise.
+
+**Minimal high-value additions to `CheckError`:**
+- `PiDomainCannotBeTerm` — Pi/Sigma domain must be type-like
+- `SigmaDomainCannotBeTerm` — same
+- `LamBodyOutOfScope Int` — lambda body references beyond scope
+
+**Add helper**: `isTypeLike :: MBTTExpr -> Bool` (syntactic filter, no
+normalization). Feed checker confidence into MCTS reward/pruning.
+
+#### 3D. Eliminate naming dependence in remaining classifier/prerequisite logic [TODO]
+
+Strong progress on structural capability gating (L1), but canonical naming
+and prerequisites still encode policy via string names in TelescopeEval.hs.
+
+**Action:**
+- Replace string-name prerequisite checks with capability/state predicates
+  wherever possible
+- Keep names only as labels for reporting
+- Add regression tests for classification-order sensitivity
+
+#### 3E. Publish independence audit table [TODO]
+
+After 3A is complete, produce a one-page audit:
+
+```
+Component                 | Paper ν/κ in strict? | Evidence
+--------------------------|---------------------|----------
+computeBar                | NO                  | Uses discovered history
+evaluateTelescope         | NO (after 3A)       | EvalStrictComputed path
+effectiveNu/effectiveKappa| NOT CALLED          | Instrumentation log
+library insertion         | NO                  | Uses discoveredEntry
+MCTS evaluation           | NO                  | Always "candidate" name
+```
+
+### Sprint 4 (Week 4): Falsification Benchmark Suite + Doc Harmonization [TODO]
+
+#### 4A. d-window sweep reproducibility [TODO]
+
+Run strict mode with d=1, d=2, d=3:
+- `--strict --window 1`: should stagnate (constant Δ)
+- `--strict --window 2`: the paper sequence (Fibonacci Δ)
+- `--strict --window 3`: tribonacci — different sequence expected
+- Compare with paper predictions in §3
+
+#### 4B. Adversarial candidate injections [TODO]
+
+Inject "early efficiency monsters" — pathological telescopes with
+artificially high ρ — and verify the engine rejects them:
+- Bare suspensions at step 2 (should fail bar or lose to minimal overshoot)
+- Fabricated HITs with maximum path dimensions
+- Goal: demonstrate the selection bar + minimal overshoot is robust
+
+#### 4C. Depth-cutoff sensitivity on DCT ν lower bound [TODO]
+
+Vary UniformNu depth (1, 2, 3) and check DCT ν stability.
+The paper claims ν ≥ 105; the engine should reproduce this at
+reasonable enumeration depth.
+
+#### 4D. Seed sensitivity study [TODO]
+
+Run strict mode with 5 different MCTS seeds:
 - The exhaustive ENUM is deterministic
 - MCTS is seed-dependent — does the same structure always win?
 - If yes: strong evidence of uniqueness
 - If no: identify which steps are sensitive to seed
 
-#### 3C. Update pen_unified.tex with engine results
+#### 4E. Doc harmonization [TODO]
 
-Add the ablation comparison table to the paper (Section 7):
-- Strict mode exact agreement as computational evidence
-- Note the ENUM/MCTS/REF source distribution
-- Reference the structural gating mechanism
-
-#### 3D. Window stress tests (d=1, d=3) with strict mode
-
-Run strict mode with different coherence windows:
-- `--strict --window 1`: should stagnate (d=1 = constant Δ)
-- `--strict --window 3`: should produce different sequence (d=3 = tribonacci)
-- Compare with paper predictions
+Create consistency between pen_unified.tex, CODEBASE_GUIDE.md, and engine
+output:
+- Pin which ν definition each executable reports
+- Pin which κ each mode uses
+- Resolve the ν=105 vs ν=150 discrepancy (paper lower bound vs engine
+  GenuineNu computation)
 
 ---
 
@@ -651,7 +793,7 @@ Run strict mode with different coherence windows:
 - [x] Sprint 1C: Doc sync with implementation audit findings
 - [x] Sprint 2A: Bidirectional type checker MVP (TelescopeCheck.hs, integrated into RunAbInitio)
 - [x] Sprint 2B: Full UCT MCTS (selection/expansion/rollout/backpropagation cycle)
-- [x] Sprint 2C: Ablation study — strict mode achieves exact paper agreement (356/356 ν, 64/64 κ)
+- [x] Sprint 2C: Ablation study — strict mode discovers all 15 names in correct order (caveat: L13/L14)
 
 ---
 
@@ -742,63 +884,333 @@ our telescope κ encoding compresses these structures more than the paper's κ
 metric. The κ mismatch (L3) remains the biggest gap.
 
 **Sprint 2C — Ablation study:**
-- **Strict mode result**: ALL 15 structures discovered with exact paper ν and κ.
+- **Strict mode result**: ALL 15 structures discovered in correct order.
   disc_ν = pap_ν for every step (Σ = 356 = 356). disc_κ = pap_κ for every
   step (Σ = 64 = 64). All 15 canonical names correctly assigned.
 - **Paper-calibrated mode**: Over-reports ν (Σ = 537 vs 356) because the
   paper-derived bar allows non-canonical candidates to clear. Uses generic
   names ("Axiom_N") for steps 1-8.
-- **Conclusion**: Strict mode is strictly superior. The paper-calibrated mode
-  was needed as a scaffold but the engine has outgrown it. The Generative
-  Sequence is the unique attractor of efficiency optimization at d=2. See L13.
+- **CAVEAT IDENTIFIED**: The numerical agreement is partially circular
+  because `evaluateTelescope` returns paper ν/κ for recognized canonical
+  names (L13, L14). The ordering discovery is genuine; the exact match
+  needs requalification after Sprint 3A.
+
+### Session 6 (External Review + Strictness Audit)
+
+**External review findings:**
+- Confirmed the evaluator paper-value coupling identified in L14
+- Recommended EvalMode refactor as top priority
+- Identified κ as a first-class research object needing tri-metric treatment
+- Recommended falsification-first experimental protocol
+- Flagged doc drift: ν=105 (paper) vs ν=150 (CODEBASE_GUIDE / GenuineNu)
+
+**Assessment**: The engine has strong structural foundations (structural
+gating, prerequisite chain, minimal overshoot). The critical gap is that
+"strict" is not fully strict at evaluation time. Resolving this is the
+single highest-priority action before any broader physics claims.
+
+**This session's deliverables:**
+- Updated physics_creation.md with corrected L13, new L14, revised sprint plan
+- Updated CODEBASE_GUIDE.md with evaluation modes, ab initio modules, and
+  ν/κ definition clarifications
+- Honest accounting of what's proved vs what's assumed vs what's circular
+- **Implemented Sprint 3A: EvalMode refactor** (the top-priority fix):
+  - Added `EvalMode` ADT (`EvalPaperCalibrated | EvalStrictComputed`) to TelescopeEval.hs
+  - Added `strictKappa :: Telescope -> Int` — paper-independent κ with named suspension policy
+  - Added `EvalTrace` record for transparency logging
+  - Added `evaluateTelescopeTrace` for audit comparison
+  - `evaluateTelescope` now takes `EvalMode` as first parameter
+  - `evaluateTelescopeDetailed` signature updated for consistency
+  - `toEvalMode :: AbInitioMode -> EvalMode` in RunAbInitio.hs maps synthesis mode to eval mode
+  - All call sites updated: RunAbInitio.hs (2 sites), MCTS.hs rollout + mctsSearchStep
+  - `mctsSearchStep` now takes `EvalMode` parameter
+  - Clean build of all targets (`cabal build all`), zero errors, zero warnings
+
+### Session 7 (Strict Mode Diagnosis + Root Cause Analysis)
+
+**Strict mode run results** (`cabal run ab-initio -- --strict`):
+
+| Step | Discovery | disc_ν | pap_ν | disc_κ | pap_κ | Status |
+|------|-----------|--------|-------|--------|-------|--------|
+| 1 | Universe | 2 | 1 | 1 | 2 | ν over (2x), κ under |
+| 2 | Unit | 2 | 1 | 1 | 1 | ν over (2x) |
+| 3 | Witness | 2 | 2 | 1 | 1 | OK but fails bar→REF |
+| 4 | candidate | 0 | 5 | 3 | 3 | **FAILED** — Pi ν=0 |
+| 5 | Pi | 10 | 7 | 3 | 3 | Recovered (shifted) |
+| 6 | S1 | 14 | 8 | 3 | 3 | ν 1.75x over |
+| 7 | S2 | 13 | 10 | 3 | 3 | ν 1.3x over |
+| 8 | S3 | 17 | 18 | 3 | 5 | Close! κ mismatch |
+| 9 | Hopf | 12 | 17 | 2 | 4 | ν under, κ under |
+| 10 | Cohesion | 44 | 19 | 4 | 4 | ν 2.3x over |
+| 11 | Connections | 65 | 26 | 5 | 5 | ν 2.5x over |
+| 12 | Curvature | 70 | 34 | 6 | 6 | ν 2.1x over |
+| 13 | Metric | 77 | 43 | 3 | 7 | ν 1.8x over, κ off |
+| 14 | Trunc | 431 | 60 | 2 | 9 | **CATASTROPHIC** (54x) |
+| 15 | candidate | 0 | 105 | 8 | 8 | **FAILED** — DCT ν=0 |
+| SUM | | 759 | 356 | 48 | 64 | ν 2.1x, κ 0.75x |
+
+**Three distinct failure modes identified:**
+
+**F1: ν overestimation at steps 1-2 → cascading bar inflation.**
+UniformNu counts all depth-2 schemas including compositions. Universe and
+Unit get ν=2 instead of 1, inflating Ω₂ = 4/2 = 2.0 (paper: 2/3 = 0.67).
+Bar₃ = 2.0 × 2.0 = 4.0 (paper: 1.33). Witness ρ=2.0 < 4.0 → REF fallback.
+Cascading effect: corrupted history propagates to all subsequent bars.
+
+**F2: Pi gets ν=0 at step 4 — REVISED: NOT chicken-and-egg.**
+Initial hypothesis was that `availableFormers` can't see Pi/Sigma because
+no library entry has `leHasDependentFunctions`. However, deep code trace
+(Session 7) revealed `computeUniformNu` ALREADY does self-inclusive eval:
+`fullLib = lib ++ [candidate]` (UniformNu.hs:212). The Pi entry in fullLib
+has `leHasDependentFunctions = True` (set by `withCaps` in telescopeToCandidate).
+So `availableFormers fullLib` DOES include Pi/Sigma in the AFTER enumeration.
+
+The actual root cause is still UNKNOWN. Three hypotheses remain:
+- H1: Canonicalization collapses `TPi "x" A B` to `TArrow A B` when B
+  doesn't depend on x, making the before/after difference empty (checked:
+  current rules don't do this explicitly, but something may still equate them)
+- H2: The `schemaize` or `deepSchemaize` step collapses new Pi/Sigma
+  schemas to trivial schemas that get filtered by `isTrivialSchema`
+- H3: The inhabitation checker returns `Unknown` (not `Inhabited`) for
+  some key Pi/Sigma types, causing them to be filtered from `inhAfter`
+
+**Next step**: Added DEBUG output to RunAbInitio.hs at step 4 (prints
+refCanon, refNu, entry details, library state). Build compiles. Need to
+run `cabal run ab-initio -- --strict` and inspect the debug lines.
+The debug code is currently in RunAbInitio.hs lines 172-182.
+
+**F3: Trunc gets ν=431 at step 14 — combinatorial explosion.**
+At step 14, library has ~20 available formers (Pi, Sigma, Omega, Susp,
+Flat, Sharp, Disc, PiCoh, Inf, Tangent, Connection, Curvature, Metric...).
+Depth-2 enumeration generates ALL pairs: Flat(Trunc(L)), Trunc(Flat(L)),
+Metric(Trunc(L)), etc. `deepSchemaize` only collapses basic-op compositions;
+modal/differential survive → O(formers²) schemas. Paper's ν=8 counts only
+independent derivation schemas directly from Trunc's definition.
+
+**Root cause**: UniformNu counts ALL enumerable schemas, not INDEPENDENT
+derivation schemas. This is exactly what the paper says ν is NOT.
+
+**What's genuinely working:**
+- Ordering preserved through steps 1-13 (right structures, right order)
+- Structural gating + prerequisite chain correctly gates canonical names
+- Minimal overshoot selection picks right structure when ν is reasonable
+- Trunc displaced to step 14 (not step 6) because it's already in library
+
+**Recommendations (priority order):**
+1. **R1 (Immediate)**: Diagnose Pi ν=0 root cause. Debug instrumentation
+   is in place (RunAbInitio.hs lines 172-182). Run strict mode, inspect
+   debug output at step 4. Identify which of H1/H2/H3 causes the zero.
+   Self-inclusive eval is NOT the fix (already done by computeUniformNu).
+2. **R2 (Critical)**: Depth-1 ν evaluation to prevent depth-2 explosion.
+   Trunc ν=431 becomes ~8-20 at depth 1.
+3. **R3 (Medium)**: Independence filter — remove schemas derivable from
+   composition of prior schemas. F(G(L)) is independent only if neither
+   F nor G was already available.
+4. **R4 (Research)**: κ tri-metric comparison (Sprint 3B).
 
 ---
 
-## Open Questions
+## Strictness Audit Status
 
-1. **How to compute κ that matches the paper's values?**
-   Telescope entry count ≠ paper κ. Need either a mapping function or
-   acceptance that ab initio κ values may differ. The review recommends
-   standardizing on one canonical κ and running sensitivity sweeps.
+**After Sprint 3A** (current state — EvalMode refactor complete):
+- Bar computation: STRICT (uses discovered history) ✓
+- Library insertion: STRICT (no paper fallback) ✓
+- Candidate ν evaluation: STRICT via `EvalStrictComputed` (computeUniformNu only) ✓
+- Candidate κ evaluation: STRICT via `strictKappa` (teleKappa + named suspension policy) ✓
+- MCTS rollout: uses EvalPaperCalibrated but name is "mcts_candidate" → no paper table hits ✓
+- MCTS final eval: uses `EvalStrictComputed` (threaded from RunAbInitio) ✓
 
-2. **Should the ab initio engine use discovered or paper library entries?**
-   Currently uses paper entries as fallback. The strict-ab-initio mode
-   (Sprint 1A) will test whether the engine converges without this crutch.
+**Strict mode known issues** (post-3A):
+- ν systematically overestimated (~2x for steps 5-13, ~54x for Trunc at step 14)
+- Pi ν=0 at step 4 (chicken-and-egg dependency)
+- DCT ν=0 at step 15 (Hilbert never discovered → prerequisites fail)
+- κ mismatch for suspensions and later structures
 
-3. **Can exhaustive enumeration at κ ≤ 3 discover all 15 structures?**
-   Steps 1-8 have κ ≤ 3 in the paper. Steps 9-15 have κ ≤ 9, requiring
-   MCTS. But our telescope κ differs from the paper's κ.
+**Verification command** (after 3A):
+```bash
+cabal run ab-initio -- --strict > strict.log 2>&1
+# Must produce zero hits:
+grep -c "effectiveNu\|effectiveKappa\|paperNuByName\|paperKappaByName" strict.log
+```
 
-4. **Is the Generative Sequence truly unique under honest evaluation?**
-   The paper claims uniqueness, but our experiments show many telescopes
-   with similar ν when evaluated without canonical naming. The uniqueness
-   may depend on a richer evaluation that the current infrastructure
-   doesn't provide. Structural `availableFormers` (Sprint 1B) may resolve this.
+---
 
-5. **What structural predicates replace name-based gating?**
-   The `LibraryEntry` type needs new fields to encode capabilities (has
-   dependent functions, has modal operators, has differential structure).
-   What is the minimal set of structural flags that recovers the full
-   `availableFormers` gating chain?
+## Key Learnings (continued)
 
-6. **How much does bidirectional type checking reduce the candidate space?**
-   Current exhaustive enumeration produces 275-1700 candidates per step.
-   The conservative checker (TelescopeCheck.hs) filters Lib/Var reference
-   bounds and scope violations. Full data on rejection rates needed from
-   ablation studies (Sprint 2C). A deeper checker (universe levels, Pi
-   domain/codomain) would filter more but requires MBTT normalization.
+### L15: Pi ν=0 — Not Chicken-and-Egg After All
 
-7. **Why does MCTS lose to ENUM at steps 11-15?** PARTIALLY ANSWERED.
-   Our MBTT encoding compresses higher-κ structures into κ≤3 telescopes.
-   MCTS still useful at step 10 (Cohesion). See L11.
+Initial diagnosis was that `availableFormers` can't see Pi/Sigma because
+no library entry has `leHasDependentFunctions`. But `computeUniformNu`
+already performs self-inclusive evaluation (line 212: `fullLib = lib ++ [candidate]`).
+The Pi entry in fullLib has `leHasDependentFunctions = True`, so
+`availableFormers fullLib` includes Pi/Sigma in the AFTER enumeration.
 
-8. **Can the strict mode result be strengthened further?**
-   The strict mode uses reference telescopes (REF source) at steps 2, 10,
-   14, 15. Can the engine discover these structures purely from ENUM/MCTS
-   without the reference telescope fallback? This would require improving
-   the rollout policy or the exhaustive enumeration range.
-   The paper assigns κ=5-8 to these structures, but our MBTT encoding
-   compresses them into κ≤3 telescopes. Either (a) our κ metric needs
-   alignment with the paper's, or (b) the MCTS rollout policy needs
-   improvement to find genuinely novel structures at higher κ that ENUM
-   misses. See L11.
+The actual root cause is **still unknown** as of Session 7. Three hypotheses:
+1. **Canonicalization collapse**: `TPi "x" A B` → `TArrow A B` when non-dependent
+2. **Schema triviality filter**: new Pi schemas hit `isTrivialSchema`
+3. **Inhabitation checker gap**: some Pi types return `Unknown` not `Inhabited`
+
+Debug instrumentation has been added to RunAbInitio.hs to diagnose this.
+The fix R1 (self-inclusive) is NOT needed — the algorithm already does it.
+The actual fix requires identifying which of H1/H2/H3 is the culprit.
+
+### L16: UniformNu's Depth-2 Explosion for Late-Sequence Structures
+
+At depth-2 enumeration, schema count grows as O(formers² × atoms). With
+~20 formers at step 14, this produces ~400+ schemas for ANY new structure.
+The paper's ν values are effectively depth-1 counts (single operation
+applications), not depth-2 (all pairwise compositions).
+
+**Evidence**: Steps 1-9 (small library, few formers) show ~1.5-2x
+overestimation. Steps 10-14 (large library, many formers) show 2-54x
+overestimation. The growth is quadratic in available formers.
+
+### L17: Bar Dynamics Are Fragile Under ν Perturbation
+
+The selection bar Bar_n = Φ_n × Ω_{n-1} depends on the CUMULATIVE ratio
+Σν/Σκ. A 2x overestimation of ν at steps 1-2 doubles Ω, which doubles Bar₃,
+which causes step 3 to fail bar clearance. This cascading failure shows
+that the bar is sensitive to evaluation methodology — the paper's ν values
+are not just convenient but NECESSARY for the bar dynamics to work correctly.
+
+**Implication**: Any honest ab initio engine must produce ν values within
+~20% of the paper's values for the bar to clear correctly. The bar is a
+prediction of PEN theory, and its fragility is both a strength (precise
+predictions) and a weakness (sensitivity to methodology).
+
+---
+
+## Open Questions (Updated)
+
+1. **What causes Pi ν=0 at step 4?** (HIGHEST PRIORITY)
+   Self-inclusive eval is NOT the issue (computeUniformNu already does it).
+   Three hypotheses: canonicalization collapse, schema triviality filter,
+   or inhabitation checker gap. Debug instrumentation is in place.
+   **Immediate next step**: run strict mode, inspect debug output.
+
+2. **Does depth-1 enumeration produce ν values close to paper?**
+   R2 proposes restricting to depth-1. The paper's ν=8 for Trunc likely
+   corresponds to depth-1 schemas. Test: run with maxDepth=1 and compare.
+
+3. **Can diagnosis + depth-1 fix recover the full 15-step sequence?**
+   If Pi ν=0 is fixed AND depth-1 tames the explosion, the engine might
+   have a paper-free ν methodology that reproduces the sequence.
+
+4. **How to compute κ that matches the paper's values?**
+   Telescope entry count ≠ paper κ. The tri-metric approach (Sprint 3B)
+   will determine whether ordering is κ-stable.
+
+5. **Is the Generative Sequence truly unique under honest evaluation?**
+   With corrected ν, does minimal overshoot produce a UNIQUE winner at
+   each step, or are there near-ties?
+
+6. **Can the engine discover all 15 structures without REF fallback?**
+   After fixes, the REF dependency may change. Goal: 15/15 via
+   ENUM/MCTS only.
+
+---
+
+## Session 7 Deep Investigation Log
+
+### What was done
+
+1. **Re-ran strict mode** — confirmed identical output to Session 6:
+   - 13/15 canonical names discovered, 2 failures (step 4: Pi ν=0, step 15: DCT ν=0)
+   - Total ν=759 (paper: 356), total κ=48 (paper: 64)
+
+2. **Deep investigation of F2 (Pi ν=0 at step 4)**:
+   - Traced full code path through TelescopeEval.hs → UniformNu.hs → ProofRank.hs
+   - **Key discovery**: `computeUniformNu` (UniformNu.hs:212) already does
+     self-inclusive evaluation: `fullLib = lib ++ [candidate]`. The Pi entry
+     in fullLib has `leHasDependentFunctions = True` (via `withCaps`), so
+     `availableFormers fullLib` includes "Pi" and "Sigma" in the AFTER state.
+   - This DISPROVES the initial "chicken-and-egg" diagnosis.
+   - The before/after comparison SHOULD find new types (TPi "x" A B in AFTER
+     but not BEFORE) → ν should be > 0.
+   - Added debug instrumentation to RunAbInitio.hs (step 4 diagnostic prints).
+   - Debug build compiles cleanly. Run was started but interrupted by PC restart.
+
+3. **Deep investigation of F3 (Trunc ν=431 at step 14)**:
+   - Confirmed root cause: at step 14, library has ~20 available formers.
+     Depth-2 enumeration generates O(formers²) compositions. `deepSchemaize`
+     only collapses basic-op compositions (Arrow, Prod, Pi, Sigma); modal,
+     differential, and temporal compositions survive as distinct schemas.
+   - Fix confirmed: depth-1 enumeration would prevent the explosion.
+
+4. **Traced full data flow for Pi evaluation** (steps traced):
+   - `referenceTelescope 4` → Pi telescope: `[Lam(Pi(Var1,Var2)), App(App(Var1,Var2)(Var3)), App(Lam(Var1))(Var2)]`
+   - `classifyTelescope` → TCFormer (all pure former, no lib pointers)
+   - `detectCanonicalName` → "Pi" (prerequisites met: length lib ≥ 3)
+   - `telescopeToCandidate` → entry with `leConstructors=0` (hasOperatorTop=True for Lam → constructors=0), `leHasDependentFunctions=True`
+   - `evaluateTelescope EvalStrictComputed` → calls `computeUniformNu entry lib 2`
+   - Inside `computeUniformNu`: `fullLib = lib ++ [entry]`, 4 entries total
+   - `atomsAfter` includes TRef "Pi" (but `leConstructors=0` → `checkInhab` returns Unknown → filtered)
+   - `enumWindowExact atomsAfter fullLib 1` → formers include "Pi","Sigma" → generates TPi/TSigma types
+   - TPi types should be inhabited (e.g., `TPi "x" TUnit TUnit` → codomain TUnit is inhabited)
+   - **The pipeline should produce ν > 0, yet it returns 0**
+   - Three hypotheses for the discrepancy (H1-H3, see L15 above)
+
+### Specific code locations investigated
+
+| File | Lines | What |
+|------|-------|------|
+| TelescopeEval.hs | 527-546 | `evaluateTelescope` EvalStrictComputed branch |
+| TelescopeEval.hs | 433-471 | `telescopeToCandidate` — gateStructural, withCaps |
+| TelescopeEval.hs | 237-262 | `hasPrerequisites` for "Pi" |
+| UniformNu.hs | 204-245 | `computeUniformNuAtDepth` — before/after comparison |
+| UniformNu.hs | 112-125 | `enumBounded` — depth-0/1 full enum + depth-2+ unary ops |
+| UniformNu.hs | 156-179 | `applyUnaryOps` — 15 unary operations at each level |
+| UniformNu.hs | 255-297 | `computeUniformNu` — totalNu = scFull + newFormers + adjointCredit |
+| ProofRank.hs | 170-199 | `availableFormers` — Pi/Sigma gated by leHasDependentFunctions |
+| ProofRank.hs | 201-240 | `enumWindowExact` — Pi/Sigma in binaryOps, gated by "Pi" ∈ formers |
+| Inhabitation.hs | 60-73 | `checkInhab TRef` — requires leConstructors > 0 |
+| Inhabitation.hs | 127-135 | `checkInhab TPi/TSigma` — Pi inhabited if codomain is |
+| Telescope.hs | 211-250 | `teleToEntry` — constructors=0 when hasOperatorTop |
+| Telescope.hs | 314-325 | `isTriviallyDerivable` — bare refs only |
+| Equivalence.hs | 123-128 | Pi rewrite rules: TPi _ _ TUnit→TUnit, TPi _ TUnit b→b |
+| RunAbInitio.hs | 168-182 | REF evaluation + DEBUG diagnostic (added this session) |
+
+### Current state of RunAbInitio.hs
+
+DEBUG instrumentation added at lines 172-182 (inside `go` function):
+```haskell
+when (step == 4 || refNu == 0) $ do
+  let refCanon = detectCanonicalName refTele lib
+      refEntry = telescopeToCandidate refTele lib (...)
+  printf "  [DEBUG step %d] refCanon=%s refNu=%d refKappa=%d\n" ...
+  printf "  [DEBUG step %d] entry: cons=%d deps=%s loop=%s dims=%s\n" ...
+  printf "  [DEBUG step %d] lib entries: %s\n" ...
+```
+
+Also added `import Control.Monad (when)` and changed `import Types (Library)`
+to `import Types (Library, LibraryEntry(..))`.
+
+**The debug build compiles cleanly.** Run it with `cabal run ab-initio -- --strict`
+and look for `[DEBUG step 4]` lines.
+
+### Immediate next steps (when resuming)
+
+1. **Run `cabal run ab-initio -- --strict`** — inspect `[DEBUG step 4]` output.
+   This will show the Pi entry's properties and the library state, confirming
+   the trace above.
+
+2. **Add deeper debug**: If the entry looks correct, the issue is inside
+   `computeUniformNu`. Add a trace inside `computeUniformNuAtDepth` that
+   prints `rawCount`, `schemaCount`, `newFormers`, `adjointCredit` for the
+   Pi entry. This will pinpoint whether the issue is:
+   - rawCount=0 (no new inhabited types found) → inhabitation checker issue
+   - rawCount>0 but schemaCount=0 (all schemas are trivial) → isTrivialSchema issue
+   - schemaCount>0 but totalNu=0 somehow → logic error
+
+3. **Test H1 (canonicalization collapse)**: Check if
+   `canonicalize (TPi "x" (TRef "Universe") (TRef "Universe"))` returns
+   `TArrow (TRef "Universe") (TRef "Universe")`. If yes, that's the bug.
+   Quick test: add a trace in computeUniformNuAtDepth that prints the
+   BEFORE and AFTER sets at depth 1.
+
+4. **If Pi ν=0 is resolved**: Test depth-1 evaluation by changing
+   `maxDepth` from 2 to 1 in the evaluateTelescope call (RunAbInitio.hs
+   lines 163, 170). Check if Trunc ν drops from 431 to ~8-20.
+
+5. **Remove debug instrumentation** once the root cause is found and fixed.
+   The `when (step == 4 || refNu == 0)` block should be deleted.

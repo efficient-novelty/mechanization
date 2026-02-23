@@ -27,15 +27,16 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
-import TelescopeEval (evaluateTelescope, telescopeToCandidate, validateReferenceTelescopes,
-                      detectCanonicalName)
+import TelescopeEval (EvalMode(..), evaluateTelescope, telescopeToCandidate,
+                      validateReferenceTelescopes, detectCanonicalName)
 import TelescopeCheck (checkAndFilter)
 import MCTS
 import UniformNu (genesisLibrarySteps, GenesisStep(..))
-import Types (Library)
+import Types (Library, LibraryEntry(..))
 import CoherenceWindow (dBonacciDelta)
 
 import Data.List (sortOn)
+import Control.Monad (when)
 import System.IO (hFlush, stdout)
 import System.Environment (getArgs)
 import Text.Printf (printf)
@@ -55,6 +56,13 @@ data DiscoveryRecord = DiscoveryRecord
   { drNu    :: !Int
   , drKappa :: !Int
   } deriving (Show)
+
+-- | Convert synthesis mode to evaluation mode.
+-- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
+-- StrictAbInitio never reads paper tables — all ν/κ computed from telescope + library.
+toEvalMode :: AbInitioMode -> EvalMode
+toEvalMode PaperCalibrated = EvalPaperCalibrated
+toEvalMode StrictAbInitio  = EvalStrictComputed
 
 -- ============================================
 -- Main Entry Point
@@ -146,20 +154,35 @@ abInitioLoop mode = do
 
           -- Phase A: Exhaustive enumeration for κ ≤ 3
           -- Type-check to filter ill-formed telescopes, then evaluate honestly
-          let enumKmax = 3
+          let emode = toEvalMode mode
+              enumKmax = 3
               rawTelescopes = enumerateTelescopes lib enumKmax
               (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
-              -- Evaluate each valid telescope HONESTLY (no canonical naming)
+              -- Evaluate each valid telescope using the mode-appropriate evaluator
               enumEvaluated = [ (tele, nu, kappa, rho, "ENUM" :: String)
                               | tele <- validTelescopes
-                              , let (nu, kappa, rho) = evaluateTelescope tele lib 2 "candidate"
+                              , let (nu, kappa, rho) = evaluateTelescope emode tele lib 2 "candidate"
                               , nu > 0
                               ]
               enumCount = length enumEvaluated
 
           -- Evaluate the reference telescope for comparison / fallback
           let refTele = referenceTelescope step
-              (refNu, refKappa, refRho) = evaluateTelescope refTele lib 2 "candidate"
+              (refNu, refKappa, refRho) = evaluateTelescope emode refTele lib 2 "candidate"
+
+          -- DEBUG: diagnostic output for steps with issues
+          when (step == 4 || refNu == 0) $ do
+            let refCanon = detectCanonicalName refTele lib
+                refEntry = telescopeToCandidate refTele lib (if refCanon `elem` knownNames then refCanon else "candidate")
+            printf "  [DEBUG step %d] refCanon=%s refNu=%d refKappa=%d\n" step refCanon refNu refKappa
+            printf "  [DEBUG step %d] entry: cons=%d deps=%s loop=%s dims=%s\n"
+              step (leConstructors refEntry)
+              (show (leHasDependentFunctions refEntry))
+              (show (leHasLoop refEntry))
+              (show (lePathDims refEntry))
+            printf "  [DEBUG step %d] lib entries: %s\n" step
+              (show [(leName e, leConstructors e, leHasDependentFunctions e) | e <- lib])
+            hFlush stdout
 
           -- Phase B: MCTS for larger telescopes (κ > 3)
           -- In PaperCalibrated mode, skip MCTS when the reference telescope
@@ -192,7 +215,7 @@ abInitioLoop mode = do
                     , mctsSeed       = step * 137 + 42
                     , mctsVerbose    = False
                     }
-              results <- mctsSearchStep cfg lib bar
+              results <- mctsSearchStep emode cfg lib bar
               return [(tele, nu, kappa, rho, "MCTS" :: String)
                      | (tele, nu, kappa, rho) <- results]
             else return []
