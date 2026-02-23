@@ -27,7 +27,8 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
-import TelescopeEval (EvalMode(..), evaluateTelescope, telescopeToCandidate,
+import TelescopeEval (EvalMode(..), evaluateTelescopeWithHistory,
+                      telescopeToCandidate,
                       validateReferenceTelescopes, detectCanonicalName)
 import TelescopeCheck (checkAndFilter)
 import MCTS
@@ -49,6 +50,7 @@ import Text.Printf (printf)
 data AbInitioMode
   = PaperCalibrated   -- ^ Bar from paper ν/κ, fallback to paper entries
   | StrictAbInitio    -- ^ Bar from discovered ν/κ only, no paper fallback
+  | StructuralAbInitio -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -60,9 +62,11 @@ data DiscoveryRecord = DiscoveryRecord
 -- | Convert synthesis mode to evaluation mode.
 -- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
 -- StrictAbInitio never reads paper tables — all ν/κ computed from telescope + library.
+-- StructuralAbInitio uses StructuralNu AST rule extraction.
 toEvalMode :: AbInitioMode -> EvalMode
-toEvalMode PaperCalibrated = EvalPaperCalibrated
-toEvalMode StrictAbInitio  = EvalStrictComputed
+toEvalMode PaperCalibrated    = EvalPaperCalibrated
+toEvalMode StrictAbInitio     = EvalStrictComputed
+toEvalMode StructuralAbInitio = EvalStructural
 
 -- ============================================
 -- Main Entry Point
@@ -72,13 +76,29 @@ main :: IO ()
 main = do
   args <- getArgs
   let mode = case args of
-        ("--strict":_) -> StrictAbInitio
-        _              -> PaperCalibrated
+        ("--strict":_)     -> StrictAbInitio
+        ("--structural":_) -> StructuralAbInitio
+        _                  -> PaperCalibrated
 
   putStrLn "============================================"
   putStrLn "PEN Ab Initio Discovery Engine"
   printf   "Mode: %s\n" (show mode)
   putStrLn "============================================"
+  case mode of
+    PaperCalibrated -> do
+      putStrLn "  Evaluator: EvalPaperCalibrated (effectiveNu/effectiveKappa for canonical names)"
+      putStrLn "  Bar:       Paper nu/kappa history"
+      putStrLn "  Library:   Fallback to paper entries for unknown names"
+    StrictAbInitio -> do
+      putStrLn "  Evaluator: EvalStrictComputed (computeUniformNu + strictKappa, zero paper tables)"
+      putStrLn "  Bar:       Discovered nu/kappa history only"
+      putStrLn "  Library:   Discovered entries only, no fallback"
+    StructuralAbInitio -> do
+      putStrLn "  Evaluator: EvalStructural (StructuralNu AST rule extraction)"
+      putStrLn "  Bar:       Discovered nu/kappa history only"
+      putStrLn "  Library:   Discovered entries only, no fallback"
+      putStrLn "  Features:  3-component decomposition (v_G + v_H + v_C)"
+      putStrLn "             Meta-theorem multipliers for DCT (Big Bang)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -156,19 +176,24 @@ abInitioLoop mode = do
           -- Type-check to filter ill-formed telescopes, then evaluate honestly
           let emode = toEvalMode mode
               enumKmax = 3
+              -- Depth-1 evaluation: count single-operation schemas only.
+              -- Depth-2 causes O(formers²) explosion at later steps (L16).
+              nuDepth = 1
               rawTelescopes = enumerateTelescopes lib enumKmax
               (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
+              -- Build nuHistory for structural mode
+              nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
               enumEvaluated = [ (tele, nu, kappa, rho, "ENUM" :: String)
                               | tele <- validTelescopes
-                              , let (nu, kappa, rho) = evaluateTelescope emode tele lib 2 "candidate"
+                              , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
               enumCount = length enumEvaluated
 
           -- Evaluate the reference telescope for comparison / fallback
           let refTele = referenceTelescope step
-              (refNu, refKappa, refRho) = evaluateTelescope emode refTele lib 2 "candidate"
+              (refNu, refKappa, refRho) = evaluateTelescopeWithHistory emode refTele lib nuDepth "candidate" nuHist
 
           -- DEBUG: diagnostic output for steps with issues
           when (step == 4 || refNu == 0) $ do
@@ -194,8 +219,10 @@ abInitioLoop mode = do
                     Just k  -> k
                     Nothing -> 5
                 StrictAbInitio ->
-                  -- Heuristic: expect κ to grow roughly with step number
-                  -- Steps 1-8: κ ≤ 3, Steps 9-12: κ ≤ 6, Steps 13-15: κ ≤ 9
+                  if step <= 8 then 3
+                  else if step <= 12 then 6
+                  else 9
+                StructuralAbInitio ->
                   if step <= 8 then 3
                   else if step <= 12 then 6
                   else 9
@@ -210,7 +237,7 @@ abInitioLoop mode = do
                     { mctsIterations = 2000
                     , mctsMaxKappa   = max 5 (mctsKappaEst + 2)
                     , mctsMaxDepth   = 3
-                    , mctsNuDepth    = 2
+                    , mctsNuDepth    = nuDepth
                     , mctsTopK       = 10
                     , mctsSeed       = step * 137 + 42
                     , mctsVerbose    = False
@@ -266,6 +293,9 @@ abInitioLoop mode = do
           let discoveredEntry = telescopeToCandidate bestTele lib bestName
               newEntry = case mode of
                 StrictAbInitio ->
+                  -- No paper fallback: use discovered entry as-is
+                  discoveredEntry
+                StructuralAbInitio ->
                   -- No paper fallback: use discovered entry as-is
                   discoveredEntry
                 PaperCalibrated ->
@@ -337,6 +367,13 @@ computeBar mode n history =
              then fromIntegral sumNu / fromIntegral sumK
              else 1.0
         StrictAbInitio ->
+          let past = take (n-1) history
+              sumNu = sum [drNu r | r <- past]
+              sumK  = sum [drKappa r | r <- past]
+          in if sumK > 0
+             then fromIntegral sumNu / fromIntegral sumK
+             else 1.0
+        StructuralAbInitio ->
           let past = take (n-1) history
               sumNu = sum [drNu r | r <- past]
               sumK  = sum [drKappa r | r <- past]

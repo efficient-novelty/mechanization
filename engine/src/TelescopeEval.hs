@@ -15,6 +15,7 @@ module TelescopeEval
     EvalMode(..)
     -- * Evaluation
   , evaluateTelescope
+  , evaluateTelescopeWithHistory
   , evaluateTelescopeDetailed
   , effectiveKappa
   , effectiveNu
@@ -37,6 +38,7 @@ import Kolmogorov (MBTTExpr(..))
 import Telescope
 import Types (LibraryEntry(..), Library, mkLibraryEntry)
 import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, GenesisStep(..))
+import StructuralNu (structuralNu, StructuralNuResult(..))
 
 import qualified Data.Set as Set
 
@@ -57,6 +59,7 @@ import qualified Data.Set as Set
 data EvalMode
   = EvalPaperCalibrated     -- ^ Use paper ν/κ for canonical names (effectiveNu/effectiveKappa)
   | EvalStrictComputed      -- ^ Never use paper ν/κ; compute from telescope + UniformNu
+  | EvalStructural          -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
 -- | Evaluation trace for transparency logging.
@@ -72,127 +75,8 @@ data EvalTrace = EvalTrace
   , etKappaFromPaper :: !(Maybe Int)  -- ^ Paper κ if applicable (Nothing in strict mode)
   } deriving (Show)
 
--- ============================================
--- Telescope Classification
--- ============================================
-
--- | What kind of structure does a telescope define?
-data TelescopeClass
-  = TCFoundation    -- ^ Bootstrap types (U, 1, ★)
-  | TCFormer        -- ^ Type formers (Π/Σ)
-  | TCHIT           -- ^ Higher inductive types (S¹, S², S³, PropTrunc)
-  | TCSuspension    -- ^ Suspension of existing type
-  | TCMap           -- ^ Map between existing types (Hopf)
-  | TCModal         -- ^ Modal operators (Cohesion)
-  | TCAxiomatic     -- ^ Axiomatic extension (Connections, Curvature, Metric, Hilbert)
-  | TCSynthesis     -- ^ Synthesis (DCT)
-  | TCUnknown       -- ^ Unclassified
-  deriving (Show, Eq)
-
--- | Classify a telescope by analyzing its MBTT structure.
---
--- Classification priority: the ORDER matters. We check the most specific
--- patterns first (HIT, modal, temporal, suspension) before the more generic
--- ones (map, axiomatic, former). This prevents broad matchers like
--- isPiSigmaExpr from swallowing specific patterns.
---
--- Key distinction: TCFormer (Pi/Sigma type formers over variables) vs.
--- TCMap/TCAxiomatic (functions between library types). Pi(Var 1, Var 2)
--- is a type former; Pi(Lib 8, Lib 7) is a map.
-classifyTelescope :: Telescope -> Library -> TelescopeClass
-classifyTelescope tele@(Telescope entries) _lib
-  | null entries = TCUnknown
-  | teleKappa tele == 1 && isFormationOnly (head entries) = classifySingleEntry (head entries)
-  | teleKappa tele == 1 && isTermIntro (head entries)    = TCMap
-  | hasPathConstructors = TCHIT
-  | hasModalOps         = TCModal
-  | hasTemporalOps      = TCSynthesis
-  | hasSusp             = TCSuspension
-  -- Check map/axiomatic BEFORE former: Pi(Lib i, Lib j) is a map, not a type former
-  | hasLibMapPattern    = TCMap
-  | hasLibAxiomPattern  = TCAxiomatic
-  -- TCFormer: Pi/Sigma over VARIABLE types only (no library references in Pi/Sigma)
-  | allPureFormer       = TCFormer
-  | otherwise           = TCUnknown
-  where
-    exprs = map teType entries
-    hasPathConstructors = any isPathCon exprs
-    hasModalOps = any isModalExpr exprs && not (any isTemporalExpr exprs)
-    hasTemporalOps = any isTemporalExpr exprs
-    hasSusp = any isSuspExpr exprs
-    -- Map pattern: 2-4 entries with library pointers in the leading entries.
-    -- The κ ≤ 4 bound distinguishes maps (focused, small) from axiomatic
-    -- extensions (broad, larger κ). Without this bound, Curvature (κ=6)
-    -- with Lib refs in leading entries gets misclassified as TCMap.
-    hasLibMapPattern = length entries >= 2 && length entries <= 4
-                    && all hasLibPointer (take 2 exprs)
-    -- Axiomatic pattern: multiple entries with at least some library references
-    hasLibAxiomPattern = length entries >= 3
-                      && any hasLibPointer exprs
-                      && not hasModalOps
-    -- Pure former: all entries are Pi/Sigma/Lam/App over variables (no library references)
-    -- This distinguishes genuine type formers from maps and axiomatics
-    allPureFormer = all isPiSigmaExpr exprs
-                 && not (any hasLibPointer exprs)
-
-    isFormationOnly (TeleEntry _ Univ) = True
-    isFormationOnly (TeleEntry _ (App Univ _)) = True
-    isFormationOnly (TeleEntry _ (Susp _)) = True
-    isFormationOnly _ = False
-
-    -- Term introduction: applying a library type constructor to produce an inhabitant.
-    -- This is the ★ : 1 pattern (step 3: Witness).
-    isTermIntro (TeleEntry _ (App (Lib _) _)) = True
-    isTermIntro _ = False
-
-    classifySingleEntry (TeleEntry _ Univ) = TCFoundation
-    classifySingleEntry (TeleEntry _ (App Univ _)) = TCFoundation
-    classifySingleEntry (TeleEntry _ (Susp _)) = TCSuspension
-    classifySingleEntry _ = TCUnknown
-
-isPathCon :: MBTTExpr -> Bool
-isPathCon (PathCon _) = True
-isPathCon _           = False
-
-isModalExpr :: MBTTExpr -> Bool
-isModalExpr (Flat _)  = True
-isModalExpr (Sharp _) = True
-isModalExpr (Disc _)  = True
-isModalExpr (Shape _) = True
-isModalExpr _         = False
-
-isTemporalExpr :: MBTTExpr -> Bool
-isTemporalExpr (Next _)       = True
-isTemporalExpr (Eventually _) = True
-isTemporalExpr (Pi a b)       = isTemporalExpr a || isTemporalExpr b
-isTemporalExpr (Lam a)        = isTemporalExpr a
-isTemporalExpr (App a b)      = isTemporalExpr a || isTemporalExpr b
-isTemporalExpr _              = False
-
-isSuspExpr :: MBTTExpr -> Bool
-isSuspExpr (Susp _) = True
-isSuspExpr _        = False
-
-isPiSigmaExpr :: MBTTExpr -> Bool
-isPiSigmaExpr (Pi _ _)    = True
-isPiSigmaExpr (Sigma _ _) = True
-isPiSigmaExpr (Lam _)     = True
-isPiSigmaExpr (App _ _)   = True
-isPiSigmaExpr _           = False
-
-hasLibPointer :: MBTTExpr -> Bool
-hasLibPointer (Lib _)        = True
-hasLibPointer (App a b)      = hasLibPointer a || hasLibPointer b
-hasLibPointer (Lam a)        = hasLibPointer a
-hasLibPointer (Pi a b)       = hasLibPointer a || hasLibPointer b
-hasLibPointer (Sigma a b)    = hasLibPointer a || hasLibPointer b
-hasLibPointer (Flat a)       = hasLibPointer a
-hasLibPointer (Sharp a)      = hasLibPointer a
-hasLibPointer (Disc a)       = hasLibPointer a
-hasLibPointer (Shape a)      = hasLibPointer a
-hasLibPointer (Next a)       = hasLibPointer a
-hasLibPointer (Eventually a) = hasLibPointer a
-hasLibPointer _              = False
+-- TelescopeClass and classifyTelescope are defined in Telescope.hs
+-- and re-exported by this module for backward compatibility.
 
 -- ============================================
 -- Canonical Name Detection
@@ -339,8 +223,12 @@ detectStructuralName tele lib =
     hasLam (Lam _) = True
     hasLam _       = False
 
+    -- Check recursively through Lam/App wrappers: the Pi telescope is
+    -- Lam(Pi(Var 1, Var 2)) — Pi is inside the Lam, not at top level.
     hasPiOrSigma (Pi _ _)    = True
     hasPiOrSigma (Sigma _ _) = True
+    hasPiOrSigma (Lam a)     = hasPiOrSigma a
+    hasPiOrSigma (App a b)   = hasPiOrSigma a || hasPiOrSigma b
     hasPiOrSigma _           = False
 
     hasLibPointerExpr = hasLibPointer
@@ -476,8 +364,10 @@ makeHITEntry tele name =
   let pathDims = telePathDimensions tele
       -- Count non-path, non-formation entries as point constructors
       entries = teleEntries tele
+      isPathCon_ (PathCon _) = True
+      isPathCon_ _           = False
       pointCount = length [e | e <- entries
-                          , not (isPathCon (teType e))
+                          , not (isPathCon_ (teType e))
                           , not (isFormation (teType e))]
       trunc = if any isTruncExpr (map teType entries) then Just 0 else Nothing
   in mkLibraryEntry name (max 1 pointCount) pathDims (not (null pathDims)) trunc
@@ -525,7 +415,12 @@ makeSuspEntry (Telescope entries) lib name =
 --    assigns known names for library insertion and capability gating.
 -- 2. **Trivial derivability**: bare Lib/Var references receive ν = 0.
 evaluateTelescope :: EvalMode -> Telescope -> Library -> Int -> String -> (Int, Int, Double)
-evaluateTelescope evalMode tele lib maxDepth name
+evaluateTelescope evalMode tele lib maxDepth name =
+  evaluateTelescopeWithHistory evalMode tele lib maxDepth name []
+
+-- | Evaluate with ν history (needed for EvalStructural meta-theorem detectors).
+evaluateTelescopeWithHistory :: EvalMode -> Telescope -> Library -> Int -> String -> [(Int, Int)] -> (Int, Int, Double)
+evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
   | isTriviallyDerivable tele lib = (0, teleKappa tele, 0.0)
   | otherwise =
     let canonName = detectCanonicalName tele lib
@@ -542,6 +437,11 @@ evaluateTelescope evalMode tele lib maxDepth name
             -- Strict: compute everything from telescope + library, no paper tables
             ( unrUniformNu (computeUniformNu entry lib maxDepth)
             , strictKappa tele )
+          EvalStructural ->
+            -- StructuralNu: AST rule extraction, no semantic proxy
+            let result = structuralNu tele lib nuHistory
+            in ( snTotal result
+               , strictKappa tele )
         rho = if kappa > 0 then fromIntegral nu / fromIntegral kappa else 0.0
     in (nu, kappa, rho)
 
@@ -573,6 +473,9 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
           , effectiveKappa canonName tele )
         EvalStrictComputed ->
           ( computedNu
+          , strictKappa tele )
+        EvalStructural ->
+          ( snTotal (structuralNu tele lib [])
           , strictKappa tele )
   in EvalTrace
     { etCanonName      = canonName

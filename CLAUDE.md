@@ -185,39 +185,32 @@ Build: `pdflatex pen_unified.tex` (run twice for cross-references).
 
 ## Current Status and Next Steps
 
-See `paper_improvement_plan.md` for the full tracker. In brief:
+See `physics_creation.md` for the current research focus. Update this file on an ongoing basis to reflect the overall research findings, status and progress.
 
-**Completed (latest round):**
-1. Fixed vector field type error in Gödelian Horizon — `X^D → X` corrected
-   to `X → X^D` (a vector field in SDG). Proof rewritten using guarded
-   corecursion to unfold dynamical systems into global trajectories.
-2. Resolved "axiom vs. definition" scoring double standard — Steps 10–14
-   reframed as "library specifications" with derivability criterion. ℕ's
-   ops are derivable from rec_ℕ (ν=0); metric's Hodge star is not derivable
-   from cohesion (ν>0). New Remark 2.6 (rem:library-api).
-3. Integration Trace clarified as systemic constraint — new remark
-   (rem:maximal-coupling) states maximal interface density is PEN's modeling
-   assumption, not HoTT's requirement. Added to "Assumed" in Discussion.
-4. Epistemological rhetoric downgraded — Spectral Decomposition from Theorem
-   to Empirical Observation. Topological Projection keeps Theorem but adds
-   CCHM framework-dependence caveat.
-5. Candidate pool demystified — abstract softened ("autonomously generates"
-   → "filters and uniquely orders"). Rejected candidates table expanded
-   from 5 to 10 (added ordinals, measure theory, topos axioms, scheme
-   theory, Galois theory).
+## Workflow Loop (Context-Reset Driven Development)
 
-**Previously completed:** Integration Trace Principle, Generative Capacity
-reframing, inference-rule counter (15/15), DCT singularity, Kolmogorov κ,
-specification selection, S³ ν_C=3, DCT semantic audit, Extensional Boundary,
-ν_H formalization, ontological tone calibration. See `paper_improvement_plan.md`.
+When working on the PEN engine, follow this iterative loop:
 
-**Next research steps (priority order):**
-1. Theoretical derivation of $d = 2$ via adjoint functor argument.
-2. Tangent Topos hypothesis (why the sequence terminates).
-3. Specification Selection formalization (variational principle).
-4. Update Kolmogorov.hs with SU(2) and native HIT specifications.
-5. Compute ν estimates for new rejected candidates in the Haskell engine.
-6. Investigate d² scaling robustness across cubical frameworks (CCHM vs Cartesian).
+1. **Review `ISSUE_QUEUE.md`** — pick the top-priority unblocked task.
+2. **Do the task** — implement, test, verify.
+3. **On completion:**
+   - Delete the completed task from `ISSUE_QUEUE.md`.
+   - Write down any relevant learnings or insights in `physics_creation.md`
+     (Key Learnings section or relevant Phase notes).
+   - Update/add remaining tasks in `physics_creation.md` to reflect progress.
+   - Review `ISSUE_QUEUE.md` — add, reorder, or revise tasks based on what
+     you learned during implementation.
+4. **Reset context** — the user will start a fresh conversation.
+5. **Continue** — the next session picks up from `ISSUE_QUEUE.md` again.
+
+This loop ensures that each session starts with a clean context window,
+all progress is durably recorded in the tracked files, and priorities
+stay aligned with the evolving state of the codebase.
+
+**Key files for session continuity:**
+- `ISSUE_QUEUE.md` — the work queue (single source of truth for what to do next)
+- `physics_creation.md` — implementation plan, learnings, and progress log
+- `CLAUDE.md` — project conventions and architecture reference (this file)
 
 ## Conventions
 

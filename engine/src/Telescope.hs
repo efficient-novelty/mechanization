@@ -36,6 +36,10 @@ module Telescope
   , telePathDimensions
   , teleHasLoop
   , isTriviallyDerivable
+    -- * Classification (shared by TelescopeEval and StructuralNu)
+  , TelescopeClass(..)
+  , classifyTelescope
+  , hasLibPointer
     -- * Reference telescopes (ground truth from paper)
   , referenceTelescope
   , allReferenceTelescopes
@@ -359,6 +363,123 @@ mbttToTypeExpr (Disc a)       = TDisc (mbttToTypeExpr a)
 mbttToTypeExpr (Shape a)      = TPiCoh (mbttToTypeExpr a)
 mbttToTypeExpr (Next a)       = TNext (mbttToTypeExpr a)
 mbttToTypeExpr (Eventually a) = TEventually (mbttToTypeExpr a)
+
+-- ============================================
+-- Telescope Classification (shared infrastructure)
+-- ============================================
+
+-- | What kind of structure does a telescope define?
+data TelescopeClass
+  = TCFoundation    -- ^ Bootstrap types (U, 1, ★)
+  | TCFormer        -- ^ Type formers (Π/Σ)
+  | TCHIT           -- ^ Higher inductive types (S¹, S², S³, PropTrunc)
+  | TCSuspension    -- ^ Suspension of existing type
+  | TCMap           -- ^ Map between existing types (Hopf)
+  | TCModal         -- ^ Modal operators (Cohesion)
+  | TCAxiomatic     -- ^ Axiomatic extension (Connections, Curvature, Metric, Hilbert)
+  | TCSynthesis     -- ^ Synthesis (DCT)
+  | TCUnknown       -- ^ Unclassified
+  deriving (Show, Eq)
+
+-- | Classify a telescope by analyzing its MBTT structure.
+--
+-- Classification priority: the ORDER matters. We check the most specific
+-- patterns first (HIT, modal, temporal, suspension) before the more generic
+-- ones (map, axiomatic, former).
+classifyTelescope :: Telescope -> Library -> TelescopeClass
+classifyTelescope tele@(Telescope entries) _lib
+  | null entries = TCUnknown
+  | teleKappa tele == 1 && isFormationOnlyC (head entries) = classifySingleEntryC (head entries)
+  | teleKappa tele == 1 && isTermIntroC (head entries)     = TCMap
+  | isFoundationLikeC     = TCFoundation
+  | hasPathConstructorsC   = TCHIT
+  | hasModalOpsC           = TCModal
+  | hasTemporalOpsC        = TCSynthesis
+  | hasSuspC               = TCSuspension
+  | hasLibMapPatternC      = TCMap
+  | hasLibAxiomPatternC    = TCAxiomatic
+  | allPureFormerC         = TCFormer
+  | otherwise              = TCUnknown
+  where
+    exprs = map teType entries
+    -- Multi-entry foundation: all entries are basic formations (Univ, App Univ _, Var)
+    -- with no library, modal, temporal, or path structure.
+    isFoundationLikeC = teleKappa tele >= 2
+                     && all isBasicFormationEntryC entries
+                     && not (any hasLibPointer exprs)
+    isBasicFormationEntryC (TeleEntry _ Univ)         = True
+    isBasicFormationEntryC (TeleEntry _ (App Univ _)) = True
+    isBasicFormationEntryC (TeleEntry _ (Var _))      = True
+    isBasicFormationEntryC _                          = False
+    hasPathConstructorsC = any isPathConC exprs
+    hasModalOpsC = any isModalExprC exprs && not (any isTemporalExprC exprs)
+    hasTemporalOpsC = any isTemporalExprC exprs
+    hasSuspC = any isSuspExprC exprs
+    hasLibMapPatternC = length entries >= 2 && length entries <= 4
+                     && all hasLibPointer (take 2 exprs)
+    hasLibAxiomPatternC = length entries >= 3
+                       && any hasLibPointer exprs
+                       && not hasModalOpsC
+    allPureFormerC = all isPiSigmaExprC exprs
+                  && not (any hasLibPointer exprs)
+
+    isFormationOnlyC (TeleEntry _ Univ) = True
+    isFormationOnlyC (TeleEntry _ (App Univ _)) = True
+    isFormationOnlyC (TeleEntry _ (Susp _)) = True
+    isFormationOnlyC _ = False
+
+    isTermIntroC (TeleEntry _ (App (Lib _) _)) = True
+    isTermIntroC _ = False
+
+    classifySingleEntryC (TeleEntry _ Univ) = TCFoundation
+    classifySingleEntryC (TeleEntry _ (App Univ _)) = TCFoundation
+    classifySingleEntryC (TeleEntry _ (Susp _)) = TCSuspension
+    classifySingleEntryC _ = TCUnknown
+
+isPathConC :: MBTTExpr -> Bool
+isPathConC (PathCon _) = True
+isPathConC _           = False
+
+isModalExprC :: MBTTExpr -> Bool
+isModalExprC (Flat _)  = True
+isModalExprC (Sharp _) = True
+isModalExprC (Disc _)  = True
+isModalExprC (Shape _) = True
+isModalExprC _         = False
+
+isTemporalExprC :: MBTTExpr -> Bool
+isTemporalExprC (Next _)       = True
+isTemporalExprC (Eventually _) = True
+isTemporalExprC (Pi a b)       = isTemporalExprC a || isTemporalExprC b
+isTemporalExprC (Lam a)        = isTemporalExprC a
+isTemporalExprC (App a b)      = isTemporalExprC a || isTemporalExprC b
+isTemporalExprC _              = False
+
+isSuspExprC :: MBTTExpr -> Bool
+isSuspExprC (Susp _) = True
+isSuspExprC _        = False
+
+isPiSigmaExprC :: MBTTExpr -> Bool
+isPiSigmaExprC (Pi _ _)    = True
+isPiSigmaExprC (Sigma _ _) = True
+isPiSigmaExprC (Lam _)     = True
+isPiSigmaExprC (App _ _)   = True
+isPiSigmaExprC _           = False
+
+-- | Check if an expression contains any library pointer reference.
+hasLibPointer :: MBTTExpr -> Bool
+hasLibPointer (Lib _)        = True
+hasLibPointer (App a b)      = hasLibPointer a || hasLibPointer b
+hasLibPointer (Lam a)        = hasLibPointer a
+hasLibPointer (Pi a b)       = hasLibPointer a || hasLibPointer b
+hasLibPointer (Sigma a b)    = hasLibPointer a || hasLibPointer b
+hasLibPointer (Flat a)       = hasLibPointer a
+hasLibPointer (Sharp a)      = hasLibPointer a
+hasLibPointer (Disc a)       = hasLibPointer a
+hasLibPointer (Shape a)      = hasLibPointer a
+hasLibPointer (Next a)       = hasLibPointer a
+hasLibPointer (Eventually a) = hasLibPointer a
+hasLibPointer _              = False
 
 -- ============================================
 -- Reference Telescopes (Ground Truth)

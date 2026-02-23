@@ -10,46 +10,56 @@ This queue translates current architecture findings and roadmap notes into execu
 
 ---
 
-## P0 — Claim Integrity and Reproducibility
+## P0 — Claim Integrity: Desugared Kappa + Validation
 
-### P0.1 — Canonicalize strict-vs-paper semantics across docs and CLI output
-**Problem**: Documentation drift around what strict mode computes vs what paper-calibrated mode computes.
+### P0.2 — Implement desugared kappa (Clause Count of Desugared AST)
+**Problem**: Raw `teleKappa` (entry count) is a compression artifact that makes suspensions degenerate (k=1 for Susp(S1) despite 4 implicit core judgments). The `max 3` suspension floor is a hack.
 
 **Tasks**
-- Update `physics_creation.md` mode descriptions and historical notes to reflect current evaluator behavior.
-- Update `CODEBASE_GUIDE.md` mode table so it matches `RunAbInitio` + `TelescopeEval` exactly.
-- Add a concise “mode legend” in `RunAbInitio` output header (paper-calibrated vs strict-computed).
+- Define `CoreJudgment` data type: Formation, Introduction, Elimination, Computation, PathAttach.
+- Implement `desugarTelescope :: Telescope -> [CoreJudgment]` that expands macro-like entries.
+  - `Susp(Lib i)` desugars to Formation + north + south + meridian (4 judgments).
+  - Native HITs desugar to their explicit clauses.
+  - Pi/Sigma desugars to Pi-formation + Lam-intro + App-elim (3 judgments).
+- Implement `desugaredKappa :: Telescope -> Int` = `length . desugarTelescope`.
+- Remove the suspension kappa floor (`max 3 (teleKappa tele)`) from `strictKappa`.
+- Wire desugared kappa into `TelescopeEval.hs`.
 
 **Acceptance criteria**
-- No contradictory statements remain across `physics_creation.md`, `CODEBASE_GUIDE.md`, and code comments.
-- A reviewer can map each mode to exact ν/κ computation path in one hop.
-- Running `ab-initio` and `ab-initio -- --strict` prints explicit evaluator mode labels.
+- Suspension kappa floor is eliminated entirely.
+- Native S1 gets kappa=3, Susp(S0) gets kappa>=3 (desugared).
+- All 15 reference telescopes have principled, documented desugared kappa values.
+- No more `max 3` hack in `strictKappa`.
 
 ---
 
-### P0.2 — Evidence matrix for claims (ordering, numerics, d=2 scaling)
-**Problem**: Claim boundaries are not centralized; difficult to audit what is demonstrated vs assumed.
+### P0.3 — Validate Structural Mode Results + Commit Results Table
+**Problem**: StructuralNu mode (`--structural`) discovers all 15 steps with steps 1-10 matching
+paper values exactly. Steps 11-14 overcount due to axiomaticNuC scaling. Need to document results
+and validate against paper narrative.
 
 **Tasks**
-- Add `CLAIMS_EVIDENCE.md` with 3 sections:
-  1. Sequence ordering claim,
-  2. ν/κ numeric claim,
-  3. d=2/Fibonacci schedule claim.
-- For each claim, include: module(s), command(s), expected artifact/log snippet, and known caveats.
+- Document the structural mode results table in physics_creation.md.
+- Verify that the discovered sequence ordering is correct for all 15 steps.
+- Analyze the axiomaticNuC overcount for steps 11-14 and decide if paper v values should be updated.
+- Run d=1 and d=3 stress tests with structural mode.
+- Compare StructuralNu results with strict (UniformNu) results side by side.
 
 **Acceptance criteria**
-- Every major claim in paper abstract/sequence table has a corresponding evidence row.
-- At least one command per claim can be run in CI/local to reproduce evidence.
-- Caveats section explicitly lists unresolved assumptions.
+- Results table committed to physics_creation.md with all 15 steps.
+- Steps 1-15 discovered in correct order (ACHIEVED: all 15 canonical names).
+- Each step's v and kappa are fully justified by AST analysis (no paper tables).
+- DCT ν=103 > 100, meta-theorems documented.
+- Axiomatic step overcount (steps 11-14) documented with explanation.
 
 ---
 
-### P0.3 — Deterministic replication harness for ab-initio runs
+### P0.4 — Deterministic replication harness for ab-initio runs
 **Problem**: Hard to compare regressions across changes without stable run outputs.
 
 **Tasks**
 - Add script (`scripts/repro_ab_initio.sh`) that runs both modes with fixed seeds and captures logs.
-- Emit machine-readable summary (`.json` or `.csv`) with step, name, ν, κ, ρ, bar, source.
+- Emit machine-readable summary (`.json` or `.csv`) with step, name, v, kappa, rho, bar, source.
 - Add diff helper (`scripts/compare_runs.py` or shell equivalent) for baseline vs candidate run.
 
 **Acceptance criteria**
@@ -59,24 +69,25 @@ This queue translates current architecture findings and roadmap notes into execu
 
 ---
 
-### P0.4 — Formalize κ policy as a first-class configuration
-**Problem**: κ mismatch is acknowledged but not operationalized as explicit policy.
+## P1 — Search Quality and Repurposing
+
+### P1.1 — Repurpose UniformNu as post-hoc analysis (not fitness function)
+**Problem**: UniformNu is useful for measuring library coupling / amplification factor but should not be the core fitness function.
 
 **Tasks**
-- Introduce `KappaMode` (e.g., `PaperKappa`, `EntryKappa`, `BitCostKappa`, `HybridSuspFloor`).
-- Thread it through evaluation and reporting layers.
-- Default remains current publication-compatible behavior, with explicit strict options.
+- Remove UniformNu from the optimization loop (replaced by StructuralNu in P0.1).
+- Keep UniformNu as a post-hoc analysis pass: compute and report schema counts for each discovered step.
+- Use UniformNu output to validate that discovered structures have expected compositional reach.
+- Report both StructuralNu (v used for selection) and UniformNu (v_amplification for analysis) in output tables.
 
 **Acceptance criteria**
-- CLI flag selects κ mode and prints chosen mode in run header.
-- Report table includes `κ_used` and at least one auxiliary κ metric column.
-- Unit tests verify suspension κ floor policy behavior.
+- UniformNu is not called during the selection loop.
+- Post-hoc analysis table shows both metrics side by side.
+- Documentation explains the distinct roles of each metric.
 
 ---
 
-## P1 — Search Quality and Throughput
-
-### P1.1 — Strengthen rollout validity checks in MCTS
+### P1.2 — Strengthen rollout validity checks in MCTS
 **Problem**: Rollouts can still produce low-quality/ill-typed candidates, weakening MCTS efficiency.
 
 **Tasks**
@@ -87,11 +98,11 @@ This queue translates current architecture findings and roadmap notes into execu
 **Acceptance criteria**
 - MCTS stats print valid vs rejected rollout counts.
 - Invalid rollout ratio decreases relative to current baseline.
-- Best-candidate quality (minimal overshoot among viable) improves or matches baseline at κ>3 steps.
+- Best-candidate quality (minimal overshoot among viable) improves or matches baseline at kappa>3 steps.
 
 ---
 
-### P1.2 — Implement progressive widening in MCTS
+### P1.3 — Implement progressive widening in MCTS
 **Problem**: Child expansion can be too broad early, diluting visits.
 
 **Tasks**
@@ -106,32 +117,18 @@ This queue translates current architecture findings and roadmap notes into execu
 
 ---
 
-### P1.3 — Separate ENUM and MCTS budget regimes cleanly
-**Problem**: ENUM can dominate where MCTS should contribute, obscuring value of AI search.
+### P1.4 — Formalize kappa policy as a first-class configuration
+**Problem**: Multiple kappa metrics exist; need explicit policy selection.
 
 **Tasks**
-- Define non-overlapping budget windows (e.g., ENUM κ≤k₀, MCTS κ>k₀).
-- Add per-step source contribution report (winner and runner-up by source).
-- Add optional “MCTS-only beyond threshold” experiment mode.
+- Introduce `KappaMode` (e.g., `DesugaredKappa`, `EntryKappa`, `BitCostKappa`).
+- Thread it through evaluation and reporting layers.
+- Default is `DesugaredKappa` (from P0.2).
 
 **Acceptance criteria**
-- Run summary includes per-step source comparison table.
-- MCTS contribution is measurable (wins or near-wins) in designated regime.
-- Experiment mode produces reproducible outputs with fixed seed.
-
----
-
-### P1.4 — Add tri-metric reporting for κ diagnostics
-**Problem**: Hard to reason about κ mismatch without side-by-side numbers.
-
-**Tasks**
-- Report `κ_entry`, `κ_bitcost`, and `κ_used` for each selected step.
-- Add aggregate table and divergence stats from paper κ.
-
-**Acceptance criteria**
-- End-of-run report includes all three κ metrics for 15 steps.
-- Divergence summary highlights largest offenders (e.g., suspensions).
-- Documentation explains interpretation of each κ metric.
+- CLI flag selects kappa mode and prints chosen mode in run header.
+- Report table includes `kappa_used` and auxiliary kappa metric columns.
+- Unit tests verify each kappa mode's behavior.
 
 ---
 
@@ -173,7 +170,7 @@ This queue translates current architecture findings and roadmap notes into execu
 **Tasks**
 - Create `benchmarks/` with 3 canonical experiment profiles:
   1. Paper-calibrated replay,
-  2. Strict-computed discovery,
+  2. Strict-computed discovery (StructuralNu),
   3. MCTS ablation.
 - Provide expected output signatures and run-time envelope.
 
@@ -184,15 +181,17 @@ This queue translates current architecture findings and roadmap notes into execu
 
 ---
 
-## Suggested sequencing (next 4 weeks)
+## Suggested sequencing
 
-1. **Week 1 (P0)**: P0.1 + P0.2.
-2. **Week 2 (P0/P1)**: P0.3 + P0.4.
-3. **Week 3 (P1)**: P1.1 + P1.2.
-4. **Week 4 (P1/P2)**: P1.3 + P1.4, then start P2.1.
+1. **Week 1 (P0)**: P0.1 (StructuralNu) + P0.2 (Desugared Kappa).
+2. **Week 2 (P0)**: P0.3 (Strict Mode 2.0 validation) + P0.4 (Replication harness).
+3. **Week 3 (P1)**: P1.1 (Repurpose UniformNu) + P1.4 (Kappa policy).
+4. **Week 4 (P1/P2)**: P1.2 + P1.3 (MCTS improvements), then start P2.1.
 
 ## Definition of done for this queue
 
 - P0 items complete and merged.
-- Strict/paper mode behavior is auditable from docs + logs + code without ambiguity.
+- StructuralNu is the definitive fitness function for the core search loop.
+- Desugared kappa eliminates all artificial floors.
+- Strict mode discovers Steps 1-14 (minimum 1-13) in correct order.
 - Repro harness artifacts are stable and versioned.
