@@ -23,12 +23,12 @@ The engine operates in several modes that differ in how ν (novelty) and κ (con
 
 ### Ab Initio Modes (RunAbInitio.hs)
 
-| Mode | CLI Flag | Bar Computation | Library Insertion | Candidate ν/κ |
-|------|----------|----------------|-------------------|---------------|
-| **PaperCalibrated** | (default) | Paper ν/κ for Ω_{n-1} | Fallback to paper entries | Paper values for canonical names |
-| **StrictAbInitio** | `--strict` | Discovered ν/κ history | Discovered entry only | Paper values for canonical names* |
+| Mode | CLI Flag | Bar Computation | Library Insertion | Candidate ν/κ | EvalMode |
+|------|----------|----------------|-------------------|---------------|----------|
+| **PaperCalibrated** | (default) | Paper ν/κ for Ω_{n-1} | Fallback to paper entries | Paper values for canonical names | `EvalPaperCalibrated` |
+| **StrictAbInitio** | `--strict` | Discovered ν/κ history | Discovered entry only | `computeUniformNu` + `strictKappa` | `EvalStrictComputed` |
 
-\* **Known limitation**: Both modes currently route through `effectiveNu`/`effectiveKappa` in TelescopeEval.hs, which returns paper values for any structurally recognized canonical name. This means strict mode is "bar-strict, evaluator-calibrated" — the bar is genuinely self-consistent, but the ν/κ values fed into selection come from paper tables when `detectCanonicalName` matches. See `physics_creation.md` L14 for the planned EvalMode refactor.
+The `EvalMode` refactor (Sprint 3A) cleanly separates these paths. In strict mode, `evaluateTelescope` never calls `effectiveNu`/`effectiveKappa` — all ν/κ values are computed from telescope structure + library state. The only explicit policy is the suspension κ floor (`max 3 (teleKappa tele)`), which is named and documented. See `physics_creation.md` L14.
 
 ### Simulation Modes (Simulation.hs / Main.hs Phases G-J)
 
@@ -180,8 +180,10 @@ they answer different questions about novelty.
    d. Reference telescope: referenceTelescope(n)
        |
 3. For each telescope:
-   a. evaluateTelescope(tele, B, 2, "candidate")
-      -> detectCanonicalName -> effectiveKappa/effectiveNu -> (ν, κ, ρ)
+   a. evaluateTelescope(evalMode, tele, B, 2, "candidate")
+      -> detectCanonicalName -> ν/κ via mode dispatch -> (ν, κ, ρ)
+      PaperCalibrated: effectiveNu/effectiveKappa (paper tables)
+      StrictComputed: computeUniformNu/strictKappa (paper-free)
    b. Filter: ρ >= bar (or step ≤ 2)
        |
 4. Selection: canonical names prioritized, then minimal overshoot
@@ -343,7 +345,7 @@ Synthesis (DCT)   -> lattice tensor product (spatial 14 x temporal 11 - correcti
 
 **Key function:** `computeUniformNu :: LibraryEntry -> Library -> Int -> UniformNuResult`
 
-**Used by:** TelescopeEval.hs (for non-canonical telescope evaluation), and will become the primary ν source for strict mode after the EvalMode refactor.
+**Used by:** TelescopeEval.hs as the primary ν source in strict mode (`EvalStrictComputed`). Also used for non-canonical telescope evaluation in paper-calibrated mode.
 
 ---
 
@@ -481,16 +483,18 @@ newtype Telescope = Telescope { teleEntries :: [TeleEntry] }
 #### `TelescopeEval.hs` (~600 lines)
 **What:** Classification, naming, and evaluation of telescopes.
 
+**Key types:**
+- `EvalMode = EvalPaperCalibrated | EvalStrictComputed` — controls ν/κ computation path
+- `EvalTrace` — transparency record (computed vs used vs paper values)
+
 **Key functions:**
-- `evaluateTelescope :: Telescope -> Library -> Int -> String -> (Int, Int, Double)` — returns (ν, κ, ρ)
+- `evaluateTelescope :: EvalMode -> Telescope -> Library -> Int -> String -> (Int, Int, Double)` — returns (ν, κ, ρ)
+- `evaluateTelescopeTrace :: Telescope -> Library -> Int -> String -> (EvalTrace, EvalTrace)` — audit comparison (paper vs strict)
 - `detectCanonicalName :: Telescope -> Library -> String` — structural name assignment
 - `hasPrerequisites :: String -> Library -> Bool` — prerequisite chain gating
-- `effectiveKappa :: String -> Telescope -> Int` — paper κ for known names, teleKappa otherwise
-- `effectiveNu :: String -> LibraryEntry -> Library -> Int -> Int` — paper ν for known names, UniformNu otherwise
-
-**Paper value lookup tables** (will be bypassed in strict mode after EvalMode refactor):
-- `paperKappaByName :: [(String, Int)]` — 15 canonical names → paper κ values
-- `paperNuByName :: [(String, Int)]` — 15 canonical names → paper ν values
+- `strictKappa :: Telescope -> Int` — paper-independent κ with named suspension floor policy
+- `effectiveKappa :: String -> Telescope -> Int` — paper κ for known names (PaperCalibrated only)
+- `effectiveNu :: String -> LibraryEntry -> Library -> Int -> Int` — paper ν for known names (PaperCalibrated only)
 
 ---
 
@@ -589,7 +593,7 @@ data DiscoveryRecord = DiscoveryRecord { drNu :: Int, drKappa :: Int }
 
 **What to audit:** Read `Generator.hs` to verify that the candidate generation is generic (no "if step==5 then generate S1" logic). Read `GenuineNu.hs` to verify that nu computation doesn't hardcode genesis values for HITs/suspensions (it uses proof-rank clustering). The hardcoded components are for foundations (trivially correct) and axioms/synthesis (where the formulas encode structural theorems like the Kuratowski lattice).
 
-**Ab initio audit:** Run `cabal run ab-initio -- --strict` and verify all 15 canonical names are discovered in order. Note the caveat in `physics_creation.md` L13/L14: the ν/κ values in the current evaluator still route through paper tables for recognized names. The EvalMode refactor (Sprint 3A) will resolve this.
+**Ab initio audit:** Run `cabal run ab-initio -- --strict` to see genuine paper-free discovery. After the EvalMode refactor (Sprint 3A), strict mode computes all ν/κ from telescope structure. The sequence is correct through step 13 but has known failures at steps 14-15 (see `physics_creation.md` F1-F3).
 
 ### Claim 3: "DCT achieves rho=18.75 via lattice tensor product"
 
@@ -625,7 +629,7 @@ data DiscoveryRecord = DiscoveryRecord { drNu :: Int, drKappa :: Int }
 
 5. **Horizon policy.** After each realization, the horizon resets to `delta + 1`. This is slightly different from the paper's "H <- 2" rule but produces identical dynamics because the Fibonacci gaps are always >= 1.
 
-6. **Evaluator paper-value coupling in strict mode.** `evaluateTelescope` returns paper ν/κ for recognized canonical names even when called from strict mode. This makes the reported "exact agreement" (356/356 ν, 64/64 κ) partially tautological. The ordering discovery is genuine, but the numerical match will be requalified after the EvalMode refactor. See `physics_creation.md` L13/L14.
+6. **Strict mode ν divergence from paper.** After the EvalMode refactor (Sprint 3A), strict mode computes genuinely paper-free ν/κ. The results diverge: total ν=759 (paper: 356), total κ=48 (paper: 64). Ordering is preserved through steps 1-13 but breaks at step 14 (Trunc displaced) and 15 (DCT ν=0). Three failure modes identified (F1: ν overestimation, F2: Pi ν=0, F3: combinatorial explosion). See `physics_creation.md` L15-L17.
 
 7. **DCT ν discrepancy.** Phase J (GenuineNu) reports ν=150; the paper uses ν=105. These are different metrics: lattice tensor product vs independent schema count. The paper value (105) is canonical.
 
