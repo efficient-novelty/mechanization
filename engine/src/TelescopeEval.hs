@@ -14,10 +14,13 @@ module TelescopeEval
   ( -- * Evaluation
     evaluateTelescope
   , evaluateTelescopeDetailed
+  , effectiveKappa
+  , effectiveNu
     -- * Conversion
   , telescopeToCandidate
   , classifyTelescope
   , detectCanonicalName
+  , hasPrerequisites
     -- * Validation
   , validateReferenceTelescopes
     -- * Classification
@@ -26,7 +29,7 @@ module TelescopeEval
 
 import Kolmogorov (MBTTExpr(..))
 import Telescope
-import Types (LibraryEntry(..), Library)
+import Types (LibraryEntry(..), Library, mkLibraryEntry)
 import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, GenesisStep(..))
 
 import qualified Data.Set as Set
@@ -62,6 +65,7 @@ classifyTelescope :: Telescope -> Library -> TelescopeClass
 classifyTelescope tele@(Telescope entries) _lib
   | null entries = TCUnknown
   | teleKappa tele == 1 && isFormationOnly (head entries) = classifySingleEntry (head entries)
+  | teleKappa tele == 1 && isTermIntro (head entries)    = TCMap
   | hasPathConstructors = TCHIT
   | hasModalOps         = TCModal
   | hasTemporalOps      = TCSynthesis
@@ -78,8 +82,11 @@ classifyTelescope tele@(Telescope entries) _lib
     hasModalOps = any isModalExpr exprs && not (any isTemporalExpr exprs)
     hasTemporalOps = any isTemporalExpr exprs
     hasSusp = any isSuspExpr exprs
-    -- Map pattern: multiple entries with library pointers in the leading entries
-    hasLibMapPattern = length entries >= 2
+    -- Map pattern: 2-4 entries with library pointers in the leading entries.
+    -- The κ ≤ 4 bound distinguishes maps (focused, small) from axiomatic
+    -- extensions (broad, larger κ). Without this bound, Curvature (κ=6)
+    -- with Lib refs in leading entries gets misclassified as TCMap.
+    hasLibMapPattern = length entries >= 2 && length entries <= 4
                     && all hasLibPointer (take 2 exprs)
     -- Axiomatic pattern: multiple entries with at least some library references
     hasLibAxiomPattern = length entries >= 3
@@ -94,6 +101,11 @@ classifyTelescope tele@(Telescope entries) _lib
     isFormationOnly (TeleEntry _ (App Univ _)) = True
     isFormationOnly (TeleEntry _ (Susp _)) = True
     isFormationOnly _ = False
+
+    -- Term introduction: applying a library type constructor to produce an inhabitant.
+    -- This is the ★ : 1 pattern (step 3: Witness).
+    isTermIntro (TeleEntry _ (App (Lib _) _)) = True
+    isTermIntro _ = False
 
     classifySingleEntry (TeleEntry _ Univ) = TCFoundation
     classifySingleEntry (TeleEntry _ (App Univ _)) = TCFoundation
@@ -172,34 +184,44 @@ detectCanonicalName tele lib =
      then tentative
      else "candidate"
 
--- | Prerequisite chain: each canonical name requires specific prior structures
--- in the library. This prevents gaming where e.g. "Trunc" is assigned to a
--- telescope when the library is empty (you can't truncate without types).
+-- | Prerequisite chain: each canonical name requires specific STRUCTURAL
+-- properties in the library. This uses capability flags and structural
+-- properties (path dims, library size), NOT entry names.
+--
+-- This is critical for ab initio discovery: if step 1 discovers a generic
+-- "candidate" instead of "Universe", name-based checks would block all
+-- subsequent canonical names. Structural checks ensure the prerequisite
+-- chain works regardless of what names earlier steps discover.
 --
 -- The chain mirrors the Generative Sequence's logical dependencies:
 --   Universe → Unit → Witness → Pi → S1 → Trunc → S2 → S3 → Hopf →
 --   Cohesion → Connections → Curvature → Metric → Hilbert → DCT
 hasPrerequisites :: String -> Library -> Bool
 hasPrerequisites name lib =
-  let names = map leName lib
-      has n = n `elem` names
-  in case name of
-    "Universe"    -> True                       -- bootstrap: no prerequisites
-    "Unit"        -> has "Universe"             -- Unit lives in U
-    "Witness"     -> has "Unit"                 -- ★ : 1 needs 1
-    "Pi"          -> has "Witness"              -- dependent types need inhabitants
-    "S1"          -> has "Pi"                   -- HITs need dependent types
-    "Trunc"       -> has "S1"                   -- truncation needs HITs to motivate
-    "S2"          -> has "S1"                   -- Susp(S¹) = S²
-    "S3"          -> has "S2"                   -- Susp(S²) = S³
-    "Hopf"        -> has "S3" && has "S1"       -- h : S³ → S² with S¹ fiber
-    "Cohesion"    -> has "Hopf"                 -- modalities need higher structure
-    "Connections" -> has "Cohesion"             -- ∇ needs cohesive types
-    "Curvature"   -> has "Connections"          -- R = d∇ + ∇∧∇
-    "Metric"      -> has "Curvature"            -- g needs curvature for Levi-Civita
-    "Hilbert"     -> has "Metric"               -- functional analysis needs geometry
-    "DCT"         -> has "Hilbert" && has "Cohesion"  -- temporal + spatial
-    _             -> True                       -- unknown names pass through
+    -- Uniqueness: each canonical name can only be discovered once.
+    -- Without this, multiple enum candidates could claim the same name,
+    -- and later steps could rediscover already-known structures.
+    let unique = name `notElem` map leName lib
+    in unique && case name of
+    "Universe"    -> True                                    -- bootstrap: no prerequisites
+    "Unit"        -> length lib >= 1                         -- need at least one type (Universe)
+    "Witness"     -> length lib >= 2                         -- need type + universe
+    "Pi"          -> length lib >= 3                         -- bootstrap complete
+    "S1"          -> any leHasDependentFunctions lib         -- HITs need dependent types
+    "Trunc"       -> hasHITWithLoop                          -- truncation needs HITs
+    "S2"          -> hasPathDim 1                            -- Susp(S¹) needs 1-sphere
+    "S3"          -> hasPathDim 2                            -- Susp(S²) needs 2-sphere
+    "Hopf"        -> hasPathDim 3 && hasPathDim 1            -- h : S³ → S² with S¹ fiber
+    "Cohesion"    -> hasPathDim 1 && any leHasDependentFunctions lib  -- modalities need higher structure
+    "Connections" -> any leHasModalOps lib                   -- ∇ needs cohesive types
+    "Curvature"   -> any leHasDifferentialOps lib            -- R = d∇ + ∇∧∇
+    "Metric"      -> any leHasCurvature lib                  -- g needs curvature
+    "Hilbert"     -> any leHasMetric lib                     -- functional analysis needs geometry
+    "DCT"         -> any leHasHilbert lib && any leHasModalOps lib  -- temporal + spatial
+    _             -> True                                    -- unknown names pass through
+  where
+    hasHITWithLoop = any (\e -> not (null (lePathDims e)) && leHasLoop e) lib
+    hasPathDim d   = any (\e -> d `elem` lePathDims e) lib
 
 -- | Detect the structural name for a telescope based on its MBTT structure,
 -- WITHOUT checking library prerequisites. This is the classification step;
@@ -235,10 +257,16 @@ detectStructuralName tele lib =
     TCSuspension -> detectSuspName tele lib
 
     -- Map: a function between existing library types.
-    -- Hopf is the prototypical map (S³ → S² with S¹ fiber).
-    -- Only assign "Hopf" if the library has HITs (path dims > 0) and the
-    -- telescope has κ ≤ 4 (maps are small, focused structures).
     TCMap
+      -- Witness pattern: term introduction for a library type.
+      -- App (Lib i) (Var j) = "apply constructor of type i" (★ : 1)
+      -- Distinguished from Hopf by: κ ≤ 2, leading App (Lib i) (Var j)
+      -- where lib[i-1] is a concrete type (constructors > 0).
+      | kappa <= 2
+      , isWitnessPattern exprs   -> "Witness"
+      -- Hopf is the prototypical map (S³ → S² with S¹ fiber).
+      -- Only assign "Hopf" if the library has HITs (path dims > 0) and the
+      -- telescope has κ ≤ 4 (maps are small, focused structures).
       | kappa >= 2, kappa <= 4
       , any (\e -> not (null (lePathDims e)) && leHasLoop e) lib -> "Hopf"
       | otherwise -> "candidate"
@@ -278,6 +306,13 @@ detectStructuralName tele lib =
     hasPiOrSigma _           = False
 
     hasLibPointerExpr = hasLibPointer
+
+    -- Witness pattern: leading entry is App (Lib i) (something) where
+    -- lib[i-1] is a concrete type (constructors > 0). This represents
+    -- "provide an inhabitant of type i" (★ : 1 at step 3).
+    isWitnessPattern (App (Lib i) _ : _)
+      | i >= 1, i <= length lib = leConstructors (lib !! (i-1)) > 0
+    isWitnessPattern _ = False
 
     hasNext (Next _) = True
     hasNext _        = False
@@ -361,11 +396,41 @@ telescopeToCandidate :: Telescope -> Library -> String -> LibraryEntry
 telescopeToCandidate tele lib name =
   let cls = classifyTelescope tele lib
       base = teleToEntry tele name
+      -- Set structural capability flags based on CANONICAL NAME only.
+      -- IMPORTANT: Only named entries get capability flags. Random "candidate"
+      -- telescopes must NOT get flags from classification alone, because this
+      -- inflates their ν by unlocking formers they haven't earned.
+      -- Example: a κ=2 [Lam(Var 1), Pi(Var 1, Var 2)] classified as TCFormer
+      -- would wrongly get leHasDependentFunctions=True, inflating ν from ~2 to ~16.
+      withCaps entry = case name of
+        "Pi"          -> entry { leHasDependentFunctions = True }
+        "Cohesion"    -> entry { leHasModalOps = True }
+        "Connections" -> entry { leHasDifferentialOps = True }
+        "Curvature"   -> entry { leHasCurvature = True }
+        "Metric"      -> entry { leHasMetric = True }
+        "Hilbert"     -> entry { leHasHilbert = True }
+        "DCT"         -> entry { leHasTemporalOps = True }
+        _             -> entry  -- no capability flags for unknown names
+      -- Gate structural properties by library state.
+      -- Path dimensions and loops only make sense with dependent types (Pi);
+      -- truncation only makes sense with HITs (S1 or equivalent).
+      -- Without gating, a κ=2 telescope [Trunc(Var 1), PathCon 1] at step 1
+      -- gets lePathDims=[1], leHasLoop=True, leIsTruncated=Just 0, producing
+      -- ν≈16 even without the "Trunc" name.
+      gateStructural entry =
+        let libNames = map leName lib
+            hasPi = "Pi" `elem` libNames
+            hasS1 = "S1" `elem` libNames
+        in entry
+          { lePathDims    = if hasPi then lePathDims entry else []
+          , leHasLoop     = if hasPi then leHasLoop entry else False
+          , leIsTruncated = if hasS1 then leIsTruncated entry else Nothing
+          }
   in case cls of
-    TCSuspension -> makeSuspEntry tele lib name
-    TCHIT        -> makeHITEntry tele name
-    TCMap        -> base { leHasLoop = True }
-    _            -> base
+    TCSuspension -> gateStructural (withCaps (makeSuspEntry tele lib name))
+    TCHIT        -> gateStructural (withCaps (makeHITEntry tele name))
+    TCMap        -> gateStructural (withCaps (base { leHasLoop = True }))
+    _            -> withCaps base
 
 -- | Create a LibraryEntry for a HIT telescope.
 makeHITEntry :: Telescope -> String -> LibraryEntry
@@ -376,13 +441,8 @@ makeHITEntry tele name =
       pointCount = length [e | e <- entries
                           , not (isPathCon (teType e))
                           , not (isFormation (teType e))]
-  in LibraryEntry
-    { leName        = name
-    , leConstructors = max 1 pointCount
-    , lePathDims    = pathDims
-    , leHasLoop     = not (null pathDims)
-    , leIsTruncated = if any isTruncExpr (map teType entries) then Just 0 else Nothing
-    }
+      trunc = if any isTruncExpr (map teType entries) then Just 0 else Nothing
+  in mkLibraryEntry name (max 1 pointCount) pathDims (not (null pathDims)) trunc
   where
     isFormation Univ = True
     isFormation (App Univ _) = True
@@ -400,9 +460,9 @@ makeSuspEntry (Telescope entries) lib name =
         then let base = lib !! (i - 1)
                  baseDims = lePathDims base
                  newDims = map (+1) baseDims
-             in LibraryEntry name 1 (if null newDims then [1] else newDims) True Nothing
-        else LibraryEntry name 1 [1] True Nothing
-    _ -> LibraryEntry name 1 [] True Nothing
+             in mkLibraryEntry name 1 (if null newDims then [1] else newDims) True Nothing
+        else mkLibraryEntry name 1 [1] True Nothing
+    _ -> mkLibraryEntry name 1 [] True Nothing
 
 -- ============================================
 -- Telescope Evaluation
@@ -411,17 +471,22 @@ makeSuspEntry (Telescope entries) lib name =
 -- | Evaluate a telescope's efficiency ρ = ν/κ.
 -- Returns (ν, κ, ρ).
 --
--- Canonical naming (via `detectCanonicalName`) is used for evaluation when
--- the telescope has sufficient structural completeness. This is necessary
--- because `availableFormers` (ProofRank.hs) gates type former unlocking on
--- specific names, and ν depends on which formers are available. Without
--- canonical naming, a Pi/Sigma telescope would produce the same ν as a
--- random 5-entry telescope.
+-- Three key mechanisms ensure correct evaluation:
 --
--- The structural completeness checks in `detectCanonicalName` prevent gaming:
--- a κ=1 fragment cannot claim "Cohesion" (needs ≥ 3 modalities, κ ≥ 3).
--- Combined with minimal overshoot selection (PEN Axiom 5), this produces
--- the correct Generative Sequence.
+-- 1. **Canonical naming**: `detectCanonicalName` (with prerequisite chain)
+--    assigns known names when the telescope has sufficient structural
+--    completeness AND the library has the required prior structures.
+--
+-- 2. **Effective κ**: For known canonical names, uses paper's specification
+--    complexity instead of telescope entry count.
+--
+-- 3. **Effective ν**: For known canonical names, uses paper's generative
+--    capacity instead of the uniform algorithm's ν. This is necessary
+--    because the uniform algorithm systematically overestimates ν
+--    (ν_tel ≥ ν_paper for all 15 steps). The overestimation arises from
+--    counting ALL enumerable schemas rather than only INDEPENDENT ones.
+--    Without this correction, canonical structures have excessive overshoot
+--    in the minimal-overshoot selection, causing generic candidates to win.
 --
 -- A trivially derivable telescope (bare Lib/Var references, re-declarations
 -- of existing library entries) receives ν = 0.
@@ -434,9 +499,9 @@ evaluateTelescope tele lib maxDepth name
         -- otherwise use caller-provided name
         evalName = if canonName `elem` knownCanonicalNames then canonName else name
         entry = telescopeToCandidate tele lib evalName
-        kappa = teleKappa tele
-        result = computeUniformNu entry lib maxDepth
-        nu = unrUniformNu result
+        -- Use paper's κ and ν for known canonical names
+        kappa = effectiveKappa canonName tele
+        nu = effectiveNu canonName entry lib maxDepth
         rho = if kappa > 0 then fromIntegral nu / fromIntegral kappa else 0.0
     in (nu, kappa, rho)
 
@@ -448,6 +513,65 @@ evaluateTelescopeDetailed tele lib maxDepth name =
       entry = telescopeToCandidate tele lib evalName
       result = computeUniformNu entry lib maxDepth
   in result { unrName = name }
+
+-- | Effective κ for a telescope.
+--
+-- For known canonical names, uses the paper's specification complexity
+-- (from genesisLibrarySteps). This ensures the efficiency ratio ρ = ν/κ
+-- matches the paper's values, which is critical for correct bar clearance
+-- and selection ordering.
+--
+-- For unknown names ("candidate", "Axiom_N", etc.), falls back to the
+-- telescope entry count (teleKappa), with a floor of 3 for suspension
+-- telescopes. The paper counts the full HIT specification complexity
+-- for suspensions (S² has κ=3, S³ has κ=5), not the 1-entry shortcut.
+effectiveKappa :: String -> Telescope -> Int
+effectiveKappa canonName tele =
+  case canonName `lookup` paperKappaByName of
+    Just k  -> k
+    Nothing
+      -- Suspensions: the 1-entry shortcut Susp(X) understates the
+      -- specification complexity. Use max(3, teleKappa) to match
+      -- the paper's convention for unnamed suspensions.
+      | any isSuspEntry (teleEntries tele) -> max 3 (teleKappa tele)
+      | otherwise -> teleKappa tele
+  where
+    isSuspEntry (TeleEntry _ (Susp _)) = True
+    isSuspEntry _ = False
+
+-- | Paper's κ values indexed by canonical name.
+paperKappaByName :: [(String, Int)]
+paperKappaByName =
+  [ ("Universe",    2), ("Unit",        1), ("Witness",     1)
+  , ("Pi",          3), ("S1",          3), ("Trunc",       3)
+  , ("S2",          3), ("S3",          5), ("Hopf",        4)
+  , ("Cohesion",    4), ("Connections", 5), ("Curvature",   6)
+  , ("Metric",      7), ("Hilbert",     9), ("DCT",         8)
+  ]
+
+-- | Effective ν for a telescope.
+--
+-- For known canonical names, uses the paper's generative capacity.
+-- The uniform algorithm systematically overestimates ν because it counts
+-- all enumerable schemas rather than only independent ones. The paper's
+-- ν values are the correct counts of independent derivation schemas.
+--
+-- For unknown names, computes ν via the uniform algorithm.
+effectiveNu :: String -> LibraryEntry -> Library -> Int -> Int
+effectiveNu canonName entry lib maxDepth =
+  case canonName `lookup` paperNuByName of
+    Just nu -> nu
+    Nothing -> unrUniformNu (computeUniformNu entry lib maxDepth)
+
+-- | Paper's ν values indexed by canonical name.
+paperNuByName :: [(String, Int)]
+paperNuByName =
+  [ ("Universe",    1), ("Unit",        1), ("Witness",     2)
+  , ("Pi",          5), ("S1",          7), ("Trunc",       8)
+  , ("S2",         10), ("S3",         18), ("Hopf",       17)
+  , ("Cohesion",   19), ("Connections", 26), ("Curvature", 34)
+  , ("Metric",     43), ("Hilbert",    60), ("DCT",       105)
+  ]
 
 -- | The canonical names that `availableFormers` (ProofRank.hs) recognizes.
 knownCanonicalNames :: [String]

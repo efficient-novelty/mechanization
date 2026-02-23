@@ -73,14 +73,14 @@ candidateName (CSynthesis n _) = n
 
 -- | Convert a candidate to a LibraryEntry for insertion into the library
 candidateToEntry :: Candidate -> LibraryEntry
-candidateToEntry (CFoundation "Universe") = LibraryEntry "U" 0 [] False Nothing
-candidateToEntry (CFoundation "Unit")     = LibraryEntry "1" 1 [] False (Just 0)
-candidateToEntry (CFoundation "Witness")  = LibraryEntry "star" 1 [] False Nothing
-candidateToEntry (CFoundation s)          = LibraryEntry s 0 [] False Nothing
-candidateToEntry (CFormer FPi)            = LibraryEntry "Pi" 0 [] False Nothing
-candidateToEntry (CFormer FSigma)         = LibraryEntry "Pi" 0 [] False Nothing
-candidateToEntry (CFormer FTrunc)         = LibraryEntry "Trunc" 0 [] False Nothing
-candidateToEntry (CFormer _)              = LibraryEntry "Former" 0 [] False Nothing
+candidateToEntry (CFoundation "Universe") = mkLibraryEntry "U" 0 [] False Nothing
+candidateToEntry (CFoundation "Unit")     = mkLibraryEntry "1" 1 [] False (Just 0)
+candidateToEntry (CFoundation "Witness")  = mkLibraryEntry "star" 1 [] False Nothing
+candidateToEntry (CFoundation s)          = mkLibraryEntry s 0 [] False Nothing
+candidateToEntry (CFormer FPi)            = (mkLibraryEntry "Pi" 0 [] False Nothing) { leHasDependentFunctions = True }
+candidateToEntry (CFormer FSigma)         = (mkLibraryEntry "Pi" 0 [] False Nothing) { leHasDependentFunctions = True }
+candidateToEntry (CFormer FTrunc)         = mkLibraryEntry "Trunc" 0 [] False Nothing
+candidateToEntry (CFormer _)              = mkLibraryEntry "Former" 0 [] False Nothing
 candidateToEntry (CHIT h) =
   let name = case knownHITName h of
                Just n  -> n
@@ -90,19 +90,19 @@ candidateToEntry (CHIT h) =
 candidateToEntry (CSusp base) =
   -- Suspension produces a sphere when base is a sphere
   case base of
-    "S1" -> LibraryEntry "S2" 1 [2] True Nothing
-    "S2" -> LibraryEntry "S3" 1 [3] True Nothing
-    _    -> LibraryEntry (suspensionName base) 1 [] True Nothing
+    "S1" -> mkLibraryEntry "S2" 1 [2] True Nothing
+    "S2" -> mkLibraryEntry "S3" 1 [3] True Nothing
+    _    -> mkLibraryEntry (suspensionName base) 1 [] True Nothing
 candidateToEntry (CMap _ _ _) =
-  LibraryEntry "Hopf" 0 [] True Nothing
+  mkLibraryEntry "Hopf" 0 [] True Nothing
 candidateToEntry (CAlgebra kind carrier) =
-  LibraryEntry (kind ++ "(" ++ carrier ++ ")") 0 [] False Nothing
+  mkLibraryEntry (kind ++ "(" ++ carrier ++ ")") 0 [] False Nothing
 candidateToEntry (CModal name _) =
-  LibraryEntry name 0 [] False Nothing
+  (mkLibraryEntry name 0 [] False Nothing) { leHasModalOps = True }
 candidateToEntry (CAxiom name _) =
-  LibraryEntry name 0 [] False Nothing
+  mkLibraryEntry name 0 [] False Nothing
 candidateToEntry (CSynthesis name _) =
-  LibraryEntry name 0 [] False Nothing
+  (mkLibraryEntry name 0 [] False Nothing) { leHasTemporalOps = True }
 
 -- ============================================
 -- Kappa computation

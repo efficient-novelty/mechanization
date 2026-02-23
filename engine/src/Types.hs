@@ -200,14 +200,46 @@ programToExpr PTypeFormerId = TRef "Id"
 -- Library
 -- ============================================
 
--- | A library entry contains a type name and its structure
+-- | A library entry contains a type name and its structure.
+--
+-- The capability flags encode what type-theoretic operations this entry
+-- unlocks for subsequent structures. These are STRUCTURAL properties,
+-- not name-based: they are derived from the telescope classification
+-- or set explicitly for genesis steps.
 data LibraryEntry = LibraryEntry
   { leName :: String           -- ^ Type name
   , leConstructors :: Int      -- ^ Number of point constructors
   , lePathDims :: [Int]        -- ^ Path constructor dimensions
   , leHasLoop :: Bool          -- ^ Does this type have a non-trivial loop?
   , leIsTruncated :: Maybe Int -- ^ Is this type n-truncated?
+  -- Structural capability flags (used by availableFormers)
+  , leHasDependentFunctions :: Bool  -- ^ Provides Pi/Sigma type formers
+  , leHasModalOps :: Bool            -- ^ Provides cohesive modalities (Flat, Sharp, Disc, Shape)
+  , leHasDifferentialOps :: Bool     -- ^ Provides differential structure (Inf, Tangent, Connection)
+  , leHasCurvature :: Bool           -- ^ Provides curvature operations
+  , leHasMetric :: Bool              -- ^ Provides metric structure
+  , leHasHilbert :: Bool             -- ^ Provides Hilbert space / functional analysis
+  , leHasTemporalOps :: Bool         -- ^ Provides temporal modalities (Next, Eventually)
   } deriving (Eq, Show, Generic)
+
+-- | Smart constructor with all capability flags defaulting to False.
+-- Use record update syntax to set capabilities:
+--   mkLibraryEntry "Pi" 0 [] False Nothing { leHasDependentFunctions = True }
+mkLibraryEntry :: String -> Int -> [Int] -> Bool -> Maybe Int -> LibraryEntry
+mkLibraryEntry name ctors dims loop trunc = LibraryEntry
+  { leName = name
+  , leConstructors = ctors
+  , lePathDims = dims
+  , leHasLoop = loop
+  , leIsTruncated = trunc
+  , leHasDependentFunctions = False
+  , leHasModalOps = False
+  , leHasDifferentialOps = False
+  , leHasCurvature = False
+  , leHasMetric = False
+  , leHasHilbert = False
+  , leHasTemporalOps = False
+  }
 
 -- | A library is a list of type entries
 type Library = [LibraryEntry]

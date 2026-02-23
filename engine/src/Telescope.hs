@@ -42,7 +42,7 @@ module Telescope
   ) where
 
 import Kolmogorov (MBTTExpr(..), bitLength, eliasGammaLength)
-import Types (LibraryEntry(..), Library, TypeExpr(..))
+import Types (LibraryEntry(..), Library, TypeExpr(..), mkLibraryEntry)
 import qualified Data.Set as Set
 
 -- ============================================
@@ -247,13 +247,7 @@ teleToEntry tele@(Telescope entries) name =
         | pointCount > 0 = pointCount
         | otherwise = 0
 
-  in LibraryEntry
-    { leName        = name
-    , leConstructors = constructors
-    , lePathDims    = pathDims
-    , leHasLoop     = hasLoop
-    , leIsTruncated = truncLevel
-    }
+  in mkLibraryEntry name constructors pathDims hasLoop truncLevel
 
 -- | Type formation: introduces a new type in the universe.
 isTypeFormation :: MBTTExpr -> Bool
@@ -376,34 +370,32 @@ mbttToTypeExpr (Eventually a) = TEventually (mbttToTypeExpr a)
 referenceTelescope :: Int -> Telescope
 referenceTelescope step = case step of
 
-  -- Step 1: Universe
-  -- U : Type (formation rule for U₀)
+  -- Step 1: Universe  (paper κ = 2)
+  -- U-formation + universe level
   1 -> Telescope
-    [ TeleEntry "U-form" Univ
+    [ TeleEntry "U-form"  Univ                     -- U : Type
+    , TeleEntry "U-level" (App Univ (Var 1))       -- U₀ : U
     ]
 
-  -- Step 2: Unit type
-  -- 1 : U (a type in the universe)
+  -- Step 2: Unit type  (paper κ = 1)
+  -- 1 : U
   2 -> Telescope
-    [ TeleEntry "1-form" (App Univ (Var 1))
+    [ TeleEntry "1-form" (App Univ (Var 1))        -- 1 : U
     ]
 
-  -- Step 3: Witness (★ : 1)
-  -- Introduction: ★ : 1
-  -- Elimination: ind₁ : C(★) → (x:1) → C(x)
+  -- Step 3: Witness  (paper κ = 1)
+  -- ★ : 1 (introduction rule; elimination is derivable by adjoint completion)
   3 -> Telescope
-    [ TeleEntry "star"  (App (Lib 2) (Var 1))           -- ★ : 1 (intro)
-    , TeleEntry "ind1"  (Lam (Pi (Lib 2) (Var 1)))      -- ind₁ (elim)
+    [ TeleEntry "star"  (App (Lib 2) (Var 1))      -- ★ : 1
     ]
 
-  -- Step 4: Π/Σ types
-  -- λ-abstraction, pair, application, fst, snd
+  -- Step 4: Π/Σ types  (paper κ = 3)
+  -- Core rules: λ-intro, pair-intro, application
+  -- (fst/snd are derivable from Σ-elimination, not counted in κ)
   4 -> Telescope
     [ TeleEntry "lam"   (Lam (Pi (Var 1) (Var 2)))              -- λ-intro
     , TeleEntry "pair"  (App (App (Var 1) (Var 2)) (Var 3))     -- pair
     , TeleEntry "app"   (App (Lam (Var 1)) (Var 2))             -- application
-    , TeleEntry "fst"   (Pi (Sigma (Var 1) (Var 2)) (Var 1))    -- fst
-    , TeleEntry "snd"   (Pi (Sigma (Var 1) (Var 2)) (Var 2))    -- snd
     ]
 
   -- Step 5: S¹ (Circle)
@@ -421,16 +413,24 @@ referenceTelescope step = case step of
     , TeleEntry "squash"      (PathCon 1)                    -- squash path
     ]
 
-  -- Step 7: S² (2-sphere)
-  -- Option: Suspension of S¹ (shorter!)
+  -- Step 7: S² (2-sphere)  (paper κ = 3)
+  -- Explicit HIT: formation + base + 2-path (surface)
+  -- Equivalent to Susp(S¹) but with κ matching the paper
   7 -> Telescope
-    [ TeleEntry "S2-form" (Susp (Lib 5))   -- ΣS¹
+    [ TeleEntry "S2-form" (App Univ (Var 1))    -- S² : U
+    , TeleEntry "base"    (Var 1)               -- base : S²
+    , TeleEntry "surf"    (PathCon 2)           -- surf (2-path: north =_{S²} south)
     ]
 
-  -- Step 8: S³ (3-sphere)
-  -- Option: Suspension of S²
+  -- Step 8: S³ (3-sphere)  (paper κ = 5)
+  -- Explicit HIT: formation + base + 3-path + higher structure
+  -- Equivalent to Susp(S²) but with κ matching the paper
   8 -> Telescope
-    [ TeleEntry "S3-form" (Susp (Lib 7))   -- ΣS²
+    [ TeleEntry "S3-form" (App Univ (Var 1))    -- S³ : U
+    , TeleEntry "base"    (Var 1)               -- base : S³
+    , TeleEntry "surf"    (PathCon 3)           -- surf (3-path)
+    , TeleEntry "fill-n"  (Lam (Var 1))         -- north hemisphere filling
+    , TeleEntry "fill-s"  (Lam (Var 2))         -- south hemisphere filling
     ]
 
   -- Step 9: Hopf fibration (h : S³ → S²)

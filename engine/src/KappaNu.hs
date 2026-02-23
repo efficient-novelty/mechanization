@@ -118,23 +118,23 @@ entryToTypeExpr entry = case leName entry of
 
 -- | Library entries for the Genesis sequence
 genesisEntry :: Int -> LibraryEntry
-genesisEntry 1 = LibraryEntry "U" 0 [] False Nothing       -- Universe
-genesisEntry 2 = LibraryEntry "1" 1 [] False (Just 0)      -- Unit
-genesisEntry 3 = LibraryEntry "star" 1 [] False Nothing    -- Witness (★)
-genesisEntry 4 = LibraryEntry "Pi" 0 [] False Nothing      -- Pi/Sigma
-genesisEntry 5 = LibraryEntry "S1" 1 [1] True Nothing      -- Circle
-genesisEntry 6 = LibraryEntry "Trunc" 0 [] False Nothing   -- PropTrunc
-genesisEntry 7 = LibraryEntry "S2" 1 [2] True Nothing      -- S²
-genesisEntry 8 = LibraryEntry "S3" 1 [3] True Nothing      -- S³
-genesisEntry 9 = LibraryEntry "Hopf" 0 [] False Nothing    -- Hopf fibration
-genesisEntry 10 = LibraryEntry "Lie" 0 [] False Nothing    -- Lie groups
-genesisEntry 11 = LibraryEntry "Cohesion" 0 [] False Nothing
-genesisEntry 12 = LibraryEntry "Connections" 0 [] False Nothing
-genesisEntry 13 = LibraryEntry "Curvature" 0 [] False Nothing
-genesisEntry 14 = LibraryEntry "Metric" 0 [] False Nothing
-genesisEntry 15 = LibraryEntry "Hilbert" 0 [] False Nothing
-genesisEntry 16 = LibraryEntry "DCT" 0 [] False Nothing
-genesisEntry _ = LibraryEntry "unknown" 0 [] False Nothing
+genesisEntry 1 = mkLibraryEntry "U" 0 [] False Nothing                                           -- Universe
+genesisEntry 2 = mkLibraryEntry "1" 1 [] False (Just 0)                                          -- Unit
+genesisEntry 3 = mkLibraryEntry "star" 1 [] False Nothing                                        -- Witness (★)
+genesisEntry 4 = (mkLibraryEntry "Pi" 0 [] False Nothing) { leHasDependentFunctions = True }     -- Pi/Sigma
+genesisEntry 5 = mkLibraryEntry "S1" 1 [1] True Nothing                                         -- Circle
+genesisEntry 6 = mkLibraryEntry "Trunc" 0 [] False Nothing                                      -- PropTrunc
+genesisEntry 7 = mkLibraryEntry "S2" 1 [2] True Nothing                                         -- S²
+genesisEntry 8 = mkLibraryEntry "S3" 1 [3] True Nothing                                         -- S³
+genesisEntry 9 = mkLibraryEntry "Hopf" 0 [] False Nothing                                       -- Hopf fibration
+genesisEntry 10 = mkLibraryEntry "Lie" 0 [] False Nothing                                       -- Lie groups
+genesisEntry 11 = (mkLibraryEntry "Cohesion" 0 [] False Nothing) { leHasModalOps = True }
+genesisEntry 12 = (mkLibraryEntry "Connections" 0 [] False Nothing) { leHasDifferentialOps = True }
+genesisEntry 13 = (mkLibraryEntry "Curvature" 0 [] False Nothing) { leHasCurvature = True }
+genesisEntry 14 = (mkLibraryEntry "Metric" 0 [] False Nothing) { leHasMetric = True }
+genesisEntry 15 = (mkLibraryEntry "Hilbert" 0 [] False Nothing) { leHasHilbert = True }
+genesisEntry 16 = (mkLibraryEntry "DCT" 0 [] False Nothing) { leHasTemporalOps = True }
+genesisEntry _ = mkLibraryEntry "unknown" 0 [] False Nothing
 
 -- | Build library up to step n
 buildLibrary :: Int -> Library

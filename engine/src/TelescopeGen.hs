@@ -32,8 +32,8 @@ module TelescopeGen
   ) where
 
 import Kolmogorov (MBTTExpr(..), bitLength)
-import Telescope (Telescope(..), TeleEntry(..), teleIsConnected, teleReferencesWindow)
-import Types (Library, LibraryEntry(..))
+import Telescope (Telescope(..), TeleEntry(..), teleIsConnected, teleReferencesWindow, teleMaxLibRef)
+import Types (Library, LibraryEntry(..), mkLibraryEntry)
 import Data.List (sortOn)
 
 -- ============================================
@@ -134,19 +134,19 @@ validActions hole lib =
   in sortOn (negate . actionPriority libSize) libraryGated
 
 -- | Check if an action is gated by library prerequisites.
+-- Uses STRUCTURAL capability flags, not entry names.
 actionGatedByLibrary :: Library -> Action -> Bool
 actionGatedByLibrary lib act = case act of
-  AFlat       -> hasCohesion
-  ASharp      -> hasCohesion
-  ADisc       -> hasCohesion
-  AShape      -> hasCohesion
-  ANext       -> hasDCTPrereqs
-  AEventually -> hasDCTPrereqs
+  AFlat       -> hasModalCap
+  ASharp      -> hasModalCap
+  ADisc       -> hasModalCap
+  AShape      -> hasModalCap
+  ANext       -> hasTemporalPrereqs
+  AEventually -> hasTemporalPrereqs
   _           -> True
   where
-    names = map leName lib
-    hasCohesion   = "Cohesion" `elem` names
-    hasDCTPrereqs = "Hilbert" `elem` names
+    hasModalCap      = any leHasModalOps lib
+    hasTemporalPrereqs = any leHasHilbert lib
 
 -- | Minimum bit cost of an action (assuming minimal children).
 actionMinCost :: Action -> Int
@@ -303,16 +303,45 @@ enumerateTelescopesAtKappa lib kappa =
     maxBudget = 50  -- bit budget per entry
 
 -- | Generate all valid single telescope entries given context.
+-- Includes both library-biased entries (via bestChild) AND variable-child
+-- variants needed for discovering pure type-former telescopes (Pi/Sigma
+-- over variables, no library references).
 generateEntries :: Library -> [TeleEntry] -> Int -> [TeleEntry]
 generateEntries lib ctx budget =
   let hole = Hole ctx AnyHole 0 budget
       actions = validActions hole lib
-      entries = [ TeleEntry ("c" ++ show (length ctx + 1)) expr
-                | act <- actions
-                , let expr = actionToExpr act lib ctx budget
-                , expr /= Univ || act == AUniv  -- don't confuse placeholder with real Univ
-                ]
-  in entries
+      entryName = "c" ++ show (length ctx + 1)
+      -- Main entries: library-biased (bestChild prefers Lib n)
+      mainEntries = [ TeleEntry entryName expr
+                    | act <- actions
+                    , let expr = actionToExpr act lib ctx budget
+                    , expr /= Univ || act == AUniv
+                    ]
+      -- Variable-child variants: critical for pure type-former patterns
+      -- Without these, Pi(Var 1, Var 2) and Lam(Var 1) are never generated,
+      -- so the enumerator can never discover Pi/Sigma as type formers.
+      varEntries = generateVarEntries ctx entryName
+  -- Variable entries go FIRST: pure-former patterns (Pi/Sigma over variables)
+  -- must appear early in the list because buildTelescopes truncates at
+  -- maxExtensions. With mainEntries first, pure-former telescopes would
+  -- be cut off when building longer telescopes.
+  in varEntries ++ mainEntries
+
+-- | Generate variable-only sub-hole variants for recursive MBTT actions.
+-- The main enumeration fills sub-holes with bestChild (= Lib n), missing
+-- the Pi(Var i, Var j) / Lam(Var i) patterns essential for pure type-former
+-- telescope discovery. This adds those patterns.
+generateVarEntries :: [TeleEntry] -> String -> [TeleEntry]
+generateVarEntries ctx entryName =
+  let n = length ctx
+      -- Available atoms: bound variables + universe
+      atoms = [Var i | i <- [1..n]] ++ [Univ]
+  in concat
+    [ [TeleEntry entryName (Lam a) | a <- atoms]
+    , [TeleEntry entryName (Pi a b) | a <- atoms, b <- atoms]
+    , [TeleEntry entryName (Sigma a b) | a <- atoms, b <- atoms]
+    , [TeleEntry entryName (App a b) | a <- atoms, b <- atoms]
+    ]
 
 -- | Convert an action to a complete MBTT expression.
 -- For terminal actions, this is direct. For recursive actions,
@@ -357,7 +386,7 @@ buildTelescopes lib 1 entries = [Telescope [e] | e <- entries]
 buildTelescopes lib k entries =
   -- For each telescope of length k-1, extend with one more entry
   let shorter = buildTelescopes lib (k-1) entries
-      maxExtensions = 50  -- limit branching factor to prevent explosion
+      maxExtensions = 100  -- limit branching factor (increased to accommodate variable entries)
   in [ Telescope (teleEntries t ++ [e])
      | t <- take maxExtensions shorter
      , let ctx = teleEntries t
@@ -377,6 +406,10 @@ passesStructuralUnity (Telescope [_]) = True  -- single entry always passes
 passesStructuralUnity t = teleIsConnected t
 
 -- | Maximal Interface Density Filter: the telescope must reference
--- at least one of the two most recent library entries.
+-- at least one of the two most recent library entries, OR operate
+-- purely over variables (type formers like Pi/Sigma define operations,
+-- not specific structures, so they don't reference existing library entries).
 passesInterfaceDensity :: Telescope -> Int -> Bool
-passesInterfaceDensity t libSize = teleReferencesWindow t libSize
+passesInterfaceDensity t libSize =
+  teleReferencesWindow t libSize
+  || teleMaxLibRef t == 0  -- pure type formers operate over variables only

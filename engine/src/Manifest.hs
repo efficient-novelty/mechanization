@@ -17,7 +17,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as BL
 import GHC.Generics (Generic)
 
-import Types (Library, LibraryEntry (..))
+import Types (Library, LibraryEntry (..), mkLibraryEntry)
 
 data Manifest = Manifest
   { manifestLibrary :: [LibraryEntry]
@@ -35,7 +35,7 @@ instance FromJSON LibraryEntry where
     pathDims <- obj .:? "pathDims" Aeson..!= []
     hasLoop <- obj .:? "hasLoop" Aeson..!= False
     isTruncated <- obj .:? "truncation"
-    pure (LibraryEntry name constructors pathDims hasLoop isTruncated)
+    pure (mkLibraryEntry name constructors pathDims hasLoop isTruncated)
 
 loadManifest :: FilePath -> IO (Either String Library)
 loadManifest path = do

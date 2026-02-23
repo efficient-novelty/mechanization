@@ -73,21 +73,21 @@ data GenesisStep = GenesisStep
 
 genesisLibrarySteps :: [GenesisStep]
 genesisLibrarySteps =
-  [ GenesisStep  1 "Universe"    (LibraryEntry "Universe"   1 []  False Nothing)      1  2 "Foundation"
-  , GenesisStep  2 "Unit"        (LibraryEntry "Unit"       1 []  False Nothing)      1  1 "Foundation"
-  , GenesisStep  3 "Witness"     (LibraryEntry "Witness"    1 []  False Nothing)      2  1 "Foundation"
-  , GenesisStep  4 "Pi/Sigma"    (LibraryEntry "Pi"         0 []  False Nothing)      5  3 "Former"
-  , GenesisStep  5 "S1"          (LibraryEntry "S1"         1 [1] True  Nothing)      7  3 "HIT"
-  , GenesisStep  6 "PropTrunc"   (LibraryEntry "Trunc"      0 []  False (Just 0))     8  3 "Former"
-  , GenesisStep  7 "S2"          (LibraryEntry "S2"         1 [2] True  Nothing)     10  3 "HIT"
-  , GenesisStep  8 "S3"          (LibraryEntry "S3"         1 [3] True  Nothing)     18  5 "HIT"
-  , GenesisStep  9 "Hopf"        (LibraryEntry "Hopf"       0 []  False Nothing)     17  4 "Map"
-  , GenesisStep 10 "Cohesion"    (LibraryEntry "Cohesion"   0 []  False Nothing)     19  4 "Modal"
-  , GenesisStep 11 "Connections" (LibraryEntry "Connections" 0 [] False Nothing)     26  5 "Axiom"
-  , GenesisStep 12 "Curvature"   (LibraryEntry "Curvature"  0 []  False Nothing)     34  6 "Axiom"
-  , GenesisStep 13 "Metric"      (LibraryEntry "Metric"     0 []  False Nothing)     43  7 "Axiom"
-  , GenesisStep 14 "Hilbert"     (LibraryEntry "Hilbert"    0 []  False Nothing)     60  9 "Axiom"
-  , GenesisStep 15 "DCT"         (LibraryEntry "DCT"        0 []  False Nothing)    105  8 "Synthesis"
+  [ GenesisStep  1 "Universe"    (mkLibraryEntry "Universe"    1 []  False Nothing)                                            1  2 "Foundation"
+  , GenesisStep  2 "Unit"        (mkLibraryEntry "Unit"        1 []  False Nothing)                                            1  1 "Foundation"
+  , GenesisStep  3 "Witness"     (mkLibraryEntry "Witness"     1 []  False Nothing)                                            2  1 "Foundation"
+  , GenesisStep  4 "Pi/Sigma"    ((mkLibraryEntry "Pi"         0 []  False Nothing) { leHasDependentFunctions = True })        5  3 "Former"
+  , GenesisStep  5 "S1"          (mkLibraryEntry "S1"          1 [1] True  Nothing)                                            7  3 "HIT"
+  , GenesisStep  6 "PropTrunc"   (mkLibraryEntry "Trunc"       0 []  False (Just 0))                                           8  3 "Former"
+  , GenesisStep  7 "S2"          (mkLibraryEntry "S2"          1 [2] True  Nothing)                                           10  3 "HIT"
+  , GenesisStep  8 "S3"          (mkLibraryEntry "S3"          1 [3] True  Nothing)                                           18  5 "HIT"
+  , GenesisStep  9 "Hopf"        (mkLibraryEntry "Hopf"        0 []  False Nothing)                                           17  4 "Map"
+  , GenesisStep 10 "Cohesion"    ((mkLibraryEntry "Cohesion"   0 []  False Nothing) { leHasModalOps = True })                 19  4 "Modal"
+  , GenesisStep 11 "Connections" ((mkLibraryEntry "Connections" 0 [] False Nothing) { leHasDifferentialOps = True })           26  5 "Axiom"
+  , GenesisStep 12 "Curvature"   ((mkLibraryEntry "Curvature"  0 []  False Nothing) { leHasCurvature = True })                34  6 "Axiom"
+  , GenesisStep 13 "Metric"      ((mkLibraryEntry "Metric"     0 []  False Nothing) { leHasMetric = True })                   43  7 "Axiom"
+  , GenesisStep 14 "Hilbert"     ((mkLibraryEntry "Hilbert"    0 []  False Nothing) { leHasHilbert = True })                  60  9 "Axiom"
+  , GenesisStep 15 "DCT"         ((mkLibraryEntry "DCT"        0 []  False Nothing) { leHasTemporalOps = True })             105  8 "Synthesis"
   ]
 
 -- ============================================

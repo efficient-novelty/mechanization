@@ -157,31 +157,45 @@ windowAtomsD d newType lib =
       newRef = TRef (leName newType)
   in nub $ [TUnit, TVoid, newRef] ++ windowRefs
 
+-- | Determine which type formers are available given the current library.
+--
+-- STRUCTURAL GATING: capabilities are determined by structural flags on
+-- LibraryEntry, not by entry names. This eliminates the naming/evaluation
+-- circularity that plagued the ab initio discovery engine.
+--
+-- The only remaining non-structural gates are:
+--   - Omega: gated on leHasLoop (structural)
+--   - Susp: gated on library size >= 5 (structural)
+--   - Trunc: gated on leIsTruncated (structural)
 availableFormers :: Library -> [String]
 availableFormers lib =
-  let names = map leName lib
-      base = ["Arrow", "Prod", "Coprod", "SelfId"]
-      withPi    = if "Pi" `elem` names then "Pi" : "Sigma" : base else base
+  let base = ["Arrow", "Prod", "Coprod", "SelfId"]
+      -- Pi/Sigma: gated on any entry having dependent function capability
+      withPi    = if any leHasDependentFunctions lib then "Pi" : "Sigma" : base else base
+      -- Omega: gated on any entry having a non-trivial loop (already structural)
       withOmega = if any leHasLoop lib then "Omega" : withPi else withPi
+      -- Susp: gated on library size (already structural)
       withSusp  = if length lib >= 5 then "Susp" : withOmega else withOmega
-      withTrunc = if "Trunc" `elem` names then "Trunc" : withSusp else withSusp
-      -- Modal operators: gated on Cohesion being in library
-      withModal = if "Cohesion" `elem` names
+      -- Trunc: gated on any entry being truncated (structural)
+      withTrunc = if any (maybe False (const True) . leIsTruncated) lib
+                  then "Trunc" : withSusp else withSusp
+      -- Modal operators: gated on modal capability
+      withModal = if any leHasModalOps lib
                   then "Flat" : "Sharp" : "Disc" : "PiCoh" : withTrunc
                   else withTrunc
-      -- Temporal operators: gated on DCT
-      withTemp  = if "DCT" `elem` names
+      -- Temporal operators: gated on temporal capability
+      withTemp  = if any leHasTemporalOps lib
                   then "Next" : "Eventually" : withModal
                   else withModal
-      -- Differential: gated on Connections
-      withDiff  = if "Connections" `elem` names
+      -- Differential: gated on differential capability
+      withDiff  = if any leHasDifferentialOps lib
                   then "Inf" : "Tangent" : withTemp
                   else withTemp
-      -- Connection/Curvature/Metric/Hilbert: gated on respective entries
-      withConn  = if "Connections" `elem` names then "Connection" : withDiff else withDiff
-      withCurv  = if "Curvature" `elem` names then "Curvature" : withConn else withConn
-      withMet   = if "Metric" `elem` names then "Metric" : withCurv else withCurv
-      withHilb  = if "Hilbert" `elem` names then "Hilbert" : withMet else withMet
+      -- Connection/Curvature/Metric/Hilbert: gated on respective capabilities
+      withConn  = if any leHasDifferentialOps lib then "Connection" : withDiff else withDiff
+      withCurv  = if any leHasCurvature lib then "Curvature" : withConn else withConn
+      withMet   = if any leHasMetric lib then "Metric" : withCurv else withCurv
+      withHilb  = if any leHasHilbert lib then "Hilbert" : withMet else withMet
   in withHilb
 
 enumWindowExact :: [TypeExpr] -> Library -> Int -> [TypeExpr]

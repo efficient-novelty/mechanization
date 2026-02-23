@@ -87,13 +87,7 @@ hitToTypeExpr h = THIT (hitNumPoints h) (map psDimension (hitPaths h))
 
 -- | Convert a HIT definition to a LibraryEntry with a given name.
 hitToLibraryEntry :: HITDef -> String -> LibraryEntry
-hitToLibraryEntry h name = LibraryEntry
-  { leName = name
-  , leConstructors = hitNumPoints h
-  , lePathDims = map psDimension (hitPaths h)
-  , leHasLoop = hitHasLoop h
-  , leIsTruncated = Nothing
-  }
+hitToLibraryEntry h name = (mkLibraryEntry name (hitNumPoints h) (map psDimension (hitPaths h)) (hitHasLoop h) Nothing)
 
 -- ============================================
 -- Properties
