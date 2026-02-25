@@ -1,0 +1,84 @@
+============================================
+PEN Ab Initio Discovery Engine
+Mode: StructuralAbInitio, d=2
+============================================
+  Evaluator: EvalStructural (StructuralNu AST rule extraction)
+  Bar:       Discovered nu/kappa history only
+  Library:   Discovered entries only, no fallback
+  Features:  3-component decomposition (v_G + v_H + v_C)
+             Meta-theorem multipliers for DCT (Big Bang)
+  Window:    d=2 (Fibonacci — intensional HoTT)
+
+Starting from EMPTY LIBRARY.
+The engine will autonomously discover the Generative Sequence.
+
+--- Phase 0: Validating Reference Telescopes ---
+
+Step Name            ν_pap  ν_tel      κ Status
+------------------------------------------------------------
+1    Universe            1      2      2 OK
+2    Unit                1      2      1 OK
+3    Witness             2      2      1 OK
+4    Pi                  5      5      3 OK
+5    S1                  7     16      3 OK
+6    Trunc               8     24      3 OK
+7    S2                 10     23      3 OK
+8    S3                 18     31      5 OK
+9    Hopf               17     19      4 OK
+10   Cohesion           19     51      4 OK
+11   Connections        26     72      5 OK
+12   Curvature          34     77      6 OK
+13   Metric             43     84      7 OK
+14   Hilbert            60     91      9 OK
+15   DCT               105    105      8 OK
+
+Validation: 15/15 telescopes produce non-zero novelty
+
+--- Phase 1: Ab Initio Synthesis (StructuralAbInitio, d=2) ---
+
+Step Discovery            ν     κ        ρ      Bar      Δ_n  Source   Candidates
+------------------------------------------------------------------------------------------
+1    Universe             1     2     0.50     0.50        1  ENUM     1573
+2    Unit                 1     1     1.00     0.50        1  REF      1262
+3    Witness              2     1     2.00     1.33        2  ENUM     1331
+  [DEBUG step 4] refCanon=Pi refNu=5 refKappa=3
+  [DEBUG step 4] entry: cons=0 deps=True loop=False dims=[]
+  [DEBUG step 4] lib entries: [("Universe",1,False),("Unit",1,False),("Witness",0,False)]
+4    Pi                   5     3     1.67     1.50        3  REF      1341
+5    S1                   7     3     2.33     2.14        5  REF      1351
+6    Trunc                8     3     2.67     2.56        8  REF      1361
+7    S2                  10     3     3.33     3.00       13  REF      1371
+8    S3                  18     5     3.60     3.43       21  REF      1349
+9    Hopf                17     4     4.25     4.01       34  REF      1333
+10   Cohesion            19     4     4.75     4.46       55  REF      1345
+11   Connections         30     5     6.00     4.91       89  REF      1629
+12   Curvature           52     8     6.50     5.62      144  MCTS     1631
+13   Metric              50     7     7.14     6.55      233  REF      1610
+14   Hilbert             78     9     8.67     7.26      377  REF      1619
+15   DCT                103     8    12.88     8.31      610  REF      1766
+
+============================================
+SYNTHESIS COMPLETE: 15 structures discovered
+============================================
+
+Discovery vs Paper Comparison:
+Step   disc_ν    pap_ν   disc_κ    pap_κ
+--------------------------------------------
+1           1        1        2        2
+2           1        1        1        1
+3           2        2        1        1
+4           5        5        3        3
+5           7        7        3        3
+6           8        8        3        3
+7          10       10        3        3
+8          18       18        5        5
+9          17       17        4        4
+10         19       19        4        4
+11         30       26        5        5
+12         52       34        8        6
+13         50       43        7        7
+14         78       60        9        9
+15        103      105        8        8
+--------------------------------------------
+SUM       401      356       66       64
+CSV written to /home/halvor/PEN/runs/baseline/structural_d2.csv (15 steps)

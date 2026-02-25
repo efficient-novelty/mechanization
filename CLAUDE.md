@@ -218,32 +218,7 @@ Build: `pdflatex pen_unified.tex` (run twice for cross-references).
 
 ## Current Status and Next Steps
 
-See `physics_creation.md` for the current research focus. Update this file on an ongoing basis to reflect the overall research findings, status and progress.
-
-## Workflow Loop (Context-Reset Driven Development)
-
-When working on the PEN engine, follow this iterative loop:
-
-1. **Review `ISSUE_QUEUE.md`** — pick the top-priority unblocked task.
-2. **Do the task** — implement, test, verify.
-3. **On completion:**
-   - Delete the completed task from `ISSUE_QUEUE.md`.
-   - Write down any relevant learnings or insights in `physics_creation.md`
-     (Key Learnings section or relevant Phase notes).
-   - Update/add remaining tasks in `physics_creation.md` to reflect progress.
-   - Review `ISSUE_QUEUE.md` — add, reorder, or revise tasks based on what
-     you learned during implementation.
-4. **Reset context** — the user will start a fresh conversation.
-5. **Continue** — the next session picks up from `ISSUE_QUEUE.md` again.
-
-This loop ensures that each session starts with a clean context window,
-all progress is durably recorded in the tracked files, and priorities
-stay aligned with the evolving state of the codebase.
-
-**Key files for session continuity:**
-- `ISSUE_QUEUE.md` — the work queue (single source of truth for what to do next)
-- `physics_creation.md` — implementation plan, learnings, and progress log
-- `CLAUDE.md` — project conventions and architecture reference (this file)
+See `MBTT_FIRST_AUTONOMOUS_SYNTHESIS_ROADMAP.md` for the current research focus. Update this file on an ongoing basis to reflect the overall status, progress, learnings, blockers and critical problems to solve.
 
 ## Conventions
 

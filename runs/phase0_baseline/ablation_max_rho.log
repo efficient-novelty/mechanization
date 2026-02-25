@@ -1,0 +1,144 @@
+============================================
+PEN Ab Initio Discovery Engine
+Mode: StructuralAbInitio, d=2
+============================================
+  Evaluator: EvalStructural (StructuralNu AST rule extraction)
+  Bar:       Discovered nu/kappa history only
+  Library:   Discovered entries only, no fallback
+  Features:  3-component decomposition (v_G + v_H + v_C)
+             Meta-theorem multipliers for DCT (Big Bang)
+  PAPER-INDEPENDENCE: Zero paper nu/kappa lookups in evaluation,
+    bar computation, MCTS rollout guidance, or library insertion.
+    All scores derive from AST analysis of discovered telescopes.
+  Window:    d=2 (Fibonacci — intensional HoTT)
+  Kappa:     DesugaredKappa
+  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)
+
+Starting from EMPTY LIBRARY.
+The engine will autonomously discover the Generative Sequence.
+
+--- Phase 0: Validating Reference Telescopes ---
+
+Step Name            ν_pap  ν_tel      κ Status
+------------------------------------------------------------
+1    Universe            1      2      2 OK
+2    Unit                1      2      1 OK
+3    Witness             2      2      1 OK
+4    Pi                  5      5      3 OK
+5    S1                  7     16      3 OK
+6    Trunc               8     24      3 OK
+7    S2                 10     23      3 OK
+8    S3                 18     31      5 OK
+9    Hopf               17     19      4 OK
+10   Cohesion           19     51      4 OK
+11   Connections        26     72      5 OK
+12   Curvature          34     77      6 OK
+13   Metric             43     84      7 OK
+14   Hilbert            60     91      9 OK
+15   DCT               105    105      8 OK
+
+Validation: 15/15 telescopes produce non-zero novelty
+
+--- Phase 1: Ab Initio Synthesis (StructuralAbInitio, d=2) ---
+
+Step Discovery            ν     κ        ρ      Bar      Δ_n  Source   Candidates
+------------------------------------------------------------------------------------------
+1    candidate           11     1    11.00     0.50        1  ENUM     1573
+2    candidate           12     1    12.00     0.50        1  ENUM     1263
+3    Witness              2     1     2.00    23.00        2  REF      1332
+  [DEBUG step 4] refCanon=Pi refNu=5 refKappa=3
+  [DEBUG step 4] entry: cons=0 deps=True loop=False dims=[]
+  [DEBUG step 4] lib entries: [("candidate",1,False),("candidate",1,False),("Witness",1,False)]
+4    candidate           14     1    14.00    12.50        3  ENUM     1342
+5    candidate            7     3     2.33    16.25        5  REF      1352
+6    candidate           16     1    16.00    10.51        8  ENUM     1362
+7    candidate           17     1    17.00    12.59       13  ENUM     1372
+8    candidate           18     1    18.00    14.18       21  ENUM     1350
+  [MCTS step 9] 2000 iters, 1938 valid, 62 rejected (3.1%), best rho=3.71
+9    candidate           19     1    19.00    15.70       34  ENUM     1328
+  [MCTS step 10] 2000 iters, 1938 valid, 62 rejected (3.1%), best rho=3.71
+10   candidate           20     1    20.00    17.06       55  ENUM     1338
+  [MCTS step 11] 2000 iters, 1956 valid, 44 rejected (2.2%), best rho=3.85
+11   candidate           21     1    21.00    18.34       89  ENUM     1332
+  [MCTS step 12] 2000 iters, 1958 valid, 42 rejected (2.1%), best rho=4.12
+12   candidate           22     1    22.00    19.54      144  ENUM     1326
+  [MCTS step 13] 2000 iters, 1962 valid, 38 rejected (1.9%), best rho=3.30
+13   candidate           23     1    23.00    20.69      233  ENUM     1314
+  [MCTS step 14] 2000 iters, 1955 valid, 45 rejected (2.2%), best rho=3.40
+14   candidate           24     1    24.00    21.79      377  ENUM     1312
+  [MCTS step 15] 2000 iters, 1961 valid, 39 rejected (2.0%), best rho=3.50
+15   candidate           25     1    25.00    22.85      610  ENUM     1300
+
+============================================
+SYNTHESIS COMPLETE: 15 structures discovered
+============================================
+
+Discovery vs Paper Comparison:
+Step   disc_ν    pap_ν   disc_κ    pap_κ
+--------------------------------------------
+1          11        1        1        2
+2          12        1        1        1
+3           2        2        1        1
+4          14        5        1        3
+5           7        7        3        3
+6          16        8        1        3
+7          17       10        1        3
+8          18       18        1        5
+9          19       17        1        4
+10         20       19        1        4
+11         21       26        1        5
+12         22       34        1        6
+13         23       43        1        7
+14         24       60        1        9
+15         25      105        1        8
+--------------------------------------------
+SUM       251      356       17       64
+
+Post-Hoc Analysis: StructuralNu vs UniformNu
+(UniformNu computed AFTER selection — not used for discovery)
+Step Name            v_str  v_uni      k    Amplif.
+------------------------------------------------------------
+1    candidate          11      2      1       0.18x
+2    candidate          12      0      1       0.00x
+3    Witness             2      2      1       1.00x
+4    candidate          14      0      1       0.00x
+5    candidate           7      4      3       0.57x
+6    candidate          16      0      1       0.00x
+7    candidate          17      0      1       0.00x
+8    candidate          18      0      1       0.00x
+9    candidate          19      0      1       0.00x
+10   candidate          20      0      1       0.00x
+11   candidate          21      0      1       0.00x
+12   candidate          22      0      1       0.00x
+13   candidate          23      0      1       0.00x
+14   candidate          24      0      1       0.00x
+15   candidate          25      0      1       0.00x
+
+--- Claim Profile (Publication-Grade) ---
+  Mode:     EvalStructural (--structural)
+  Nu:       StructuralNu — AST rule extraction (v_G + v_H + v_C)
+  Kappa:    DesugaredKappa — principled clause counting
+  Bar:      Phi_n * Omega_{n-1}, discovered history only
+  MCTS:     EvalStructural rollout guidance (zero paper lookups)
+  Library:  Discovered entries only, no paper fallback
+  Result:   2/15 exact match, total nu 251/356, total kappa 17/64
+
+--- Exclusion Contract ---
+  PEN derives the KINEMATIC FRAMEWORK of physics:
+    [+] Dependent types, homotopy types, higher inductive types
+    [+] Differential cohesion, connections, curvature, metrics
+    [+] Hilbert functional analysis, Dynamical Cohesive Topos
+
+  PEN does NOT derive:
+    [-] Gauge groups (SU(3) x SU(2) x U(1))
+    [-] Coupling constants (alpha ~ 1/137)
+    [-] Spacetime dimension (3+1)
+    [-] Equations of motion or Lagrangians
+    [-] Particle content or mass spectrum
+    [-] Cosmological parameters (Lambda, H_0)
+
+  Empirical constants in selection: NONE
+    Selection uses only: StructuralNu (AST), DesugaredKappa (clause count),
+    d-bonacci bar (Fibonacci for d=2), canonical structural recognition.
+    No physical constants, no empirical measurements, no fitted parameters.
+CSV written to /home/halvor/PEN/runs/phase0_baseline/ablation_max_rho.csv (15 steps)

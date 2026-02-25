@@ -1,0 +1,82 @@
+============================================
+PEN Ab Initio Discovery Engine
+Mode: PaperCalibrated, d=2
+============================================
+  Evaluator: EvalPaperCalibrated (effectiveNu/effectiveKappa for canonical names)
+  Bar:       Paper nu/kappa history
+  Library:   Fallback to paper entries for unknown names
+  Window:    d=2 (Fibonacci — intensional HoTT)
+
+Starting from EMPTY LIBRARY.
+The engine will autonomously discover the Generative Sequence.
+
+--- Phase 0: Validating Reference Telescopes ---
+
+Step Name            ν_pap  ν_tel      κ Status
+------------------------------------------------------------
+1    Universe            1      2      2 OK
+2    Unit                1      2      1 OK
+3    Witness             2      2      1 OK
+4    Pi                  5      5      3 OK
+5    S1                  7     16      3 OK
+6    Trunc               8     24      3 OK
+7    S2                 10     23      3 OK
+8    S3                 18     31      5 OK
+9    Hopf               17     19      4 OK
+10   Cohesion           19     51      4 OK
+11   Connections        26     72      5 OK
+12   Curvature          34     77      6 OK
+13   Metric             43     84      7 OK
+14   Hilbert            60     91      9 OK
+15   DCT               105    105      8 OK
+
+Validation: 15/15 telescopes produce non-zero novelty
+
+--- Phase 1: Ab Initio Synthesis (PaperCalibrated, d=2) ---
+
+Step Discovery            ν     κ        ρ      Bar      Δ_n  Source   Candidates
+------------------------------------------------------------------------------------------
+1    Universe             1     2     0.50     0.50        1  ENUM     674
+2    Unit                 1     1     1.00     0.50        1  REF      506
+3    Witness              2     1     2.00     1.33        2  ENUM     527
+  [DEBUG step 4] refCanon=Pi refNu=5 refKappa=3
+  [DEBUG step 4] entry: cons=0 deps=True loop=False dims=[]
+  [DEBUG step 4] lib entries: [("Universe",1,False),("Unit",1,False),("Witness",0,False)]
+4    Pi                   5     3     1.67     1.50        3  ENUM     698
+5    S1                   7     3     2.33     2.14        5  ENUM     1463
+6    Trunc                8     3     2.67     2.56        8  ENUM     1479
+7    S2                  10     3     3.33     3.00       13  ENUM     1495
+8    S3                  18     5     3.60     3.43       21  ENUM     1479
+9    Hopf                17     4     4.25     4.01       34  ENUM     1463
+10   Cohesion            19     4     4.75     4.46       55  REF      1479
+11   Connections         26     5     5.20     4.91       89  ENUM     1767
+12   Curvature           34     6     5.67     5.42      144  ENUM     1775
+13   Metric              43     7     6.14     5.99      233  ENUM     1767
+14   Hilbert             60     9     6.67     6.58      377  REF      1775
+15   DCT                105     8    13.12     7.25      610  REF      1937
+
+============================================
+SYNTHESIS COMPLETE: 15 structures discovered
+============================================
+
+Discovery vs Paper Comparison:
+Step   disc_ν    pap_ν   disc_κ    pap_κ
+--------------------------------------------
+1           1        1        2        2
+2           1        1        1        1
+3           2        2        1        1
+4           5        5        3        3
+5           7        7        3        3
+6           8        8        3        3
+7          10       10        3        3
+8          18       18        5        5
+9          17       17        4        4
+10         19       19        4        4
+11         26       26        5        5
+12         34       34        6        6
+13         43       43        7        7
+14         60       60        9        9
+15        105      105        8        8
+--------------------------------------------
+SUM       356      356       64       64
+CSV written to /home/halvor/PEN/runs/baseline/paper_calibrated.csv (15 steps)

@@ -29,6 +29,8 @@ module TelescopeGen
     -- * Action utilities
   , actionPriority
   , actionBitCost
+    -- * Library gating
+  , actionGatedByLibrary
   ) where
 
 import Kolmogorov (MBTTExpr(..), bitLength)

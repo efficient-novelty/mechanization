@@ -1,0 +1,42 @@
+============================================
+PEN Benchmark Report
+============================================
+Date:    2026-02-24T22:23:53Z
+Git:     82eb23e
+Branch:  main
+Output:  runs/test_run/
+
+Building engine...
+Up to date
+
+--- Profile 1: Paper-Calibrated Replay ---
+  PASS: 15 steps, total ν=356/356, κ=64/64
+
+--- Profile 2: Structural Discovery ---
+  PASS: 15 steps, 12/15 exact, total ν=359, κ=64/64
+  Names: Universe,Unit,Witness,Pi,S1,Trunc,S2,S3,Hopf,Cohesion,Connections,Curvature,Metric,Hilbert,DCT
+
+--- Profile 3: Coherence Window Sweep ---
+  d=1: 15 steps, total ν=347
+  d=2: 15 steps, total ν=359
+  d=3: 15 steps, total ν=195
+  PASS: d=2 (ν=359) > d=1 (ν=347) and d=3 (ν=195)
+
+--- Profile 4: Acceptance Tests ---
+  PASS: 42 tests passed, 0 failed
+
+============================================
+ALL 4 PROFILES PASS
+============================================
+
+Artifacts:
+REPORT.txt
+acceptance.log
+paper_calibrated.csv
+paper_calibrated.log
+structural_d1.csv
+structural_d1.log
+structural_d2.csv
+structural_d2.log
+structural_d3.csv
+structural_d3.log

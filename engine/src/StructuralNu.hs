@@ -220,7 +220,7 @@ computeNuH tele =
 --   TCSuspension: 0
 --   TCMap:        κ=1 → 1 (Witness adjoint), κ>1 → 2κ + numLibRefs²
 --   TCModal:      (κ - v_G) + |lib| + C(numOps, 2)
---   TCAxiomatic:  axiomEntries × avgHistoricalNu + v_G
+--   TCAxiomatic:  maxRefNu + κ + max(0, numDistinctRefs - 1)
 --   TCSynthesis:  base = κ - v_G (meta-theorems added separately)
 computeNuC :: TelescopeClass -> Telescope -> Library -> NuHistory -> Int
 computeNuC cls tele lib nuHistory = case cls of
@@ -289,23 +289,28 @@ modalNuC tele lib =
       pairwise = (numOps * (numOps - 1)) `div` 2
   in axiomEntries + libSize + pairwise
 
--- | Axiomatic: axiomEntries × avgHistoricalNu + v_G.
+-- | Axiomatic: maxRefNu + κ + max(0, numDistinctRefs - 1).
 --
--- Each axiom clause interacts with the library at a depth proportional to
--- the average historical ν (the library's accumulated derivation density).
--- The v_G term accounts for adjoint completion of introduction entries.
+-- Uses bounded structural interaction counting instead of global average
+-- scaling. The key insight: an axiomatic step's capability comes from the
+-- complexity of its *directly referenced* library entries (via teleLibRefs),
+-- not the global average of all historical ν values.
+--
+-- Components:
+--   maxRefNu        — max ν among directly referenced library steps
+--   κ               — the step's own clause count (each clause can eliminate)
+--   numDistinctRefs - 1  — additional coupling bonus for multi-reference steps
+--                          (each extra Lib ref beyond the first adds one
+--                           cross-interaction site)
 axiomaticNuC :: Telescope -> Library -> NuHistory -> Int
-axiomaticNuC tele lib nuHistory =
-  let nuG = axiomaticNuG tele
-      k = teleKappa tele
-      axiomEntries = k - nuG
-      -- Average historical ν from discovered steps
-      avgNu = if null nuHistory
-              then fromIntegral (length lib)  -- fallback: 1 per lib entry
-              else fromIntegral (sum [nu | (_, nu) <- nuHistory])
-                   / fromIntegral (length nuHistory)
-      libCoupling = round (fromIntegral axiomEntries * (avgNu :: Double))
-  in libCoupling + nuG  -- libCoupling + adjoint completion
+axiomaticNuC tele _lib nuHistory =
+  let k = teleKappa tele
+      libRefSet = teleLibRefs tele
+      refNuValues = [nu | (stepIdx, nu) <- nuHistory
+                        , Set.member stepIdx libRefSet]
+      maxRefNu = if null refNuValues then 0 else maximum refNuValues
+      numDistinctRefs = Set.size libRefSet
+  in maxRefNu + k + max 0 (numDistinctRefs - 1)
 
 -- | Synthesis base ν_C: intrinsic axiom entries (not counting meta-theorems).
 -- The meta-theorem multipliers are added on top by structuralNu.

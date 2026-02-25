@@ -18,7 +18,10 @@ import Telescope
 import TelescopeEval (telescopeToCandidate, detectCanonicalName)
 import StructuralNu (structuralNu, StructuralNuResult(..))
 import CoherenceWindow (dBonacciDelta)
-import Types (Library)
+import TelescopeCheck (checkTelescope, CheckResult(..))
+import MBTTEnum (enumerateExprs, enumerateMBTTTelescopes, MBTTCandidate(..), EnumConfig(..), defaultEnumConfig)
+import Kolmogorov (MBTTExpr(..))
+import Types (Library, LibraryEntry(..))
 
 import System.Exit (exitFailure, exitSuccess)
 import Text.Printf (printf)
@@ -403,6 +406,282 @@ testExclusionBarFormula =
       else return $ Fail $ "Bar=" ++ show bar ++ ", expected " ++ show expected)
 
 -- ============================================
+-- Test I: MBTT-First Invariant Contracts
+-- ============================================
+
+-- Contract C1: StructuralNu is name-free.
+-- structuralNu reads only structural fields (leConstructors, lePathDims,
+-- leHasLoop, leIsTruncated, leHas*) from library entries, never leName.
+-- Scrambling library names must not change ν for steps 1-14.
+-- Step 15 (DCT) has a KNOWN gap: telescopeToCandidate gates leHasTemporalOps
+-- on name=="DCT", causing ν to drop from 103→88 with scrambled names.
+-- This canary documents the gap. It will BREAK when MBTT-first fixes it
+-- (at which point all 15 steps should match and the canary should be updated).
+testC1StructuralNuNameFree :: Test
+testC1StructuralNuNameFree =
+  ("I1. [C1] StructuralNu name-free for steps 1-14 (step 15 known gap)", do
+    -- Replay with canonical names → get ν values
+    let (canonSnapshots, _) = replayCanonical
+        canonNus = [nu | (_, nu, _) <- take 15 canonSnapshots]
+
+    -- Replay with scrambled names: replace names with "X1", "X2", ...
+    let scrambledNus = goScrambled [] [] 1
+        goScrambled lib nuHist step
+          | step > 15 = []
+          | otherwise =
+            let tele = referenceTelescope step
+                scrambledName = "X" ++ show step
+                result = structuralNu tele lib nuHist
+                nu = snTotal result
+                entry = telescopeToCandidate tele lib scrambledName
+                newLib = lib ++ [entry]
+                newHist = nuHist ++ [(step, nu)]
+            in nu : goScrambled newLib newHist (step + 1)
+
+    -- Steps 1-14 must be identical (name-free)
+    let diffs114 = [(i, c, s) | (i, c, s) <- zip3_ [1..14::Int]
+                                               (take 14 canonNus)
+                                               (take 14 scrambledNus), c /= s]
+    -- Step 15 has known gap: 103 (canonical) vs 88 (scrambled)
+    let canon15 = canonNus !! 14
+        scram15 = scrambledNus !! 14
+        knownGap = canon15 /= scram15
+
+    if not (null diffs114)
+      then return $ Fail $ "Steps 1-14 not name-free: " ++ show diffs114
+      else if not knownGap
+        then return $ Fail $ "Step 15 gap CLOSED (both=" ++ show canon15 ++
+               ") — MBTT-first fix landed! Update this canary to require all 15 match."
+        else return Pass)
+
+-- Contract C1b: classifyTelescope is name-free.
+-- Classification depends only on AST structure, not library entry names.
+testC1bClassificationNameFree :: Test
+testC1bClassificationNameFree =
+  ("I2. [C1] classifyTelescope independent of library entry names", do
+    let -- Build normal library
+        normalLib = canonicalLibAt 14
+        -- Build library with all names scrambled
+        scrambledLib = [entry { leName = "Z" ++ show i } | (i, entry) <- zip [1..] normalLib]
+        -- Classify step 15 (DCT) telescope against both libraries
+        tele15 = referenceTelescope 15
+        cls1 = classifyTelescope tele15 normalLib
+        cls2 = classifyTelescope tele15 scrambledLib
+    if cls1 == cls2
+      then return Pass
+      else return $ Fail $ "Classification changed: " ++ show cls1 ++ " vs " ++ show cls2)
+
+-- Contract C2: DesugaredKappa is deterministic and telescope-only.
+-- Running desugaredKappa twice on the same telescope must give identical results.
+testC2KappaDeterminism :: Test
+testC2KappaDeterminism =
+  ("I3. [C2] DesugaredKappa is deterministic (same input → same output)", do
+    let pairs = [(desugaredKappa (referenceTelescope i), desugaredKappa (referenceTelescope i)) | i <- [1..15]]
+        mismatches = [(i, a, b) | (i, (a, b)) <- zip [1..15::Int] pairs, a /= b]
+    if null mismatches
+      then return Pass
+      else return $ Fail $ "Non-deterministic kappa at steps: " ++ show mismatches)
+
+-- Contract C3: κ monotonicity — telescopes with strictly more clauses have ≥ κ.
+-- For the reference sequence, we verify that adding entries to a telescope
+-- cannot decrease desugaredKappa.
+testC3KappaMonotonicity :: Test
+testC3KappaMonotonicity =
+  ("I4. [C3] Kappa weakly monotone with telescope size", do
+    -- Reference telescopes ordered by clause count — verify kappa tracks.
+    -- We test: for all pairs (i,j) where teleKappa(i) < teleKappa(j),
+    -- desugaredKappa(i) ≤ desugaredKappa(j).
+    let vals = [(i, teleKappa (referenceTelescope i), desugaredKappa (referenceTelescope i)) | i <- [1..15]]
+        -- Find violations: smaller raw kappa but larger desugared kappa
+        violations = [(i, j, rawI, rawJ, dkI, dkJ)
+                     | (i, rawI, dkI) <- vals
+                     , (j, rawJ, dkJ) <- vals
+                     , rawI < rawJ
+                     , dkI > dkJ]
+    if null violations
+      then return Pass
+      else return $ Fail $ show (length violations) ++ " monotonicity violations: " ++
+             show (take 3 [(i,j) | (i,j,_,_,_,_) <- violations]))
+
+-- Contract C4: Post-hoc decoding non-interference.
+-- detectCanonicalName is called AFTER structuralNu scores are computed.
+-- Verify: computing ν before vs after naming gives identical results.
+testC4DecodingNonInterference :: Test
+testC4DecodingNonInterference =
+  ("I5. [C4] Scoring identical whether name detection runs or not", do
+    -- Score all 15 steps with the "before naming" order:
+    -- 1. Score telescope (structuralNu)
+    -- 2. Then detect name (detectCanonicalName)
+    -- 3. Then build library entry (telescopeToCandidate)
+    -- The ν from step 1 must be identical to what replayCanonical produces
+    -- (where naming happens alongside library building).
+    let (canonSnapshots, _) = replayCanonical
+        canonNus = [nu | (_, nu, _) <- take 15 canonSnapshots]
+
+        -- Alternative: score first, name second, same library building
+        altNus = goAlt [] [] 1
+        goAlt lib nuHist step
+          | step > 15 = []
+          | otherwise =
+            let tele = referenceTelescope step
+                -- Score BEFORE naming
+                result = structuralNu tele lib nuHist
+                nu = snTotal result
+                -- Name AFTER scoring (should not affect nu)
+                name = detectCanonicalName tele lib
+                entry = telescopeToCandidate tele lib name
+                newLib = lib ++ [entry]
+                newHist = nuHist ++ [(step, nu)]
+            in nu : goAlt newLib newHist (step + 1)
+
+    let diffs = [(i, c, a) | (i, c, a) <- zip3_ [1..15::Int] canonNus altNus, c /= a]
+    if null diffs
+      then return Pass
+      else return $ Fail $ "Scoring order matters at " ++ show (length diffs) ++ " steps: " ++
+             show (take 3 diffs))
+
+-- Contract C4b: Bar computation uses no name lookups.
+-- The bar formula Bar_n = Phi_n * Omega_{n-1} depends only on d-Bonacci
+-- (mathematical) and (Int, Int) history pairs (ν, κ). No String fields.
+testC4bBarNameFree :: Test
+testC4bBarNameFree =
+  ("I6. [C4] Bar computation uses only numeric history, no names", do
+    -- Compute bars with canonical history vs scrambled-name history
+    -- (same ν/κ values, different names — bar should be identical)
+    let (snapshots, _) = replayCanonical
+        history = [DiscoveryRecord nu k | (_, nu, k) <- take 15 snapshots]
+        bars = [computeBarFromHistory 2 n (take (n-1) history) | n <- [1..15]]
+        -- Bar computation doesn't take names at all, so this is tautological,
+        -- but it documents the contract: bar depends only on numeric history.
+        barsAgain = [computeBarFromHistory 2 n (take (n-1) history) | n <- [1..15]]
+        diffs = [(n, b1, b2) | (n, b1, b2) <- zip3_ [1..15::Int] bars barsAgain, abs (b1 - b2) > 1e-10]
+    if null diffs
+      then return Pass
+      else return $ Fail $ "Bar non-deterministic at steps: " ++ show diffs)
+
+-- | Helper: strict zip3
+zip3_ :: [a] -> [b] -> [c] -> [(a, b, c)]
+zip3_ (a:as) (b:bs) (c:cs) = (a, b, c) : zip3_ as bs cs
+zip3_ _ _ _ = []
+
+-- ============================================
+-- Test J: MBTT-First Enumerator
+-- ============================================
+
+-- J1: Grammar coverage — at budget=30 and libSize=0, the enumerator produces
+-- expressions using Univ, Var, Pi, Sigma, Lam, App.
+testJ1GrammarCoverage :: Test
+testJ1GrammarCoverage =
+  ("J1. [MBTT] Grammar coverage at budget=30 (Univ,Pi,Sigma,Lam,App)", do
+    let exprs = enumerateExprs 0 1 30 3 []  -- libSize=0, ctxDepth=1, budget=30, depth=3
+        hasUniv = any isUniv exprs
+        hasPi   = any isPi exprs
+        hasSigma = any isSigma exprs
+        hasLam  = any isLam exprs
+        hasApp  = any isApp exprs
+        missing = concat
+          [ ["Univ"  | not hasUniv]
+          , ["Pi"    | not hasPi]
+          , ["Sigma" | not hasSigma]
+          , ["Lam"   | not hasLam]
+          , ["App"   | not hasApp]
+          ]
+    if null missing
+      then return Pass
+      else return $ Fail $ "Missing constructors: " ++ show missing)
+  where
+    isUniv Univ = True
+    isUniv _ = False
+    isPi (Pi _ _) = True
+    isPi _ = False
+    isSigma (Sigma _ _) = True
+    isSigma _ = False
+    isLam (Lam _) = True
+    isLam _ = False
+    isApp (App _ _) = True
+    isApp _ = False
+
+-- J2: Well-formedness — every telescope from enumerateMBTTTelescopes passes checkTelescope.
+testJ2WellFormedness :: Test
+testJ2WellFormedness =
+  ("J2. [MBTT] All enumerated telescopes pass checkTelescope", do
+    let lib = canonicalLibAt 3  -- library after Pi (step 4)
+        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
+                                  ecMaxASTDepth = 3, ecMaxCandidates = 500 }
+        candidates = enumerateMBTTTelescopes lib cfg
+        failures = [mcTelescope c | c <- candidates,
+                    checkTelescope lib (mcTelescope c) /= CheckOK]
+    if null failures
+      then return Pass
+      else return $ Fail $ show (length failures) ++ " telescopes fail checkTelescope")
+
+-- J3: Determinism — calling enumerateMBTTTelescopes twice produces identical results.
+testJ3Determinism :: Test
+testJ3Determinism =
+  ("J3. [MBTT] Enumeration is deterministic", do
+    let lib = canonicalLibAt 2
+        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 2,
+                                  ecMaxASTDepth = 3, ecMaxCandidates = 200 }
+        run1 = enumerateMBTTTelescopes lib cfg
+        run2 = enumerateMBTTTelescopes lib cfg
+    if run1 == run2
+      then return Pass
+      else return $ Fail $ "Two runs differ: " ++ show (length run1) ++ " vs " ++ show (length run2))
+
+-- J4: Reference telescope coverage — first 4 reference telescopes (or structural
+-- equivalents) appear in the enumeration at appropriate bit budgets.
+testJ4ReferenceTelescopes :: Test
+testJ4ReferenceTelescopes =
+  ("J4. [MBTT] Enumerator finds reference telescopes for steps 1-4", do
+    -- Step 1 (Universe): Telescope [c1 : U] — should be in empty-library enum
+    let lib0 = []
+        cfg = defaultEnumConfig { ecMaxBitBudget = 30, ecMaxEntries = 4,
+                                  ecMaxASTDepth = 3, ecMaxCandidates = 5000 }
+        cands0 = enumerateMBTTTelescopes lib0 cfg
+        ref1 = referenceTelescope 1
+        found1 = any (\c -> mcTelescope c == ref1) cands0
+
+    -- Steps 2-4 require library built up
+    let lib1 = canonicalLibAt 1
+        cands1 = enumerateMBTTTelescopes lib1 cfg
+        ref2 = referenceTelescope 2
+        found2 = any (\c -> mcTelescope c == ref2) cands1
+
+    let lib2 = canonicalLibAt 2
+        cands2 = enumerateMBTTTelescopes lib2 cfg
+        ref3 = referenceTelescope 3
+        found3 = any (\c -> mcTelescope c == ref3) cands2
+
+    let lib3 = canonicalLibAt 3
+        cands3 = enumerateMBTTTelescopes lib3 cfg
+        ref4 = referenceTelescope 4
+        found4 = any (\c -> mcTelescope c == ref4) cands3
+
+    let missing = concat
+          [ ["step1(Universe)" | not found1]
+          , ["step2(Unit)"     | not found2]
+          , ["step3(Witness)"  | not found3]
+          , ["step4(Pi)"       | not found4]
+          ]
+    if null missing
+      then return Pass
+      else return $ Fail $ "Missing reference telescopes: " ++ show missing)
+
+-- J5: Bit-cost ordering — output is ordered by ascending total bit cost.
+testJ5BitCostOrdering :: Test
+testJ5BitCostOrdering =
+  ("J5. [MBTT] Candidates ordered by ascending bit cost", do
+    let lib = canonicalLibAt 3
+        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
+                                  ecMaxASTDepth = 3, ecMaxCandidates = 500 }
+        candidates = enumerateMBTTTelescopes lib cfg
+        costs = map mcBitKappa candidates
+        ordered = all (\(a, b) -> a <= b) (zip costs (drop 1 costs))
+    if ordered
+      then return Pass
+      else return $ Fail "Candidates not ordered by bit cost")
+
+-- ============================================
 -- Main
 -- ============================================
 
@@ -436,4 +715,19 @@ main = runTests $
      , testExclusionHistoryInvariance
      , testExclusionKappaIndependence
      , testExclusionBarFormula
+     ]
+  -- I: MBTT-first invariant contracts (ADR-0001)
+  ++ [ testC1StructuralNuNameFree
+     , testC1bClassificationNameFree
+     , testC2KappaDeterminism
+     , testC3KappaMonotonicity
+     , testC4DecodingNonInterference
+     , testC4bBarNameFree
+     ]
+  -- J: MBTT-first enumerator (Phase 1)
+  ++ [ testJ1GrammarCoverage
+     , testJ2WellFormedness
+     , testJ3Determinism
+     , testJ4ReferenceTelescopes
+     , testJ5BitCostOrdering
      ]

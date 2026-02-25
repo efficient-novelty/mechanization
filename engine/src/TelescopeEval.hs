@@ -13,6 +13,7 @@
 module TelescopeEval
   ( -- * Evaluation Modes
     EvalMode(..)
+  , KappaMode(..)
     -- * Evaluation
   , evaluateTelescope
   , evaluateTelescopeWithHistory
@@ -20,6 +21,7 @@ module TelescopeEval
   , effectiveKappa
   , effectiveNu
   , strictKappa
+  , computeKappa
     -- * Tracing
   , EvalTrace(..)
   , evaluateTelescopeTrace
@@ -60,6 +62,20 @@ data EvalMode
   = EvalPaperCalibrated     -- ^ Use paper ν/κ for canonical names (effectiveNu/effectiveKappa)
   | EvalStrictComputed      -- ^ Never use paper ν/κ; compute from telescope + UniformNu
   | EvalStructural          -- ^ StructuralNu: AST rule extraction, no semantic proxy
+  deriving (Show, Eq)
+
+-- | Kappa computation mode — selects the construction effort metric.
+--
+--   DesugaredKappa: Principled clause counting. Expands macro-like entries
+--     (Susp → 4 core judgments) and counts constituent judgments. Default.
+--   EntryKappa: Raw telescope entry count. Fast but degenerate for
+--     suspension shortcuts (Susp(X) = κ=1).
+--   BitCostKappa: MBTT bit cost (Kolmogorov complexity upper bound).
+--     Most fine-grained but may overweight syntactic structure.
+data KappaMode
+  = DesugaredKappa   -- ^ Default: desugared clause counting
+  | EntryKappa       -- ^ Raw entry count (teleKappa)
+  | BitCostKappa     -- ^ MBTT bit cost (teleBitCost)
   deriving (Show, Eq)
 
 -- | Evaluation trace for transparency logging.
@@ -503,33 +519,28 @@ effectiveKappa :: String -> Telescope -> Int
 effectiveKappa canonName tele =
   case canonName `lookup` paperKappaByName of
     Just k  -> k
-    Nothing
-      -- Suspensions: the 1-entry shortcut Susp(X) understates the
-      -- specification complexity. Use max(3, teleKappa) to match
-      -- the paper's convention for unnamed suspensions.
-      | any isSuspEntry (teleEntries tele) -> max 3 (teleKappa tele)
-      | otherwise -> teleKappa tele
-  where
-    isSuspEntry (TeleEntry _ (Susp _)) = True
-    isSuspEntry _ = False
+    Nothing -> desugaredKappa tele
+
+-- | Compute κ using the specified kappa mode.
+computeKappa :: KappaMode -> Telescope -> Int
+computeKappa DesugaredKappa tele = desugaredKappa tele
+computeKappa EntryKappa    tele = teleKappa tele
+computeKappa BitCostKappa  tele = teleBitCost tele
 
 -- | Strict κ for a telescope — paper-independent.
 --
--- Uses the telescope entry count (teleKappa) with one explicit policy:
--- Suspension telescopes (Susp(X)) are single-entry (κ=1) but implicitly
--- generate formation + north + south + meridian. The paper assigns κ≥3
--- to such structures. The suspension floor ensures suspensions don't
--- dominate via artificially low κ.
+-- Uses desugared clause counting: each entry contributes as many core
+-- judgments as it implicitly specifies. For most entries this is 1:1 with
+-- teleKappa; for Susp(X) entries it expands to 4 (formation + north +
+-- south + meridian).
 --
--- This policy is NAMED and DOCUMENTED as a strict-mode design choice,
--- not a hidden calibration to paper values.
+-- This replaces the former ad hoc `max 3 (teleKappa tele)` suspension
+-- floor with a principled desugaring. Native HIT specifications (which
+-- spell out formation + point + path entries explicitly) naturally get
+-- the correct κ without any floor, and win by minimal overshoot over
+-- suspension shortcuts.
 strictKappa :: Telescope -> Int
-strictKappa tele
-  | any isSuspEntry (teleEntries tele) = max 3 (teleKappa tele)
-  | otherwise = teleKappa tele
-  where
-    isSuspEntry (TeleEntry _ (Susp _)) = True
-    isSuspEntry _ = False
+strictKappa = desugaredKappa
 
 -- | Paper's κ values indexed by canonical name.
 paperKappaByName :: [(String, Int)]

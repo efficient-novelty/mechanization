@@ -26,6 +26,11 @@ module Telescope
   , teleLibRefs
   , teleVarRefs
   , teleMaxLibRef
+    -- * Desugared kappa (principled clause counting)
+  , CoreJudgment(..)
+  , desugarEntry
+  , desugarTelescope
+  , desugaredKappa
     -- * Conversion to existing infrastructure
   , teleToEntry
   , teleToTypeExprs
@@ -90,6 +95,80 @@ teleMaxLibRef :: Telescope -> Int
 teleMaxLibRef t = case Set.toDescList (teleLibRefs t) of
   (x:_) -> x
   []    -> 0
+
+-- ============================================
+-- Desugared Kappa (Principled Clause Counting)
+-- ============================================
+
+-- | Core type-theoretic judgments that a telescope entry may encode.
+--
+-- Each entry in a telescope specifies one or more core judgments. Most entries
+-- are atomic (1 judgment), but macro-like constructors (Susp) pack multiple
+-- judgments into a single AST node.
+--
+-- Desugaring expands these macros to their constituent judgments, giving a
+-- principled construction effort count that eliminates the need for ad hoc
+-- kappa floors.
+data CoreJudgment
+  = JFormation    -- ^ A : Type  (type formation rule)
+  | JIntroduction -- ^ a : A     (term introduction / point constructor)
+  | JElimination  -- ^ f a → b   (elimination / computation rule)
+  | JPathAttach   -- ^ p : x =_A y (path constructor / higher structure)
+  | JComputation  -- ^ β/η rule  (computation rule implied by intro/elim pair)
+  deriving (Show, Eq, Ord)
+
+-- | Desugar a single telescope entry into its constituent core judgments.
+--
+-- Most entries are atomic (1 judgment). The key exception:
+--
+--   Susp(X) → [Formation, Introduction(north), Introduction(south), PathAttach(meridian)]
+--
+-- This is because Susp is a macro: writing Susp(S¹) in a telescope is shorthand
+-- for the full HIT specification (S² : U, base_n : S², base_s : S², merid : n =_{S²} s).
+-- The paper counts the full specification (κ=3 for S², κ=5 for S³), not the 1-entry
+-- shortcut. Desugaring makes this principled rather than requiring an ad hoc floor.
+desugarEntry :: TeleEntry -> [CoreJudgment]
+desugarEntry (TeleEntry _ expr) = case expr of
+  -- Susp(X) is a macro for: Formation + north + south + meridian
+  -- Susp(S¹) = S² needs formation(S²:U) + intro(base_n) + intro(base_s) + path(merid)
+  Susp _        -> [JFormation, JIntroduction, JIntroduction, JPathAttach]
+
+  -- All other entry-level constructors are atomic (1 judgment each):
+  Univ          -> [JFormation]       -- U : Type
+  App Univ _    -> [JFormation]       -- A : U
+  Var _         -> [JIntroduction]    -- a : A  (point constructor)
+  App (Lib _) _ -> [JIntroduction]    -- constructor application (★ : 1)
+  Lam _         -> [JIntroduction]    -- λ-abstraction
+  App (Lam _) _ -> [JElimination]     -- β-reduction
+  App _ _       -> [JIntroduction]    -- general application (pair, etc.)
+  Pi _ _        -> [JFormation]       -- Π-type / function type
+  Sigma _ _     -> [JFormation]       -- Σ-type / pair type
+  Id _ _ _      -> [JFormation]       -- identity type formation
+  Refl _        -> [JIntroduction]    -- refl introduction
+  PathCon _     -> [JPathAttach]      -- path constructor (dimension d)
+  Trunc _       -> [JFormation]       -- ||A||₀ formation
+  Flat _        -> [JFormation]       -- ♭ formation
+  Sharp _       -> [JFormation]       -- ♯ formation
+  Disc _        -> [JFormation]       -- Disc formation
+  Shape _       -> [JFormation]       -- Π_coh formation
+  Next _        -> [JFormation]       -- ○ formation
+  Eventually _  -> [JFormation]       -- ◇ formation
+  Lib _         -> [JFormation]       -- library reference (re-export)
+
+-- | Desugar an entire telescope into core judgments.
+desugarTelescope :: Telescope -> [CoreJudgment]
+desugarTelescope (Telescope entries) = concatMap desugarEntry entries
+
+-- | Desugared kappa: principled construction effort from core judgment count.
+--
+-- This replaces the ad hoc `max 3 (teleKappa tele)` suspension floor with
+-- a principled count: each entry contributes as many core judgments as it
+-- implicitly specifies.
+--
+-- For non-suspension telescopes, desugaredKappa == teleKappa (1:1 mapping).
+-- For suspension telescopes, desugaredKappa > teleKappa (Susp expands to 4).
+desugaredKappa :: Telescope -> Int
+desugaredKappa = length . desugarTelescope
 
 -- ============================================
 -- MBTT Expression Analysis

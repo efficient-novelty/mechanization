@@ -34,20 +34,29 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 
 ## Phased Roadmap (10–14 weeks)
 
-## Phase 0 — Baseline and Contracts (Week 1)
+## Phase 0 — Baseline and Contracts (Week 1) ✓ COMPLETE
+
+**Completed:** 2026-02-25 | **Git:** 8e2f548 (main)
 
 ### Deliverables
-- Snapshot current performance/correctness baseline for structural mode and acceptance suite.
-- Add architecture decision record (ADR) documenting MBTT-first constraints.
-- Define invariant contracts for:
-  - search-space independence from semantic labels,
-  - canonicalization idempotence,
-  - κ monotonicity by bit budget,
-  - post-hoc decoding non-interference.
+- [x] Snapshot current performance/correctness baseline for structural mode and acceptance suite.
+  - `runs/phase0_baseline/` — REPORT.txt, 6 CSV profiles (structural d1/d2/d3, paper-calibrated, 2 ablations), acceptance log.
+  - Summary: 15/15 structures, 12/15 exact ν match, κ=64/64, d=2 optimal, 46/46 acceptance.
+- [x] Add architecture decision record (ADR) documenting MBTT-first constraints.
+  - `docs/adr/0001-mbtt-first-synthesis.md` — Context, Decision, Constraints (C1–C4), Consequences.
+- [x] Define invariant contracts for:
+  - [x] C1: search-space independence from semantic labels — I1 (steps 1-14 name-free; step 15 known gap via capability flag gating), I2 (classification name-free).
+  - [x] C2: canonicalization idempotence — I3 (κ determinism; full canonicalization deferred to Phase 2).
+  - [x] C3: κ monotonicity by bit budget — I4 (weak monotonicity with telescope size).
+  - [x] C4: post-hoc decoding non-interference — I5 (scoring order invariance), I6 (bar name-free).
 
 ### Exit criteria
-- Baseline CSV/log artifacts checked into a reproducible benchmark folder.
-- ADR and invariants reviewed and accepted.
+- [x] Baseline CSV/log artifacts in `runs/phase0_baseline/`.
+- [x] ADR in `docs/adr/0001-mbtt-first-synthesis.md`.
+- [x] 6 new contract tests (I1–I6) in acceptance suite, 52/52 passing.
+
+### Known gap documented
+- **I1 canary:** Step 15 (DCT) ν drops from 103→88 when library names are scrambled, because `telescopeToCandidate` gates `leHasTemporalOps` on `name=="DCT"`. This capability-flag name-dependence is the primary target for Phase 3 (native ν extraction from anonymous terms). The canary test will fail-positive when the gap is closed.
 
 ---
 

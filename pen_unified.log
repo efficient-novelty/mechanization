@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.5)  22 FEB 2026 20:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.5)  25 FEB 2026 20:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -588,28 +588,20 @@ dvips/cm-super/cm-super-t1.enc}] (./pen_unified.toc [2])
 \tf@toc=\write4
 \openout4 = `pen_unified.toc'.
 
- [3] [4
+ [3] [4{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [5] [6
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.156     \item $
-                 \kappa$: \emph{Construction Effort}---the number of specifi...
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [5] [6]
-Overfull \hbox (73.90573pt too wide) in paragraph at lines 290--292
-\T1/cmr/m/n/10.95 (-20) tion); machine-checked ab-strac-tion bar-rier at steps 
-8--9 in Cu-bi-cal Agda (\T1/cmtt/m/n/10.95 Saturation/AbstractionBarrier.agda\T
-1/cmr/m/n/10.95 (-20) ,
- []
-
-[7] [8]
+l.230 
+      ] [7] [8] [9] [10] [11]
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [9]
-Overfull \hbox (4.49974pt too wide) in paragraph at lines 475--477
-[]\T1/cmr/bx/n/10.95 (-20) Definition 3.3 \T1/cmr/m/n/10.95 (-20) (Obli-ga-tion
+ [12]
+Overfull \hbox (4.49974pt too wide) in paragraph at lines 615--617
+[]\T1/cmr/bx/n/10.95 (-20) Definition 4.3 \T1/cmr/m/n/10.95 (-20) (Obli-ga-tion
  Re-duc-tion)\T1/cmr/bx/n/10.95 (-20) . []\T1/cmr/m/n/10.95 (-20) An obli-ga-ti
 on $\OML/cmm/m/it/10.95 o \OMS/cmsy/m/n/10.95 2 O[]\OT1/cmr/m/n/10.95 (-20) (\O
 ML/cmm/m/it/10.95 X\OT1/cmr/m/n/10.95 (-20) )$ \T1/cmr/m/n/10.95 (-20) ref-er-e
@@ -618,200 +610,192 @@ nc-ing lay-ers $\OML/cmm/m/it/10.95 L[]; [] ; L[]$
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 489.
+(hyperref)                removing `math shift' on input line 629.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 489.
+(hyperref)                removing `math shift' on input line 629.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 509.
+(hyperref)                removing `math shift' on input line 649.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 509.
+(hyperref)                removing `math shift' on input line 649.
+
+[13]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 658.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 518.
+(hyperref)                removing `\leq' on input line 658.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\leq' on input line 518.
+(hyperref)                removing `math shift' on input line 658.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 518.
-
-[10]
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 582.
+(hyperref)                removing `math shift' on input line 722.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\geq' on input line 582.
+(hyperref)                removing `\geq' on input line 722.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 582.
+(hyperref)                removing `math shift' on input line 722.
 
-[11] [12] [13] [14]
-Overfull \hbox (9.3615pt too wide) in paragraph at lines 832--833
-[]\T1/cmr/bx/n/10.95 (-20) Theorem 5.6 \T1/cmr/m/n/10.95 (-20) (Di-ver-gence of
- Ef-fi-ciency)\T1/cmr/bx/n/10.95 (-20) . []\T1/cmr/m/it/10.95 (-20) In a Class 
-2 foun-da-tion evolv-ing un-der PEN, $[][] \OML/cmm/m/it/10.95 ^^Z[] \OT1/cmr/m
-/n/10.95 (-20) =
- []
-
-[15] [16] [17]
+[14] [15] [16] [17] [18] [19] [20] [21]
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmss' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [18] [19] [20] [21
+ [22] [23] [24] [25
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1141 \end{corollary}
-                      ] [22] [23] [24
+l.1286 
+       ] [26] [27] [28] [29
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1324 
-       ] [25] [26] [27] [28] [29]
-Overfull \hbox (29.90851pt too wide) in paragraph at lines 1558--1559
+l.1502 \noindent
+                \emph{Classical logic (LEM).}] [30] [31] [32] [33] [34]
+Overfull \hbox (29.90851pt too wide) in paragraph at lines 1743--1744
 \T1/cmr/m/n/10.95 (-20) machine-checked at step 8 (\T1/cmtt/m/n/10.95 Abstracti
 onBarrier.agda\T1/cmr/m/n/10.95 (-20) ) and step 9 (\T1/cmtt/m/n/10.95 Abstract
 ionBarrier9.agda\T1/cmr/m/n/10.95 (-20) ). 
  []
 
-[30] [31] [32] [33] [34] [35] [36]
-Underfull \hbox (badness 10000) in paragraph at lines 1883--1884
+[35] [36] [37] [38] [39] [40] [41]
+Underfull \hbox (badness 10000) in paragraph at lines 2053--2054
 []\T1/cmr/m/n/10 (+20) Lagrangian/Hamiltonian, phase space,
  []
 
-[37] [38
+[42
 pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1935 
-       ] [39]
+l.2086 
+       ] [43]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1991.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\nabla' on input line 1991.
+(hyperref)                removing `math shift' on input line 2161.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1991.
+(hyperref)                removing `\nabla' on input line 2161.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 2020.
+(hyperref)                removing `math shift' on input line 2161.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\nabla' on input line 2020.
+(hyperref)                removing `math shift' on input line 2190.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\nabla' on input line 2020.
+(hyperref)                removing `\nabla' on input line 2190.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\wedge' on input line 2020.
+(hyperref)                removing `\nabla' on input line 2190.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\nabla' on input line 2020.
+(hyperref)                removing `\wedge' on input line 2190.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 2020.
-
-[40]
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 2050.
+(hyperref)                removing `\nabla' on input line 2190.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\otimes' on input line 2050.
+(hyperref)                removing `math shift' on input line 2190.
+
+[44]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 2220.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\to' on input line 2050.
+(hyperref)                removing `\otimes' on input line 2220.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 2050.
+(hyperref)                removing `\to' on input line 2220.
 
-[41] [42]
-Overfull \hbox (70.52069pt too wide) in paragraph at lines 2189--2210
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 2220.
+
+[45] [46] [47]
+Overfull \hbox (70.52069pt too wide) in paragraph at lines 2370--2391
  [][] 
  []
 
-[43
+[48
 pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2211 
-       ] [44
+l.2392 
+       ] [49
 pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2268 
+l.2449 
        
 pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2268 
+l.2449 
        ]
-Overfull \hbox (26.87515pt too wide) in paragraph at lines 2306--2309
+Overfull \hbox (26.87515pt too wide) in paragraph at lines 2487--2490
 []\T1/cmr/bx/n/10.95 (-20) Reproducibility. \T1/cmr/m/n/10.95 (-20) The com-ple
 te MBTT en-cod-ing is im-ple-mented in \T1/cmtt/m/n/10.95 engine/src/Kolmogorov
 .hs
  []
 
-[45
+[50
 pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2322 
+l.2503 
        
 pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2322 
-       ] [46] (./pen_unified.aux)
+l.2503 
+       ] [51] (./pen_unified.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `pen_unified.out' has not changed.
-(rerunfilecheck)             Checksum: 655C0E9E9DA84615D1F43217AD76E0DF;14273.
+(rerunfilecheck)             Checksum: B2FC13BED94CC9DD7ECA534A3FE9FA15;14455.
  ) 
 Here is how much of TeX's memory you used:
- 17160 strings out of 474222
- 276155 string characters out of 5748734
- 1946975 words of memory out of 5000000
- 38317 multiletter control sequences out of 15000+600000
- 615185 words of font info for 393 fonts, out of 8000000 for 9000
+ 17201 strings out of 474222
+ 276729 string characters out of 5748734
+ 1947975 words of memory out of 5000000
+ 38330 multiletter control sequences out of 15000+600000
+ 615323 words of font info for 394 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,16n,79p,1008b,726s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,79p,1008b,730s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
@@ -830,27 +814,26 @@ xmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts
 /type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1
 /public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/symbols/msbm7.pfb></usr/share/texmf/fonts/type1/public/cm-super/
-sfbi1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/s
-hare/texmf/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/typ
-e1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/s
-fbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1728.pfb></usr/sh
-are/texmf/fonts/type1/public/cm-super/sfcc1000.pfb></usr/share/texmf/fonts/type
-1/public/cm-super/sfcc1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sf
-rm0600.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0800.pfb></usr/sha
-re/texmf/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1
-/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfr
-m1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/shar
-e/texmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/texmf/fonts/type1/
-public/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt
-0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share
-/texmf/fonts/type1/public/cm-super/sftt1095.pfb></usr/share/texmf/fonts/type1/p
-ublic/cm-super/sftt1200.pfb>
-Output written on pen_unified.pdf (46 pages, 927614 bytes).
+public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/fonts/type1/public/cm-supe
+r/sfbi1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr
+/share/texmf/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/t
+ype1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super
+/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1728.pfb></usr/
+share/texmf/fonts/type1/public/cm-super/sfcc1000.pfb></usr/share/texmf/fonts/ty
+pe1/public/cm-super/sfcc1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/
+sfrm0600.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0800.pfb></usr/s
+hare/texmf/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/typ
+e1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/s
+frm1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/sh
+are/texmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/texmf/fonts/type
+1/public/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sf
+tt0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/sha
+re/texmf/fonts/type1/public/cm-super/sftt1095.pfb></usr/share/texmf/fonts/type1
+/public/cm-super/sftt1200.pfb>
+Output written on pen_unified.pdf (51 pages, 952535 bytes).
 PDF statistics:
- 1256 PDF objects out of 1440 (max. 8388607)
- 1107 compressed objects within 12 object streams
- 345 named destinations out of 1000 (max. 500000)
- 112193 words of extra memory for PDF output out of 128383 (max. 10000000)
+ 1325 PDF objects out of 1440 (max. 8388607)
+ 1173 compressed objects within 12 object streams
+ 371 named destinations out of 1000 (max. 500000)
+ 112201 words of extra memory for PDF output out of 128383 (max. 10000000)
 
