@@ -39,7 +39,7 @@ jobs:
         working-directory: engine
         run: cabal build all
 
-      - name: Run acceptance tests (42 tests)
+      - name: Run acceptance tests (46 tests)
         working-directory: engine
         run: cabal run acceptance
 

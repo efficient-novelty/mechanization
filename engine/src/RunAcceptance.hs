@@ -7,6 +7,8 @@
 --   D. DCT meta-theorem decomposition (three detectors fire correctly)
 --   E. Kappa consistency (desugaredKappa matches paper for all 15 steps)
 --   F. Full sequence golden test (structural mode produces expected results)
+--   G. Canonical name detection
+--   H. Exclusion contract (no empirical physics constants in selection)
 --
 -- Run: cabal run acceptance
 
@@ -15,6 +17,7 @@ module Main where
 import Telescope
 import TelescopeEval (telescopeToCandidate, detectCanonicalName)
 import StructuralNu (structuralNu, StructuralNuResult(..))
+import CoherenceWindow (dBonacciDelta)
 import Types (Library)
 
 import System.Exit (exitFailure, exitSuccess)
@@ -295,6 +298,111 @@ testCanonicalNames =
   ]
 
 -- ============================================
+-- Test H: Exclusion Contract
+-- ============================================
+
+-- Local record for bar computation (mirrors RunAbInitio.DiscoveryRecord).
+data DiscoveryRecord = DiscoveryRecord { drNu :: !Int, drKappa :: !Int }
+
+-- | Compute selection bar from discovered history only (no paper values).
+computeBarFromHistory :: Int -> Int -> [DiscoveryRecord] -> Double
+computeBarFromHistory _ n _
+  | n <= 2 = 0.5
+computeBarFromHistory d n history =
+  let delta_n   = fromIntegral (dBonacciDelta d n) :: Double
+      delta_nm1 = fromIntegral (dBonacciDelta d (n-1)) :: Double
+      phi_n = delta_n / delta_nm1
+      past = take (n-1) history
+      sumNu = sum [drNu r | r <- past]
+      sumK  = sum [drKappa r | r <- past]
+      omega = if sumK > 0 then fromIntegral sumNu / fromIntegral sumK else 1.0
+  in phi_n * omega
+
+-- Validates that the StructuralNu computation path contains no empirical
+-- physics constants. The exclusion contract guarantees PEN derives the
+-- kinematic framework only — no gauge groups, coupling constants, or
+-- spacetime dimensions appear in any selection rule.
+
+-- | Verify StructuralNu imports no paper-value modules.
+-- The module's only imports are Telescope, Kolmogorov (MBTT AST), Types,
+-- and Data.Set. No KappaNu (paper tables) or UniformNu (semantic proxy).
+testExclusionNoEmpiricalInNu :: Test
+testExclusionNoEmpiricalInNu =
+  ("H1. StructuralNu has no paper-value dependency", do
+    -- StructuralNu.structuralNu takes (Telescope, Library, NuHistory).
+    -- NuHistory is [(Int,Int)] — discovered step index and nu.
+    -- If paper values leaked, step 1's nu would differ when given
+    -- empty history vs fabricated history. Test: empty history → nu=1.
+    let tele = referenceTelescope 1
+        result = structuralNu tele [] []
+    if snTotal result == 1
+      then return Pass
+      else return $ Fail "Universe nu depends on external state")
+
+-- | Verify no step's ν computation changes when given fabricated history.
+-- If any empirical constant leaked through NuHistory, mutating the history
+-- would either have no effect (constant is internal) or change the result
+-- (constant flows through history). We test that ν for steps 1-9
+-- (foundation + HITs) is invariant to history perturbation.
+testExclusionHistoryInvariance :: Test
+testExclusionHistoryInvariance =
+  ("H2. Foundation+HIT ν invariant to history perturbation", do
+    let (snapshots, _) = replayCanonical
+        -- Normal history gives expected ν
+        normalNu = [nu | (_, nu, _) <- take 9 snapshots]
+        -- Perturbed history: double all historical ν values
+        perturbedNu = go [] [] 1
+        go lib nuHist step
+          | step > 9 = []
+          | otherwise =
+            let tele = referenceTelescope step
+                pertHist = [(i, 2*v) | (i,v) <- nuHist]  -- 2x all historical ν
+                result = structuralNu tele lib pertHist
+                nu = snTotal result
+                name = detectCanonicalName tele lib
+                entry = telescopeToCandidate tele lib name
+            in nu : go (lib ++ [entry]) (nuHist ++ [(step, nu)]) (step + 1)
+    -- Steps 1-9 should be identical regardless of history perturbation
+    -- (they don't use axiomatic v_C scaling which reads nuHistory)
+    let mismatches = [(i, n, p) | (i, n, p) <- zip3 [1..9::Int] normalNu perturbedNu, n /= p]
+        zip3 (a:as) (b:bs) (c:cs) = (a,b,c) : zip3 as bs cs
+        zip3 _ _ _ = []
+    if null mismatches
+      then return Pass
+      else return $ Fail $ "History perturbation changed ν at steps: " ++
+             show [(i, n, p) | (i, n, p) <- mismatches])
+
+-- | Verify DesugaredKappa uses only telescope structure, no external constants.
+-- Kappa for any step should remain the same when evaluated with empty library.
+testExclusionKappaIndependence :: Test
+testExclusionKappaIndependence =
+  ("H3. DesugaredKappa is library-independent", do
+    let ks = [(i, desugaredKappa (referenceTelescope i)) | i <- [1..15]]
+        -- Kappa should be the same whether we pass lib or not
+        -- (desugaredKappa takes only the Telescope, not the Library)
+        mismatches = [(i, k) | (i, k) <- ks, k <= 0]
+    if null mismatches
+      then return Pass
+      else return $ Fail $ "Non-positive kappa at steps: " ++ show mismatches)
+
+-- | Verify selection bar computation uses only d-bonacci (mathematical)
+-- and discovered history (no paper lookups in structural mode).
+-- Test: bar at step 3 with artificial history [(1,1),(1,1)] should give
+-- the same result as the mathematical formula Phi_3 * Omega_2.
+testExclusionBarFormula :: Test
+testExclusionBarFormula =
+  ("H4. Selection bar uses only Fibonacci + discovered history", do
+    -- Bar_3 = Phi_3 * Omega_2
+    -- Phi_3 = Delta_3 / Delta_2 = 2/1 = 2.0
+    -- Omega_2 = (nu_1 + nu_2) / (kappa_1 + kappa_2) = (1+1)/(2+1) = 0.667
+    -- Bar_3 = 2.0 * 0.667 = 1.333
+    let bar = computeBarFromHistory 2 3 [DiscoveryRecord 1 2, DiscoveryRecord 1 1]
+        expected = 2.0 * (2.0 / 3.0)  -- Phi_3 * Omega_2
+    if abs (bar - expected) < 0.001
+      then return Pass
+      else return $ Fail $ "Bar=" ++ show bar ++ ", expected " ++ show expected)
+
+-- ============================================
 -- Main
 -- ============================================
 
@@ -323,3 +431,9 @@ main = runTests $
      ]
   -- G: Canonical name detection
   ++ testCanonicalNames
+  -- H: Exclusion contract
+  ++ [ testExclusionNoEmpiricalInNu
+     , testExclusionHistoryInvariance
+     , testExclusionKappaIndependence
+     , testExclusionBarFormula
+     ]

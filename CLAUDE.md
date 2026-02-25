@@ -86,7 +86,10 @@ cabal run ab-initio -- --structural --window 1     # d=1 stress test
 cabal run ab-initio -- --structural --window 3     # d=3 stress test
 cabal run ab-initio -- --structural --no-canonical-priority  # Ablation
 cabal run ab-initio -- --structural --max-rho      # Ablation (max ρ)
-cabal run acceptance                               # 42-test regression suite
+cabal run acceptance                               # 46-test regression suite
+cabal run agda-bridge                              # Generate 15 Agda stubs
+cabal run agda-bridge -- --step 5 --stdout         # Preview single step
+cabal run agda-bridge -- --check                   # Verify determinism
 cabal run pen-engine                               # Full 10-phase analysis
 cabal run uniform-nu                               # Uniform novelty computation
 ./scripts/benchmark.sh                             # Full 4-profile verification
@@ -134,7 +137,9 @@ cabal run uniform-nu                               # Uniform novelty computation
 - `StructuralNu.hs` — AST rule extraction (ν_G + ν_H + ν_C), meta-theorem detectors.
 - `MCTS.hs` — Monte Carlo Tree Search (full UCT, progressive widening).
 - `RunAbInitio.hs` — Ab initio engine (structural / paper-calibrated / strict modes).
-- `RunAcceptance.hs` — 42-test acceptance suite.
+- `RunAcceptance.hs` — 46-test acceptance suite.
+- `AgdaExport.hs` — MBTT telescope → Cubical Agda translation.
+- `RunAgdaBridge.hs` — Agda Rosetta bridge CLI (generates 15 stub files).
 
 **Layer 5 — Legacy Selection Loop:**
 - `Synthesis.hs` — Original discovery loop (predates telescope-based ab initio).

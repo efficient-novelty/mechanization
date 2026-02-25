@@ -249,6 +249,8 @@ abInitioLoop cfg = do
                                    , drNu dr == gsPaperNu gs && drKappa dr == gsPaperK gs]
             printf "  Result:   %d/15 exact match, total nu %d/%d, total kappa %d/%d\n"
               exact totalDiscNu totalPapNu totalDiscK totalPapK
+            -- Print exclusion contract
+            printExclusionContract
           -- Write CSV if requested
           case cfgCsv cfg of
             Just csvPath -> writeCsv csvPath orderedRecords
@@ -574,3 +576,31 @@ computeBarD d mode n history =
              then fromIntegral sumNu / fromIntegral sumK
              else 1.0
   in phi_n * omega
+
+-- ============================================
+-- Exclusion Contract
+-- ============================================
+
+-- | Print the formal exclusion contract: what PEN derives vs. does not derive.
+-- Surfaces the scope boundary in every publication-grade run.
+printExclusionContract :: IO ()
+printExclusionContract = do
+  putStrLn ""
+  putStrLn "--- Exclusion Contract ---"
+  putStrLn "  PEN derives the KINEMATIC FRAMEWORK of physics:"
+  putStrLn "    [+] Dependent types, homotopy types, higher inductive types"
+  putStrLn "    [+] Differential cohesion, connections, curvature, metrics"
+  putStrLn "    [+] Hilbert functional analysis, Dynamical Cohesive Topos"
+  putStrLn ""
+  putStrLn "  PEN does NOT derive:"
+  putStrLn "    [-] Gauge groups (SU(3) x SU(2) x U(1))"
+  putStrLn "    [-] Coupling constants (alpha ~ 1/137)"
+  putStrLn "    [-] Spacetime dimension (3+1)"
+  putStrLn "    [-] Equations of motion or Lagrangians"
+  putStrLn "    [-] Particle content or mass spectrum"
+  putStrLn "    [-] Cosmological parameters (Lambda, H_0)"
+  putStrLn ""
+  putStrLn "  Empirical constants in selection: NONE"
+  putStrLn "    Selection uses only: StructuralNu (AST), DesugaredKappa (clause count),"
+  putStrLn "    d-bonacci bar (Fibonacci for d=2), canonical structural recognition."
+  putStrLn "    No physical constants, no empirical measurements, no fitted parameters."

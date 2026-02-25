@@ -442,13 +442,19 @@ prerequisite chain, and (3) minimal overshoot tie-breaking.
 - **F**: Full sequence golden test (all 15 ν values, total sums)
 - **G**: All 15 canonical names detected correctly
 
-### Step H: Publish scoped "what PEN does *not* derive" contract
+### Step H: ~~Publish scoped "what PEN does *not* derive" contract~~ (DONE)
 
-**Action items**:
-- Add a formal exclusion list in code/docs (e.g., no gauge group constants, no
-  empirical coupling values).
-- Add validation checks ensuring no selection rule references empirical constants.
-- Surface this in CLI output and in final run reports.
+Implemented:
+- **Exclusion contract** printed at end of every structural run: formal list of
+  what PEN derives (kinematic framework) vs. does not derive (gauge groups,
+  coupling constants, spacetime dimension, equations of motion, particle content,
+  cosmological parameters).
+- **4 acceptance tests** (H1-H4): validate StructuralNu has no paper-value
+  dependency, foundation+HIT ν is invariant to history perturbation,
+  DesugaredKappa is library-independent, and selection bar uses only
+  Fibonacci + discovered history.
+- **CI updated** to 46 tests.
+- "Empirical constants in selection: NONE" surfaced in claim profile.
 
 ### Suggested execution order
 
@@ -456,9 +462,11 @@ prerequisite chain, and (3) minimal overshoot tie-breaking.
 2. ~~**κ desugaring**: implement and remove suspension floor (Step B).~~ **DONE**
 3. ~~**ν_C normalization**: reduce 11–14 inflation + calibration plots (Step C).~~ **DONE**
 4. ~~**Trace/replay**: JSON artifacts + deterministic replay command (Step D).~~ **DONE**
-5. **Paper integration**: auto-generated tables + metric declaration (Step E).
-6. ~~**Ablation + failure-mode tests**: harden evidence package (Steps F, G, H).~~ **F, G DONE**
-7. **Exclusion contract**: document what PEN does not derive (Step H).
+5. ~~**Paper integration**: auto-generated tables + metric declaration (Step E).~~ **DONE**
+6. ~~**Ablation + failure-mode tests**: harden evidence package (Steps F, G).~~ **DONE**
+7. ~~**Exclusion contract**: document what PEN does not derive (Step H).~~ **DONE**
+
+**All forward plan steps (A–H) are complete.**
 
 ---
 

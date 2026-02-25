@@ -227,8 +227,28 @@ executable acceptance
                     , TelescopeEval
                     , TelescopeCheck
                     , StructuralNu
+                    , CoherenceWindow
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    ghc-options:      -Wall -O2
+
+executable agda-bridge
+    main-is:          RunAgdaBridge.hs
+    other-modules:    AgdaExport
+                    , Telescope
+                    , Kolmogorov
+                    , Types
+                    , Inhabitation
+                    , Enumerate
+                    , ProofRank
+                    , Equivalence
+                    , Independence
+    build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
+                    , containers
+                    , directory
+                    , filepath
     hs-source-dirs:   src
     default-language: Haskell2010
     ghc-options:      -Wall -O2

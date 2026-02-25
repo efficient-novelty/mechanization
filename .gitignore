@@ -1,0 +1,18 @@
+# Haskell build artifacts
+engine/dist-newstyle/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+
+# Agda build artifacts
+agda/_build/
+*.agdai
+
+# Editor files
+*~
+*.swp
+.vscode/
+
+# OS files
+.DS_Store
