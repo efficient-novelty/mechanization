@@ -88,7 +88,67 @@ Four structural results govern the emergence: (i) the Coherence Window Theorem (
 \newpage
 
 % ============================================
-% SECTION 1: THE GENESIS SEQUENCE
+% INTRODUCTION
+% ============================================
+\section{Introduction}
+\label{sec:introduction}
+
+Why is the mathematics of physics \emph{geometric}?
+The foundational structures of modern theoretical physics---fiber bundles, connections, curvature tensors, Riemannian metrics, Hilbert spaces---all live in the world of differential geometry and homotopy theory, not in the world of combinatorics, number theory, or abstract algebra.
+Wigner's famous observation~\cite{wigner} about the ``unreasonable effectiveness of mathematics'' asks why mathematics describes nature so well; but there is a prior question that is rarely posed: why does physics use \emph{this particular} mathematics?
+
+This paper proposes an answer.
+We introduce the \emph{Principle of Efficient Novelty} (PEN), an information-theoretic selection principle that, starting from an empty intensional type theory, deterministically produces the mathematical structures of theoretical physics in a unique order.
+The mechanism is simple: at each step, extend the library with the candidate that maximizes the ratio of new derivation power (\emph{Generative Capacity} $\nu$) to specification cost (\emph{Construction Effort} $\kappa$), subject to a rising selection threshold governed by the cost of integrating new structure into the existing library.
+
+The key structural input is the \emph{Coherence Window}---the depth of historical context required to stabilize coherence obligations when a new structure is sealed against the library.
+We prove that intensional type theory (Homotopy Type Theory, or HoTT) has Coherence Window $d = 2$: sealing a new type requires interaction with the two most recent integration layers, but not deeper.
+This two-step memory forces the integration cost to obey the Fibonacci recurrence $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$, so the selection threshold rises at the rate of the Golden Ratio $\varphi \approx 1.618$.
+
+Against this exponentially rising bar, only structures with \emph{superlinear} novelty growth can survive.
+Discrete structures---natural numbers, ordinals, classical logic---have at most linear novelty ($\nu_H = 0$, no path constructors), so they are permanently rejected once the bar exceeds their efficiency.
+Geometric structures, by contrast, carry nontrivial homotopy content: path constructors generate $\mathcal{O}(d^2)$ independent computation rules, producing the superlinear novelty needed to outpace the Fibonacci threshold.
+The model thus \emph{derives}, rather than assumes, that efficient foundations prioritize geometry over discrete utility.
+
+Starting from an empty library, the selection process produces a 15-step \emph{Generative Sequence}:
+\begin{enumerate}[nosep]
+    \item \textbf{Bootstrap} (steps 1--4): A universe, unit type, witness, and dependent function/sum types---the minimal infrastructure of type theory.
+    \item \textbf{Geometric Ascent} (steps 5--9): The circle $S^1$, propositional truncation, the sphere $S^2$, the H-space $S^3$, and the Hopf fibration---the core objects of homotopy theory.
+    \item \textbf{Framework Abstraction} (steps 10--14): Cohesion (differential modalities), connections, curvature, a Riemannian metric with its associated operators, and Hilbert-space structure---the mathematical language of gauge theory and quantum mechanics.
+    \item \textbf{Synthesis} (step 15): The Dynamical Cohesive Topos (DCT), which fuses spatial, temporal, and infinitesimal structure into a single type theory, clears the selection bar by the largest margin in the sequence ($\rho = 12.88$, bar $= 7.40$)---then the sequence terminates permanently.
+\end{enumerate}
+Termination is not a failure of the search: the DCT internalizes its own evolutionary mechanism as a geometric flow on the Univalent Universe, so every subsequent candidate is either internally derivable (contributing zero novelty) or structurally alien (unable to clear the bar).
+We call this boundary the \emph{G\"odelian Horizon}---the connected-component boundary of the type-theoretic moduli space beyond which only external axiomatic jumps can reach.
+
+The model produces several structural results:
+\begin{itemize}[nosep]
+    \item The \textbf{Coherence Window Theorems} establish $d = 1$ for extensional type theory (constant costs, stagnation) and $d = 2$ for intensional type theory (Fibonacci costs, sustained evolution), via three independent arguments from categorical, homological, and topological perspectives.
+    \item The \textbf{Complexity Scaling Theorem} shows that $d = 2$ coherence forces $\Delta_n = F_n$ (the Fibonacci sequence), making the Golden Ratio $\varphi$ the dominant eigenvalue of mathematical evolution.
+    \item The \textbf{Combinatorial Novelty Theorem} proves that novelty grows superlinearly, ensuring that efficiency permanently outpaces the rising selection bar.
+    \item The \textbf{Spectral Decomposition} reveals that the Generative Capacity decomposes into three orthogonal axes---syntactic (Introduction rules), topological (Computation rules), and logical (Elimination rules)---that carry approximately equal weight, centered within 3\% of $(1,1,1)$.
+\end{itemize}
+Computational verification is provided by a $\sim$3{,}000-line Haskell synthesis engine that reproduces the 15-step sequence from an empty library, with structural AST analysis confirming all $\nu$ values mechanically.
+A type-inhabitation-based algorithm with zero domain knowledge independently confirms the selection ordering for all 15 structures.
+Formal proofs in Cubical Agda verify the Fibonacci recurrence and the abstraction barrier at steps 8--9.
+
+\paragraph{Scope and limitations.}
+PEN derives the \emph{kinematic framework} of physics---the type-theoretic and categorical structures that constitute the mathematical language---not specific dynamical laws, gauge groups, coupling constants, or spacetime dimension.
+The candidate pool for steps 10--15 is theory-guided (drawn from HoTT-compatible mathematical structures); the engine's contribution is to verify that the selection ordering, and only this ordering, survives the rising bar.
+The model assumes \emph{maximal interface density} (each candidate seals against the entire exported interface of the past $d$ layers), a library-quality policy that produces the Fibonacci latency but is not a native requirement of the HoTT type\-checker.
+
+\paragraph{Outline.}
+\Cref{sec:genesis} presents the complete Generative Sequence and the patterns that govern it.
+\Cref{sec:framework} defines the model: state, candidates, the dual-cost framework, Generative Capacity, and the five axioms of selection dynamics.
+\Cref{sec:coherence} proves the Coherence Window Theorems ($d = 1$ for extensional, $d = 2$ for intensional foundations).
+\Cref{sec:scaling} derives the Complexity Scaling Theorem ($\Delta_n = F_n$).
+\Cref{sec:exponentiality} establishes superlinear novelty growth, the DCT synthesis mechanism, and the G\"odelian Horizon.
+\Cref{sec:decomposition} analyzes the three-way spectral decomposition and the equal-weight property.
+\Cref{sec:verification} describes the computational verification: the Haskell engine, rejected candidates, the uniform algorithm, the meta-theoretic rule audit, and Cubical Agda mechanization.
+\Cref{sec:discussion} assesses what is proved, what is assumed, and what remains open.
+\Cref{sec:boundaries} addresses four structural objections---algorithmic criticality, the inefficiency of discrete structures, the G\"odelian Horizon, and the DCT novelty count---and shows that each boundary condition is itself informative.
+
+% ============================================
+% SECTION 2: THE GENESIS SEQUENCE
 % ============================================
 \section{The Generative Sequence}
 \label{sec:genesis}
@@ -328,7 +388,7 @@ Hence $|\mathcal{G}_{\mathrm{obl}}| = |I^{(d)}_n|$.
 \emph{Sealing Encapsulation} (\cref{rem:encapsulation}): resolved obligations become opaque exports of the sealed layer; future types interact with $L_k$'s interface, not with underlying layers.
 
 \emph{Verification scope:} steps~3--9, uniform across HITs (steps~3--8) and maps (step~9, the Hopf fibration);
-machine-checked abstraction barrier at steps~8--9 in Cubical Agda (\texttt{Saturation/AbstractionBarrier.agda}, \texttt{AbstractionBarrier9.agda}); see \S\ref{sec:verification}.
+machine-checked abstraction barrier at steps~8--9 in Cubical Agda (\texttt{Saturation/\allowbreak AbstractionBarrier.agda}, \texttt{AbstractionBarrier9.agda}); see \S\ref{sec:verification}.
 \end{proof}
 
 \begin{remark}[Maximal interface density as a modeling assumption]
