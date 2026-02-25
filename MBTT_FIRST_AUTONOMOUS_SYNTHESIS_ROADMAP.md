@@ -1,0 +1,289 @@
+# MBTT-First Autonomous Synthesis — Roadmap and Backlog
+
+## Goal
+
+Transition PEN from a two-phase architecture (human-curated candidate templates + mechanical evaluation) to an MBTT-first architecture where typed MBTT terms are the native search space and semantic labels are attached only after global selection.
+
+---
+
+## Architectural Target State
+
+### Current (template-first)
+1. `Generator`/`Enumerate` proposes category-scoped candidates (Foundation, HIT, Modal, etc.).
+2. Evaluation (`InferenceNu`, `UniformNu`, `StructuralNu`, PEN bar) scores those named candidates.
+3. MBTT/Kolmogorov encoding is mostly audit/reporting.
+
+### Target (MBTT-first)
+1. Typed MBTT synthesis loop enumerates bounded, well-typed anonymous programs (`Π`, `Σ`, atoms, `Lib(i)`).
+2. Canonicalization/quotienting collapses alpha-equal/definitional/permutation-equivalent terms.
+3. Native novelty extraction computes `ν_G, ν_H, ν_C` directly from MBTT structure.
+4. PEN optimization selects by `ρ = ν / κ` where `κ` is MBTT bit-length (primary); clause count is secondary telemetry.
+5. Post-hoc semantic decoding maps winning anonymous terms to human interpretations.
+
+---
+
+## Implementation Principles
+
+- Keep legacy path runnable behind feature flags until parity acceptance passes.
+- Introduce MBTT-first as an additive pipeline first; remove template-first generator only after equivalence and stability criteria are met.
+- Treat all names/categories as metadata: they must not influence search order.
+- Preserve reproducibility: deterministic enumeration order, canonicalization hash stability, and seed-locked MCTS.
+- Strengthen contracts with explicit invariants in both Haskell tests and Agda-facing artifacts.
+
+---
+
+## Phased Roadmap (10–14 weeks)
+
+## Phase 0 — Baseline and Contracts (Week 1)
+
+### Deliverables
+- Snapshot current performance/correctness baseline for structural mode and acceptance suite.
+- Add architecture decision record (ADR) documenting MBTT-first constraints.
+- Define invariant contracts for:
+  - search-space independence from semantic labels,
+  - canonicalization idempotence,
+  - κ monotonicity by bit budget,
+  - post-hoc decoding non-interference.
+
+### Exit criteria
+- Baseline CSV/log artifacts checked into a reproducible benchmark folder.
+- ADR and invariants reviewed and accepted.
+
+---
+
+## Phase 1 — Typed MBTT Enumerator Core (Weeks 2–4)
+
+### Scope
+Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
+
+### Haskell workstream
+- Add `engine/src/MBTTEnum.hs`:
+  - grammar constructors for `Pi`, `Sigma`, primitives, `LibRef`;
+  - budget-aware generation;
+  - type-directed pruning via inhabitation/context checks;
+  - deterministic ordering (for reproducibility).
+- Add candidate identity type in `Telescope.hs` or new `MBTTCandidate.hs`:
+  - anonymous term id;
+  - provenance (budget, depth, seed);
+  - cost payload (`bitKappa`, `nodeCount`, `clauseCount`).
+- Integrate into `RunAbInitio.hs` with `--mbtt-first` gate.
+
+### Tests
+- Unit: grammar coverage for each constructor family.
+- Property: every emitted term type-checks under `TelescopeCheck`.
+- Regression: deterministic candidate stream given fixed seed/budget.
+
+### Exit criteria
+- `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode.
+
+---
+
+## Phase 2 — Canonicalization and Quotienting (Weeks 4–6)
+
+### Scope
+Normalize MBTT candidates before scoring to avoid syntactic duplicates.
+
+### Haskell workstream
+- Add `engine/src/MBTTCanonical.hs`:
+  - alpha-normalization (de Bruijn / stable binder ordering);
+  - definitional equality reduction (beta/eta + existing telescope reductions);
+  - permutation symmetry canonical ordering for commutative-equivalent substructures where valid.
+- Add canonical hash and quotient cache (`HashMap CanonKey CandidateRep`).
+- Thread canonical representatives into MCTS node expansion.
+
+### Tests
+- Property: canonicalization is idempotent.
+- Property: alpha-equivalent terms share canonical key.
+- Differential: search frontier size reduced without loss of best-ρ candidates at fixed budget.
+
+### Exit criteria
+- Duplicate rate reduced by agreed threshold (target ≥40% at medium budget).
+- No regression in discovered best score for benchmark seeds.
+
+---
+
+## Phase 3 — Native ν Extraction from Anonymous Terms (Weeks 6–8)
+
+### Scope
+Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic labels.
+
+### Haskell workstream
+- Extend `StructuralNu.hs`/`InferenceNu.hs` with MBTT-term entry point:
+  - derive eliminator/introduction/computation interaction signatures from anonymous term;
+  - produce spectral components and total novelty;
+  - emit explainability trace tied to AST nodes.
+- Build compatibility adapter so legacy reports can still print named fields when decoding exists.
+
+### Tests
+- Golden: selected existing canonical terms produce expected ν decomposition within tolerance.
+- Property: ν extraction invariant under alpha-equivalence and canonical rewrites.
+- Consistency: no dependence on label metadata in evaluator inputs.
+
+### Exit criteria
+- Native ν path is default under `--mbtt-first`; old label-dependent path disabled in that mode.
+
+---
+
+## Phase 4 — PEN Optimization with MBTT κ Primary (Weeks 8–10)
+
+### Scope
+Shift optimizer objective to bit-length-first complexity in MBTT space.
+
+### Haskell workstream
+- Update scoring interfaces in `Synthesis.hs`, `RunAbInitio.hs`, and evaluator bridge:
+  - primary `κ = bitKappa` from MBTT encoding;
+  - secondary telemetry: clause count / node count;
+  - unchanged bar constraint + `ρ` formula.
+- Update CSV/report schema:
+  - include `bit_kappa`, `ast_nodes`, `canonical_key`, `decoded_name?`.
+- Confirm step-13 target object emerges as unlabeled maximal-ρ term (`ν=46`, ~138 bits expected band).
+
+### Tests
+- Regression: structural run still yields 15-step growth with bar compliance.
+- Golden: step-13 target checks (`ν=46`, winner near expected bit complexity).
+- Ablation: if clause-count becomes primary again, sequence quality degrades (sanity check).
+
+### Exit criteria
+- MBTT-primary scoring stable across seed sweep and window settings.
+
+---
+
+## Phase 5 — Post-hoc Semantic Decoding (Weeks 10–11)
+
+### Scope
+Attach mathematical interpretation after optimization only.
+
+### Haskell workstream
+- Add `engine/src/MBTTDecode.hs`:
+  - pattern/constraint-based decoder from anonymous AST to semantic descriptors;
+  - confidence score and ambiguity handling.
+- Integrate decoding into reporting layer only (not candidate generation/scoring).
+- Extend Agda bridge comments to include decoded interpretation + confidence.
+
+### Tests
+- Unit: known anonymous representatives decode to expected identities.
+- Contract: removing decoder must not change selected winners.
+
+### Exit criteria
+- Reports show both anonymous winner id and optional decoded interpretation.
+
+---
+
+## Phase 6 — Agda Alignment and Formal Contracts (Weeks 11–12)
+
+### Scope
+Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
+
+### Agda workstream
+- Extend bridge output metadata fields for canonical key + bit κ provenance.
+- Add proof obligations (or machine-checked skeletons) for:
+  - canonicalization soundness assumptions,
+  - invariance of ν under alpha-equivalence,
+  - non-interference of decoding with selection.
+- Add focused tests in `agda/Test` for new bridge record fields.
+
+### Exit criteria
+- `cabal run agda-bridge -- --check` deterministic with new metadata.
+- Agda test suite validates updated bridge schema.
+
+---
+
+## Phase 7 — Migration, Hardening, and Cleanup (Weeks 12–14)
+
+### Scope
+Make MBTT-first default, retain rollback, deprecate template-first components.
+
+### Workstream
+- Promote `--mbtt-first` to default; add `--legacy-generator` fallback.
+- Deprecate category template generation paths with warnings.
+- Update docs, scripts, CI matrix, and acceptance suite.
+- Performance pass: quotient cache sizing, parallel enumeration, memory profiling.
+
+### Exit criteria
+- CI green with MBTT-first default.
+- Legacy path marked deprecated with sunset issue created.
+
+---
+
+## Backlog (Epics and Tickets)
+
+## Epic A — Enumerator Foundation
+- **A1 (P0):** MBTT grammar AST extension and pretty-printer parity.
+- **A2 (P0):** Typed budgeted enumerator with deterministic order.
+- **A3 (P1):** Enumerator telemetry (branching factor, prune reasons).
+- **A4 (P1):** Seeded parallel chunking without order drift.
+
+## Epic B — Canonicalization/Quotient Engine
+- **B1 (P0):** Alpha normalization + canonical binder strategy.
+- **B2 (P0):** Definitional equality normalizer.
+- **B3 (P1):** Permutation symmetry reduction for safe operator classes.
+- **B4 (P1):** Canonical hash cache and collision tests.
+
+## Epic C — Native Novelty Pipeline
+- **C1 (P0):** AST-to-rule extraction API (`ν_G, ν_H, ν_C`).
+- **C2 (P0):** Label-independent evaluator contract enforcement.
+- **C3 (P1):** Explainability traces from AST nodes to novelty increments.
+- **C4 (P2):** Cross-check with `UniformNu` on sampled corpus.
+
+## Epic D — MBTT-Primary Optimization
+- **D1 (P0):** Scoring schema change (`bitKappa` primary).
+- **D2 (P0):** PEN bar compatibility checks with new κ.
+- **D3 (P1):** Step-13 winner validation harness.
+- **D4 (P1):** Budget/seed robustness sweep automation.
+
+## Epic E — Post-hoc Decoder
+- **E1 (P1):** Decoder core with confidence scores.
+- **E2 (P1):** Report/UI wiring (non-interfering).
+- **E3 (P2):** Ambiguity clustering + top-k candidate explanations.
+
+## Epic F — Agda/Bridge Integration
+- **F1 (P1):** Bridge schema extension for canonical metadata.
+- **F2 (P1):** Agda stubs updated with MBTT provenance comments.
+- **F3 (P2):** Proof skeletons for canonicalization and non-interference assumptions.
+
+## Epic G — Quality, Performance, and Ops
+- **G1 (P0):** Acceptance suite expansion for MBTT-first invariants.
+- **G2 (P1):** CI job split: fast invariant checks vs full discovery.
+- **G3 (P1):** Profiling and memory budget envelope.
+- **G4 (P2):** Failure triage dashboard from run artifacts.
+
+---
+
+## Definition of Done (Program-Level)
+
+A release is “MBTT-first complete” when all are true:
+1. MBTT-first path is default and deterministic.
+2. Search uses typed MBTT enumeration (no semantic template priors).
+3. Canonicalization eliminates semantic duplicates before scoring.
+4. Native ν extraction is label-free and invariant under canonical equivalence.
+5. PEN optimization uses MBTT bit-length as primary κ.
+6. Post-hoc decoding is present and provably non-interfering with selection.
+7. CI + acceptance + Agda bridge checks are green under default mode.
+
+---
+
+## Risks and Mitigations
+
+- **Risk:** Enumeration explosion from richer MBTT space.  
+  **Mitigation:** aggressive type-directed pruning, quotient cache, progressive widening controls.
+
+- **Risk:** Over-normalization merges semantically distinct terms.  
+  **Mitigation:** staged canonicalization flags, conservative symmetry classes, differential oracle tests.
+
+- **Risk:** ν extraction drift vs legacy expectations.  
+  **Mitigation:** dual-run comparison harness and tolerance-bounded goldens.
+
+- **Risk:** Decoder leakage into scoring path.  
+  **Mitigation:** compile-time module boundary + contract tests that disable decoder.
+
+---
+
+## Suggested Execution Order (first sprint cut)
+
+1. A1 → A2 → G1 baseline tests.
+2. B1 + B2 minimal canonicalization.
+3. C1 native ν extraction MVP.
+4. D1 scoring migration.
+5. Shadow-run comparison harness (legacy vs MBTT-first) before default switch.
+
+This gives a thin vertical slice that proves feasibility early while preserving rollback.
