@@ -34,6 +34,7 @@ import Kolmogorov (MBTTExpr(..))
 import Telescope (Telescope(..), TeleEntry(..), teleIsConnected, teleReferencesWindow)
 import TelescopeGen (Action(..), validActions, Hole(..), HoleGoal(..), actionPriority)
 import TelescopeEval (EvalMode(..), evaluateTelescope)
+import TelescopeCheck (checkTelescope, CheckResult(..))
 import Types (Library)
 
 import qualified Data.Map.Strict as Map
@@ -55,6 +56,8 @@ data MCTSConfig = MCTSConfig
   , mctsTopK         :: !Int     -- ^ Return top-K telescopes
   , mctsSeed         :: !Int     -- ^ Random seed
   , mctsVerbose      :: !Bool    -- ^ Print progress
+  , mctsWidenC       :: !Double  -- ^ Progressive widening coefficient (default 1.0)
+  , mctsWidenAlpha   :: !Double  -- ^ Progressive widening exponent (default 0.5)
   } deriving (Show)
 
 defaultMCTSConfig :: MCTSConfig
@@ -67,6 +70,8 @@ defaultMCTSConfig = MCTSConfig
   , mctsTopK         = 10
   , mctsSeed         = 42
   , mctsVerbose      = True
+  , mctsWidenC       = 1.0
+  , mctsWidenAlpha   = 0.5
   }
 
 -- ============================================
@@ -96,11 +101,13 @@ data MCTSResult = MCTSResult
   } deriving (Show)
 
 data MCTSStats = MCTSStats
-  { msIterations     :: !Int
-  , msNodesExpanded  :: !Int
-  , msRolloutsRun    :: !Int
-  , msBestReward     :: !Double
-  , msAvgReward      :: !Double
+  { msIterations       :: !Int
+  , msNodesExpanded    :: !Int
+  , msRolloutsRun      :: !Int
+  , msBestReward       :: !Double
+  , msAvgReward        :: !Double
+  , msValidRollouts    :: !Int     -- ^ Rollouts that passed TelescopeCheck
+  , msRejectedRollouts :: !Int     -- ^ Rollouts rejected by TelescopeCheck
   } deriving (Show)
 
 -- ============================================
@@ -121,11 +128,11 @@ uctScore exploreC node parentVisits
 -- Core MCTS Loop
 -- ============================================
 
-mctsSearch :: MCTSConfig -> Library -> IO MCTSResult
-mctsSearch cfg lib = do
+mctsSearch :: EvalMode -> MCTSConfig -> Library -> IO MCTSResult
+mctsSearch evalMode cfg lib = do
   rootRef  <- newIORef (freshNode [])
   genRef   <- newIORef (mkStdGen (mctsSeed cfg))
-  statsRef <- newIORef (MCTSStats 0 0 0 0.0 0.0)
+  statsRef <- newIORef (MCTSStats 0 0 0 0.0 0.0 0 0)
   bestRef  <- newIORef ([] :: [(Telescope, Double)])
 
   let loop iter
@@ -134,7 +141,7 @@ mctsSearch cfg lib = do
           root <- readIORef rootRef
           gen <- readIORef genRef
 
-          let (root', gen', reward, maybeTele) = mctsIteration cfg lib root gen
+          let (root', gen', reward, maybeTele, valid) = mctsIteration evalMode cfg lib root gen
           writeIORef rootRef root'
           writeIORef genRef gen'
 
@@ -147,6 +154,8 @@ mctsSearch cfg lib = do
             , msRolloutsRun = newRollouts
             , msBestReward = max (msBestReward stats) reward
             , msAvgReward = totalReward / fromIntegral newRollouts
+            , msValidRollouts = msValidRollouts stats + if valid then 1 else 0
+            , msRejectedRollouts = msRejectedRollouts stats + if valid then 0 else 1
             }
 
           -- Track best telescopes
@@ -177,42 +186,44 @@ insertBest k new xs = take k $ sortOn (Down . snd) (new : xs)
 -- Tree structure: each node at depth d has committed to d telescope entries.
 -- Children are indexed by the Action for the (d+1)th entry's top-level constructor.
 -- Sub-expression filling within entries uses the random rollout policy.
-mctsIteration :: MCTSConfig -> Library -> MCTSNode -> StdGen
-              -> (MCTSNode, StdGen, Double, Maybe Telescope)
-mctsIteration cfg lib root gen0 =
+mctsIteration :: EvalMode -> MCTSConfig -> Library -> MCTSNode -> StdGen
+              -> (MCTSNode, StdGen, Double, Maybe Telescope, Bool)
+mctsIteration evalMode cfg lib root gen0 =
   let maxK = mctsMaxKappa cfg
 
       -- Phase 1: SELECTION — walk down tree following UCT
       -- Collect the path of (action, node) pairs for backpropagation
       (path, leaf, gen1) = selectPath cfg lib root gen0
 
-      -- Phase 2: EXPANSION — if leaf is unexpanded and below maxK, create children
+      -- Phase 2: PROGRESSIVE EXPANSION — add children up to widening limit
       currentDepth = length (nodeEntries leaf)
       (leaf', gen2)
-        | nodeExpanded leaf || currentDepth >= maxK = (leaf, gen1)
-        | otherwise = expandNode cfg lib leaf gen1
+        | currentDepth >= maxK = (leaf, gen1)
+        | otherwise = progressiveExpand cfg lib leaf gen1
 
-      -- Phase 3: ROLLOUT — complete the telescope randomly and evaluate
-      (reward, maybeTele, gen3) = rolloutFromNode cfg lib leaf' gen2
+      -- Phase 3: ROLLOUT — complete the telescope randomly, check validity, evaluate
+      (reward, maybeTele, valid, gen3) = rolloutFromNode evalMode cfg lib leaf' gen2
 
       -- Phase 4: BACKPROPAGATION — update reward/visits along the selection path
       root' = backpropagate root path leaf' reward
 
-  in (root', gen3, reward, maybeTele)
+  in (root', gen3, reward, maybeTele, valid)
 
--- | Walk down the tree following UCT until we reach a leaf or unexpanded node.
+-- | Walk down the tree following UCT until we reach a leaf or a node that
+-- needs widening (more children allowed than currently exist).
 -- Returns (path, leaf_node, gen).
 -- Path is a list of (Action, child_node) pairs from root to leaf.
 selectPath :: MCTSConfig -> Library -> MCTSNode -> StdGen
            -> ([(Action, MCTSNode)], MCTSNode, StdGen)
-selectPath cfg _lib = go []
+selectPath cfg lib = go []
   where
     go path node gen
-      -- Stop at unexpanded nodes
-      | not (nodeExpanded node) = (reverse path, node, gen)
-      -- Stop at leaf nodes (no children or at max depth)
-      | Map.null (nodeChildren node) = (reverse path, node, gen)
+      -- Stop at max depth
       | length (nodeEntries node) >= mctsMaxKappa cfg = (reverse path, node, gen)
+      -- Stop at leaf nodes (no children yet)
+      | Map.null (nodeChildren node) = (reverse path, node, gen)
+      -- Stop if progressive widening allows more children at this node
+      | needsWidening cfg lib node = (reverse path, node, gen)
       | otherwise =
         -- UCT selection: pick the child with highest UCT score
         let parentN = max 1 (nodeVisits node)
@@ -225,25 +236,59 @@ selectPath cfg _lib = go []
     maximumByScore [] = error "maximumByScore: empty list"
     maximumByScore xs = foldr1 (\a@(_,_,s1) b@(_,_,s2) -> if s1 >= s2 then a else b) xs
 
--- | Expand a node: create child nodes for each valid action at the current depth.
-expandNode :: MCTSConfig -> Library -> MCTSNode -> StdGen -> (MCTSNode, StdGen)
-expandNode _cfg lib node gen =
-  let currentEntries = nodeEntries node
-      -- Get valid actions for the next entry
-      hole = Hole currentEntries AnyHole 0 100
-      actions = validActions hole lib
-      -- Create a child node for each action
-      -- Each child will have the current entries PLUS one new entry
-      -- (the entry's sub-expressions are not determined yet — that's the rollout's job)
-      children = Map.fromList
-        [(act, freshNode currentEntries) | act <- actions]
-      node' = node { nodeChildren = children, nodeExpanded = True }
-  in (node', gen)
+-- ============================================
+-- Progressive Widening
+-- ============================================
+
+-- | Maximum children allowed at a node with N visits.
+-- k(N) = C_pw * N^alpha, where C_pw and alpha are config parameters.
+-- At low visits, only top-priority actions get children; as visits grow,
+-- the node widens to include more actions.
+wideningLimit :: Double -> Double -> Int -> Int
+wideningLimit c alpha visits =
+  max 1 (floor (c * fromIntegral (max 1 visits) ** alpha))
+
+-- | Check if a node should be widened (more children added before descending).
+-- Returns True if the current child count is below the widening limit AND
+-- there are unexpanded actions available.
+needsWidening :: MCTSConfig -> Library -> MCTSNode -> Bool
+needsWidening cfg lib node =
+  let visits    = max 1 (nodeVisits node)
+      limit     = wideningLimit (mctsWidenC cfg) (mctsWidenAlpha cfg) visits
+      current   = Map.size (nodeChildren node)
+      entries   = nodeEntries node
+      hole      = Hole entries AnyHole 0 100
+      available = length (validActions hole lib)
+  in current < limit && current < available
+
+-- | Progressive expansion: add children up to the widening limit.
+-- Actions are added in priority order (validActions sorts by descending priority),
+-- so high-value actions (recent library refs, Pi, Sigma) get explored first.
+progressiveExpand :: MCTSConfig -> Library -> MCTSNode -> StdGen -> (MCTSNode, StdGen)
+progressiveExpand cfg lib node gen =
+  let visits     = max 1 (nodeVisits node + 1)  -- +1 for the upcoming visit
+      limit      = wideningLimit (mctsWidenC cfg) (mctsWidenAlpha cfg) visits
+      current    = Map.size (nodeChildren node)
+  in if current >= limit
+     then (node, gen)
+     else
+       let entries    = nodeEntries node
+           hole       = Hole entries AnyHole 0 100
+           allActions = validActions hole lib  -- sorted by descending priority
+           unexpanded = [a | a <- allActions, not (Map.member a (nodeChildren node))]
+           toAdd      = take (max 1 (limit - current)) unexpanded
+           newChildren = Map.fromList [(a, freshNode entries) | a <- toAdd]
+           allChildren = Map.union (nodeChildren node) newChildren
+           fullyDone   = Map.size allChildren >= length allActions
+       in (node { nodeChildren = allChildren, nodeExpanded = fullyDone }, gen)
 
 -- | Rollout: complete the telescope from the current node and evaluate.
-rolloutFromNode :: MCTSConfig -> Library -> MCTSNode -> StdGen
-               -> (Double, Maybe Telescope, StdGen)
-rolloutFromNode cfg lib node gen0 =
+-- Ill-formed telescopes (detected by TelescopeCheck) receive reward 0
+-- and are not added to the candidate pool. UCT naturally depresses
+-- action paths that repeatedly produce invalid rollouts.
+rolloutFromNode :: EvalMode -> MCTSConfig -> Library -> MCTSNode -> StdGen
+               -> (Double, Maybe Telescope, Bool, StdGen)
+rolloutFromNode evalMode cfg lib node gen0 =
   let currentEntries = nodeEntries node
       currentK = length currentEntries
       maxK = mctsMaxKappa cfg
@@ -259,19 +304,20 @@ rolloutFromNode cfg lib node gen0 =
 
       tele = Telescope finalEntries
 
-      -- Evaluate (rollout always uses paper-calibrated since name is "mcts_candidate"
-      -- which won't hit paper tables — this is only for reward estimation)
-      name = "mcts_candidate"
-      (nu, _kappa, rho) = evaluateTelescope EvalPaperCalibrated tele lib (mctsNuDepth cfg) name
-
-      -- Reward with structural bonuses
-      connected = teleIsConnected tele
-      refsWindow = teleReferencesWindow tele (length lib)
-      connectBonus = if connected then 1.0 else 0.5 :: Double
-      windowBonus = if refsWindow then 1.1 else 1.0 :: Double
-      reward = rho * connectBonus * windowBonus
-
-  in (reward, if nu > 0 then Just tele else Nothing, gen1)
+  in case checkTelescope lib tele of
+    CheckFail _ ->
+      -- Invalid telescope: reward 0, no candidate, mark as rejected
+      (0.0, Nothing, False, gen1)
+    CheckOK ->
+      -- Valid telescope: evaluate normally
+      let name = "mcts_candidate"
+          (nu, _kappa, rho) = evaluateTelescope evalMode tele lib (mctsNuDepth cfg) name
+          connected = teleIsConnected tele
+          refsWindow = teleReferencesWindow tele (length lib)
+          connectBonus = if connected then 1.0 else 0.5 :: Double
+          windowBonus = if refsWindow then 1.1 else 1.0 :: Double
+          reward = rho * connectBonus * windowBonus
+      in (reward, if nu > 0 then Just tele else Nothing, True, gen1)
 
 -- | Backpropagate reward along the selection path.
 -- Updates visits and reward for the root and each node on the path.
@@ -471,13 +517,13 @@ weightedChoice items gen =
 -- Single-Step Search (for integration with Synthesis)
 -- ============================================
 
-mctsSearchStep :: EvalMode -> MCTSConfig -> Library -> Double -> IO [(Telescope, Int, Int, Double)]
+mctsSearchStep :: EvalMode -> MCTSConfig -> Library -> Double -> IO ([(Telescope, Int, Int, Double)], MCTSStats)
 mctsSearchStep evalMode cfg lib bar = do
-  result <- mctsSearch cfg lib
+  result <- mctsSearch evalMode cfg lib
   let evaluated = [ (tele, nu, kappa, rho)
                   | (tele, _) <- mrTelescopes result
                   , let name = "candidate"
                   , let (nu, kappa, rho) = evaluateTelescope evalMode tele lib (mctsNuDepth cfg) name
                   , rho >= bar
                   ]
-  return $ sortOn (\(_, _, _, rho) -> Down rho) evaluated
+  return (sortOn (\(_, _, _, rho) -> Down rho) evaluated, mrStats result)

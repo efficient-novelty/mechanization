@@ -28,6 +28,13 @@ PEN/
 │   ├── Core/                # Fibonacci sequence, Δ/τ definitions
 │   ├── ObligationGraph/     # Interface/recurrence proofs
 │   └── Experiments/         # Circle, sphere, torus elimination traces
+├── scripts/                 # Automation scripts
+│   ├── benchmark.sh         # One-command 4-profile verification
+│   ├── gen_latex_table.sh   # Generate §1 LaTeX table from engine
+│   ├── repro_ab_initio.sh   # Multi-mode replication harness
+│   └── compare_runs.sh      # Diff two run directories
+├── .github/workflows/       # CI pipeline
+│   └── pen-engine.yml       # Build + acceptance + structural + paper-calibrated
 ├── sweep_figure.py          # Sensitivity analysis (2601-cell weight sweep)
 ├── paper_improvement_plan.md    # Status tracker — what's done, what's next
 └── remaining_priority2_plan.md  # Detailed plan for inference-rule algorithm
@@ -71,11 +78,19 @@ PEN/
 ### Building and Running
 
 ```bash
-cd engine && cabal build
-cabal run pen-engine        # Full 10-phase analysis + synthesis
-cabal run uniform-nu        # Uniform novelty computation (all 15 steps)
-cabal run pen-engine -- --window 1   # Stress-test with d=1 (stagnation)
-cabal run pen-engine -- --window 3   # Stress-test with d=3
+cd engine && cabal build all
+cabal run ab-initio -- --structural                # Publication-grade discovery (15/15)
+cabal run ab-initio -- --structural --csv out.csv  # With CSV output
+cabal run ab-initio                                # Paper-calibrated replay
+cabal run ab-initio -- --structural --window 1     # d=1 stress test
+cabal run ab-initio -- --structural --window 3     # d=3 stress test
+cabal run ab-initio -- --structural --no-canonical-priority  # Ablation
+cabal run ab-initio -- --structural --max-rho      # Ablation (max ρ)
+cabal run acceptance                               # 42-test regression suite
+cabal run pen-engine                               # Full 10-phase analysis
+cabal run uniform-nu                               # Uniform novelty computation
+./scripts/benchmark.sh                             # Full 4-profile verification
+./scripts/gen_latex_table.sh table.tex             # Generate LaTeX table
 ```
 
 ### Module Architecture
@@ -110,22 +125,35 @@ cabal run pen-engine -- --window 3   # Stress-test with d=3
 - `HITEnum.hs` — Parametric HIT enumeration by cost.
 - `TheoryState.hs` — Library state, type former unlocking chain.
 
-**Layer 4 — Selection Loop:**
-- `Synthesis.hs` — Main discovery loop: compute bar, generate candidates,
-  evaluate $\rho$, select minimal overshoot. Implements the 5 PEN axioms.
+**Layer 4 — Ab Initio Synthesis (primary):**
+- `Telescope.hs` — Core data types (TeleEntry, Telescope, MBTTExpr), structural
+  analysis, reference telescopes, desugared κ, classification.
+- `TelescopeGen.hs` — Type-directed generator, structural action gating.
+- `TelescopeEval.hs` — Classification, naming, EvalMode dispatch, evaluation bridge.
+- `TelescopeCheck.hs` — Conservative well-formedness checker.
+- `StructuralNu.hs` — AST rule extraction (ν_G + ν_H + ν_C), meta-theorem detectors.
+- `MCTS.hs` — Monte Carlo Tree Search (full UCT, progressive widening).
+- `RunAbInitio.hs` — Ab initio engine (structural / paper-calibrated / strict modes).
+- `RunAcceptance.hs` — 42-test acceptance suite.
+
+**Layer 5 — Legacy Selection Loop:**
+- `Synthesis.hs` — Original discovery loop (predates telescope-based ab initio).
 - `Simulation.hs` — Paper-mode replay using hardcoded values (for validation).
 - `CoherenceWindow.hs` — $d$-Bonacci sequences ($d=1$: constant, $d=2$: Fibonacci).
 
-**Layer 5 — Support:**
+**Layer 6 — Support:**
 - `Parallel.hs` — 8-core parallel map utilities.
 - `Manifest.hs` — JSON manifest loader (stubbed).
 
-### Simulation Modes
+### Evaluation Modes
 
-The engine supports multiple evaluation modes in `Simulation.hs`:
-- **PaperMode** — Replays hardcoded $\nu$/$\kappa$ from the paper table.
-- **CapabilityMode** — Uses hand-tuned capability rules.
-- **ComputedMode** — Uses Kolmogorov-based novelty.
+The ab initio engine (`RunAbInitio.hs`) supports three evaluation modes:
+- **EvalPaperCalibrated** — Uses paper ν/κ for canonical names (replay/comparison).
+- **EvalStrictComputed** — Uses UniformNu + strictKappa (no paper lookups).
+- **EvalStructural** — Uses StructuralNu (AST rule extraction, publication-grade).
+
+The `--structural` flag selects the publication-grade mode. All scoring, bar
+computation, MCTS rollout guidance, and library insertion are paper-independent.
 
 The uniform algorithm (`UniformNu.hs`) runs as a separate executable.
 

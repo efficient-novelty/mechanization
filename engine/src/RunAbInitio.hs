@@ -27,16 +27,17 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
-import TelescopeEval (EvalMode(..), evaluateTelescopeWithHistory,
-                      telescopeToCandidate,
+import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
+                      telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
 import TelescopeCheck (checkAndFilter)
 import MCTS
-import UniformNu (genesisLibrarySteps, GenesisStep(..))
+import UniformNu (genesisLibrarySteps, GenesisStep(..), computeUniformNu, UniformNuResult(..))
 import Types (Library, LibraryEntry(..))
 import CoherenceWindow (dBonacciDelta)
 
 import Data.List (sortOn)
+import Data.Ord (Down(..))
 import Control.Monad (when)
 import System.IO (hFlush, stdout)
 import System.Environment (getArgs)
@@ -53,10 +54,34 @@ data AbInitioMode
   | StructuralAbInitio -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
+-- | Configuration for the ab initio run.
+data AbInitioConfig = AbInitioConfig
+  { cfgMode            :: !AbInitioMode
+  , cfgWindow          :: !Int              -- ^ Coherence window depth d (default 2 = Fibonacci)
+  , cfgCsv             :: !(Maybe FilePath) -- ^ Optional CSV output file
+  , cfgKappaMode       :: !KappaMode        -- ^ Kappa computation mode (default DesugaredKappa)
+  , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
+  , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
+  } deriving (Show)
+
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
 data DiscoveryRecord = DiscoveryRecord
   { drNu    :: !Int
   , drKappa :: !Int
+  } deriving (Show)
+
+-- | Full step record for CSV output and post-hoc analysis.
+data StepRecord = StepRecord
+  { srStep   :: !Int
+  , srName   :: !String
+  , srNu     :: !Int
+  , srKappa  :: !Int
+  , srRho    :: !Double
+  , srBar    :: !Double
+  , srDelta  :: !Int
+  , srSource :: !String
+  , srCands  :: !Int
+  , srTele   :: Telescope  -- ^ Discovered telescope (for post-hoc analysis)
   } deriving (Show)
 
 -- | Convert synthesis mode to evaluation mode.
@@ -75,16 +100,13 @@ toEvalMode StructuralAbInitio = EvalStructural
 main :: IO ()
 main = do
   args <- getArgs
-  let mode = case args of
-        ("--strict":_)     -> StrictAbInitio
-        ("--structural":_) -> StructuralAbInitio
-        _                  -> PaperCalibrated
+  let cfg = parseArgs args
 
   putStrLn "============================================"
   putStrLn "PEN Ab Initio Discovery Engine"
-  printf   "Mode: %s\n" (show mode)
+  printf   "Mode: %s, d=%d\n" (show (cfgMode cfg)) (cfgWindow cfg)
   putStrLn "============================================"
-  case mode of
+  case cfgMode cfg of
     PaperCalibrated -> do
       putStrLn "  Evaluator: EvalPaperCalibrated (effectiveNu/effectiveKappa for canonical names)"
       putStrLn "  Bar:       Paper nu/kappa history"
@@ -99,6 +121,15 @@ main = do
       putStrLn "  Library:   Discovered entries only, no fallback"
       putStrLn "  Features:  3-component decomposition (v_G + v_H + v_C)"
       putStrLn "             Meta-theorem multipliers for DCT (Big Bang)"
+      putStrLn "  PAPER-INDEPENDENCE: Zero paper nu/kappa lookups in evaluation,"
+      putStrLn "    bar computation, MCTS rollout guidance, or library insertion."
+      putStrLn "    All scores derive from AST analysis of discovered telescopes."
+  printf   "  Window:    d=%d (%s)\n" (cfgWindow cfg) (windowName (cfgWindow cfg))
+  printf   "  Kappa:     %s\n" (show (cfgKappaMode cfg))
+  when (cfgNoCanonPriority cfg) $
+    putStrLn "  ABLATION:  --no-canonical-priority (selection by rho only, no name tier)"
+  when (cfgMaxRho cfg) $
+    putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -111,9 +142,38 @@ main = do
 
   -- Phase 1: Run the ab initio synthesis loop
   putStrLn ""
-  printf   "--- Phase 1: Ab Initio Synthesis (%s) ---\n" (show mode)
+  printf   "--- Phase 1: Ab Initio Synthesis (%s, d=%d) ---\n" (show (cfgMode cfg)) (cfgWindow cfg)
   putStrLn ""
-  abInitioLoop mode
+  abInitioLoop cfg
+
+-- | Parse command line arguments.
+parseArgs :: [String] -> AbInitioConfig
+parseArgs args =
+  let mode = if "--strict" `elem` args then StrictAbInitio
+             else if "--structural" `elem` args then StructuralAbInitio
+             else PaperCalibrated
+      window = case dropWhile (/= "--window") args of
+                 ("--window" : n : _) -> case reads n of
+                   [(d, "")] | d >= 1 && d <= 5 -> d
+                   _ -> 2
+                 _ -> 2
+      csv = case dropWhile (/= "--csv") args of
+              ("--csv" : f : _) -> Just f
+              _ -> Nothing
+      kappaMode = case dropWhile (/= "--kappa-mode") args of
+                    ("--kappa-mode" : "entry" : _) -> EntryKappa
+                    ("--kappa-mode" : "bitcost" : _) -> BitCostKappa
+                    _ -> DesugaredKappa
+      noCanonPriority = "--no-canonical-priority" `elem` args
+      maxRho = "--max-rho" `elem` args
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho
+
+-- | Human-readable name for window depth.
+windowName :: Int -> String
+windowName 1 = "constant — extensional"
+windowName 2 = "Fibonacci — intensional HoTT"
+windowName 3 = "tribonacci"
+windowName d = show d ++ "-bonacci"
 
 -- ============================================
 -- Reference Telescope Validation
@@ -143,8 +203,8 @@ validatePhase = do
 -- Ab Initio Synthesis Loop
 -- ============================================
 
-abInitioLoop :: AbInitioMode -> IO ()
-abInitioLoop mode = do
+abInitioLoop :: AbInitioConfig -> IO ()
+abInitioLoop cfg = do
   -- Header
   printf "%-4s %-16s %5s %5s %8s %8s %8s  %-8s %s\n"
     ("Step" :: String) ("Discovery" :: String)
@@ -154,12 +214,14 @@ abInitioLoop mode = do
   putStrLn (replicate 90 '-')
 
   -- Pure ab initio: build library from discovered telescopes only
-  go [] [] 1
+  go [] [] [] 1
 
   where
-    go :: Library -> [DiscoveryRecord] -> Int -> IO ()
-    go lib history step
+    mode = cfgMode cfg
+    go :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
+    go lib history records step
       | step > 15 = do
+          let orderedRecords = reverse records
           putStrLn ""
           putStrLn "============================================"
           putStrLn "SYNTHESIS COMPLETE: 15 structures discovered"
@@ -167,10 +229,35 @@ abInitioLoop mode = do
           putStrLn ""
           -- Print summary comparing discovered vs paper
           printSummary history
+          -- Post-hoc analysis: compare StructuralNu vs UniformNu
+          when (mode == StructuralAbInitio) $ do
+            postHocAnalysis orderedRecords
+            -- Print claim profile summary
+            putStrLn ""
+            putStrLn "--- Claim Profile (Publication-Grade) ---"
+            putStrLn "  Mode:     EvalStructural (--structural)"
+            putStrLn "  Nu:       StructuralNu — AST rule extraction (v_G + v_H + v_C)"
+            putStrLn "  Kappa:    DesugaredKappa — principled clause counting"
+            putStrLn "  Bar:      Phi_n * Omega_{n-1}, discovered history only"
+            putStrLn "  MCTS:     EvalStructural rollout guidance (zero paper lookups)"
+            putStrLn "  Library:  Discovered entries only, no paper fallback"
+            let totalDiscNu = sum [drNu r | r <- history]
+                totalPapNu  = sum [gsPaperNu s | s <- take 15 genesisLibrarySteps]
+                totalDiscK  = sum [drKappa r | r <- history]
+                totalPapK   = sum [gsPaperK s | s <- take 15 genesisLibrarySteps]
+                exact = length [() | (dr, gs) <- zip history (take 15 genesisLibrarySteps)
+                                   , drNu dr == gsPaperNu gs && drKappa dr == gsPaperK gs]
+            printf "  Result:   %d/15 exact match, total nu %d/%d, total kappa %d/%d\n"
+              exact totalDiscNu totalPapNu totalDiscK totalPapK
+          -- Write CSV if requested
+          case cfgCsv cfg of
+            Just csvPath -> writeCsv csvPath orderedRecords
+            Nothing      -> return ()
       | otherwise = do
           let -- Compute selection bar
-              bar = computeBar mode step history
-              delta_n = dBonacciDelta 2 step
+              d = cfgWindow cfg
+              bar = computeBarD d mode step history
+              delta_n = dBonacciDelta d step
 
           -- Phase A: Exhaustive enumeration for κ ≤ 3
           -- Type-check to filter ill-formed telescopes, then evaluate honestly
@@ -233,7 +320,7 @@ abInitioLoop mode = do
 
           mctsCandidates <- if needMCTS
             then do
-              let cfg = defaultMCTSConfig
+              let mctsCfg = defaultMCTSConfig
                     { mctsIterations = 2000
                     , mctsMaxKappa   = max 5 (mctsKappaEst + 2)
                     , mctsMaxDepth   = 3
@@ -242,7 +329,17 @@ abInitioLoop mode = do
                     , mctsSeed       = step * 137 + 42
                     , mctsVerbose    = False
                     }
-              results <- mctsSearchStep emode cfg lib bar
+              (results, mctsStats) <- mctsSearchStep emode mctsCfg lib bar
+              -- Print MCTS validity stats
+              let validR = msValidRollouts mctsStats
+                  rejR   = msRejectedRollouts mctsStats
+                  totalR = validR + rejR
+                  rejPct = if totalR > 0
+                           then 100.0 * fromIntegral rejR / fromIntegral totalR :: Double
+                           else 0.0 :: Double
+              printf "  [MCTS step %d] %d iters, %d valid, %d rejected (%.1f%%), best rho=%.2f\n"
+                step totalR validR rejR rejPct (msBestReward mctsStats)
+              hFlush stdout
               return [(tele, nu, kappa, rho, "MCTS" :: String)
                      | (tele, nu, kappa, rho) <- results]
             else return []
@@ -265,13 +362,26 @@ abInitioLoop mode = do
           --
           -- Within each priority tier (canonical vs generic), select by
           -- minimal overshoot (ρ - bar), then κ ascending, then name.
-          let selectBest cs = case cs of
+          let ablation = cfgNoCanonPriority cfg
+              useMaxRho = cfgMaxRho cfg
+              selectBest cs = case cs of
                 [] -> (refTele, refNu, refKappa, refRho, "REF")
-                _  -> let sorted = sortOn (\(t, _, k, rho, _) ->
+                _  | useMaxRho ->
+                      -- Max-ρ ablation: highest ρ wins, then smallest κ, then name
+                      let sorted = sortOn (\(t, _, k, rho, _) ->
+                            let cn = detectCanonicalName t lib
+                            in (Down rho, k, cn)) cs
+                      in case sorted of
+                        ((tele, nu, kappa, rho, src):_) -> (tele, nu, kappa, rho, src)
+                        [] -> (refTele, refNu, refKappa, refRho, "REF")
+                   | otherwise ->
+                      let sorted = sortOn (\(t, _, k, rho, _) ->
                             let cn = detectCanonicalName t lib
                                 -- Priority: canonical names first (0), generic second (1)
-                                isCanon = if cn `elem` knownNames
-                                          then (0 :: Int) else 1
+                                -- In ablation mode: no canonical tier (all treated as 0)
+                                isCanon = if ablation then (0 :: Int)
+                                          else if cn `elem` knownNames
+                                          then 0 else 1
                             in (isCanon, rho - bar, k, cn)) cs
                       in case sorted of
                         ((tele, nu, kappa, rho, src):_) -> (tele, nu, kappa, rho, src)
@@ -307,8 +417,10 @@ abInitioLoop mode = do
                          Nothing -> discoveredEntry
               newLib = lib ++ [newEntry]
               newHistory = history ++ [DiscoveryRecord bestNu bestKappa]
+              newRecord = StepRecord step bestName bestNu bestKappa
+                            bestRho bar delta_n bestSource totalCandidates bestTele
 
-          go newLib newHistory (step + 1)
+          go newLib newHistory (newRecord : records) (step + 1)
 
     knownNames :: [String]
     knownNames =
@@ -336,26 +448,107 @@ abInitioLoop mode = do
       printf "%-4s %8d %8d %8d %8d\n"
         ("SUM" :: String) totalDiscNu totalPapNu totalDiscK totalPapK
 
+    -- | Post-hoc analysis: recompute UniformNu on the discovered sequence
+    -- and display a side-by-side comparison with StructuralNu.
+    --
+    -- This runs AFTER selection is complete — UniformNu is never called
+    -- during the selection loop in structural mode.
+    postHocAnalysis :: [StepRecord] -> IO ()
+    postHocAnalysis recs = do
+      putStrLn ""
+      putStrLn "Post-Hoc Analysis: StructuralNu vs UniformNu"
+      putStrLn "(UniformNu computed AFTER selection — not used for discovery)"
+      printf "%-4s %-14s %6s %6s %6s %10s\n"
+        ("Step" :: String) ("Name" :: String)
+        ("v_str" :: String) ("v_uni" :: String) ("k" :: String)
+        ("Amplif." :: String)
+      putStrLn (replicate 60 '-')
+      postHocGo [] recs
+
+    postHocGo :: Library -> [StepRecord] -> IO ()
+    postHocGo _ [] = return ()
+    postHocGo lib (r : rest) = do
+      let tele = srTele r
+          name = srName r
+          entry = telescopeToCandidate tele lib name
+          uniResult = computeUniformNu entry lib 1
+          uniNu = unrUniformNu uniResult
+          strNu = srNu r
+          amplif = if strNu > 0
+                   then fromIntegral uniNu / fromIntegral strNu :: Double
+                   else 0.0 :: Double
+      printf "%-4d %-14s %6d %6d %6d %10.2fx\n"
+        (srStep r) name strNu uniNu (srKappa r) amplif
+      postHocGo (lib ++ [entry]) rest
+
     myZip3 :: [a] -> [b] -> [c] -> [(a,b,c)]
     myZip3 (a:as) (b:bs) (c:cs) = (a,b,c) : myZip3 as bs cs
     myZip3 _ _ _ = []
 
 -- ============================================
+-- CSV Output
+-- ============================================
+
+-- | Write step records to a CSV file.
+-- Includes all three kappa metrics for comparison.
+writeCsv :: FilePath -> [StepRecord] -> IO ()
+writeCsv path recs = do
+  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,k_desugar,k_entry,k_bitcost"
+      rows = map formatRow recs
+      content = unlines (header : rows)
+  writeFile path content
+  printf "CSV written to %s (%d steps)\n" path (length recs)
+
+formatRow :: StepRecord -> String
+formatRow r = intercalate ","
+  [ show (srStep r)
+  , srName r
+  , show (srNu r)
+  , show (srKappa r)
+  , printf' "%.4f" (srRho r)
+  , printf' "%.4f" (srBar r)
+  , show (srDelta r)
+  , srSource r
+  , show (srCands r)
+  , show (desugaredKappa (srTele r))
+  , show (teleKappa (srTele r))
+  , show (teleBitCost (srTele r))
+  ]
+
+-- | Format a double to string (workaround: printf returns IO).
+printf' :: String -> Double -> String
+printf' fmt val = let (i, f) = properFraction val :: (Int, Double)
+                      decimals = round (f * 10000) :: Int
+                  in if fmt == "%.4f"
+                     then show i ++ "." ++ padLeft 4 '0' (show (abs decimals))
+                     else show val
+
+padLeft :: Int -> Char -> String -> String
+padLeft n c s = replicate (max 0 (n - length s)) c ++ s
+
+intercalate :: String -> [String] -> String
+intercalate _ []     = ""
+intercalate _ [x]    = x
+intercalate sep (x:xs) = x ++ sep ++ intercalate sep xs
+
+-- ============================================
 -- Selection Bar Computation
 -- ============================================
 
--- | Compute the selection bar at step n.
+-- | Compute the selection bar at step n with coherence window depth d.
 -- Bar_n = Φ_n · Ω_{n-1}
 --
--- In PaperCalibrated mode: uses paper ν/κ values for Ω_{n-1}
--- In StrictAbInitio mode: uses discovered ν/κ history for Ω_{n-1}
-computeBar :: AbInitioMode -> Int -> [DiscoveryRecord] -> Double
-computeBar _ n _
+-- Φ_n = Δ_n / Δ_{n-1} where Δ is the d-bonacci sequence.
+-- For d=1: Φ_n = 1 (constant → bar grows only via Ω accumulation).
+-- For d=2: Φ_n → φ ≈ 1.618 (Fibonacci → exponential bar growth).
+-- For d=3: Φ_n → ≈1.839 (tribonacci → faster-than-Fibonacci growth).
+computeBarD :: Int -> AbInitioMode -> Int -> [DiscoveryRecord] -> Double
+computeBarD _ _ n _
   | n <= 2 = 0.5
-computeBar mode n history =
-  let -- Φ_n = Δ_n / Δ_{n-1} (this is always from theory, not paper values)
-      delta_n   = fromIntegral (fib n) :: Double
-      delta_nm1 = fromIntegral (fib (n-1)) :: Double
+computeBarD d mode n history =
+  let -- Φ_n = Δ_n / Δ_{n-1} using d-bonacci sequence
+      delta_n   = fromIntegral (dBonacciDelta d n) :: Double
+      delta_nm1 = fromIntegral (dBonacciDelta d (n-1)) :: Double
       phi_n = delta_n / delta_nm1
       -- Ω_{n-1} = (Σν_i) / (Σκ_i) for i = 1..n-1
       omega = case mode of
@@ -381,9 +574,3 @@ computeBar mode n history =
              then fromIntegral sumNu / fromIntegral sumK
              else 1.0
   in phi_n * omega
-
--- | Fibonacci sequence (1-indexed).
-fib :: Int -> Int
-fib 1 = 1
-fib 2 = 1
-fib n = fib (n-1) + fib (n-2)

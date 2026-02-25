@@ -1,0 +1,80 @@
+name: PEN Engine CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'engine/**'
+      - '.github/workflows/pen-engine.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'engine/**'
+      - '.github/workflows/pen-engine.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.6'
+          cabal-version: '3.10'
+
+      - name: Cache cabal packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cabal/store
+            engine/dist-newstyle
+          key: ${{ runner.os }}-cabal-${{ hashFiles('engine/pen-engine.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-cabal-
+
+      - name: Build all targets
+        working-directory: engine
+        run: cabal build all
+
+      - name: Run acceptance tests (42 tests)
+        working-directory: engine
+        run: cabal run acceptance
+
+      - name: Run structural discovery
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --structural --csv structural_d2.csv
+          # Verify 15 steps with correct names and kappa
+          STEPS=$(tail -n +2 structural_d2.csv | wc -l)
+          TOTAL_K=$(tail -n +2 structural_d2.csv | awk -F, '{s+=$4} END{print s}')
+          NAMES=$(tail -n +2 structural_d2.csv | awk -F, '{print $2}' | tr '\n' ',' | sed 's/,$//')
+          EXPECTED="Universe,Unit,Witness,Pi,S1,Trunc,S2,S3,Hopf,Cohesion,Connections,Curvature,Metric,Hilbert,DCT"
+          echo "Steps: $STEPS, Total κ: $TOTAL_K"
+          echo "Names: $NAMES"
+          if [ "$STEPS" -ne 15 ]; then echo "FAIL: expected 15 steps, got $STEPS"; exit 1; fi
+          if [ "$TOTAL_K" -ne 64 ]; then echo "FAIL: expected κ=64, got $TOTAL_K"; exit 1; fi
+          if [ "$NAMES" != "$EXPECTED" ]; then echo "FAIL: name mismatch"; exit 1; fi
+          echo "PASS: 15 steps, κ=64, all canonical names correct"
+
+      - name: Run paper-calibrated mode
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --csv paper_calibrated.csv
+          TOTAL_NU=$(tail -n +2 paper_calibrated.csv | awk -F, '{s+=$3} END{print s}')
+          TOTAL_K=$(tail -n +2 paper_calibrated.csv | awk -F, '{s+=$4} END{print s}')
+          if [ "$TOTAL_NU" -ne 356 ]; then echo "FAIL: expected ν=356, got $TOTAL_NU"; exit 1; fi
+          if [ "$TOTAL_K" -ne 64 ]; then echo "FAIL: expected κ=64, got $TOTAL_K"; exit 1; fi
+          echo "PASS: paper mode ν=356, κ=64"
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pen-engine-results
+          path: |
+            engine/structural_d2.csv
+            engine/paper_calibrated.csv
+          retention-days: 30
