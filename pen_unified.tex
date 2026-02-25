@@ -76,26 +76,11 @@ The Algorithmic Origin of the Kinematic Framework of Physics}}
 % ABSTRACT
 % ============================================
 \begin{abstract}
-Are the mathematical frameworks of physics---gauge field formalism, Riemannian geometry, and variational mechanics---arbitrary descriptive choices, or the natural output of deterministic logical optimization? We introduce the \emph{Principle of Efficient Novelty} (PEN), a formal, information-theoretic model in which the mathematical framework underlying modern theoretical physics is autonomously synthesized from an empty intensional type theory at Coherence Window $d = 2$, by maximizing combinatorial derivation power (novelty) relative to algorithmic specification cost and historical integration latency.
+We introduce the \emph{Principle of Efficient Novelty} (PEN), an information-theoretic model for selecting mathematical frameworks by maximizing novelty $\nu$ per specification effort $\kappa$ under historical integration latency.  Starting from empty intensional type theory, a synthesis engine deterministically orders a 15-step sequence from dependent types and higher inductive spheres to cohesion, connections, curvature, metrics, Hilbert structure, and the Dynamical Cohesive Topos (DCT).
 
-Starting from no mathematical content whatsoever, a Haskell synthesis engine autonomously discovers the \emph{Generative Sequence}: a deterministic 15-step trajectory from dependent types through higher inductive spheres and cohesive modalities to the Dynamical Cohesive Topos (DCT)---the formal categorical substrate of modern differential physics.
-While candidate generation for foundational types (Steps 1--9) is strictly combinatorial, the generation of advanced library specifications (Steps 10--15) relies on a theory-guided pool of HoTT-compatible extensions.
-Crucially, however, the engine's \emph{evaluation mechanism}---every generative capacity value ($\nu$) and specification cost ($\kappa$)---is mechanically computed from structural AST analysis of candidate telescopes, using zero hand-tuned parameters and zero lookup tables.
-The candidate \emph{generation} is informed by the mathematical landscape, but the \emph{scoring and selection} are strictly mechanical and domain-agnostic.
-Table~3 demonstrates this separation: the engine mechanically rejects ten human-provided alternatives (including Measure Theory, Scheme Theory, and Elementary Topos axioms) based purely on algorithmic inefficiency.
-Coherence window stress tests ($d = 1, 2, 3$) confirm that only $d = 2$ produces the correct sequence; ablation of the selection mechanism confirms that all three components (Fibonacci bar, structural recognition, minimal overshoot) are jointly necessary.
-We establish four structural results governing this emergence:
+Candidate generation is split: Steps~1--9 are combinatorial, while Steps~10--15 are drawn from a theory-guided HoTT-compatible pool.  Crucially, scoring and selection are mechanical and domain-agnostic: $\nu$ and $\kappa$ are computed from structural AST analysis with no hand-tuned parameters.  The engine rejects mathematically natural alternatives (including arithmetic-first, scheme-theoretic, and measure-theoretic branches) on efficiency grounds.
 
-First, the \emph{Coherence Window Theorem}: natively computing the adjoint categorical coherences required to formalize physical interactions strictly requires an intensional logic with a historical coherence depth of exactly $d=2$.
-
-Second, the \emph{Complexity Scaling Theorem}: this $d=2$ boundary condition forces the structural integration costs of emergent spaces to scale precisely according to the Fibonacci sequence. This exponentially rising cost curve acts as a rigorous selection mechanism: purely discrete structures yield only linear derivation power and are systematically outpaced, whereas the combinatorial explosion of interacting topological path spaces ($\sim d^2$) provides the superlinear novelty required to sustain mathematical complexity.
-
-Third, the \emph{Spectral Decomposition}: the generative process intrinsically favors an ``equipartition of logical degrees of freedom''---analogous to thermodynamic equipartition---wherein syntactic (state spaces), topological (gauge/path symmetries), and logical (operators) derivation rules contribute to the viability of a mathematical structure with approximately equal weight.
-
-Fourth, the \emph{Tangent Topos Theorem} (The G\"odelian Horizon): the sequence halts at Step 15 by reaching a structural fixed point. The DCT internalizes its own evolutionary mechanism by natively equating the discrete temporal modality ($\bigcirc$) with the continuous infinitesimal tangent endofunctor ($X^\D$). Because continuous geometric flows on the Univalent Universe $\mathcal{U}_0$ can only reach its connected component, this internalization defines a structural boundary within the mathematical framework: the connected component reachable by continuous deformation separates the geometric structures expressible via local differential equations from the discrete axiomatic extensions that require external postulation.
-
-Validated by 46 acceptance tests and machine-checked Cubical Agda proofs, our results demonstrate that, within the $d = 2$ intensional type-theoretic framework, the core geometric and dynamical structures of theoretical physics arise as the unique algorithmic attractor of efficiency maximization---not arbitrary descriptive choices.
-PEN derives the \emph{kinematic framework}---the geometric and functional-analytic structures required by physical theories---not the specific dynamical laws, gauge groups, or empirical parameters of any particular physical theory.
+Four structural results govern the emergence: (i) the Coherence Window Theorem ($d=2$ is required), (ii) Fibonacci integration latency from two-step coherence, (iii) a three-way novelty decomposition (syntactic/topological/logical), and (iv) a fixed-point halt at DCT via internal temporal--tangent closure.  Stress tests over $d \in \{1,2,3\}$ and mechanized verification support uniqueness of the $d=2$ trajectory.  PEN derives the \emph{kinematic framework} of physics, not specific gauge groups, constants, or equations of motion.
 \end{abstract}
 
 \newpage
@@ -135,16 +120,19 @@ $n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $
 2  & 2    & Unit type $\mathbf{1}$       & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
 3  & 4    & Witness $\star : \mathbf{1}$ & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
 4  & 7    & $\Pi$/$\Sigma$ types         & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
+\midrule
 5  & 12   & Circle $S^1$                 & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
 6  & 20   & Propositional truncation     & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
 7  & 33   & Sphere $S^2$                 & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
-8  & 54   & $S^3 \cong \mathrm{SU}(2)$  & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
+8  & 54   & H-space $S^3$                & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
 9  & 88   & Hopf fibration               & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
+\midrule
 10 & 143  & Cohesion                     & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
 11 & 232  & Connections                  & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
 12 & 376  & Curvature tensors            & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
 13 & 609  & Metric + frame bundle        & 233 & 46  & 7 & 6.57  & 1.62 & 3.70 & 5.99 \\
 14 & 986  & Hilbert functional           & 377 & 62  & 9 & 6.89  & 1.62 & 4.13 & 6.68 \\
+\midrule
 15 & 1596 & Dynamical Cohesive Topos     & 610 & 103 & 8 & 12.88 & 1.62 & 4.57 & 7.40 \\
 \bottomrule
 \end{tabular}
@@ -276,6 +264,16 @@ For a library specification at steps~10--14, a \emph{Minimal Complete API} is a 
 This criterion immunizes the clause count~$\kappa$ against accusations of cherry-picking: the boundary between ``derivable definition'' ($\nu = 0$) and ``irreducible API clause'' ($\nu > 0$) is the type-theoretic constructibility of the operation from the prior library (see \cref{app:metric-spec} for the detailed application to the Metric at Step~13).
 \end{definition}
 
+\begin{axiom}[Constructive Irreducibility Boundary]
+\label{ax:constructive-irreducibility}
+Let $\mathcal{S}$ be a candidate specification over a prior library~$\mathcal{B}$.
+\begin{enumerate}[nosep]
+    \item If an operation is definable in the native eliminator/recursor fragment of~$\mathcal{B}$ (i.e., by a closed term without postulating new existence principles), it must be excluded from~$\mathcal{S}$ and contributes $\nu=0$ as derived structure.
+    \item If an operation requires non-constructive analytic existence theorems outside that fragment (e.g., PDE existence/uniqueness, analytic continuation, spectral existence), it is structurally irreducible and must appear explicitly as an API clause in~$\mathcal{S}$.
+\end{enumerate}
+This boundary is mandatory for all steps and removes curator discretion in clause inclusion: $\N$-addition is excluded, whereas Levi-Civita/Hodge/Laplacian clauses are required.
+\end{axiom}
+
 \begin{remark}[Specification selection and the $S^3$ example]
 \label{rem:kolmogorov-ambiguity}
 Different specifications of the same type compete within the selection dynamics.
@@ -288,14 +286,14 @@ Specification & $\kappa$ & $\nu$ & $\rho$ & Overshoot \\
 \midrule
 Bare 3-sphere ($\Sigma S^2$) & 1 & 15 & 15.00 & 11.57 \\
 Native HIT (3-cell)          & 3 & 15 &  5.00 &  1.57 \\
-$\mathrm{SU}(2)$ (with H-space)    & 5 & 18 &  3.60 &  0.17 \\
+H-space $S^3$ (with multiplication)    & 5 & 18 &  3.60 &  0.17 \\
 \bottomrule
 \end{tabular}
 \end{center}
 The bare 3-sphere (via suspension or native HIT) contributes 15~inference rules ($\nu_G = 5$, $\nu_H = 10$, $\nu_C = 0$).
-The $\mathrm{SU}(2)$ specification additionally equips $S^3$ with its H-space multiplication, yielding 3~extra Elimination rules ($\nu_C = 3$, total $\nu = 18$) at the cost of 2~additional specification clauses ($\kappa = 5$).
-All three clear the bar, but minimal overshoot (\cref{ax:selection}) selects the $\mathrm{SU}(2)$ specification.
-The Lie group structure of $S^3$ is not a post-hoc annotation but a \emph{prediction} of the selection dynamics: the rising bar at step~8 drives the selection of exactly the right amount of mathematical structure.
+The H-space specification additionally equips $S^3$ with multiplication and unit laws, yielding 3~extra Elimination rules ($\nu_C = 3$, total $\nu = 18$) at the cost of 2~additional specification clauses ($\kappa = 5$).
+All three clear the bar, but minimal overshoot (\cref{ax:selection}) selects the H-space $S^3$ specification.
+This is intentionally weaker than full Lie-group ($A_\infty$-level) axiomatization, and therefore more economical: the rising bar at step~8 selects exactly the minimal gauge-relevant structure.
 \end{remark}
 
 \begin{definition}[Interface Basis]
@@ -1147,6 +1145,7 @@ The Generative Capacity counts the \emph{algebraically independent} sub-problems
 The total Generative Capacity $\nu$ for each step is the primary model quantity, verified independently by the inference-rule audit (\S\ref{sec:inference-nu}) and the uniform algorithm (\S\ref{sec:uniform-nu}).
 The spectral decomposition $\nu = \nu_G + \nu_H + \nu_C$ is an \emph{analysis} of these totals---the synthesis loop never uses $\nu_H$ directly.
 The formula $\nu_H = m + d^2$ is derived as a structural consequence of the CCHM cubical model (\cref{thm:topological-projection}); in other cubical frameworks the exact coefficient may differ, though the $\mathcal{O}(d^2)$ scaling is expected to be robust (\emph{Framework dependence} paragraph in the proof).
+Accordingly, we treat $m+d^2$ as the canonical minimal integer realization of the quadratic topological invariant at the $d=2$ coherence window, rather than as a framework-independent universal law.
 Its empirical uniqueness within the PEN dynamics can be verified independently via a systematic sensitivity scan:
 
 A systematic sensitivity scan%
@@ -1159,6 +1158,7 @@ reveals that the formula is tightly constrained by the selection dynamics:
     \item Among 16~candidate formulas ($m + d$, $m + d(d{+}1)/2$, $m + 2^d$, $d^2$, $d(d{+}1)$, etc.), $m + d^2$ is the unique formula reproducing all 15 steps.
 \end{itemize}
 The tightness is a consequence of the selection dynamics---the Fibonacci-governed bar and cumulative efficiency---not of tuning for equal spectral weights.
+The core physical mechanism is that quadratic topological growth outpaces linear-discrete alternatives under Fibonacci latency; this conclusion is coefficient-robust even when the exact CCHM integer realization varies.
 \end{remark}
 
 \begin{proposition}[Schema Canonicality]
@@ -1212,7 +1212,7 @@ The total $\nu$ is unchanged; the decomposition is refined.
 \begin{remark}[The $S^3$ H-space anomaly: $\nu_C = 3$]
 \label{rem:s3-hspace}
 $S^3$ is the only higher inductive type in the Generative Sequence with $\nu_C > 0$.
-This arises because $S^3$ is selected in its $\mathrm{SU}(2)$ specification (\cref{rem:kolmogorov-ambiguity}), which equips the 3-sphere with its H-space (Lie group) structure.
+This arises because $S^3$ is selected in its H-space $S^3$ specification (\cref{rem:kolmogorov-ambiguity}), which equips the 3-sphere with multiplication and unit laws without requiring full Lie-group associativity data.
 The three Elimination rules are:
 \begin{enumerate}[nosep]
     \item $\mu : S^3 \times S^3 \to S^3$ --- the group multiplication;
@@ -1431,7 +1431,7 @@ Symplectic geometry    & $\approx 25$ & 5 & $\approx 5.0$ & 5.99 (step 13) & $\a
 $\N$ is a discrete 0-groupoid ($m = 0$ path constructors, all dimensions~0), giving $\nu_H = 0$.
 Its foundational constructors (formation, zero, successor, recursor) yield $\nu = 4$ with $\kappa = 3$.
 A skeptic might object that scoring $\N$'s full ``API bundle''---addition, multiplication, exponentiation, prime factorization, G\"odel numbering---would inflate $\nu$ dramatically.
-But every one of these operations is \emph{derivable} from the recursor $\mathsf{rec}_\N$ and therefore contributes $\nu = 0$ by \cref{rem:library-api}.
+But every one of these operations is \emph{derivable} from the recursor $\mathsf{rec}_\N$ and therefore contributes $\nu = 0$ by the Constructive Irreducibility Boundary (\cref{ax:constructive-irreducibility}) and \cref{rem:library-api}.
 $\N$'s specification need not axiomatize addition because $\mathsf{rec}_\N$ already constructs it.
 In contrast, the Hodge star or Ricci scalar at step~13 are \emph{not} derivable from cohesive modalities: no combination of $\flat$, $\sharp$, $\Pi$, or connections produces a positive-definite bilinear form on tangent bundles.
 The metric's API specification is irreducible.
@@ -1474,8 +1474,10 @@ A field-extension specification (field axioms, algebraic closure, splitting fiel
 Like other algebraic structures, the specification is purely discrete ($\nu_H = 0$) and cannot match the superlinear novelty of geometric candidates.
 
 \noindent\emph{Symplectic geometry.}
-A symplectic structure ($\omega \in \Omega^2(M)$, closed, non-degenerate) generates fewer cross-interactions than a Riemannian metric: it produces Hamiltonian flows and Poisson brackets but not lengths, geodesics, Laplacians, or volume forms.
+A symplectic structure ($\omega \in \Omega^2(M)$, closed, non-degenerate) generates fewer cross-interactions than a Riemannian metric at its first admissible step: it produces Hamiltonian flows and Poisson brackets but not lengths, geodesics, Laplacians, or metric volume forms.
 With $\kappa \approx 5$ and $\nu \approx 25$, it fails the bar at step~13 ($5.99$), where the Riemannian metric ($\rho = 6.57$) clears.
+This rejection is step-local, not absolute: once Step~15 (DCT) is realized, tangent/cotangent dynamics and cohesive modalities provide an ambient setting in which symplectic and Hamiltonian structures can be represented internally without requiring an earlier dedicated axiomatic step.
+The selection claim is therefore that metric structure is the efficiency-maximizing \emph{gateway} at Step~13, not that symplectic geometry is excluded from the eventual physical toolkit.
 
 \subsection{Schema Canonicality Verification}
 
@@ -1516,6 +1518,14 @@ The number of extra levels is determined by the maximum path dimension in the li
 \emph{X-free child collapse}: in any schematized expression, a child that is X-free and has depth~$> 0$ collapses to~$L$.
 The principle: if a subexpression involves no new structure (no~$X$), its internal organization is library-derivable and irrelevant to novelty.
 This prevents $\mathrm{flat}(\Sigma(L))$, $\Sigma(\mathrm{flat}(L))$, $\Omega(\flat(L))$, etc.\ from being counted as independent depth-2 schemas, merging them with their depth-1 counterparts.
+
+\paragraph{Formal AST filter definitions.}
+To remove any hyperparameter ambiguity, the simplification filters are fixed syntactic rewrite rules applied uniformly to every accepted and rejected candidate:
+\begin{enumerate}[nosep]
+    \item \textbf{Collapse derivable subexpressions:} in a normalized schema tree, any maximal subtree whose root symbol is in the derivable fragment generated by prior eliminators and whose leaves are all library placeholders ($L$) rewrites to the canonical atom $L$.
+    \item \textbf{X-free child collapse:} in a schematized tree $t$, if a child subtree $u$ contains no occurrence of $X$ and has depth $>0$, rewrite $u \Rightarrow L$.
+\end{enumerate}
+Both rewrites are terminating and confluent on the finite AST grammar used by the engine, and they are executed before counting distinct schemas.
 
 \paragraph{Adjoint completion.}
 The before/after type inhabitation comparison natively captures Introduction rules ($\nu_G$) and Computation rules ($\nu_H$), because these create new inhabited types.  However, \emph{Elimination rules} (function application, projection, pattern matching) are term-level operations that produce new proofs within existing types, invisible to type inhabitation.
@@ -1575,7 +1585,7 @@ Rather than relying on automated search for the microscopic foundational logic, 
 \begin{itemize}[nosep]
 \item \textbf{Logical Primitives (Steps 1--4):} Enumerated directly from the standard Martin-L\"of rule sets. The Universe adds 1~Elimination rule ($\mathrm{El}$). Unit adds 1~Introduction rule (formation). Witness adds 1~Intro and 1~Elim ($\star$ and $\mathbf{1}$-elim). $\Pi/\Sigma$ adds 2~Intro and 3~Elim ($\lambda$, pair, apply, fst, snd).
 \item \textbf{Higher Inductive Types (Steps 5--8):} Intro rules counted via exact schema enumeration; Comp rules via the path-dimension formula $m + (\max d_i)^2$. For bare HITs, elimination rules are canonically derived from Intro/Comp rules, so $\nu_C = 0$ to avoid double-counting.
-    The exception is $S^3$ (step~8), which is selected in its $\mathrm{SU}(2)$ specification (\cref{rem:kolmogorov-ambiguity}): the H-space multiplication $\mu : S^3 \times S^3 \to S^3$ and its unit laws contribute 3~additional Elimination rules ($\nu_C = 3$) beyond what the bare HIT provides.
+    The exception is $S^3$ (step~8), which is selected in its H-space $S^3$ specification (\cref{rem:kolmogorov-ambiguity}): the multiplication $\mu : S^3 \times S^3 \to S^3$ and its unit laws contribute 3~additional Elimination rules ($\nu_C = 3$) beyond what the bare HIT provides.
 \item \textbf{Maps (Step 9):} The Hopf fibration introduces no new type formers or constructors ($\nu_G = 0$); its 17 rules are structural operations on existing fibration types ($\nu_C = 17$).
 \item \textbf{Axiomatic Extensions (Steps 10--14):} Each step introduces new operators whose unit maps and constructors generate Introduction rules ($\nu_G$), while counits, structural operations, and cross-interactions with existing types generate Elimination rules ($\nu_C$). For example, step~10 (Cohesion) introduces 4~modalities whose 2~unit maps ($\eta_\sharp$, $\eta_{\Pi_\infty}$) are Introduction rules, while the 2~counits, 9~structural equations, and 6~HIT cross-interactions are Elimination rules. The formal type signatures are given in \cref{app:formal-specs}.
 \item \textbf{Synthesis (Step 15):} For the DCT, the structural AST analysis identifies three amplification mechanisms: the Distributive Law (Beck distributive law detection in the AST, contributing $+38$ to $\nu_C$ via Cohesion's historical rules), Universe Polymorphism (L\"ob-type eliminators polymorphic over all 14 library types, contributing $+42$ to $\nu_C$), and Infinitesimal Dimension Shift (tangent exponents forcing new Kan operations on each library HIT, contributing $\nu_H = 15$).  Together with 2~type formers ($\nu_G = 2$) and 6~base axiom rules, this yields $\nu = 103$.
@@ -1618,7 +1628,7 @@ The three meta-theorem detectors are general-purpose AST patterns: any candidate
 \label{rem:automation-scope}
 The verification of the Generative Sequence decomposes into two logically independent claims: (a)~the \emph{selection ordering and bar clearance} ($\rho_n \ge \mathrm{Bar}_n$ for all $n$), and (b)~the \emph{spectral decomposition} ($\nu = \nu_G + \nu_C + \nu_H$ with approximately equal weights).
 
-Claim~(a) is verified computationally for \textbf{all 15~steps} by the Uniform Algorithm with Adjoint Completion (\S\ref{sec:uniform-nu}).  The algorithm is fully automated (zero domain knowledge, zero human input).  The only theoretical ingredient is the Adjoint Completion Principle (\cref{lem:adjoint-completion}), which provides structurally determined elimination credits for the two bootstrap steps (Witness and $\Pi/\Sigma$) whose term-level eliminations are invisible to type inhabitation.  No manual audit or hand-tuned parameter is required for the ordering.
+Claim~(a) is verified computationally for \textbf{all 15~steps} by the Uniform Algorithm with Adjoint Completion (\S\ref{sec:uniform-nu}).  Given a supplied candidate pool, scoring and ordering are fully automated (zero domain knowledge in the evaluator).  The only theoretical ingredient is the Adjoint Completion Principle (\cref{lem:adjoint-completion}), which provides structurally determined elimination credits for the two bootstrap steps (Witness and $\Pi/\Sigma$) whose term-level eliminations are invisible to type inhabitation; for steps~5--15, this completion contributes $+0$ additional credits because eliminations are already visible through homotopy/compositional schemas.  No manual audit or hand-tuned parameter is required for the ordering.
 
 \noindent Claim~(b)---the spectral decomposition---is now mechanically verified by the structural AST analysis for all 15~steps.  The $\nu_G$, $\nu_H$, and $\nu_C$ components are extracted directly from the candidate's telescope AST, with no manual audit required.  The Adjoint Completion Principle categorically guarantees $\nu_C \ge \nu_G$ (each Introduction rule determines a corresponding Elimination rule); the computed values are consistent with this bound.
 
@@ -2308,7 +2318,7 @@ $n$ & $\kappa$ & Structure & Clauses & MBTT (bits) & Selected specification \\
 5  & 3 & $S^1$              & 3 & 21  & base + loop (native HIT) \\
 6  & 3 & PropTrunc          & 3 & 35  & $\|\cdot\|_0$ + squash \\
 7  & 3 & $S^2$              & 3 & 23  & base + surf (native HIT)$^\dagger$ \\
-8  & 5 & $S^3$              & 5 & 66  & $\mathrm{SU}(2)$: base + 3-cell + $\mu$ + unit$^\dagger$ \\
+8  & 5 & $S^3$              & 5 & 66  & H-space: base + 3-cell + $\mu$ + unit$^\dagger$ \\
 9  & 4 & Hopf               & 4 & 78  & $h : S^3 \to S^2$ + fiber + section \\
 10 & 4 & Cohesion           & 4 & 45  & $\flat, \sharp, \mathrm{Disc}, \Pi_\mathrm{coh}$ \\
 11 & 5 & Connections        & 5 & 79  & $\nabla$ + transport + covariant + lift + Leibniz \\
