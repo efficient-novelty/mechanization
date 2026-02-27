@@ -64,7 +64,7 @@ Retention defaults:
 
 ## Evidence tooling self-check
 
-CI runs `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure summarize/verify scripts remain executable and contract-compatible.
+CI runs `engine/scripts/check_no_conflict_markers.sh` and `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure no unresolved merge markers are present and summarize/verify scripts remain executable and contract-compatible.
 
 ## Evidence verification gate
 

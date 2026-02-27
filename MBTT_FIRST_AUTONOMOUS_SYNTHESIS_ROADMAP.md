@@ -97,6 +97,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added CI/local **human-readable evidence summarization** (`engine/scripts/summarize_phase1_evidence.sh`) producing `summary.md` from lane outputs before verification/upload.
 - [x] Added CI workflow-summary publishing (`$GITHUB_STEP_SUMMARY`) plus stricter evidence checks requiring acceptance logs to report zero failures before artifact upload.
 - [x] Added CI evidence-tooling self-check (`engine/scripts/test_phase1_evidence_tools.sh`) to prevent summarize/verify contract drift.
+- [x] Added CI merge-marker guard (`engine/scripts/check_no_conflict_markers.sh`) to fail fast if unresolved conflict blocks are introduced in Phase-1 workflow/docs/scripts.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
