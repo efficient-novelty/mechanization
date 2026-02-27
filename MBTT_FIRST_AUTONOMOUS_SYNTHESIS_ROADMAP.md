@@ -183,8 +183,8 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 
 - [x] **P2-V1 — Canonicalization semantics freeze**
   - Completed via `docs/adr/0002-mbtt-canonicalization-contract.md`, which freezes the V1 normalization/reduction boundaries and records canonical-equivalence examples (idempotence + source-path equivalence) mapping to a single canonical form/key.
-- [ ] **P2-V2 — Quotient cache integration in search stack**
-  - Add a canonical-keyed quotient cache (`CanonKey -> representative`) across Phase A + MCTS expansion so equivalent MBTT candidates are merged before expensive evaluation/rollout.
+- [x] **P2-V2 — Quotient cache integration in search stack**
+  - Completed by adding canonical-key quotient selection in `RunAbInitio` across combined Phase A + MCTS + reference candidates (`CanonKey -> representative`) before step selection, with deterministic representative replacement rules (higher ρ, lower κ, stable source tie-break).
 - [ ] **P2-V3 — Canonical telemetry in run artifacts**
   - Extend CSV/manifest/summary outputs with canonicalization counters (`raw_candidates`, `canonical_candidates`, `dedupe_ratio`) and representative canonical keys for replay diagnostics.
 - [ ] **P2-V4 — Differential performance evidence run**

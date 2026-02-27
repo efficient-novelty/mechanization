@@ -94,6 +94,9 @@ data StepRecord = StepRecord
   , srTele   :: Telescope  -- ^ Discovered telescope (for post-hoc analysis)
   } deriving (Show)
 
+-- | Candidate tuple used during step search/selection.
+type Candidate = (Telescope, Int, Int, Double, String)
+
 -- | Convert synthesis mode to evaluation mode.
 -- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
 -- StrictAbInitio never reads paper tables — all ν/κ computed from telescope + library.
@@ -343,7 +346,6 @@ abInitioLoop cfg = do
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
-              enumCount = length enumEvaluated
 
           -- Evaluate the reference telescope for comparison / fallback
           let refTele = referenceTelescope step
@@ -412,9 +414,10 @@ abInitioLoop cfg = do
                      | (tele, nu, kappa, rho) <- results]
             else return []
 
-          -- Combine all candidates (enum + MCTS + reference)
-          let allCandidates = enumEvaluated ++ mctsCandidates
+          -- Combine and quotient candidates (enum + MCTS + reference)
+          let rawCandidates = enumEvaluated ++ mctsCandidates
                            ++ [(refTele, refNu, refKappa, refRho, "REF")]
+              allCandidates = quotientCandidates rawCandidates
               -- Filter to those that clear the bar (or all if step ≤ 2)
               viable = if step <= 2
                        then allCandidates
@@ -459,7 +462,7 @@ abInitioLoop cfg = do
                 selectBest viable
 
               bestName = detectCanonicalName bestTele lib
-              totalCandidates = enumCount + length mctsCandidates
+              totalCandidates = length allCandidates
 
           -- Display
           printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
@@ -684,3 +687,36 @@ dedupByCanonicalKey teles = reverse (snd (foldl step (Map.empty, []) teles))
       in case Map.lookup key seen of
            Just _  -> (seen, acc)
            Nothing -> (Map.insert key () seen, tele : acc)
+
+
+-- | Quotient evaluated candidates by canonical MBTT key.
+--
+-- Keeps insertion order of first-seen keys, while allowing a better
+-- representative (higher ρ, then lower κ, then source priority) to replace
+-- the cached representative for that key.
+quotientCandidates :: [Candidate] -> [Candidate]
+quotientCandidates cs = [cand | key <- reverse order, Just cand <- [Map.lookup key reps]]
+  where
+    (reps, order) = foldl step (Map.empty, []) cs
+
+    step (m, ord) cand@(tele, _, _, _, _) =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key m of
+           Nothing -> (Map.insert key cand m, key : ord)
+           Just prev ->
+             let pick = if betterCandidate cand prev then cand else prev
+             in (Map.insert key pick m, ord)
+
+-- | Candidate ranking used when two candidates share the same canonical key.
+betterCandidate :: Candidate -> Candidate -> Bool
+betterCandidate (_, _, k1, rho1, src1) (_, _, k2, rho2, src2) =
+  (Down rho1, k1, sourceRank src1) < (Down rho2, k2, sourceRank src2)
+
+-- | Prefer references, then exhaustive enumeration, then MCTS when ties occur.
+sourceRank :: String -> Int
+sourceRank src = case src of
+  "REF" -> 0
+  "ENUM_MBTT" -> 1
+  "ENUM" -> 2
+  "MCTS" -> 3
+  _ -> 4
