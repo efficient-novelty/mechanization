@@ -27,6 +27,7 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
+import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -62,6 +63,9 @@ data AbInitioConfig = AbInitioConfig
   , cfgKappaMode       :: !KappaMode        -- ^ Kappa computation mode (default DesugaredKappa)
   , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
   , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
+  , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
+  , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
+  , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -130,6 +134,10 @@ main = do
     putStrLn "  ABLATION:  --no-canonical-priority (selection by rho only, no name tier)"
   when (cfgMaxRho cfg) $
     putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
+  when (cfgMBTTFirst cfg) $
+    putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
+  when (cfgMaxSteps cfg < 15) $
+    printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -166,7 +174,19 @@ parseArgs args =
                     _ -> DesugaredKappa
       noCanonPriority = "--no-canonical-priority" `elem` args
       maxRho = "--max-rho" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho
+      mbttFirst = "--mbtt-first" `elem` args
+      mbttMaxCand = case dropWhile (/= "--mbtt-max-candidates") args of
+                      ("--mbtt-max-candidates" : n : _) ->
+                        case reads n of
+                          [(k,"")] | k > 0 -> Just k
+                          _ -> Nothing
+                      _ -> Nothing
+      maxSteps = case dropWhile (/= "--max-steps") args of
+                   ("--max-steps" : n : _) -> case reads n of
+                     [(k,"")] | k >= 1 && k <= 15 -> k
+                     _ -> 15
+                   _ -> 15
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -220,11 +240,11 @@ abInitioLoop cfg = do
     mode = cfgMode cfg
     go :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
     go lib history records step
-      | step > 15 = do
+      | step > cfgMaxSteps cfg = do
           let orderedRecords = reverse records
           putStrLn ""
           putStrLn "============================================"
-          putStrLn "SYNTHESIS COMPLETE: 15 structures discovered"
+          printf   "SYNTHESIS COMPLETE: %d structures discovered\n" (cfgMaxSteps cfg)
           putStrLn "============================================"
           putStrLn ""
           -- Print summary comparing discovered vs paper
@@ -242,13 +262,13 @@ abInitioLoop cfg = do
             putStrLn "  MCTS:     EvalStructural rollout guidance (zero paper lookups)"
             putStrLn "  Library:  Discovered entries only, no paper fallback"
             let totalDiscNu = sum [drNu r | r <- history]
-                totalPapNu  = sum [gsPaperNu s | s <- take 15 genesisLibrarySteps]
+                totalPapNu  = sum [gsPaperNu s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
                 totalDiscK  = sum [drKappa r | r <- history]
-                totalPapK   = sum [gsPaperK s | s <- take 15 genesisLibrarySteps]
-                exact = length [() | (dr, gs) <- zip history (take 15 genesisLibrarySteps)
+                totalPapK   = sum [gsPaperK s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
+                exact = length [() | (dr, gs) <- zip history (take (cfgMaxSteps cfg) genesisLibrarySteps)
                                    , drNu dr == gsPaperNu gs && drKappa dr == gsPaperK gs]
-            printf "  Result:   %d/15 exact match, total nu %d/%d, total kappa %d/%d\n"
-              exact totalDiscNu totalPapNu totalDiscK totalPapK
+            printf "  Result:   %d/%d exact match, total nu %d/%d, total kappa %d/%d\n"
+              exact (cfgMaxSteps cfg) totalDiscNu totalPapNu totalDiscK totalPapK
             -- Print exclusion contract
             printExclusionContract
           -- Write CSV if requested
@@ -268,12 +288,21 @@ abInitioLoop cfg = do
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               nuDepth = 1
-              rawTelescopes = enumerateTelescopes lib enumKmax
+              mbttCfg = defaultEnumConfig
+                { ecMaxEntries = enumKmax
+                , ecMaxBitBudget = 20
+                , ecMaxASTDepth = 3
+                , ecMaxCandidates = maybe 5000 id (cfgMBTTMaxCand cfg)
+                }
+              rawTelescopes = if cfgMBTTFirst cfg
+                              then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
+                              else enumerateTelescopes lib enumKmax
               (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
-              enumEvaluated = [ (tele, nu, kappa, rho, "ENUM" :: String)
+              enumSource = if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
+              enumEvaluated = [ (tele, nu, kappa, rho, enumSource)
                               | tele <- validTelescopes
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
@@ -437,11 +466,12 @@ abInitioLoop cfg = do
         ("Step" :: String) ("disc_ν" :: String) ("pap_ν" :: String)
         ("disc_κ" :: String) ("pap_κ" :: String)
       putStrLn (replicate 44 '-')
-      let paperSteps = take 15 genesisLibrarySteps
+      let n = length history
+          paperSteps = take n genesisLibrarySteps
       mapM_ (\(i, dr, gs) ->
         printf "%-4d %8d %8d %8d %8d\n"
           i (drNu dr) (gsPaperNu gs) (drKappa dr) (gsPaperK gs)
-        ) (myZip3 ([1..15] :: [Int]) history paperSteps)
+        ) (myZip3 ([1..n] :: [Int]) history paperSteps)
       let totalDiscNu = sum (map drNu history)
           totalPapNu  = sum (map gsPaperNu paperSteps)
           totalDiscK  = sum (map drKappa history)
