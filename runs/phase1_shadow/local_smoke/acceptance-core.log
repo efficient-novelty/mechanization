@@ -1,0 +1,63 @@
+Resolving dependencies...
+Up to date
+[acceptance-core] running core suites A-I only.
+============================================
+PEN Engine Acceptance Tests
+============================================
+
+  A2. Universe (step 1) ν = 1 exactly                          PASS
+  A1. Trunc (step 6) ν = 8 exactly                             PASS
+  B1. Pi (step 4) ν > 0 (no regression to trivial)             PASS
+  B2. Pi (step 4) ν = 5 exactly                                PASS
+  C1. Trunc ν ≤ 10 (no explosion at late steps)                PASS
+  D1. DCT (step 15) ν ≥ 100                                    PASS
+  D2. DCT distributive law detector fires (bonus > 0)          PASS
+  D3. DCT universe polymorphism detector fires (bonus > 0)     PASS
+  D4. DCT infinitesimal dimension shift fires (bonus > 0)      PASS
+  1. Step 1 κ = 2                                              PASS
+  2. Step 2 κ = 1                                              PASS
+  3. Step 3 κ = 1                                              PASS
+  4. Step 4 κ = 3                                              PASS
+  5. Step 5 κ = 3                                              PASS
+  6. Step 6 κ = 3                                              PASS
+  7. Step 7 κ = 3                                              PASS
+  8. Step 8 κ = 5                                              PASS
+  9. Step 9 κ = 4                                              PASS
+  10. Step 10 κ = 4                                            PASS
+  11. Step 11 κ = 5                                            PASS
+  12. Step 12 κ = 6                                            PASS
+  13. Step 13 κ = 7                                            PASS
+  14. Step 14 κ = 9                                            PASS
+  15. Step 15 κ = 8                                            PASS
+  F1. Full 15-step ν sequence matches expected values          PASS
+  F2. Total ν = 359                                            PASS
+  F3. Total κ = 64                                             PASS
+  G1. Step 1 detects as "Universe"                             PASS
+  G2. Step 2 detects as "Unit"                                 PASS
+  G3. Step 3 detects as "Witness"                              PASS
+  G4. Step 4 detects as "Pi"                                   PASS
+  G5. Step 5 detects as "S1"                                   PASS
+  G6. Step 6 detects as "Trunc"                                PASS
+  G7. Step 7 detects as "S2"                                   PASS
+  G8. Step 8 detects as "S3"                                   PASS
+  G9. Step 9 detects as "Hopf"                                 PASS
+  G10. Step 10 detects as "Cohesion"                           PASS
+  G11. Step 11 detects as "Connections"                        PASS
+  G12. Step 12 detects as "Curvature"                          PASS
+  G13. Step 13 detects as "Metric"                             PASS
+  G14. Step 14 detects as "Hilbert"                            PASS
+  G15. Step 15 detects as "DCT"                                PASS
+  H1. StructuralNu has no paper-value dependency               PASS
+  H2. Foundation+HIT ν invariant to history perturbation       PASS
+  H3. DesugaredKappa is library-independent                    PASS
+  H4. Selection bar uses only Fibonacci + discovered history   PASS
+  I1. [C1] StructuralNu name-free for steps 1-14 (step 15 known gap) PASS
+  I2. [C1] classifyTelescope independent of library entry names PASS
+  I3. [C2] DesugaredKappa is deterministic (same input → same output) PASS
+  I4. [C3] Kappa weakly monotone with telescope size           PASS
+  I5. [C4] Scoring identical whether name detection runs or not PASS
+  I6. [C4] Bar computation uses only numeric history, no names PASS
+
+============================================
+Results: 52 passed, 0 failed, 52 total
+============================================
