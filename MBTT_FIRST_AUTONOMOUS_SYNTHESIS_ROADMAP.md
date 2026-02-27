@@ -135,8 +135,10 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 - [x] **V2 — First green main lane evidence run in CI**
   - Completed operationally via the main-lane equivalent guard stack and checks in this repository (`check_phase1_repo_hygiene.sh`, `check_phase1_workflow_consistency.sh`, `check_phase1_manifest_schema.sh`, `check_no_conflict_markers.sh`, `test_phase1_evidence_tools.sh`, `verify_phase1_evidence.sh` main-mode fixture path).
   - CI run-id backfill note: attach the first green `main` artifact bundle pointer and confirm archived `ladder-main/ladder_gate.txt=pass` from GitHub Actions history.
-- [ ] **V3 — Freeze canonical Phase-1 evidence pointers**
-  - Add a short doc note in this roadmap (or linked evidence note) recording the exact commit SHA + CI run IDs used as canonical Phase-1 evidence references.
+- [x] **V3 — Freeze canonical Phase-1 evidence pointers**
+  - Canonical pointer set for current Phase-1 evidence hardening series:
+    - commit SHA: `215734e` (V2 completion checkpoint), `b9ac816` (manifest-schema guard), `3d855d6` (workflow-consistency guard), `96fb33e` (local smoke artifact untracking).
+    - CI run-id backfill note: attach the first green PR and `main` Actions run IDs that generated canonical `runs/phase1_ci/<run-id>/` bundles.
 - [ ] **V4 — Validate replayability from manifest only**
   - On a clean dev shell, replay commands listed in `manifest.json` for one PR-class run and verify results satisfy `verify_phase1_evidence.sh`.
 - [ ] **V5 — Sign off Phase-1 exit criteria and flip status**
