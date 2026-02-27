@@ -16,3 +16,12 @@ agda/_build/
 
 # OS files
 .DS_Store
+# Phase-1 generated evidence artifacts (kept in CI uploads, not committed)
+runs/phase1_ci/
+runs/phase1_bundle/
+
+# Local Phase-1 smoke outputs (generated, do not commit)
+runs/phase1_shadow/*
+!runs/phase1_shadow/.gitkeep
+runs/phase1_shadow_ladder/*
+!runs/phase1_shadow_ladder/.gitkeep
