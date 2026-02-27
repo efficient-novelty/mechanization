@@ -181,8 +181,8 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 
 > Goal: complete each delivery once with canonical artifacts/metrics, then flip Phase 2 to complete without reopening checklist churn.
 
-- [ ] **P2-V1 — Canonicalization semantics freeze**
-  - Finalize `MBTTCanonical` normalization contract (alpha-normalization strategy, reduction boundaries, constructor-order rules) and record one ADR/update note with examples of equivalent forms mapping to a single canonical form.
+- [x] **P2-V1 — Canonicalization semantics freeze**
+  - Completed via `docs/adr/0002-mbtt-canonicalization-contract.md`, which freezes the V1 normalization/reduction boundaries and records canonical-equivalence examples (idempotence + source-path equivalence) mapping to a single canonical form/key.
 - [ ] **P2-V2 — Quotient cache integration in search stack**
   - Add a canonical-keyed quotient cache (`CanonKey -> representative`) across Phase A + MCTS expansion so equivalent MBTT candidates are merged before expensive evaluation/rollout.
 - [ ] **P2-V3 — Canonical telemetry in run artifacts**
