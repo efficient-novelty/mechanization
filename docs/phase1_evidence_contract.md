@@ -27,10 +27,15 @@ Define what counts as acceptable evidence for Phase 1 MBTT-first claims, while s
 - Scope: end-to-end discovery trajectory + score outputs (full) and bounded first-stage evidence (shadow)
 - Gate: run completes and emits replayable stepwise artifacts
 
-### Lane E — MBTT shadow ladder telemetry (required on PR/main)
+### Lane E1 — MBTT shadow ladder telemetry (required on PR/main)
 - Command: `TIMEOUT_S=45 MAX_CANDS=20 STEPS="1 2 3" engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder`
 - Scope: hardware-capability telemetry for bounded shadow replays, recorded as `ladder_status.csv` (pass/fail and rows emitted per horizon)
 - Gate: command must complete and emit `ladder/ladder_status.csv`; failures in higher horizons are allowed but must be visible in artifact status rows
+
+### Lane E2 — MBTT shadow ladder gate to step 6 (required on main for Phase-1 exit)
+- Command: `TIMEOUT_S=90 MAX_CANDS=20 STEPS="1 2 3 4 5 6" REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main`
+- Scope: proves bounded MBTT shadow replay can complete each horizon through step 6 on provisioned runner
+- Gate: command must exit 0 and emit `ladder-main/ladder_gate.txt` with `pass`; failures block main-branch strong Phase-1 evidence claims
 
 ## Reproducibility metadata requirements
 
@@ -50,6 +55,7 @@ Store artifacts under a run-scoped folder:
 - `runs/phase1_ci/<run-id>/abinitio_mbtt_structural.csv`
 - `runs/phase1_ci/<run-id>/manifest.json`
 - `runs/phase1_ci/<run-id>/ladder/ladder_status.csv`
+- `runs/phase1_ci/<run-id>/ladder-main/ladder_status.csv` and `ladder-main/ladder_gate.txt` (main branch gate lane)
 
 Retention defaults:
 - PR runs: 14 days
@@ -70,3 +76,4 @@ Strong autonomy claims remain conditioned on closing known Phase 3 evaluator nam
 ### Local evidence helper (ladder mode)
 - Script: `engine/scripts/run_phase1_shadow_ladder.sh`
 - Purpose: run bounded shadow replays for a step ladder (e.g. 1..6) with per-step timeout and produce `ladder_status.csv` to show which horizons complete on current hardware.
+- Optional strict mode: set `REQUIRE_SUCCESS_THROUGH=<N>` to require all steps `1..N` to succeed with at least one emitted CSV row; script exits non-zero and writes `ladder_gate.txt=fail` on violation.

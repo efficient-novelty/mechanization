@@ -14,6 +14,7 @@ fi
 TIMEOUT_S="${TIMEOUT_S:-60}"
 MAX_CANDS="${MAX_CANDS:-20}"
 STEPS="${STEPS:-1 2 3 4 5 6}"
+REQUIRE_SUCCESS_THROUGH="${REQUIRE_SUCCESS_THROUGH:-0}"
 
 mkdir -p "$OUT_DIR"
 
@@ -49,6 +50,27 @@ for s in $STEPS; do
   fi
 done
 
+if [[ "$REQUIRE_SUCCESS_THROUGH" -gt 0 ]]; then
+  gate_ok=1
+  for s in $(seq 1 "$REQUIRE_SUCCESS_THROUGH"); do
+    row=$(awk -F, -v step="$s" '$1==step {print $0}' "$OUT_DIR/ladder_status.csv")
+    status=$(echo "$row" | cut -d, -f2)
+    rows=$(echo "$row" | cut -d, -f4)
+    if [[ -z "$row" || "$status" != "ok" || "${rows:-0}" -lt 1 ]]; then
+      gate_ok=0
+      break
+    fi
+  done
+  if [[ "$gate_ok" -eq 1 ]]; then
+    echo "pass" > "$OUT_DIR/ladder_gate.txt"
+  else
+    echo "fail" > "$OUT_DIR/ladder_gate.txt"
+    echo "Ladder gate failed: expected successful rows for steps 1..$REQUIRE_SUCCESS_THROUGH" >&2
+    popd >/dev/null
+    exit 1
+  fi
+fi
+
 cat > "$OUT_DIR/manifest.json" <<JSON
 {
   "contract": "docs/phase1_evidence_contract.md",
@@ -56,6 +78,7 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "timeout_s": $TIMEOUT_S,
   "max_candidates": $MAX_CANDS,
   "steps": "$STEPS",
+  "require_success_through": $REQUIRE_SUCCESS_THROUGH,
   "command_template": "cabal run ab-initio -- --structural --phase1-shadow --max-steps <N> --mbtt-max-candidates $MAX_CANDS --csv step_<N>.csv"
 }
 JSON
