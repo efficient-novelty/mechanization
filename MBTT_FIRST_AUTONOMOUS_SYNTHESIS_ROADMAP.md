@@ -125,6 +125,23 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 - Property: every emitted term type-checks under `TelescopeCheck`.
 - Regression: deterministic candidate stream given fixed seed/budget.
 
+### Phase 1 victory to-do list (one-shot closeout steps)
+
+> Goal: complete these once, capture artifacts, and then mark Phase 1 complete without reopening checklist churn.
+
+- [ ] **V1 — First green PR lane evidence run in CI**
+  - Trigger one PR run where lanes A/B/D1/E1 all pass.
+  - Keep artifact bundle with `manifest.json`, `summary.md`, and per-lane logs/CSVs under `runs/phase1_ci/<run-id>/`.
+- [ ] **V2 — First green main lane evidence run in CI**
+  - Trigger one `main` run where lanes C/D2/E2 pass in addition to PR lanes.
+  - Confirm `ladder-main/ladder_gate.txt` is `pass`.
+- [ ] **V3 — Freeze canonical Phase-1 evidence pointers**
+  - Add a short doc note in this roadmap (or linked evidence note) recording the exact commit SHA + CI run IDs used as canonical Phase-1 evidence references.
+- [ ] **V4 — Validate replayability from manifest only**
+  - On a clean dev shell, replay commands listed in `manifest.json` for one PR-class run and verify results satisfy `verify_phase1_evidence.sh`.
+- [ ] **V5 — Sign off Phase-1 exit criteria and flip status**
+  - Mark Phase 1 exit criteria complete, set Phase 1 status from `IN PROGRESS` to `COMPLETE`, and point to canonical run artifacts.
+
 ### Exit criteria
 - [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode (now operationally supported via `--max-steps 6` and CI lane `REQUIRE_SUCCESS_THROUGH=6`; pending first green run with archived ladder gate artifact).
 - [x] Enumerator-specific acceptance checks (J1–J5) are implemented and tracked in `RunAcceptance`.
