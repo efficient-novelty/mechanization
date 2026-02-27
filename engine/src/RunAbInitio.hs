@@ -69,6 +69,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
   , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
   , cfgSkipMCTS        :: !Bool             -- ^ Skip MCTS phase (useful for bounded shadow evidence)
+  , cfgPhase1Shadow    :: !Bool             -- ^ Preset: bounded Phase-1 MBTT shadow run
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -147,6 +148,8 @@ main = do
     putStrLn "  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)"
   when (cfgSkipMCTS cfg) $
     putStrLn "  SPEED:     --skip-mcts (disable Phase B MCTS)"
+  when (cfgPhase1Shadow cfg) $
+    putStrLn "  PRESET:    --phase1-shadow (bounded MBTT-first profile)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -195,15 +198,24 @@ parseArgs args =
                           [(k,"")] | k > 0 -> Just k
                           _ -> Nothing
                       _ -> Nothing
+      hasMaxStepsArg = "--max-steps" `elem` args
       maxSteps = case dropWhile (/= "--max-steps") args of
                    ("--max-steps" : n : _) -> case reads n of
                      [(k,"")] | k >= 1 && k <= 15 -> k
                      _ -> 15
                    _ -> 15
-      skipValidation = "--skip-validation" `elem` args
-      mbttShadowProfile = "--mbtt-shadow-profile" `elem` args
-      skipMCTS = "--skip-mcts" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation mbttShadowProfile skipMCTS
+      phase1Shadow = "--phase1-shadow" `elem` args
+      skipValidation = phase1Shadow || "--skip-validation" `elem` args
+      mbttShadowProfile = phase1Shadow || "--mbtt-shadow-profile" `elem` args
+      skipMCTS = phase1Shadow || "--skip-mcts" `elem` args
+      mbttFirstFinal = phase1Shadow || mbttFirst
+      maxStepsFinal = if phase1Shadow && not hasMaxStepsArg then 6 else maxSteps
+      mbttMaxCandFinal = if phase1Shadow
+                         then case mbttMaxCand of
+                           Just k  -> Just k
+                           Nothing -> Just 20
+                         else mbttMaxCand
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
