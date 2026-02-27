@@ -25,6 +25,10 @@ jobs:
         run: |
           engine/scripts/check_phase1_repo_hygiene.sh
 
+      - name: Check Phase-1 workflow consistency
+        run: |
+          engine/scripts/check_phase1_workflow_consistency.sh
+
       - name: Check for unresolved merge markers in Phase-1 files
         run: |
           engine/scripts/check_no_conflict_markers.sh
