@@ -68,6 +68,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
   , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
   , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
+  , cfgSkipMCTS        :: !Bool             -- ^ Skip MCTS phase (useful for bounded shadow evidence)
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -144,6 +145,8 @@ main = do
     putStrLn "  SPEED:     --skip-validation (Phase 0 validation skipped)"
   when (cfgMBTTShadowProfile cfg) $
     putStrLn "  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)"
+  when (cfgSkipMCTS cfg) $
+    putStrLn "  SPEED:     --skip-mcts (disable Phase B MCTS)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -199,7 +202,8 @@ parseArgs args =
                    _ -> 15
       skipValidation = "--skip-validation" `elem` args
       mbttShadowProfile = "--mbtt-shadow-profile" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation mbttShadowProfile
+      skipMCTS = "--skip-mcts" `elem` args
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation mbttShadowProfile skipMCTS
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -361,7 +365,8 @@ abInitioLoop cfg = do
                   else 9
 
               refClearsBar = refRho >= bar || step <= 2
-              needMCTS = mctsKappaEst > 3
+              needMCTS = not (cfgSkipMCTS cfg)
+                      && mctsKappaEst > 3
                       && not (mode == PaperCalibrated && refClearsBar)
 
           mctsCandidates <- if needMCTS

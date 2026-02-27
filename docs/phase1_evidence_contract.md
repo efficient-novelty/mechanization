@@ -23,7 +23,7 @@ Define what counts as acceptable evidence for Phase 1 MBTT-first claims, while s
 
 ### Lane D — MBTT-first ab-initio replay (required for discovery evidence)
 - Command (full replay): `cabal run ab-initio -- --structural --mbtt-first --csv <run.csv> [--mbtt-max-candidates N]`
-- Command (shadow replay): `cabal run ab-initio -- --structural --mbtt-first --skip-validation --mbtt-shadow-profile --max-steps 6 --csv <shadow.csv> [--mbtt-max-candidates N]`
+- Command (shadow replay): `cabal run ab-initio -- --structural --mbtt-first --skip-validation --mbtt-shadow-profile --skip-mcts --max-steps 6 --csv <shadow.csv> [--mbtt-max-candidates N]`
 - Scope: end-to-end discovery trajectory + score outputs (full) and bounded first-stage evidence (shadow)
 - Gate: run completes and emits replayable stepwise artifacts
 
