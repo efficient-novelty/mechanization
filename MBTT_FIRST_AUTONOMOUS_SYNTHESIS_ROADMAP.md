@@ -177,9 +177,27 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 - Property: alpha-equivalent terms share canonical key.
 - Differential: search frontier size reduced without loss of best-ρ candidates at fixed budget.
 
+### Phase 2 victory to-do list (one-shot closeout deliveries)
+
+> Goal: complete each delivery once with canonical artifacts/metrics, then flip Phase 2 to complete without reopening checklist churn.
+
+- [ ] **P2-V1 — Canonicalization semantics freeze**
+  - Finalize `MBTTCanonical` normalization contract (alpha-normalization strategy, reduction boundaries, constructor-order rules) and record one ADR/update note with examples of equivalent forms mapping to a single canonical form.
+- [ ] **P2-V2 — Quotient cache integration in search stack**
+  - Add a canonical-keyed quotient cache (`CanonKey -> representative`) across Phase A + MCTS expansion so equivalent MBTT candidates are merged before expensive evaluation/rollout.
+- [ ] **P2-V3 — Canonical telemetry in run artifacts**
+  - Extend CSV/manifest/summary outputs with canonicalization counters (`raw_candidates`, `canonical_candidates`, `dedupe_ratio`) and representative canonical keys for replay diagnostics.
+- [ ] **P2-V4 — Differential performance evidence run**
+  - Execute one paired benchmark suite (canonical dedupe OFF vs ON, fixed seed/window/budget), archive artifacts, and demonstrate frontier reduction meeting target (≥40% medium-budget duplicate reduction).
+- [ ] **P2-V5 — Regression safety + quality parity sign-off**
+  - Show no quality regression on agreed golden metrics (best-ρ winners and benchmark-step outcomes) while canonicalization is enabled; publish a short parity report tied to run artifacts.
+- [ ] **P2-V6 — CI gate + docs completion**
+  - Add/enable CI checks that enforce canonicalization invariants and differential threshold checks, then mark Phase 2 status complete with canonical run pointers and replay notes.
+
 ### Exit criteria
-- Duplicate rate reduced by agreed threshold (target ≥40% at medium budget).
-- No regression in discovered best score for benchmark seeds.
+- [ ] Duplicate rate reduced by agreed threshold (target ≥40% at medium budget).
+- [ ] No regression in discovered best score for benchmark seeds.
+- [ ] Canonical-key telemetry and replay pointers are present in canonical Phase-2 artifact bundles.
 
 ---
 
