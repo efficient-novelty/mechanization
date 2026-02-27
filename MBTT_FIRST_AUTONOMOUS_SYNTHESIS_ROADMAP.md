@@ -79,14 +79,14 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - Local environment now has `ghc`/`cabal` installed (Ubuntu packages). Acceptance has been split into `acceptance-core` (A–I) and `acceptance-mbtt` (J-lane) so local/CI workflows can run bounded MBTT checks independently; full-budget MBTT still requires a larger runner.
 
 ### Immediate next step (evidence hardening)
-- [ ] Formalize an **evidence contract** for autonomy claims:
+- [x] Formalized an **evidence contract** for autonomy claims in `docs/phase1_evidence_contract.md`:
   - lane definitions (`acceptance-core`, bounded/full `acceptance-mbtt`, `ab-initio --mbtt-first`),
   - required pass/fail gates per lane,
   - reproducibility metadata (commit SHA, flags, seed/window, machine profile).
-- [ ] Formalize a **CI artifact policy** for `runs/phase1_*`:
-  - mandatory artifacts (acceptance logs, MBTT lane logs, ab-initio CSV/report),
-  - retention/naming conventions,
-  - replay instructions for independent verification.
+- [x] Formalized a **CI artifact policy** for `runs/phase1_*` and wired it into `.github/workflows/pen-engine.yml`:
+  - mandatory artifacts (acceptance logs, MBTT lane logs, ab-initio CSV/report, manifest),
+  - retention/naming conventions (PR 14d, main 30d),
+  - replay instructions via manifest + contract doc.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
