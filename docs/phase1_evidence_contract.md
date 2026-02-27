@@ -62,6 +62,9 @@ Retention defaults:
 - PR runs: 14 days
 - main branch runs: 30 days
 
+Repository hygiene:
+- `runs/phase1_ci/` and `runs/phase1_bundle/` are treated as generated evidence outputs and should not be committed; canonical evidence is retained via CI artifact uploads plus `manifest.json`/`summary.md`.
+
 ## Evidence tooling self-check
 
 CI runs `engine/scripts/check_no_conflict_markers.sh` and `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure no unresolved merge markers are present and summarize/verify scripts remain executable and contract-compatible.
@@ -88,6 +91,7 @@ Strong autonomy claims remain conditioned on closing known Phase 3 evaluator nam
 
 ### Local evidence helper (bundle mode)
 - Script: `engine/scripts/run_phase1_evidence_bundle.sh`
+- Cleanup helper: `engine/scripts/clean_phase1_artifacts.sh` removes generated `runs/phase1_ci` and `runs/phase1_bundle` folders.
 - Purpose: produce a single local run directory that mirrors CI-required PR lanes (`acceptance-core`, bounded `acceptance-mbtt`, shadow replay, ladder telemetry) with `lane_status.csv` + `manifest.json` + `summary.md`, and then run evidence verification automatically.
 - Optional main-gate mode: set `RUN_MAIN_GATES=1` to additionally run full MBTT acceptance, full MBTT replay, and strict ladder gate (`REQUIRE_SUCCESS_THROUGH`).
 
