@@ -140,6 +140,15 @@ jobs:
           fi
           engine/scripts/verify_phase1_evidence.sh "$RUN_DIR" "$MODE"
 
+      - name: Publish evidence summary in job output
+        if: always()
+        run: |
+          if [[ -f "$RUN_DIR/summary.md" ]]; then
+            cat "$RUN_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No summary.md generated" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4

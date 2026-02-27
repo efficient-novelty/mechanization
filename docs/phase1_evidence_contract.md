@@ -65,7 +65,7 @@ Retention defaults:
 ## Evidence verification gate
 
 CI must run `engine/scripts/summarize_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` and then `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.
-This enforces lane-specific required files, requires `summary.md`, and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
+This enforces lane-specific required files, requires `summary.md`, requires acceptance lanes to report zero failures (`Results: ... 0 failed`), and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
 
 ## Replay contract
 
@@ -78,6 +78,9 @@ A third party should be able to replay evidence with only:
 
 Phase 1 evidence demonstrates MBTT-first enumeration viability and bounded/full-lane reproducibility.
 Strong autonomy claims remain conditioned on closing known Phase 3 evaluator name-dependence gaps documented in the roadmap.
+
+### CI evidence review surface
+- CI appends `summary.md` to `$GITHUB_STEP_SUMMARY` so lane outcomes are visible in the workflow UI without downloading artifacts.
 
 ### Local evidence helper (bundle mode)
 - Script: `engine/scripts/run_phase1_evidence_bundle.sh`

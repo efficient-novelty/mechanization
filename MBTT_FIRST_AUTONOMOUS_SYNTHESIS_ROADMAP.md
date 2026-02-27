@@ -95,6 +95,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added a CI **main-branch ladder gate lane** (`REQUIRE_SUCCESS_THROUGH=6`) to enforce that shadow replay horizons 1..6 complete on provisioned runners before treating the six-stage criterion as satisfied.
 - [x] Added CI **artifact-contract verification** (`engine/scripts/verify_phase1_evidence.sh`) so required lane evidence files and main-branch gate artifacts are validated before upload.
 - [x] Added CI/local **human-readable evidence summarization** (`engine/scripts/summarize_phase1_evidence.sh`) producing `summary.md` from lane outputs before verification/upload.
+- [x] Added CI workflow-summary publishing (`$GITHUB_STEP_SUMMARY`) plus stricter evidence checks requiring acceptance logs to report zero failures before artifact upload.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
