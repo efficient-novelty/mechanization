@@ -24,6 +24,14 @@ MAIN_LADDER_GATE="${MAIN_LADDER_GATE:-6}"
 
 mkdir -p "$OUT_DIR"
 
+{
+  echo "mode=local_bundle"
+  echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+  echo "ghc_version=$(ghc --version 2>/dev/null || echo unavailable)"
+  echo "cabal_version=$(cabal --version 2>/dev/null | head -n 1 || echo unavailable)"
+} > "$OUT_DIR/env.txt"
+
 status_file="$OUT_DIR/lane_status.csv"
 echo "lane,status,exit_code" > "$status_file"
 
@@ -54,10 +62,10 @@ run_lane "acceptance_core" "$OUT_DIR/acceptance-core.log" \
 run_lane "acceptance_mbtt_fast" "$OUT_DIR/acceptance-mbtt-fast.log" \
   cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates "$MBTT_FAST_MAX_CANDS" || failed=1
 
-run_lane "abinitio_shadow" "$OUT_DIR/abinitio-shadow.log" \
-  cabal run ab-initio -- --structural --phase1-shadow --max-steps "$SHADOW_MAX_STEPS" --mbtt-max-candidates "$SHADOW_MAX_CANDS" --csv phase1_bundle_shadow.csv || failed=1
-if [[ -f phase1_bundle_shadow.csv ]]; then
-  mv phase1_bundle_shadow.csv "$OUT_DIR/abinitio-shadow.csv"
+run_lane "abinitio_shadow" "$OUT_DIR/abinitio_mbtt_shadow6.log" \
+  cabal run ab-initio -- --structural --phase1-shadow --max-steps "$SHADOW_MAX_STEPS" --mbtt-max-candidates "$SHADOW_MAX_CANDS" --csv abinitio_mbtt_shadow6.csv || failed=1
+if [[ -f abinitio_mbtt_shadow6.csv ]]; then
+  mv abinitio_mbtt_shadow6.csv "$OUT_DIR/abinitio_mbtt_shadow6.csv"
 fi
 
 set +e
@@ -77,10 +85,10 @@ if [[ "$RUN_MAIN_GATES" == "1" ]]; then
   run_lane "acceptance_mbtt_full" "$OUT_DIR/acceptance-mbtt-full.log" \
     cabal run acceptance-mbtt || failed=1
 
-  run_lane "abinitio_mbtt_full" "$OUT_DIR/abinitio-mbtt-full.log" \
-    cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates "$MAIN_LADDER_MAX_CANDS" --csv phase1_bundle_mbtt_full.csv || failed=1
-  if [[ -f phase1_bundle_mbtt_full.csv ]]; then
-    mv phase1_bundle_mbtt_full.csv "$OUT_DIR/abinitio-mbtt-full.csv"
+  run_lane "abinitio_mbtt_full" "$OUT_DIR/abinitio_mbtt_structural.log" \
+    cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates "$MAIN_LADDER_MAX_CANDS" --csv abinitio_mbtt_structural.csv || failed=1
+  if [[ -f abinitio_mbtt_structural.csv ]]; then
+    mv abinitio_mbtt_structural.csv "$OUT_DIR/abinitio_mbtt_structural.csv"
   fi
 
   set +e
@@ -119,6 +127,14 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   }
 }
 JSON
+
+if [[ "$RUN_MAIN_GATES" == "1" ]]; then
+  mode=main
+else
+  mode=pr
+fi
+"$ROOT_DIR/engine/scripts/summarize_phase1_evidence.sh" "$OUT_DIR" "$mode"
+"$ROOT_DIR/engine/scripts/verify_phase1_evidence.sh" "$OUT_DIR" "$mode"
 
 popd >/dev/null
 

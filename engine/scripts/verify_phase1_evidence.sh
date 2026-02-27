@@ -35,15 +35,22 @@ require_file "$RUN_DIR/abinitio_mbtt_shadow6.csv"
 require_file "$RUN_DIR/phase1-shadow-ladder.log"
 require_file "$RUN_DIR/ladder/ladder_status.csv"
 require_file "$RUN_DIR/manifest.json"
+require_file "$RUN_DIR/summary.md"
 
 require_contains "$RUN_DIR/manifest.json" '"contract": "docs/phase1_evidence_contract.md"'
 require_contains "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
 require_contains "$RUN_DIR/ladder/ladder_status.csv" 'step,status,exit_code,csv_rows'
+require_contains "$RUN_DIR/summary.md" 'Phase 1 Evidence Summary'
+
+shadow_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_shadow6.csv" | wc -l | tr -d ' ' )
+[[ "$shadow_rows" -ge 1 ]] || fail "expected abinitio_mbtt_shadow6.csv to contain at least one row"
 
 if [[ "$MODE" == "main" ]]; then
   require_file "$RUN_DIR/acceptance-mbtt-full.log"
   require_file "$RUN_DIR/abinitio_mbtt_structural.log"
   require_file "$RUN_DIR/abinitio_mbtt_structural.csv"
+  full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_structural.csv" | wc -l | tr -d ' ' )
+  [[ "$full_rows" -ge 1 ]] || fail "expected abinitio_mbtt_structural.csv to contain at least one row"
   require_file "$RUN_DIR/phase1-shadow-ladder-main.log"
   require_file "$RUN_DIR/ladder-main/ladder_status.csv"
   require_file "$RUN_DIR/ladder-main/ladder_gate.txt"

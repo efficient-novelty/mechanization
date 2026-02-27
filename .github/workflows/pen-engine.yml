@@ -122,6 +122,15 @@ jobs:
           }
           JSON
 
+      - name: Build evidence summary (PR/main)
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            MODE=main
+          else
+            MODE=pr
+          fi
+          engine/scripts/summarize_phase1_evidence.sh "$RUN_DIR" "$MODE"
+
       - name: Verify evidence artifact contract (PR/main)
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
