@@ -25,6 +25,12 @@ require_contains() {
   grep -Fq "$needle" "$f" || fail "expected '$needle' in $f"
 }
 
+require_regex() {
+  local f="$1"
+  local pattern="$2"
+  grep -Eq "$pattern" "$f" || fail "expected pattern /$pattern/ in $f"
+}
+
 [[ -d "$RUN_DIR" ]] || fail "run dir does not exist: $RUN_DIR"
 
 require_zero_failed() {
@@ -46,8 +52,8 @@ require_file "$RUN_DIR/ladder/ladder_status.csv"
 require_file "$RUN_DIR/manifest.json"
 require_file "$RUN_DIR/summary.md"
 
-require_contains "$RUN_DIR/manifest.json" '"contract": "docs/phase1_evidence_contract.md"'
-require_contains "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
+require_regex "$RUN_DIR/manifest.json" '"contract"[[:space:]]*:[[:space:]]*"docs/phase1_evidence_contract.md"'
+require_regex "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
 require_contains "$RUN_DIR/ladder/ladder_status.csv" 'step,status,exit_code,csv_rows'
 require_contains "$RUN_DIR/summary.md" 'Phase 1 Evidence Summary'
 
@@ -68,7 +74,7 @@ if [[ "$MODE" == "main" ]]; then
   require_file "$RUN_DIR/ladder-main/ladder_status.csv"
   require_file "$RUN_DIR/ladder-main/ladder_gate.txt"
   require_contains "$RUN_DIR/ladder-main/ladder_gate.txt" 'pass'
-  require_contains "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder_main_gate"'
+  require_regex "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder_main_gate"'
 fi
 
 echo "[phase1-evidence-check] OK: $RUN_DIR ($MODE)"

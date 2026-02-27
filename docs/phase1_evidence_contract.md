@@ -62,6 +62,10 @@ Retention defaults:
 - PR runs: 14 days
 - main branch runs: 30 days
 
+## Evidence tooling self-check
+
+CI runs `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure summarize/verify scripts remain executable and contract-compatible.
+
 ## Evidence verification gate
 
 CI must run `engine/scripts/summarize_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` and then `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.

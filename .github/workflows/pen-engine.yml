@@ -41,6 +41,10 @@ jobs:
         working-directory: engine
         run: cabal build all
 
+      - name: Self-check evidence tooling scripts
+        run: |
+          engine/scripts/test_phase1_evidence_tools.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
