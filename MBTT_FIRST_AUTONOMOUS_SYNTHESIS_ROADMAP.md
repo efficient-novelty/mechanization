@@ -90,6 +90,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
   - mandatory artifacts (acceptance logs, MBTT lane logs, ab-initio CSV/report, manifest),
   - retention/naming conventions (PR 14d, main 30d),
   - replay instructions via manifest + contract doc.
+- [x] Added a CI **shadow-ladder telemetry lane** (`engine/scripts/run_phase1_shadow_ladder.sh`) for bounded horizon evidence (`STEPS=1 2 3`, per-step timeout, `ladder_status.csv`) so resource limits are measured explicitly rather than inferred from abrupt runner kills.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
@@ -114,7 +115,7 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 ### Exit criteria
 - [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode (now operationally supported via `--max-steps 6`; pending stable completion on provisioned runner).
 - [x] Enumerator-specific acceptance checks (J1–J5) are implemented and tracked in `RunAcceptance`.
-- [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*` per formal CI artifact policy.
+- [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*` per formal CI artifact policy (including ladder telemetry `ladder/ladder_status.csv` and lane logs).
 
 ---
 

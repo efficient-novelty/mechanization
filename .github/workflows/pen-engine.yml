@@ -89,6 +89,13 @@ jobs:
           cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv             | tee "../$RUN_DIR/abinitio_mbtt_structural.log"
           mv abinitio_mbtt_structural.csv "../$RUN_DIR/abinitio_mbtt_structural.csv"
 
+      - name: Lane E — MBTT shadow ladder telemetry (required on PR/main)
+        run: |
+          mkdir -p "$RUN_DIR/ladder"
+          TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' \
+            engine/scripts/run_phase1_shadow_ladder.sh "$RUN_DIR/ladder" \
+            | tee "$RUN_DIR/phase1-shadow-ladder.log"
+
       - name: Write evidence manifest
         run: |
           cat > "$RUN_DIR/manifest.json" <<JSON
@@ -100,7 +107,8 @@ jobs:
               "mbtt_fast": "cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50",
               "mbtt_full": "cabal run acceptance-mbtt (main branch only)",
               "abinitio_mbtt_shadow": "cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv",
-              "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)"
+              "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)",
+              "mbtt_shadow_ladder": "TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder"
             }
           }
           JSON

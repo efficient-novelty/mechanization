@@ -27,6 +27,11 @@ Define what counts as acceptable evidence for Phase 1 MBTT-first claims, while s
 - Scope: end-to-end discovery trajectory + score outputs (full) and bounded first-stage evidence (shadow)
 - Gate: run completes and emits replayable stepwise artifacts
 
+### Lane E — MBTT shadow ladder telemetry (required on PR/main)
+- Command: `TIMEOUT_S=45 MAX_CANDS=20 STEPS="1 2 3" engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder`
+- Scope: hardware-capability telemetry for bounded shadow replays, recorded as `ladder_status.csv` (pass/fail and rows emitted per horizon)
+- Gate: command must complete and emit `ladder/ladder_status.csv`; failures in higher horizons are allowed but must be visible in artifact status rows
+
 ## Reproducibility metadata requirements
 
 Each CI run that claims Phase 1 evidence must include:
@@ -44,6 +49,7 @@ Store artifacts under a run-scoped folder:
 - `runs/phase1_ci/<run-id>/acceptance-mbtt-full.log` (if full lane executed)
 - `runs/phase1_ci/<run-id>/abinitio_mbtt_structural.csv`
 - `runs/phase1_ci/<run-id>/manifest.json`
+- `runs/phase1_ci/<run-id>/ladder/ladder_status.csv`
 
 Retention defaults:
 - PR runs: 14 days
@@ -61,6 +67,6 @@ A third party should be able to replay evidence with only:
 Phase 1 evidence demonstrates MBTT-first enumeration viability and bounded/full-lane reproducibility.
 Strong autonomy claims remain conditioned on closing known Phase 3 evaluator name-dependence gaps documented in the roadmap.
 
-### Optional local evidence helper (ladder mode)
+### Local evidence helper (ladder mode)
 - Script: `engine/scripts/run_phase1_shadow_ladder.sh`
 - Purpose: run bounded shadow replays for a step ladder (e.g. 1..6) with per-step timeout and produce `ladder_status.csv` to show which horizons complete on current hardware.
