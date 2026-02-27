@@ -67,11 +67,11 @@ Repository hygiene:
 
 ## Evidence tooling self-check
 
-CI runs `engine/scripts/check_phase1_repo_hygiene.sh`, `engine/scripts/check_phase1_workflow_consistency.sh`, `engine/scripts/check_no_conflict_markers.sh`, and `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure generated smoke artifacts are not tracked, key workflow steps exist exactly once, no unresolved merge markers are present, and summarize/verify scripts remain executable and contract-compatible.
+CI runs `engine/scripts/check_phase1_repo_hygiene.sh`, `engine/scripts/check_phase1_workflow_consistency.sh`, `engine/scripts/check_no_conflict_markers.sh`, and `engine/scripts/test_phase1_evidence_tools.sh` before/with Phase-1 lanes to ensure generated smoke artifacts are not tracked, key workflow steps exist exactly once, no unresolved merge markers are present, and manifest/summarize/verify scripts remain executable and contract-compatible.
 
 ## Evidence verification gate
 
-CI must run `engine/scripts/summarize_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` and then `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.
+CI must run `engine/scripts/check_phase1_manifest_schema.sh runs/phase1_ci/<run-id> <pr|main>`, then `engine/scripts/summarize_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>`, and then `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.
 This enforces lane-specific required files, requires `summary.md`, requires acceptance lanes to report zero failures (`Results: ... 0 failed`), requires summary lane entries to include concrete `Results:` lines (not placeholder text), and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
 
 ## Replay contract

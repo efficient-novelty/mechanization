@@ -138,6 +138,15 @@ jobs:
           }
           JSON
 
+      - name: Check evidence manifest schema (PR/main)
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            MODE=main
+          else
+            MODE=pr
+          fi
+          engine/scripts/check_phase1_manifest_schema.sh "$RUN_DIR" "$MODE"
+
       - name: Build evidence summary (PR/main)
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then

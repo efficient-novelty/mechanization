@@ -103,6 +103,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added CI workflow-consistency guard (`engine/scripts/check_phase1_workflow_consistency.sh`) to ensure key Phase-1 evidence steps appear exactly once (avoids accidental duplicate/missing step edits).
 - [x] Strengthened evidence verification so `summary.md` must contain concrete acceptance `Results:` lines for required lanes (prevents placeholder-only summaries from passing).
 - [x] Added local iteration bootstrap helper (`engine/scripts/start_phase1_iteration.sh`) to force fresh-`main` branch starts and reduce recurring merge-conflict churn.
+- [x] Added manifest-schema guard (`engine/scripts/check_phase1_manifest_schema.sh`) so malformed/partial lane maps fail before summary/verification/upload.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
