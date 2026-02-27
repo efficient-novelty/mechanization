@@ -16,3 +16,7 @@ agda/_build/
 
 # OS files
 .DS_Store
+# Phase-1 generated evidence artifacts (kept in CI uploads, not committed)
+runs/phase1_ci/
+runs/phase1_bundle/
+
