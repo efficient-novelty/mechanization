@@ -122,6 +122,15 @@ jobs:
           }
           JSON
 
+      - name: Verify evidence artifact contract (PR/main)
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            MODE=main
+          else
+            MODE=pr
+          fi
+          engine/scripts/verify_phase1_evidence.sh "$RUN_DIR" "$MODE"
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4

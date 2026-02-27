@@ -61,6 +61,11 @@ Retention defaults:
 - PR runs: 14 days
 - main branch runs: 30 days
 
+## Evidence verification gate
+
+CI must run `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.
+This enforces lane-specific required files and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
+
 ## Replay contract
 
 A third party should be able to replay evidence with only:
