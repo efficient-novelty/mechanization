@@ -78,6 +78,16 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 ### Active blockers
 - Local environment now has `ghc`/`cabal` installed (Ubuntu packages). Acceptance has been split into `acceptance-core` (A–I) and `acceptance-mbtt` (J-lane) so local/CI workflows can run bounded MBTT checks independently; full-budget MBTT still requires a larger runner.
 
+### Immediate next step (evidence hardening)
+- [ ] Formalize an **evidence contract** for autonomy claims:
+  - lane definitions (`acceptance-core`, bounded/full `acceptance-mbtt`, `ab-initio --mbtt-first`),
+  - required pass/fail gates per lane,
+  - reproducibility metadata (commit SHA, flags, seed/window, machine profile).
+- [ ] Formalize a **CI artifact policy** for `runs/phase1_*`:
+  - mandatory artifacts (acceptance logs, MBTT lane logs, ab-initio CSV/report),
+  - retention/naming conventions,
+  - replay instructions for independent verification.
+
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
 
@@ -101,7 +111,7 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 ### Exit criteria
 - [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode.
 - [x] Enumerator-specific acceptance checks (J1–J5) are implemented and tracked in `RunAcceptance`.
-- [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*`.
+- [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*` per formal CI artifact policy.
 
 ---
 
