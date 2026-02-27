@@ -28,6 +28,7 @@ module Main where
 import Telescope
 import TelescopeGen (enumerateTelescopes)
 import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
+import MBTTCanonical (canonicalKeySpec)
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -39,6 +40,7 @@ import CoherenceWindow (dBonacciDelta)
 
 import Data.List (sortOn)
 import Data.Ord (Down(..))
+import qualified Data.Map.Strict as Map
 import Control.Monad (when)
 import System.IO (hFlush, stdout)
 import System.Environment (getArgs)
@@ -328,7 +330,10 @@ abInitioLoop cfg = do
               rawTelescopes = if cfgMBTTFirst cfg
                               then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
                               else enumerateTelescopes lib enumKmax
-              (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
+              (validTelescopesRaw, _rejected) = checkAndFilter lib rawTelescopes
+              -- Phase-2 quotienting kickoff: deduplicate equivalent telescopes
+              -- by canonical MBTT key before scoring.
+              validTelescopes = dedupByCanonicalKey validTelescopesRaw
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
@@ -666,3 +671,16 @@ printExclusionContract = do
   putStrLn "    Selection uses only: StructuralNu (AST), DesugaredKappa (clause count),"
   putStrLn "    d-bonacci bar (Fibonacci for d=2), canonical structural recognition."
   putStrLn "    No physical constants, no empirical measurements, no fitted parameters."
+
+-- | Deduplicate telescopes by canonicalized MBTT-expression key sequence.
+--
+-- Keeps the first occurrence to preserve deterministic upstream enumeration
+-- ordering while collapsing structurally equivalent forms for Phase-2 quotienting.
+dedupByCanonicalKey :: [Telescope] -> [Telescope]
+dedupByCanonicalKey teles = reverse (snd (foldl step (Map.empty, []) teles))
+  where
+    step (seen, acc) tele =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key seen of
+           Just _  -> (seen, acc)
+           Nothing -> (Map.insert key () seen, tele : acc)

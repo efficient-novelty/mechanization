@@ -159,7 +159,7 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 ### Kickoff status
 - [x] Added `engine/src/MBTTCanonical.hs` with Phase-2 canonicalization primitives (`canonicalizeExpr`, `canonicalizeSpec`) and stable canonical-key helpers (`canonicalKeyExpr`, `canonicalKeySpec`) as the quotient-cache foundation.
 - [x] Wired `MBTTCanonical` into `engine/pen-engine.cabal` targets so canonicalization code is build-visible across library and Phase-1 runner executables.
-- [ ] Thread canonical keys into `RunAbInitio` candidate expansion and frontier deduplication path (Phase-2 functional integration step).
+- [x] Thread canonical keys into `RunAbInitio` candidate expansion and frontier deduplication path (Phase-2 functional integration step; enumeration candidates are now quotient-deduplicated by canonical MBTT key before scoring).
 
 ### Scope
 Normalize MBTT candidates before scoring to avoid syntactic duplicates.

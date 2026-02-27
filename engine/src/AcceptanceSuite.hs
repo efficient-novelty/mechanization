@@ -28,6 +28,7 @@ import StructuralNu (structuralNu, StructuralNuResult(..))
 import CoherenceWindow (dBonacciDelta)
 import TelescopeCheck (checkTelescope, CheckResult(..))
 import MBTTEnum (enumerateExprs, enumerateMBTTTelescopes, MBTTCandidate(..), EnumConfig(..), defaultEnumConfig)
+import MBTTCanonical (canonicalizeExpr, canonicalKeyExpr)
 import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
 
@@ -735,6 +736,39 @@ testJ5BitCostOrdering cfg =
       then return Pass
       else return $ Fail "Candidates not ordered by bit cost")
 
+
+-- J6: Canonicalization idempotence — canonicalizeExpr . canonicalizeExpr = canonicalizeExpr.
+testJ6CanonicalIdempotence :: Test
+testJ6CanonicalIdempotence =
+  ("J6. [MBTT] Canonicalization is idempotent", do
+    let exprs =
+          [ Univ
+          , Var 1
+          , Pi Univ (Var 1)
+          , Sigma (Lib 1) (Lam (Var 1))
+          , App (Lam (Var 1)) (Lib 2)
+          , Id Univ (Var 1) (Var 1)
+          , Next (Eventually (Flat (Sharp Univ)))
+          ]
+        ok = all (\e -> canonicalizeExpr (canonicalizeExpr e) == canonicalizeExpr e) exprs
+    if ok
+      then return Pass
+      else return $ Fail "canonicalizeExpr is not idempotent")
+
+-- J7: Canonical keys stable under canonicalization pass.
+testJ7CanonicalKeyStability :: Test
+testJ7CanonicalKeyStability =
+  ("J7. [MBTT] Canonical keys are stable after canonicalization", do
+    let exprs =
+          [ Pi (Sigma Univ (Var 1)) (Lam (App (Var 1) (Var 2)))
+          , Trunc (Id (Lib 1) (Var 1) (Var 1))
+          , Shape (Next (Eventually (Disc Univ)))
+          ]
+        stable = all (\e -> canonicalKeyExpr e == canonicalKeyExpr (canonicalizeExpr e)) exprs
+    if stable
+      then return Pass
+      else return $ Fail "canonicalKeyExpr changed after canonicalizeExpr")
+
 -- ============================================
 -- Entry points
 -- ============================================
@@ -789,6 +823,8 @@ mbttTests cfg =
        ]
        ++ (if acMbttFast cfg then [] else [testJ4ReferenceTelescopes cfg])
        ++ [ testJ5BitCostOrdering cfg
+          , testJ6CanonicalIdempotence
+          , testJ7CanonicalKeyStability
           ]
 
 runAcceptanceWithConfig :: AcceptanceConfig -> IO ()
