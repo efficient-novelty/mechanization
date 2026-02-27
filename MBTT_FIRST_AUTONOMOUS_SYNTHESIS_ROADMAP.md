@@ -72,6 +72,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Add shadow-run controls in `RunAbInitio` (`--phase1-shadow` preset (expands to `--mbtt-first`, `--max-steps`, `--skip-validation`, `--mbtt-shadow-profile`, `--skip-mcts`)) so Phase-1 MBTT evidence can run bounded first-stage checks without paying full Phase 0 validation cost.
 - [x] Added local Phase-1 shadow artifact helper `engine/scripts/run_phase1_shadow.sh` to run `acceptance-core` + bounded `ab-initio --phase1-shadow` and write `runs/phase1_shadow/<run>/` manifest/log/CSV bundles.
 - [x] Added local Phase-1 ladder helper `engine/scripts/run_phase1_shadow_ladder.sh` to run step-horizon ladders (1..6) with per-step timeouts and emit `ladder_status.csv` for hardware-capability evidence.
+- [x] Added local Phase-1 evidence bundle helper `engine/scripts/run_phase1_evidence_bundle.sh` to mirror CI lane structure in one command and emit per-lane status telemetry (`lane_status.csv`) + replay manifest.
 - [ ] Run parity/acceptance in CI with Haskell toolchain enabled and archive artifacts under `runs/phase1_*`.
 
 ### Key learnings so far
