@@ -67,7 +67,7 @@ Repository hygiene:
 
 ## Evidence tooling self-check
 
-CI runs `engine/scripts/check_no_conflict_markers.sh` and `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure no unresolved merge markers are present and summarize/verify scripts remain executable and contract-compatible.
+CI runs `engine/scripts/check_phase1_repo_hygiene.sh`, `engine/scripts/check_no_conflict_markers.sh`, and `engine/scripts/test_phase1_evidence_tools.sh` before Phase-1 lanes to ensure generated smoke artifacts are not tracked, no unresolved merge markers are present, and summarize/verify scripts remain executable and contract-compatible.
 
 ## Evidence verification gate
 
