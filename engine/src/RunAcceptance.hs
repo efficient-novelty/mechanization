@@ -24,8 +24,11 @@ import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
 
 import System.Exit (exitFailure, exitSuccess)
+import System.Environment (getArgs)
 import Text.Printf (printf)
 import System.IO (hFlush, stdout)
+import Text.Read (readMaybe)
+import Control.Monad (when)
 
 -- ============================================
 -- Test Framework
@@ -34,6 +37,45 @@ import System.IO (hFlush, stdout)
 data TestResult = Pass | Fail String deriving (Show)
 
 type Test = (String, IO TestResult)
+
+data AcceptanceConfig = AcceptanceConfig
+  { acMbttFast :: !Bool
+  , acMbttSkip :: !Bool
+  , acMbttMaxCandidates :: !(Maybe Int)
+  } deriving (Show)
+
+defaultAcceptanceConfig :: AcceptanceConfig
+defaultAcceptanceConfig = AcceptanceConfig
+  { acMbttFast = False
+  , acMbttSkip = False
+  , acMbttMaxCandidates = Nothing
+  }
+
+parseArgs :: [String] -> AcceptanceConfig
+parseArgs args =
+  let fast = "--mbtt-fast" `elem` args
+      skip = "--skip-mbtt" `elem` args
+      maxCandidates = case dropWhile (/= "--mbtt-max-candidates") args of
+                        ("--mbtt-max-candidates" : n : _) -> readMaybe n
+                        _ -> Nothing
+  in defaultAcceptanceConfig
+      { acMbttFast = fast
+      , acMbttSkip = skip
+      , acMbttMaxCandidates = maxCandidates
+      }
+
+applyMBTTConfig :: AcceptanceConfig -> EnumConfig -> EnumConfig
+applyMBTTConfig cfg base =
+  let fastCfg = if acMbttFast cfg
+                then base { ecMaxBitBudget = min (ecMaxBitBudget base) 16
+                          , ecMaxEntries = min (ecMaxEntries base) 2
+                          , ecMaxASTDepth = min (ecMaxASTDepth base) 2
+                          , ecMaxCandidates = min (ecMaxCandidates base) 150
+                          }
+                else base
+  in case acMbttMaxCandidates cfg of
+      Just n  -> fastCfg { ecMaxCandidates = max 1 n }
+      Nothing -> fastCfg
 
 runTests :: [Test] -> IO ()
 runTests tests = do
@@ -602,13 +644,14 @@ testJ1GrammarCoverage =
     isApp _ = False
 
 -- J2: Well-formedness — every telescope from enumerateMBTTTelescopes passes checkTelescope.
-testJ2WellFormedness :: Test
-testJ2WellFormedness =
+testJ2WellFormedness :: AcceptanceConfig -> Test
+testJ2WellFormedness cfg =
   ("J2. [MBTT] All enumerated telescopes pass checkTelescope", do
     let lib = canonicalLibAt 3  -- library after Pi (step 4)
-        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
-                                  ecMaxASTDepth = 3, ecMaxCandidates = 500 }
-        candidates = enumerateMBTTTelescopes lib cfg
+        enumCfg = applyMBTTConfig cfg $
+          defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
+                              ecMaxASTDepth = 3, ecMaxCandidates = 500 }
+        candidates = enumerateMBTTTelescopes lib enumCfg
         failures = [mcTelescope c | c <- candidates,
                     checkTelescope lib (mcTelescope c) /= CheckOK]
     if null failures
@@ -616,44 +659,46 @@ testJ2WellFormedness =
       else return $ Fail $ show (length failures) ++ " telescopes fail checkTelescope")
 
 -- J3: Determinism — calling enumerateMBTTTelescopes twice produces identical results.
-testJ3Determinism :: Test
-testJ3Determinism =
+testJ3Determinism :: AcceptanceConfig -> Test
+testJ3Determinism cfg =
   ("J3. [MBTT] Enumeration is deterministic", do
     let lib = canonicalLibAt 2
-        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 2,
-                                  ecMaxASTDepth = 3, ecMaxCandidates = 200 }
-        run1 = enumerateMBTTTelescopes lib cfg
-        run2 = enumerateMBTTTelescopes lib cfg
+        enumCfg = applyMBTTConfig cfg $
+          defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 2,
+                              ecMaxASTDepth = 3, ecMaxCandidates = 200 }
+        run1 = enumerateMBTTTelescopes lib enumCfg
+        run2 = enumerateMBTTTelescopes lib enumCfg
     if run1 == run2
       then return Pass
       else return $ Fail $ "Two runs differ: " ++ show (length run1) ++ " vs " ++ show (length run2))
 
 -- J4: Reference telescope coverage — first 4 reference telescopes (or structural
 -- equivalents) appear in the enumeration at appropriate bit budgets.
-testJ4ReferenceTelescopes :: Test
-testJ4ReferenceTelescopes =
+testJ4ReferenceTelescopes :: AcceptanceConfig -> Test
+testJ4ReferenceTelescopes cfg =
   ("J4. [MBTT] Enumerator finds reference telescopes for steps 1-4", do
     -- Step 1 (Universe): Telescope [c1 : U] — should be in empty-library enum
     let lib0 = []
-        cfg = defaultEnumConfig { ecMaxBitBudget = 30, ecMaxEntries = 4,
-                                  ecMaxASTDepth = 3, ecMaxCandidates = 5000 }
-        cands0 = enumerateMBTTTelescopes lib0 cfg
+        enumCfg = applyMBTTConfig cfg $
+          defaultEnumConfig { ecMaxBitBudget = 30, ecMaxEntries = 4,
+                              ecMaxASTDepth = 3, ecMaxCandidates = 5000 }
+        cands0 = enumerateMBTTTelescopes lib0 enumCfg
         ref1 = referenceTelescope 1
         found1 = any (\c -> mcTelescope c == ref1) cands0
 
     -- Steps 2-4 require library built up
     let lib1 = canonicalLibAt 1
-        cands1 = enumerateMBTTTelescopes lib1 cfg
+        cands1 = enumerateMBTTTelescopes lib1 enumCfg
         ref2 = referenceTelescope 2
         found2 = any (\c -> mcTelescope c == ref2) cands1
 
     let lib2 = canonicalLibAt 2
-        cands2 = enumerateMBTTTelescopes lib2 cfg
+        cands2 = enumerateMBTTTelescopes lib2 enumCfg
         ref3 = referenceTelescope 3
         found3 = any (\c -> mcTelescope c == ref3) cands2
 
     let lib3 = canonicalLibAt 3
-        cands3 = enumerateMBTTTelescopes lib3 cfg
+        cands3 = enumerateMBTTTelescopes lib3 enumCfg
         ref4 = referenceTelescope 4
         found4 = any (\c -> mcTelescope c == ref4) cands3
 
@@ -668,13 +713,14 @@ testJ4ReferenceTelescopes =
       else return $ Fail $ "Missing reference telescopes: " ++ show missing)
 
 -- J5: Bit-cost ordering — output is ordered by ascending total bit cost.
-testJ5BitCostOrdering :: Test
-testJ5BitCostOrdering =
+testJ5BitCostOrdering :: AcceptanceConfig -> Test
+testJ5BitCostOrdering cfg =
   ("J5. [MBTT] Candidates ordered by ascending bit cost", do
     let lib = canonicalLibAt 3
-        cfg = defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
-                                  ecMaxASTDepth = 3, ecMaxCandidates = 500 }
-        candidates = enumerateMBTTTelescopes lib cfg
+        enumCfg = applyMBTTConfig cfg $
+          defaultEnumConfig { ecMaxBitBudget = 20, ecMaxEntries = 3,
+                              ecMaxASTDepth = 3, ecMaxCandidates = 500 }
+        candidates = enumerateMBTTTelescopes lib enumCfg
         costs = map mcBitKappa candidates
         ordered = all (\(a, b) -> a <= b) (zip costs (drop 1 costs))
     if ordered
@@ -686,48 +732,59 @@ testJ5BitCostOrdering =
 -- ============================================
 
 main :: IO ()
-main = runTests $
-  -- A: Bootstrap bar sensitivity
-  [ testUniverseNu
-  , testTruncNuExact
-  -- B: Pi binder novelty
-  , testPiNuPositive
-  , testPiNuExact
-  -- C: Trunc anti-explosion
-  , testTruncBounded
-  -- D: DCT meta-theorems
-  , testDCTTotal
-  , testDCTDistLaw
-  , testDCTUnivPoly
-  , testDCTInfShift
-  ]
-  -- E: Kappa consistency
-  ++ testKappaAll
-  -- F: Full sequence golden test
-  ++ [ testFullSequence
-     , testTotalNu
-     , testTotalKappa
-     ]
-  -- G: Canonical name detection
-  ++ testCanonicalNames
-  -- H: Exclusion contract
-  ++ [ testExclusionNoEmpiricalInNu
-     , testExclusionHistoryInvariance
-     , testExclusionKappaIndependence
-     , testExclusionBarFormula
-     ]
-  -- I: MBTT-first invariant contracts (ADR-0001)
-  ++ [ testC1StructuralNuNameFree
-     , testC1bClassificationNameFree
-     , testC2KappaDeterminism
-     , testC3KappaMonotonicity
-     , testC4DecodingNonInterference
-     , testC4bBarNameFree
-     ]
-  -- J: MBTT-first enumerator (Phase 1)
-  ++ [ testJ1GrammarCoverage
-     , testJ2WellFormedness
-     , testJ3Determinism
-     , testJ4ReferenceTelescopes
-     , testJ5BitCostOrdering
-     ]
+main = do
+  cfg <- parseArgs <$> getArgs
+  when (acMbttFast cfg) $
+    putStrLn "[acceptance] --mbtt-fast enabled: using reduced MBTT enumerator budgets."
+  when (acMbttSkip cfg) $
+    putStrLn "[acceptance] --skip-mbtt enabled: skipping MBTT J-tests."
+  when (acMbttFast cfg) $
+    putStrLn "[acceptance] fast mode omits J4 reference-recovery due intentionally tighter MBTT bounds."
+  runTests $
+    -- A: Bootstrap bar sensitivity
+    [ testUniverseNu
+    , testTruncNuExact
+    -- B: Pi binder novelty
+    , testPiNuPositive
+    , testPiNuExact
+    -- C: Trunc anti-explosion
+    , testTruncBounded
+    -- D: DCT meta-theorems
+    , testDCTTotal
+    , testDCTDistLaw
+    , testDCTUnivPoly
+    , testDCTInfShift
+    ]
+    -- E: Kappa consistency
+    ++ testKappaAll
+    -- F: Full sequence golden test
+    ++ [ testFullSequence
+       , testTotalNu
+       , testTotalKappa
+       ]
+    -- G: Canonical name detection
+    ++ testCanonicalNames
+    -- H: Exclusion contract
+    ++ [ testExclusionNoEmpiricalInNu
+       , testExclusionHistoryInvariance
+       , testExclusionKappaIndependence
+       , testExclusionBarFormula
+       ]
+    -- I: MBTT-first invariant contracts (ADR-0001)
+    ++ [ testC1StructuralNuNameFree
+       , testC1bClassificationNameFree
+       , testC2KappaDeterminism
+       , testC3KappaMonotonicity
+       , testC4DecodingNonInterference
+       , testC4bBarNameFree
+       ]
+    -- J: MBTT-first enumerator (Phase 1)
+    ++ if acMbttSkip cfg
+       then []
+       else [ testJ1GrammarCoverage
+            , testJ2WellFormedness cfg
+            , testJ3Determinism cfg
+            ]
+            ++ (if acMbttFast cfg then [] else [testJ4ReferenceTelescopes cfg])
+            ++ [ testJ5BitCostOrdering cfg
+               ]
