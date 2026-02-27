@@ -56,6 +56,8 @@ require_regex "$RUN_DIR/manifest.json" '"contract"[[:space:]]*:[[:space:]]*"docs
 require_regex "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
 require_contains "$RUN_DIR/ladder/ladder_status.csv" 'step,status,exit_code,csv_rows'
 require_contains "$RUN_DIR/summary.md" 'Phase 1 Evidence Summary'
+require_regex "$RUN_DIR/summary.md" 'core:[[:space:]]+Results:'
+require_regex "$RUN_DIR/summary.md" 'mbtt_fast:[[:space:]]+Results:'
 
 require_zero_failed "$RUN_DIR/acceptance-core.log" "acceptance-core"
 require_zero_failed "$RUN_DIR/acceptance-mbtt-fast.log" "acceptance-mbtt-fast"
@@ -65,6 +67,7 @@ shadow_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_shadow6.csv" | wc -l | tr -d ' 
 
 if [[ "$MODE" == "main" ]]; then
   require_file "$RUN_DIR/acceptance-mbtt-full.log"
+  require_regex "$RUN_DIR/summary.md" 'mbtt_full:[[:space:]]+Results:'
   require_file "$RUN_DIR/abinitio_mbtt_structural.log"
   require_file "$RUN_DIR/abinitio_mbtt_structural.csv"
   require_zero_failed "$RUN_DIR/acceptance-mbtt-full.log" "acceptance-mbtt-full"

@@ -72,7 +72,7 @@ CI runs `engine/scripts/check_phase1_repo_hygiene.sh`, `engine/scripts/check_pha
 ## Evidence verification gate
 
 CI must run `engine/scripts/summarize_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` and then `engine/scripts/verify_phase1_evidence.sh runs/phase1_ci/<run-id> <pr|main>` before artifact upload.
-This enforces lane-specific required files, requires `summary.md`, requires acceptance lanes to report zero failures (`Results: ... 0 failed`), and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
+This enforces lane-specific required files, requires `summary.md`, requires acceptance lanes to report zero failures (`Results: ... 0 failed`), requires summary lane entries to include concrete `Results:` lines (not placeholder text), and verifies that main-branch ladder gate emits `ladder-main/ladder_gate.txt` with `pass`.
 
 ## Replay contract
 
