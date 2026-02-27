@@ -89,6 +89,11 @@ Strong autonomy claims remain conditioned on closing known Phase 3 evaluator nam
 ### CI evidence review surface
 - CI appends `summary.md` to `$GITHUB_STEP_SUMMARY` so lane outcomes are visible in the workflow UI without downloading artifacts.
 
+### Local iteration helper (branch hygiene)
+- Script: `engine/scripts/start_phase1_iteration.sh`
+- Purpose: start each Phase-1 coding iteration from latest `origin/main` on a fresh branch to reduce repeat merge conflicts.
+- Safety: refuses dirty working trees by default; supports `--dry-run` for preview.
+
 ### Local evidence helper (bundle mode)
 - Script: `engine/scripts/run_phase1_evidence_bundle.sh`
 - Cleanup helper: `engine/scripts/clean_phase1_artifacts.sh` removes generated `runs/phase1_ci` and `runs/phase1_bundle` folders.

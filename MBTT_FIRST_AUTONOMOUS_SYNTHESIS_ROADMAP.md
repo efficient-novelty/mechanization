@@ -101,6 +101,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added Phase-1 artifact hygiene controls (`.gitignore` + `engine/scripts/clean_phase1_artifacts.sh`) so generated evidence outputs (including local shadow/ladder smoke folders) are kept in CI artifacts instead of creating repeated repository merge noise.
 - [x] Added CI repo-hygiene guard (`engine/scripts/check_phase1_repo_hygiene.sh`) to fail fast if generated local smoke artifacts become tracked again.
 - [x] Added CI workflow-consistency guard (`engine/scripts/check_phase1_workflow_consistency.sh`) to ensure key Phase-1 evidence steps appear exactly once (avoids accidental duplicate/missing step edits).
+- [x] Added local iteration bootstrap helper (`engine/scripts/start_phase1_iteration.sh`) to force fresh-`main` branch starts and reduce recurring merge-conflict churn.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
