@@ -66,6 +66,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
   , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
   , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
+  , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -138,15 +139,22 @@ main = do
     putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
   when (cfgMaxSteps cfg < 15) $
     printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
+  when (cfgSkipValidation cfg) $
+    putStrLn "  SPEED:     --skip-validation (Phase 0 validation skipped)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
   putStrLn ""
 
   -- Phase 0: Validate reference telescopes (uses canonical names for paper comparison)
-  putStrLn "--- Phase 0: Validating Reference Telescopes ---"
-  putStrLn ""
-  validatePhase
+  if cfgSkipValidation cfg
+    then do
+      putStrLn "--- Phase 0: Validation skipped by --skip-validation ---"
+      putStrLn ""
+    else do
+      putStrLn "--- Phase 0: Validating Reference Telescopes ---"
+      putStrLn ""
+      validatePhase
 
   -- Phase 1: Run the ab initio synthesis loop
   putStrLn ""
@@ -186,7 +194,8 @@ parseArgs args =
                      [(k,"")] | k >= 1 && k <= 15 -> k
                      _ -> 15
                    _ -> 15
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps
+      skipValidation = "--skip-validation" `elem` args
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
