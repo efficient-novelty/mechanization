@@ -76,7 +76,14 @@ jobs:
         run: |
           cabal run acceptance-mbtt | tee "../$RUN_DIR/acceptance-mbtt-full.log"
 
-      - name: Lane D — MBTT-first structural replay
+      - name: Lane D1 — MBTT-first shadow replay (required)
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --structural --mbtt-first --max-steps 6 --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv             | tee "../$RUN_DIR/abinitio_mbtt_shadow6.log"
+          mv abinitio_mbtt_shadow6.csv "../$RUN_DIR/abinitio_mbtt_shadow6.csv"
+
+      - name: Lane D2 — MBTT-first full replay (main branch)
+        if: github.ref == 'refs/heads/main'
         working-directory: engine
         run: |
           cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv             | tee "../$RUN_DIR/abinitio_mbtt_structural.log"
@@ -92,7 +99,8 @@ jobs:
               "core": "cabal run acceptance-core",
               "mbtt_fast": "cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50",
               "mbtt_full": "cabal run acceptance-mbtt (main branch only)",
-              "abinitio_mbtt": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv"
+              "abinitio_mbtt_shadow": "cabal run ab-initio -- --structural --mbtt-first --max-steps 6 --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv",
+              "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)"
             }
           }
           JSON

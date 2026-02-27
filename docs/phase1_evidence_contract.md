@@ -22,8 +22,9 @@ Define what counts as acceptable evidence for Phase 1 MBTT-first claims, while s
 - Gate: must pass 100% on a sufficiently provisioned runner
 
 ### Lane D — MBTT-first ab-initio replay (required for discovery evidence)
-- Command: `cabal run ab-initio -- --structural --mbtt-first --csv <run.csv> [--mbtt-max-candidates N]`
-- Scope: End-to-end discovery trajectory + score outputs
+- Command (full replay): `cabal run ab-initio -- --structural --mbtt-first --csv <run.csv> [--mbtt-max-candidates N]`
+- Command (shadow replay): `cabal run ab-initio -- --structural --mbtt-first --max-steps 6 --csv <shadow.csv> [--mbtt-max-candidates N]`
+- Scope: end-to-end discovery trajectory + score outputs (full) and bounded first-stage evidence (shadow)
 - Gate: run completes and emits replayable stepwise artifacts
 
 ## Reproducibility metadata requirements

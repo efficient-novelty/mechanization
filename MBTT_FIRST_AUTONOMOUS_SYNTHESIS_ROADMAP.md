@@ -69,6 +69,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added Phase-1 acceptance coverage in `engine/src/RunAcceptance.hs` (J1–J5): grammar coverage, well-formedness, determinism, reference telescope recovery (steps 1–4), and bit-cost ordering.
 - [x] Wired `MBTTEnum` into build targets via `engine/pen-engine.cabal`.
 - [x] Integrate `--mbtt-first` flag into `RunAbInitio` as a selectable search path (Phase A can now enumerate via `MBTTEnum`; optional `--mbtt-max-candidates` cap added for bounded MBTT sessions).
+- [x] Add `--max-steps` shadow-mode control in `RunAbInitio` so Phase-1 MBTT runs can stop early (e.g. 1–6 steps) for bounded evidence checks before full-budget replay.
 - [ ] Run parity/acceptance in CI with Haskell toolchain enabled and archive artifacts under `runs/phase1_*`.
 
 ### Key learnings so far
@@ -109,7 +110,7 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 - Regression: deterministic candidate stream given fixed seed/budget.
 
 ### Exit criteria
-- [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode.
+- [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode (now operationally supported via `--max-steps 6`; pending stable completion on provisioned runner).
 - [x] Enumerator-specific acceptance checks (J1–J5) are implemented and tracked in `RunAcceptance`.
 - [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*` per formal CI artifact policy.
 
