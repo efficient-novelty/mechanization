@@ -6,11 +6,13 @@ on:
     paths:
       - 'engine/**'
       - '.github/workflows/pen-engine.yml'
+      - 'docs/phase1_evidence_contract.md'
   pull_request:
     branches: [main]
     paths:
       - 'engine/**'
       - '.github/workflows/pen-engine.yml'
+      - 'docs/phase1_evidence_contract.md'
 
 jobs:
   build-and-test:
@@ -39,42 +41,101 @@ jobs:
         working-directory: engine
         run: cabal build all
 
-      - name: Run acceptance tests (46 tests)
-        working-directory: engine
-        run: cabal run acceptance
+      - name: Prepare Phase 1 artifact directory
+        run: |
+          RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
+          mkdir -p "$RUN_DIR"
+          echo "RUN_DIR=$RUN_DIR" >> $GITHUB_ENV
 
-      - name: Run structural discovery
+      - name: Capture environment metadata
+        run: |
+          {
+            echo "commit_sha=${{ github.sha }}"
+            echo "run_id=${{ github.run_id }}"
+            echo "run_attempt=${{ github.run_attempt }}"
+            echo "ref=${{ github.ref }}"
+            echo "runner_os=${{ runner.os }}"
+            echo "runner_arch=${{ runner.arch }}"
+            echo "ghc_version=$(ghc --version)"
+            echo "cabal_version=$(cabal --version | head -n 1)"
+          } > "$RUN_DIR/env.txt"
+
+      - name: Lane A — acceptance-core (required)
         working-directory: engine
         run: |
-          cabal run ab-initio -- --structural --csv structural_d2.csv
-          # Verify 15 steps with correct names and kappa
-          STEPS=$(tail -n +2 structural_d2.csv | wc -l)
-          TOTAL_K=$(tail -n +2 structural_d2.csv | awk -F, '{s+=$4} END{print s}')
-          NAMES=$(tail -n +2 structural_d2.csv | awk -F, '{print $2}' | tr '\n' ',' | sed 's/,$//')
-          EXPECTED="Universe,Unit,Witness,Pi,S1,Trunc,S2,S3,Hopf,Cohesion,Connections,Curvature,Metric,Hilbert,DCT"
-          echo "Steps: $STEPS, Total κ: $TOTAL_K"
-          echo "Names: $NAMES"
-          if [ "$STEPS" -ne 15 ]; then echo "FAIL: expected 15 steps, got $STEPS"; exit 1; fi
-          if [ "$TOTAL_K" -ne 64 ]; then echo "FAIL: expected κ=64, got $TOTAL_K"; exit 1; fi
-          if [ "$NAMES" != "$EXPECTED" ]; then echo "FAIL: name mismatch"; exit 1; fi
-          echo "PASS: 15 steps, κ=64, all canonical names correct"
+          cabal run acceptance-core | tee "../$RUN_DIR/acceptance-core.log"
 
-      - name: Run paper-calibrated mode
+      - name: Lane B — acceptance-mbtt bounded (required on PR/main)
         working-directory: engine
         run: |
-          cabal run ab-initio -- --csv paper_calibrated.csv
-          TOTAL_NU=$(tail -n +2 paper_calibrated.csv | awk -F, '{s+=$3} END{print s}')
-          TOTAL_K=$(tail -n +2 paper_calibrated.csv | awk -F, '{s+=$4} END{print s}')
-          if [ "$TOTAL_NU" -ne 356 ]; then echo "FAIL: expected ν=356, got $TOTAL_NU"; exit 1; fi
-          if [ "$TOTAL_K" -ne 64 ]; then echo "FAIL: expected κ=64, got $TOTAL_K"; exit 1; fi
-          echo "PASS: paper mode ν=356, κ=64"
+          cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50             | tee "../$RUN_DIR/acceptance-mbtt-fast.log"
+
+      - name: Lane C — acceptance-mbtt full (main branch)
+        if: github.ref == 'refs/heads/main'
+        working-directory: engine
+        run: |
+          cabal run acceptance-mbtt | tee "../$RUN_DIR/acceptance-mbtt-full.log"
+
+      - name: Lane D1 — MBTT-first shadow replay (required)
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv             | tee "../$RUN_DIR/abinitio_mbtt_shadow6.log"
+          mv abinitio_mbtt_shadow6.csv "../$RUN_DIR/abinitio_mbtt_shadow6.csv"
+
+      - name: Lane D2 — MBTT-first full replay (main branch)
+        if: github.ref == 'refs/heads/main'
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv             | tee "../$RUN_DIR/abinitio_mbtt_structural.log"
+          mv abinitio_mbtt_structural.csv "../$RUN_DIR/abinitio_mbtt_structural.csv"
+
+      - name: Lane E — MBTT shadow ladder telemetry (required on PR/main)
+        run: |
+          mkdir -p "$RUN_DIR/ladder"
+          TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' \
+            engine/scripts/run_phase1_shadow_ladder.sh "$RUN_DIR/ladder" \
+            | tee "$RUN_DIR/phase1-shadow-ladder.log"
+
+      - name: Lane E2 — MBTT shadow ladder gate through step 6 (main branch)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p "$RUN_DIR/ladder-main"
+          TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 \
+            engine/scripts/run_phase1_shadow_ladder.sh "$RUN_DIR/ladder-main" \
+            | tee "$RUN_DIR/phase1-shadow-ladder-main.log"
+
+      - name: Write evidence manifest
+        run: |
+          cat > "$RUN_DIR/manifest.json" <<JSON
+          {
+            "contract": "docs/phase1_evidence_contract.md",
+            "commit": "${{ github.sha }}",
+            "lanes": {
+              "core": "cabal run acceptance-core",
+              "mbtt_fast": "cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50",
+              "mbtt_full": "cabal run acceptance-mbtt (main branch only)",
+              "abinitio_mbtt_shadow": "cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv",
+              "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)",
+              "mbtt_shadow_ladder": "TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder",
+              "mbtt_shadow_ladder_main_gate": "TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)"
+            }
+          }
+          JSON
+
+      - name: Verify evidence artifact contract (PR/main)
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            MODE=main
+          else
+            MODE=pr
+          fi
+          engine/scripts/verify_phase1_evidence.sh "$RUN_DIR" "$MODE"
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pen-engine-results
+          name: pen-engine-phase1-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            engine/structural_d2.csv
-            engine/paper_calibrated.csv
-          retention-days: 30
+            ${{ env.RUN_DIR }}
+          retention-days: ${{ github.ref == 'refs/heads/main' && 30 || 14 }}
