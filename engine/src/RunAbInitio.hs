@@ -67,6 +67,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
   , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
   , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
+  , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -141,6 +142,8 @@ main = do
     printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
   when (cfgSkipValidation cfg) $
     putStrLn "  SPEED:     --skip-validation (Phase 0 validation skipped)"
+  when (cfgMBTTShadowProfile cfg) $
+    putStrLn "  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -195,7 +198,8 @@ parseArgs args =
                      _ -> 15
                    _ -> 15
       skipValidation = "--skip-validation" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation
+      mbttShadowProfile = "--mbtt-shadow-profile" `elem` args
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand maxSteps skipValidation mbttShadowProfile
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -297,11 +301,13 @@ abInitioLoop cfg = do
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               nuDepth = 1
+              shadowProfile = cfgMBTTShadowProfile cfg && step <= 6
+              mbttDefaultCandidates = if shadowProfile then 800 else 5000
               mbttCfg = defaultEnumConfig
                 { ecMaxEntries = enumKmax
-                , ecMaxBitBudget = 20
-                , ecMaxASTDepth = 3
-                , ecMaxCandidates = maybe 5000 id (cfgMBTTMaxCand cfg)
+                , ecMaxBitBudget = if shadowProfile then 14 else 20
+                , ecMaxASTDepth = if shadowProfile then 2 else 3
+                , ecMaxCandidates = maybe mbttDefaultCandidates id (cfgMBTTMaxCand cfg)
                 }
               rawTelescopes = if cfgMBTTFirst cfg
                               then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)

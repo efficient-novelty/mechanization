@@ -69,7 +69,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added Phase-1 acceptance coverage in `engine/src/RunAcceptance.hs` (J1–J5): grammar coverage, well-formedness, determinism, reference telescope recovery (steps 1–4), and bit-cost ordering.
 - [x] Wired `MBTTEnum` into build targets via `engine/pen-engine.cabal`.
 - [x] Integrate `--mbtt-first` flag into `RunAbInitio` as a selectable search path (Phase A can now enumerate via `MBTTEnum`; optional `--mbtt-max-candidates` cap added for bounded MBTT sessions).
-- [x] Add shadow-run controls in `RunAbInitio` (`--max-steps`, `--skip-validation`) so Phase-1 MBTT evidence can run bounded first-stage checks without paying full Phase 0 validation cost.
+- [x] Add shadow-run controls in `RunAbInitio` (`--max-steps`, `--skip-validation`, `--mbtt-shadow-profile`) so Phase-1 MBTT evidence can run bounded first-stage checks without paying full Phase 0 validation cost.
 - [ ] Run parity/acceptance in CI with Haskell toolchain enabled and archive artifacts under `runs/phase1_*`.
 
 ### Key learnings so far
