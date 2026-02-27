@@ -60,3 +60,7 @@ A third party should be able to replay evidence with only:
 
 Phase 1 evidence demonstrates MBTT-first enumeration viability and bounded/full-lane reproducibility.
 Strong autonomy claims remain conditioned on closing known Phase 3 evaluator name-dependence gaps documented in the roadmap.
+
+### Optional local evidence helper (ladder mode)
+- Script: `engine/scripts/run_phase1_shadow_ladder.sh`
+- Purpose: run bounded shadow replays for a step ladder (e.g. 1..6) with per-step timeout and produce `ladder_status.csv` to show which horizons complete on current hardware.
