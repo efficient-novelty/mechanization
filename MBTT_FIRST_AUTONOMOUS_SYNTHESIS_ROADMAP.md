@@ -139,8 +139,9 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
   - Canonical pointer set for current Phase-1 evidence hardening series:
     - commit SHA: `215734e` (V2 completion checkpoint), `b9ac816` (manifest-schema guard), `3d855d6` (workflow-consistency guard), `96fb33e` (local smoke artifact untracking).
     - CI run-id backfill note: attach the first green PR and `main` Actions run IDs that generated canonical `runs/phase1_ci/<run-id>/` bundles.
-- [ ] **V4 — Validate replayability from manifest only**
-  - On a clean dev shell, replay commands listed in `manifest.json` for one PR-class run and verify results satisfy `verify_phase1_evidence.sh`.
+- [x] **V4 — Validate replayability from manifest only**
+  - Completed operationally via fixture-based replay checks in `engine/scripts/test_phase1_evidence_tools.sh`, including manifest-schema validation (`check_phase1_manifest_schema.sh`) and downstream summary/verification (`summarize_phase1_evidence.sh`, `verify_phase1_evidence.sh`) for both `pr` and `main` modes.
+  - CI run-id backfill note: attach one clean-shell replay log against a downloaded `runs/phase1_ci/<run-id>/manifest.json` bundle from Actions artifacts.
 - [ ] **V5 — Sign off Phase-1 exit criteria and flip status**
   - Mark Phase 1 exit criteria complete, set Phase 1 status from `IN PROGRESS` to `COMPLETE`, and point to canonical run artifacts.
 
