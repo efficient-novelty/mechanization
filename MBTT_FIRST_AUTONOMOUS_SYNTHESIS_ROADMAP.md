@@ -60,7 +60,34 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 
 ---
 
-## Phase 1 — Typed MBTT Enumerator Core (Weeks 2–4)
+## Phase 1 — Typed MBTT Enumerator Core (Weeks 2–4) ↻ IN PROGRESS
+
+**Last updated:** 2026-02-25
+
+### Current implementation status
+- [x] Added `engine/src/MBTTEnum.hs` with typed MBTT expression generation (`Pi`, `Sigma`, atoms, `Lib` refs), explicit budget-split enumeration, deterministic ordering, and candidate cost payload (`bitKappa`, clause count, AST nodes).
+- [x] Added Phase-1 acceptance coverage in `engine/src/RunAcceptance.hs` (J1–J5): grammar coverage, well-formedness, determinism, reference telescope recovery (steps 1–4), and bit-cost ordering.
+- [x] Wired `MBTTEnum` into build targets via `engine/pen-engine.cabal`.
+- [x] Integrate `--mbtt-first` flag into `RunAbInitio` as a selectable search path (Phase A can now enumerate via `MBTTEnum`; optional `--mbtt-max-candidates` cap added for bounded MBTT sessions).
+- [x] Add shadow-run controls in `RunAbInitio` (`--max-steps`, `--skip-validation`) so Phase-1 MBTT evidence can run bounded first-stage checks without paying full Phase 0 validation cost.
+- [ ] Run parity/acceptance in CI with Haskell toolchain enabled and archive artifacts under `runs/phase1_*`.
+
+### Key learnings so far
+- Exhaustive budget-split enumeration resolves the under-generation bias from previous single-best-child shortcuts for compound nodes.
+- Structural modal/temporal gating from library capabilities can be expressed without direct semantic-name checks inside the enumerator itself.
+
+### Active blockers
+- Local environment now has `ghc`/`cabal` installed (Ubuntu packages). Acceptance has been split into `acceptance-core` (A–I) and `acceptance-mbtt` (J-lane) so local/CI workflows can run bounded MBTT checks independently; full-budget MBTT still requires a larger runner.
+
+### Immediate next step (evidence hardening)
+- [x] Formalized an **evidence contract** for autonomy claims in `docs/phase1_evidence_contract.md`:
+  - lane definitions (`acceptance-core`, bounded/full `acceptance-mbtt`, `ab-initio --mbtt-first`),
+  - required pass/fail gates per lane,
+  - reproducibility metadata (commit SHA, flags, seed/window, machine profile).
+- [x] Formalized a **CI artifact policy** for `runs/phase1_*` and wired it into `.github/workflows/pen-engine.yml`:
+  - mandatory artifacts (acceptance logs, MBTT lane logs, ab-initio CSV/report, manifest),
+  - retention/naming conventions (PR 14d, main 30d),
+  - replay instructions via manifest + contract doc.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
@@ -83,7 +110,9 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 - Regression: deterministic candidate stream given fixed seed/budget.
 
 ### Exit criteria
-- `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode.
+- [ ] `--mbtt-first` can enumerate and evaluate at least first 6 canonical stages in shadow mode (now operationally supported via `--max-steps 6`; pending stable completion on provisioned runner).
+- [x] Enumerator-specific acceptance checks (J1–J5) are implemented and tracked in `RunAcceptance`.
+- [ ] Phase-1 benchmark artifacts committed in `runs/phase1_*` per formal CI artifact policy.
 
 ---
 
