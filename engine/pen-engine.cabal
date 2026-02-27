@@ -178,6 +178,7 @@ library
                     , MCTS
                     , StructuralNu
                     , MBTTEnum
+                    , MBTTCanonical
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
@@ -207,6 +208,7 @@ executable ab-initio
                     , MCTS
                     , StructuralNu
                     , MBTTEnum
+                    , MBTTCanonical
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
                     , random
@@ -232,6 +234,7 @@ executable acceptance
                     , StructuralNu
                     , CoherenceWindow
                     , MBTTEnum
+                    , MBTTCanonical
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src
@@ -256,6 +259,7 @@ executable acceptance-core
                     , StructuralNu
                     , CoherenceWindow
                     , MBTTEnum
+                    , MBTTCanonical
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src
@@ -280,6 +284,7 @@ executable acceptance-mbtt
                     , StructuralNu
                     , CoherenceWindow
                     , MBTTEnum
+                    , MBTTCanonical
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src

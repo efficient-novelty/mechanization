@@ -152,7 +152,14 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 
 ---
 
-## Phase 2 — Canonicalization and Quotienting (Weeks 4–6)
+## Phase 2 — Canonicalization and Quotienting (Weeks 4–6) ↻ IN PROGRESS
+
+**Last updated:** 2026-02-27
+
+### Kickoff status
+- [x] Added `engine/src/MBTTCanonical.hs` with Phase-2 canonicalization primitives (`canonicalizeExpr`, `canonicalizeSpec`) and stable canonical-key helpers (`canonicalKeyExpr`, `canonicalKeySpec`) as the quotient-cache foundation.
+- [x] Wired `MBTTCanonical` into `engine/pen-engine.cabal` targets so canonicalization code is build-visible across library and Phase-1 runner executables.
+- [ ] Thread canonical keys into `RunAbInitio` candidate expansion and frontier deduplication path (Phase-2 functional integration step).
 
 ### Scope
 Normalize MBTT candidates before scoring to avoid syntactic duplicates.
