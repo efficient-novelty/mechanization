@@ -63,7 +63,7 @@ Retention defaults:
 - main branch runs: 30 days
 
 Repository hygiene:
-- `runs/phase1_ci/` and `runs/phase1_bundle/` are treated as generated evidence outputs and should not be committed; canonical evidence is retained via CI artifact uploads plus `manifest.json`/`summary.md`.
+- `runs/phase1_ci/`, `runs/phase1_bundle/`, `runs/phase1_shadow/`, and `runs/phase1_shadow_ladder/` are treated as generated evidence outputs and should not be committed (except `.gitkeep` placeholders); canonical evidence is retained via CI artifact uploads plus `manifest.json`/`summary.md`.
 
 ## Evidence tooling self-check
 
