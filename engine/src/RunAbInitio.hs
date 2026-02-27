@@ -27,6 +27,7 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
+import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -62,6 +63,8 @@ data AbInitioConfig = AbInitioConfig
   , cfgKappaMode       :: !KappaMode        -- ^ Kappa computation mode (default DesugaredKappa)
   , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
   , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
+  , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
+  , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -130,6 +133,8 @@ main = do
     putStrLn "  ABLATION:  --no-canonical-priority (selection by rho only, no name tier)"
   when (cfgMaxRho cfg) $
     putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
+  when (cfgMBTTFirst cfg) $
+    putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -166,7 +171,14 @@ parseArgs args =
                     _ -> DesugaredKappa
       noCanonPriority = "--no-canonical-priority" `elem` args
       maxRho = "--max-rho" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho
+      mbttFirst = "--mbtt-first" `elem` args
+      mbttMaxCand = case dropWhile (/= "--mbtt-max-candidates") args of
+                      ("--mbtt-max-candidates" : n : _) ->
+                        case reads n of
+                          [(k,"")] | k > 0 -> Just k
+                          _ -> Nothing
+                      _ -> Nothing
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirst mbttMaxCand
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -268,12 +280,21 @@ abInitioLoop cfg = do
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               nuDepth = 1
-              rawTelescopes = enumerateTelescopes lib enumKmax
+              mbttCfg = defaultEnumConfig
+                { ecMaxEntries = enumKmax
+                , ecMaxBitBudget = 20
+                , ecMaxASTDepth = 3
+                , ecMaxCandidates = maybe 5000 id (cfgMBTTMaxCand cfg)
+                }
+              rawTelescopes = if cfgMBTTFirst cfg
+                              then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
+                              else enumerateTelescopes lib enumKmax
               (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
-              enumEvaluated = [ (tele, nu, kappa, rho, "ENUM" :: String)
+              enumSource = if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
+              enumEvaluated = [ (tele, nu, kappa, rho, enumSource)
                               | tele <- validTelescopes
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0

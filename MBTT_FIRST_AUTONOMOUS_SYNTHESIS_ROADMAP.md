@@ -68,7 +68,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Added `engine/src/MBTTEnum.hs` with typed MBTT expression generation (`Pi`, `Sigma`, atoms, `Lib` refs), explicit budget-split enumeration, deterministic ordering, and candidate cost payload (`bitKappa`, clause count, AST nodes).
 - [x] Added Phase-1 acceptance coverage in `engine/src/RunAcceptance.hs` (J1–J5): grammar coverage, well-formedness, determinism, reference telescope recovery (steps 1–4), and bit-cost ordering.
 - [x] Wired `MBTTEnum` into build targets via `engine/pen-engine.cabal`.
-- [ ] Integrate `--mbtt-first` flag into `RunAbInitio` as a selectable search path (still pending; current loop uses legacy `TelescopeGen.enumerateTelescopes`).
+- [x] Integrate `--mbtt-first` flag into `RunAbInitio` as a selectable search path (Phase A can now enumerate via `MBTTEnum`; optional `--mbtt-max-candidates` cap added for bounded MBTT sessions).
 - [ ] Run parity/acceptance in CI with Haskell toolchain enabled and archive artifacts under `runs/phase1_*`.
 
 ### Key learnings so far
@@ -76,7 +76,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - Structural modal/temporal gating from library capabilities can be expressed without direct semantic-name checks inside the enumerator itself.
 
 ### Active blockers
-- Local environment now has `ghc`/`cabal` installed (Ubuntu packages), so acceptance can run locally; however the full `acceptance` executable currently gets killed near J2 in this container due resource limits, so complete Phase-1 verification still needs CI or a larger dev shell.
+- Local environment now has `ghc`/`cabal` installed (Ubuntu packages). Acceptance has been split into `acceptance-core` (A–I) and `acceptance-mbtt` (J-lane) so local/CI workflows can run bounded MBTT checks independently; full-budget MBTT still requires a larger runner.
 
 ### Scope
 Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-budget and depth bounds.
