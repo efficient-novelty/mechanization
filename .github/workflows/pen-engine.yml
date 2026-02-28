@@ -73,6 +73,15 @@ jobs:
         run: |
           engine/scripts/check_phase6_agda_harness.sh
 
+      - name: Lane P6-V4 — agda-bridge determinism (required on PR/main)
+        working-directory: engine
+        run: |
+          cabal run agda-bridge -- --check
+
+      - name: Check Phase-6 verification split sign-off
+        run: |
+          engine/scripts/check_phase6_verification_split.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
