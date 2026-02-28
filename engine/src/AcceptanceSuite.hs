@@ -803,12 +803,30 @@ testJ9NativeNuTraceSchema =
           , "bonus_universe_poly="
           , "bonus_infinitesimal_shift="
           , "nu_total="
+          , "node_trace_count="
           ]
         hasPrefix pre = any (\line -> take (length pre) line == pre) (nnTrace nr)
         missing = [pre | pre <- requiredPrefixes, not (hasPrefix pre)]
     if null missing
       then return Pass
       else return $ Fail $ "missing trace keys: " ++ show missing)
+
+
+-- J10: Node-level trace lines are present and deterministic for same input.
+testJ10NativeNuNodeTraceDeterministic :: Test
+testJ10NativeNuNodeTraceDeterministic =
+  ("J10. [MBTT] NativeNu node-level trace is present and deterministic", do
+    let step = 5
+        tele = referenceTelescope step
+        lib = canonicalLibAt (step - 1)
+        (snapshots, _) = replayCanonical
+        nuHist = [(i, nu) | (i, (_, nu, _)) <- zip [1..(step-1)] (take (step-1) snapshots)]
+        t1 = nnTrace (computeNativeNu tele lib nuHist)
+        t2 = nnTrace (computeNativeNu tele lib nuHist)
+        nodeLines = [line | line <- t1, take 5 line == "node="]
+    if (not (null nodeLines)) && t1 == t2
+      then return Pass
+      else return $ Fail "node trace missing or nondeterministic")
 
 -- ============================================
 -- Entry points
@@ -868,6 +886,7 @@ mbttTests cfg =
           , testJ7CanonicalKeyStability
           , testJ8NativeNuParity
           , testJ9NativeNuTraceSchema
+          , testJ10NativeNuNodeTraceDeterministic
           ]
 
 runAcceptanceWithConfig :: AcceptanceConfig -> IO ()

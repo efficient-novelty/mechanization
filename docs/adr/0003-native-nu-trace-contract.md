@@ -50,3 +50,10 @@ acceptance tests, and CI evidence lanes can evolve without cross-module drift.
 - We get a stable seam for later node-level explainability and invariance work.
 - Future changes to trace detail can append fields without removing V1 keys.
 - Evaluator call sites remain stable while Phase 3 internals are upgraded.
+
+## Amendment (P3-V2 extension)
+
+- Added node-level provenance lines to `nnTrace` in the form
+  `node=<entry/path>|ctor=<Ctor>` plus aggregate `node_trace_count=`.
+- This is an additive extension and remains compatible with the V1 required
+  key set (no V1 keys removed).

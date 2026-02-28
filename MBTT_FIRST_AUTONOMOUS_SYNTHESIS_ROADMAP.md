@@ -212,13 +212,13 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 ### Kickoff status
 - [x] Added `engine/src/MBTTNu.hs` as a Phase-3 native-ν API boundary (`computeNativeNu`) that returns ν decomposition plus a machine-readable trace scaffold from anonymous MBTT telescopes.
 - [x] Wired `TelescopeEval` `EvalStructural` path through `MBTTNu.computeNativeNu` so Phase-3 work can evolve behind a stable evaluator entrypoint without changing selection semantics.
-- [ ] Extend `nnTrace` from coarse component lines to AST-node-level provenance (rule contributions keyed by node path).
+- [x] Extended `nnTrace` to include AST-node-level provenance records (`node=<entry/path>|ctor=<Ctor>`) and `node_trace_count` for bounded replay diagnostics.
 
 ### Phase 3 victory to-do list (one-shot closeout deliveries)
 - [x] **P3-V1 — Native ν API + trace schema freeze**
   - Completed via `docs/adr/0003-native-nu-trace-contract.md`, `engine/src/MBTTNu.hs`, and acceptance checks (`J8`, `J9`) that freeze result/trace schema and ensure native-total parity with the structural backend during Phase-3 kickoff.
-- [ ] **P3-V2 — Node-level explainability extraction**
-  - Emit per-node rule evidence for `ν_G`, `ν_H`, and `ν_C` with canonical-node path IDs.
+- [x] **P3-V2 — Node-level explainability extraction**
+  - Completed by extending `MBTTNu.computeNativeNu` trace output with canonical node-path constructor records and deterministic acceptance coverage (`J10`) for node-trace presence/stability.
 - [ ] **P3-V3 — Alpha/canonical invariance evidence**
   - Add differential/property tests showing native ν and trace are invariant under alpha-equivalence and canonical rewrites.
 - [ ] **P3-V4 — Name-independence hardening**
