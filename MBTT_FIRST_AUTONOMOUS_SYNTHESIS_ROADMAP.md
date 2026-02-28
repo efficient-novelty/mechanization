@@ -330,6 +330,12 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 ### Scope
 Attach mathematical interpretation after optimization only.
 
+### Strategic review threat model (Phases 5–7 "boss fights")
+- **Boss Fight 1 — Pareidolia / Rorschach trap (Phase 5):** decoder outputs must be defended as strict type-isomorphism checks, not fuzzy name matching.
+- **Boss Fight 2 — 2^229 explosion challenge (Phase 5/7):** we must publish explicit search-space reduction telemetry proving type-directed pruning and compositional narrowing.
+- **Boss Fight 3 — Alien Math contingency (Phase 5):** high-ρ structures with no known human interpretation are first-class outputs (`Unidentified_Syntactic_Attractor_*`), not filtered anomalies.
+- **Boss Fight 4 — Agda as independent verifier (Phase 6):** Haskell discovery claims must be independently checkable by emitted Agda artifacts.
+
 ### Kickoff status
 - [x] Captured Phase-5 kickoff baseline and package plan in `docs/reports/p5_v1_kickoff_baseline.md`.
 - [x] Marked Phase-5 status in-progress and decomposed closeout into one-shot packages.
@@ -339,9 +345,9 @@ Attach mathematical interpretation after optimization only.
 - [x] **P5-V1 — Decoder API boundary + contract stub**
   - Completed by adding `engine/src/MBTTDecode.hs` with deterministic decode schema (label/confidence/ambiguity/non-interference) and fixture validation tooling.
 - [ ] **P5-V2 — Reporting integration with confidence/ambiguity**
-  - Emit decoded labels in reports while preserving anonymous winner ids and decode confidence metadata.
+  - Emit decoded labels in reports while preserving anonymous winner ids, decode confidence metadata, and explicit `Unknown/Unidentified_Syntactic_Attractor` handling.
 - [ ] **P5-V3 — Non-interference sign-off**
-  - Demonstrate decoder on/off does not alter candidate selection outcomes.
+  - Demonstrate decoder on/off does not alter candidate selection outcomes and that decode failures cannot back-propagate into ranking/scoring.
 
 ### Remaining Phase-5 one-shot work packages (execution plan)
 
@@ -356,13 +362,13 @@ Attach mathematical interpretation after optimization only.
   - **Artifacts:** `docs/reports/p5_v2_decoder_api_report.md`.
 
 - [ ] **P5-WP3 — Reporting layer decode integration**
-  - **Scope:** integrate decoded interpretation into report/CSV surfaces only, with confidence + ambiguity fields.
-  - **Acceptance bar:** reports include decoded metadata without changing selection logic.
+  - **Scope:** integrate decoded interpretation into report/CSV surfaces only, with confidence + ambiguity fields and strict decode-status categories (`exact_isomorphism`, `ambiguous`, `unknown`, `unidentified_syntactic_attractor`).
+  - **Acceptance bar:** reports include decoded metadata without changing selection logic; unknown/alien cases are preserved and surfaced, not suppressed.
   - **Artifacts:** `docs/reports/p5_v3_reporting_integration_report.md`.
 
 - [ ] **P5-WP4 — Non-interference and phase sign-off**
-  - **Scope:** run decoder-on/off comparisons and prove winner identity invariance.
-  - **Acceptance bar:** non-interference checks pass and sign-off report recorded.
+  - **Scope:** run decoder-on/off comparisons and prove winner identity invariance; include adversarial "pareidolia" controls where near-miss ASTs must decode as unknown.
+  - **Acceptance bar:** non-interference checks pass, near-miss controls reject false positives, and sign-off report recorded.
   - **Artifacts:** `docs/reports/p5_v4_non_interference_signoff.md`; phase flipped to complete.
 
 ### Haskell workstream
@@ -388,6 +394,7 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 
 ### Agda workstream
 - Extend bridge output metadata fields for canonical key + bit κ provenance.
+- Emit raw anonymous winner ASTs + claimed ν components into Agda-checkable artifacts for independent verification.
 - Add proof obligations (or machine-checked skeletons) for:
   - canonicalization soundness assumptions,
   - invariance of ν under alpha-equivalence,
@@ -397,6 +404,7 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 ### Exit criteria
 - `cabal run agda-bridge -- --check` deterministic with new metadata.
 - Agda test suite validates updated bridge schema.
+- Discovery-vs-verification separation is explicit: Haskell proposes, Agda independently checks encoded claims.
 
 ---
 
@@ -410,10 +418,12 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 - Deprecate category template generation paths with warnings.
 - Update docs, scripts, CI matrix, and acceptance suite.
 - Performance pass: quotient cache sizing, parallel enumeration, memory profiling.
+- Publish search-space reduction telemetry for high-bit horizons (e.g., 200+): typed-validity rate, prune ratios, and composition-path evidence for selected winners.
 
 ### Exit criteria
 - CI green with MBTT-first default.
 - Legacy path marked deprecated with sunset issue created.
+- Search-space reduction factor is documented with evidence showing typed-pruning/compositional narrowing against raw bitstring-space objections.
 
 ---
 
@@ -444,13 +454,13 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 - **D4 (P1):** Budget/seed robustness sweep automation.
 
 ## Epic E — Post-hoc Decoder
-- **E1 (P1):** Decoder core with confidence scores.
-- **E2 (P1):** Report/UI wiring (non-interfering).
+- **E1 (P1):** Decoder core with strict type-isomorphism checks + confidence scores.
+- **E2 (P1):** Report/UI wiring (non-interfering) with explicit decode-status classes (`exact`, `ambiguous`, `unknown`, `unidentified_syntactic_attractor`).
 - **E3 (P2):** Ambiguity clustering + top-k candidate explanations.
 
 ## Epic F — Agda/Bridge Integration
-- **F1 (P1):** Bridge schema extension for canonical metadata.
-- **F2 (P1):** Agda stubs updated with MBTT provenance comments.
+- **F1 (P1):** Bridge schema extension for canonical metadata + raw anonymous AST payloads.
+- **F2 (P1):** Agda stubs updated with MBTT provenance comments and independent check entrypoints.
 - **F3 (P2):** Proof skeletons for canonicalization and non-interference assumptions.
 
 ## Epic G — Quality, Performance, and Ops
@@ -477,7 +487,7 @@ A release is “MBTT-first complete” when all are true:
 ## Risks and Mitigations
 
 - **Risk:** Enumeration explosion from richer MBTT space.  
-  **Mitigation:** aggressive type-directed pruning, quotient cache, progressive widening controls.
+  **Mitigation:** aggressive type-directed pruning, quotient cache, progressive widening controls, and published reduction telemetry (validity rates + prune factors) for reviewer audit.
 
 - **Risk:** Over-normalization merges semantically distinct terms.  
   **Mitigation:** staged canonicalization flags, conservative symmetry classes, differential oracle tests.
@@ -487,6 +497,12 @@ A release is “MBTT-first complete” when all are true:
 
 - **Risk:** Decoder leakage into scoring path.  
   **Mitigation:** compile-time module boundary + contract tests that disable decoder.
+
+- **Risk:** Pareidolia decode attacks ("you are hallucinating physics").  
+  **Mitigation:** strict isomorphism-based decode contract with adversarial near-miss fixtures; non-matching structures must decode to unknown/unidentified categories.
+
+- **Risk:** Suppressing high-ρ unknown structures to fit expected narratives.  
+  **Mitigation:** explicit `Unidentified_Syntactic_Attractor_*` reporting policy and mandatory artifact publication for top unknowns.
 
 ---
 
