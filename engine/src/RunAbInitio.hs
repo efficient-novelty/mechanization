@@ -664,6 +664,39 @@ decodeStatus dr
   | not (null (drAmbiguity dr)) = "ambiguous"
   | otherwise = "exact_isomorphism"
 
+
+-- | Total AST node count across all MBTT entry types in a telescope.
+teleAstNodes :: Telescope -> Int
+teleAstNodes (Telescope entries) = sum (map (exprNodeCount . teType) entries)
+
+-- | Count nodes in an MBTT expression (constructors-as-nodes metric).
+exprNodeCount :: MBTTExpr -> Int
+exprNodeCount expr = case expr of
+  App f x        -> 1 + exprNodeCount f + exprNodeCount x
+  Lam b          -> 1 + exprNodeCount b
+  Pi a b         -> 1 + exprNodeCount a + exprNodeCount b
+  Sigma a b      -> 1 + exprNodeCount a + exprNodeCount b
+  Univ           -> 1
+  Var _          -> 1
+  Lib _          -> 1
+  Id a x y       -> 1 + exprNodeCount a + exprNodeCount x + exprNodeCount y
+  Refl a         -> 1 + exprNodeCount a
+  Susp a         -> 1 + exprNodeCount a
+  Trunc a        -> 1 + exprNodeCount a
+  PathCon _      -> 1
+  Flat a         -> 1 + exprNodeCount a
+  Sharp a        -> 1 + exprNodeCount a
+  Disc a         -> 1 + exprNodeCount a
+  Shape a        -> 1 + exprNodeCount a
+  Next a         -> 1 + exprNodeCount a
+  Eventually a   -> 1 + exprNodeCount a
+
+-- | Best-effort decoded label for reporting-only telemetry.
+decodedName :: String -> String
+decodedName nm
+  | nm == "candidate" = ""
+  | otherwise = nm
+
 -- | Format a double to string (workaround: printf returns IO).
 printf' :: String -> Double -> String
 printf' fmt val = let (i, f) = properFraction val :: (Int, Double)
