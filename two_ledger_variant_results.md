@@ -1,33 +1,40 @@
-# Two-ledger Variant Run (V1/V2/V3)
+# Variant Analysis (V1 strict-first policy)
 
-## Inputs
-- Baseline Step 13 values: nu=46, kappa_local=7, rho=6.5714.
-- Bars tested: 5.99 and 6.58 (both appear in current manuscript text).
+## Policy and constants
+- Enforced bar: 5.99 (Step 13).
+- Baseline metric entry: nu=46, kappa=7, rho=6.5714.
 - kappa_scalar sweep: 1..12.
 
 ## Variant definitions
-- **V1 (strict first-use full-charge):** rho = nu / (kappa_local + kappa_scalar).
-- **V2 (two-ledger amortized):** row rho = nu / kappa_local, scalar charged in infrastructure ledger.
-- **V3 (interaction-credit extension):** add integer nu bonus needed to cross each bar under V1/V2.
+- **V1 (accepted policy):** strict first-use full-charge, rho = nu/(kappa + kappa_scalar).
+- **V2 (rejected policy):** amortized ledger; shown only as comparison baseline.
+- **V3 (accepted extension):** strict V1 with emergent delta-nu from new scalar interactions.
 
-## Aggregate findings
-- V1 fails both bars for every tested kappa_scalar in [1,12]: **True**.
-- V2 row rho is constant: 6.5714 (passes 5.99, fails 6.58 by 0.0086).
-- V3 minimum bonus under V2 to pass bar=6.58 is constant at +1.
-- V3 minimum bonus under V1 grows with kappa_scalar (table below).
+## Findings
+- V1 fails for all tested kappa_scalar in [1,12]: **True**.
+- V2 comparison rho remains 6.5714, but V2 is rejected as accounting policy.
+- V3 minimum required delta-nu to pass grows linearly with kappa_scalar.
+- At delta-nu=20, V3 passes for kappa_scalar<=4 and fails for kappa_scalar>=5.
 
-## Table (selected points)
+## Table
 
-| kappa_scalar | V1 rho | V2 rho | V3 bonus req under V1 (bar 5.99 / 6.58) | V3 bonus req under V2 (bar 5.99 / 6.58) |
-|---:|---:|---:|---:|---:|
-| 1 | 5.750 | 6.571 | 2 / 7 | 0 / 1 |
-| 2 | 5.111 | 6.571 | 8 / 14 | 0 / 1 |
-| 3 | 4.600 | 6.571 | 14 / 20 | 0 / 1 |
-| 5 | 3.833 | 6.571 | 26 / 33 | 0 / 1 |
-| 8 | 3.067 | 6.571 | 44 / 53 | 0 / 1 |
-| 12 | 2.421 | 6.571 | 68 / 80 | 0 / 1 |
+| kappa_scalar | kappa_full | V1 rho | V3 min delta-nu to pass | V3 rho with +20 | V3 +20 passes? |
+|---:|---:|---:|---:|---:|:---:|
+| 1 | 8 | 5.750 | 2 | 8.250 | yes |
+| 2 | 9 | 5.111 | 8 | 7.333 | yes |
+| 3 | 10 | 4.600 | 14 | 6.600 | yes |
+| 4 | 11 | 4.182 | 20 | 6.000 | yes |
+| 5 | 12 | 3.833 | 26 | 5.500 | no |
+| 6 | 13 | 3.538 | 32 | 5.077 | no |
+| 7 | 14 | 3.286 | 38 | 4.714 | no |
+| 8 | 15 | 3.067 | 44 | 4.400 | no |
+| 9 | 16 | 2.875 | 50 | 4.125 | no |
+| 10 | 17 | 2.706 | 56 | 3.882 | no |
+| 11 | 18 | 2.556 | 62 | 3.667 | no |
+| 12 | 19 | 2.421 | 68 | 3.474 | no |
 
-## Interpretation
-- If strict first-use charging is mandatory, Step 13 must be reordered/delayed unless very large novelty bonuses are justified.
-- Under two-ledger accounting, Step 13 remains viable against bar 5.99 and nearly tied against 6.58; harmonizing bar definition is critical.
-- A robust publication strategy is to report V2 as primary and V1 as stress sensitivity, plus an explicit V3 bonus rationale if used.
+## Recommendation from this run
+1. Overturn A3 and reject amortized ledger (V2) as normative accounting.
+2. Keep strict V1 as the only canonical scoring policy.
+3. Continue with V3 only if delta-nu is obtained mechanically (uniform-nu or equivalent), not hand-assigned.
+4. Prioritize low-kappa scalar route design (e.g., topological arithmetic or synthetic continuum insertion) because V3+20 only rescues kappa_scalar<=4.

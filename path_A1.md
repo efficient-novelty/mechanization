@@ -107,17 +107,17 @@ Define in text:
 - `\kappa'_{13} = \kappa_{\mathrm{metric}} + \kappa_{\mathrm{scalar}}`
 - `\rho'_{13} = \nu_{13} / \kappa'_{13}` (or updated `\nu` if scalar interactions are credited)
 
-### Two reporting modes (recommended)
-1. **Conservative mode:** charge scalar import fully at Step 13.
-2. **Amortized mode:** treat scalar tower as shared infrastructure that could be charged at first use and reused later (e.g., Hilbert step).
+### Reporting policy (revised)
+1. **Canonical mode (V1):** strict first-use full-charge at Step 13.
+2. **Non-canonical comparison (V2):** amortized ledger may be shown only as a contrast lane, never as normative scoring.
 
-Report both to avoid accusations of favorable accounting.
+Report V2 only as a rejected-policy sensitivity lane.
 
-**Decision gate A3:** choose normative mode for main table; keep the other in sensitivity appendix.
+**Decision gate A3:** set the single normative accounting mode.
 
-### A3 resolution (completed)
-- **Normative mode selected:** amortized shared-infrastructure accounting for main tables.
-- **Mandatory companion disclosure:** conservative full-charge sensitivity table.
+### A3 resolution (completed, revised)
+- **Normative mode selected:** strict first-use full-charge (V1).
+- **Rejected mode:** amortized infrastructure ledger (V2) is non-canonical.
 - **Decision record:** see `decision_gate_A3.md`.
 
 ---
@@ -125,8 +125,9 @@ Report both to avoid accusations of favorable accounting.
 ## 4) Recompute Step 13 viability
 Run an explicit sensitivity analysis:
 - baseline (current implicit scalar)
-- A1-conservative
-- A1-amortized
+- V1 strict first-use full-charge
+- V2 non-canonical comparison lane
+- V3 strict full-charge with mechanically computed interaction-novelty
 
 For each scenario report:
 - `\kappa`
@@ -141,9 +142,9 @@ If Step 13 fails under conservative charging, explicitly discuss consequences:
 
 **Decision gate A4:** confirm whether PEN’s core narrative survives strict accounting unchanged.
 
-### A4 resolution (completed)
-- **Outcome:** strict conservative first-use scalar charging causes Step 13 failure at current `\nu_{13}=46`.
-- **Recommendation:** preserve canonical sequence under amortized infrastructure accounting; publish conservative sensitivity explicitly.
+### A4 resolution (completed, revised)
+- **Outcome:** under strict V1 with bar 5.99, Step 13 fails at baseline unless emergent `\Delta\nu` is added mechanically.
+- **Recommendation:** keep strict V1 and recover by (i) mechanical V3 interaction-novelty, or (ii) lower-`\kappa_{\mathrm{scalar}}` construction route.
 - **Decision record:** see `decision_gate_A4.md`.
 
 ---

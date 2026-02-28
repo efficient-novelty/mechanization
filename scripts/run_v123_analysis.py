@@ -1,75 +1,89 @@
 #!/usr/bin/env python3
+"""Strict V1-first variant analysis for PEN Step 13.
+
+V1: Strict first-use full-charge (required policy)
+V2: Amortized ledger (computed for comparison only; flagged as rejected)
+V3: Strict V1 + mechanically-required delta-nu to clear the bar
+"""
 from pathlib import Path
 import csv
+import math
 
 NU0 = 46
 K0 = 7
-BARS = [5.99, 6.58]
+BAR = 5.99
 KAPPA_SCALAR_VALUES = list(range(1, 13))
-
-out_csv = Path('runs/v123_analysis.csv')
-out_md = Path('two_ledger_variant_results.md')
+DELTA_NU_PROBE = 20  # matches the reviewer-proposed "~+20 schemas" checkpoint
 
 rows = []
 for ks in KAPPA_SCALAR_VALUES:
-    v1_rho = NU0 / (K0 + ks)
-    v2_rho = NU0 / K0
-    # minimum integer bonus needed to pass each bar
-    req_bonus_v1 = {bar: max(0, int(bar * (K0 + ks) - NU0 + 0.999999999)) for bar in BARS}
-    req_bonus_v2 = {bar: max(0, int(bar * K0 - NU0 + 0.999999999)) for bar in BARS}
-    rows.append({
-        'kappa_scalar': ks,
-        'v1_rho': v1_rho,
-        'v2_rho': v2_rho,
-        'v1_pass_5_99': v1_rho > 5.99,
-        'v1_pass_6_58': v1_rho > 6.58,
-        'v2_pass_5_99': v2_rho > 5.99,
-        'v2_pass_6_58': v2_rho > 6.58,
-        'v3_bonus_req_v1_bar5_99': req_bonus_v1[5.99],
-        'v3_bonus_req_v1_bar6_58': req_bonus_v1[6.58],
-        'v3_bonus_req_v2_bar5_99': req_bonus_v2[5.99],
-        'v3_bonus_req_v2_bar6_58': req_bonus_v2[6.58],
-    })
+    k_full = K0 + ks
+    v1_rho = NU0 / k_full
+    delta_min = max(0, math.ceil(BAR * k_full - NU0))
 
-with out_csv.open('w', newline='') as f:
+    # V2 is retained only for comparison; it is not accepted policy.
+    v2_rho = NU0 / K0
+
+    # V3 strict: add emergent interaction schemas to nu under full-charge kappa
+    v3_rho_probe = (NU0 + DELTA_NU_PROBE) / k_full
+    v3_pass_probe = v3_rho_probe > BAR
+
+    rows.append(
+        {
+            "kappa_scalar": ks,
+            "kappa_full": k_full,
+            "v1_rho": v1_rho,
+            "v1_pass": v1_rho > BAR,
+            "v2_rho_comparison_only": v2_rho,
+            "v3_delta_nu_min_for_pass": delta_min,
+            "v3_rho_with_delta20": v3_rho_probe,
+            "v3_pass_with_delta20": v3_pass_probe,
+        }
+    )
+
+csv_path = Path("runs/v123_analysis.csv")
+csv_path.parent.mkdir(parents=True, exist_ok=True)
+with csv_path.open("w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
     w.writeheader()
     w.writerows(rows)
 
-# Build markdown summary
-v1_fail_all = all(not r['v1_pass_5_99'] and not r['v1_pass_6_58'] for r in rows)
+# Build markdown report
+md = []
+md.append("# Variant Analysis (V1 strict-first policy)")
+md.append("")
+md.append("## Policy and constants")
+md.append(f"- Enforced bar: {BAR:.2f} (Step 13).")
+md.append(f"- Baseline metric entry: nu={NU0}, kappa={K0}, rho={NU0/K0:.4f}.")
+md.append("- kappa_scalar sweep: 1..12.")
+md.append("")
+md.append("## Variant definitions")
+md.append("- **V1 (accepted policy):** strict first-use full-charge, rho = nu/(kappa + kappa_scalar).")
+md.append("- **V2 (rejected policy):** amortized ledger; shown only as comparison baseline.")
+md.append("- **V3 (accepted extension):** strict V1 with emergent delta-nu from new scalar interactions.")
+md.append("")
+all_v1_fail = all(not r["v1_pass"] for r in rows)
+md.append("## Findings")
+md.append(f"- V1 fails for all tested kappa_scalar in [1,12]: **{all_v1_fail}**.")
+md.append("- V2 comparison rho remains 6.5714, but V2 is rejected as accounting policy.")
+md.append("- V3 minimum required delta-nu to pass grows linearly with kappa_scalar.")
+md.append(f"- At delta-nu={DELTA_NU_PROBE}, V3 passes for kappa_scalar<=4 and fails for kappa_scalar>=5.")
+md.append("")
+md.append("## Table")
+md.append("")
+md.append("| kappa_scalar | kappa_full | V1 rho | V3 min delta-nu to pass | V3 rho with +20 | V3 +20 passes? |")
+md.append("|---:|---:|---:|---:|---:|:---:|")
+for r in rows:
+    md.append(
+        f"| {r['kappa_scalar']} | {r['kappa_full']} | {r['v1_rho']:.3f} | {r['v3_delta_nu_min_for_pass']} | {r['v3_rho_with_delta20']:.3f} | {'yes' if r['v3_pass_with_delta20'] else 'no'} |"
+    )
 
-lines = []
-lines.append('# Two-ledger Variant Run (V1/V2/V3)')
-lines.append('')
-lines.append('## Inputs')
-lines.append(f'- Baseline Step 13 values: nu={NU0}, kappa_local={K0}, rho={NU0/K0:.4f}.')
-lines.append('- Bars tested: 5.99 and 6.58 (both appear in current manuscript text).')
-lines.append('- kappa_scalar sweep: 1..12.')
-lines.append('')
-lines.append('## Variant definitions')
-lines.append('- **V1 (strict first-use full-charge):** rho = nu / (kappa_local + kappa_scalar).')
-lines.append('- **V2 (two-ledger amortized):** row rho = nu / kappa_local, scalar charged in infrastructure ledger.')
-lines.append('- **V3 (interaction-credit extension):** add integer nu bonus needed to cross each bar under V1/V2.')
-lines.append('')
-lines.append('## Aggregate findings')
-lines.append(f'- V1 fails both bars for every tested kappa_scalar in [1,12]: **{v1_fail_all}**.')
-lines.append(f'- V2 row rho is constant: {NU0/K0:.4f} (passes 5.99, fails 6.58 by 0.0086).')
-lines.append('- V3 minimum bonus under V2 to pass bar=6.58 is constant at +1.')
-lines.append('- V3 minimum bonus under V1 grows with kappa_scalar (table below).')
-lines.append('')
-lines.append('## Table (selected points)')
-lines.append('')
-lines.append('| kappa_scalar | V1 rho | V2 rho | V3 bonus req under V1 (bar 5.99 / 6.58) | V3 bonus req under V2 (bar 5.99 / 6.58) |')
-lines.append('|---:|---:|---:|---:|---:|')
-for ks in [1,2,3,5,8,12]:
-    r = next(x for x in rows if x['kappa_scalar']==ks)
-    lines.append(f"| {ks} | {r['v1_rho']:.3f} | {r['v2_rho']:.3f} | {r['v3_bonus_req_v1_bar5_99']} / {r['v3_bonus_req_v1_bar6_58']} | {r['v3_bonus_req_v2_bar5_99']} / {r['v3_bonus_req_v2_bar6_58']} |")
-lines.append('')
-lines.append('## Interpretation')
-lines.append('- If strict first-use charging is mandatory, Step 13 must be reordered/delayed unless very large novelty bonuses are justified.')
-lines.append('- Under two-ledger accounting, Step 13 remains viable against bar 5.99 and nearly tied against 6.58; harmonizing bar definition is critical.')
-lines.append('- A robust publication strategy is to report V2 as primary and V1 as stress sensitivity, plus an explicit V3 bonus rationale if used.')
+md.append("")
+md.append("## Recommendation from this run")
+md.append("1. Overturn A3 and reject amortized ledger (V2) as normative accounting.")
+md.append("2. Keep strict V1 as the only canonical scoring policy.")
+md.append("3. Continue with V3 only if delta-nu is obtained mechanically (uniform-nu or equivalent), not hand-assigned.")
+md.append("4. Prioritize low-kappa scalar route design (e.g., topological arithmetic or synthetic continuum insertion) because V3+20 only rescues kappa_scalar<=4.")
 
-out_md.write_text('\n'.join(lines) + '\n')
-print(f'Wrote {out_csv} and {out_md}')
+Path("two_ledger_variant_results.md").write_text("\n".join(md) + "\n")
+print(f"Wrote {csv_path} and two_ledger_variant_results.md")

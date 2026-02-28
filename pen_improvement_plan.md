@@ -1,229 +1,140 @@
 # PEN Paper Improvement Plan for Peer-Review Hardening
 
 ## Goal
-Produce a revision package for `pen_unified.tex` that directly closes six anticipated reviewer attack surfaces (A–F), while preserving PEN’s core claims (deterministic selection, mechanical scoring, MBTT-first synthesis) and improving auditability.
+Produce a revision package for `pen_unified.tex` that closes the major reviewer attack surfaces (A–F), while preserving the core scientific objective: discovering the canonical sequence from explicit, auditable rules rather than protecting a pre-fixed table.
 
-## Operating Principles for the Revision
-1. **No hidden assumptions:** every imported object (especially `\mathbb{R}`) must have an explicit origin and cost treatment.
-2. **Algorithmic transparency over mystique:** distinguish typed search, pruning, and ranking from infeasible brute-force enumeration.
-3. **Symmetric scoring policy:** apply the same bundling logic to discrete and geometric candidates, then show why topology still dominates.
-4. **Syntax/semantics separation:** keep “physics-like” labels as post-hoc interpretation unless equations are explicitly axiomatized.
-5. **Type-theoretic necessity over editorial policy:** frame interface-density requirements as normalization/canonicity constraints.
-6. **Grammar neutrality statement:** explain why cohesive/temporal tokens are primitive language constructors and not target leakage.
+## Global policy updates (latest)
+1. **Strict accounting canon (Workstream A):** scalar dependencies are now evaluated under **V1 strict first-use full-charge**; amortized/off-ledger treatment is not normative.
+2. **Step-13 bar normalization:** use **5.99** as the operative Step-13 bar in all planning and sensitivity artifacts.
+3. **Rescue mechanism constraint:** if Step 13 fails under V1, recovery must come from **mechanically computed** novelty (`\Delta\nu`), not accounting conventions.
+4. **Table is provisional:** structure order and `(\nu,\kappa)` entries may be revised if math/logic/engine evidence demands it.
 
 ---
 
-## Workstream A — Resolve the `\mathbb{R}` Dependency Paradox
+## Workstream A — Scalar Provenance (`\mathbb{R}`) under Strict V1
 
-### Problem to close
-Step 13 currently uses `\R` in the metric signature without a fully explicit origin under the empty-library premise.
+### Current status snapshot
+- A1 complete: primary route locked to Cauchy completion.
+- A2 complete: minimal REQ scalar dependency bundle identified.
+- A3 revised: strict V1 first-use full-charge is canonical.
+- A4 revised: baseline Step 13 fails under V1 unless additional mechanically-derived novelty is counted.
 
-### Planned edits
-1. **Add a dedicated “Number Object Provenance” subsection** near Step 13 and cross-reference it from Appendix B.4:
-   - State two admissible formalizations and commit to one in the main narrative:
-     - **Option A (derived):** `\R` constructed from internal Cauchy/Dedekind completion in univalent foundations.
-     - **Option B (axiomatic smooth line):** `\mathbb{R}_\mathrm{sm}` introduced as cohesive primitive.
-2. **Add a formal cost-accounting paragraph**:
-   - If derived: specify prerequisite chain (`\N, \Z, \Q`, completion machinery) and where those costs appear in PEN (or why they are disallowed under selected branch).
-   - If axiomatic: define a new explicit clause budget item (`\kappa_\R`) and re-evaluate Step 13 margins with/without this add-on.
-3. **Insert a “consistency with empty-library premise” note** in the assumptions section:
-   - Clarify that no scalar type may be silently imported.
-4. **Update rejected/alternative branch discussion**:
-   - If arithmetic tower is not chosen by PEN, explain how a scalar field can still appear only through an explicit later axiom, never retroactively as hidden infrastructure.
+### Core problem statement (updated)
+Step 13 currently uses `g : TX \otimes_s TX \to \R`. Under strict V1 charging, adding scalar-construction cost increases `\kappa` immediately; with baseline `\nu_{13}=46`, this generally drops `\rho` below bar 5.99 unless sufficient interaction novelty is discovered.
 
-### Deliverables
-- Main-text clarification paragraph.
-- Appendix proof-note with explicit dependency graph and `\kappa` implications.
-- Updated table row or footnote showing adjusted Step 13 sensitivity.
+### Path A operational alternatives (updated)
 
-### Validation checks
-- Confirm every occurrence of `\R` is either defined or linked to the provenance subsection.
-- Confirm no claim remains that implies “free” access to reals.
+#### Path A-C+V3 (strict Cauchy + mechanical novelty)
+Keep Cauchy tower, but run uniform/typed novelty computation on the combined library to obtain genuine `\Delta\nu` from scalar–geometry–cohesion interactions.
+- Requirement: `\Delta\nu` must be engine-derived, reproducible, and queryable from AST/type traces.
+- Acceptance test: show `\nu_{13}^{\text{new}}/(7+\kappa_{\mathrm{scalar}}) > 5.99`.
 
----
+#### Path A-Topo (topological arithmetic compression)
+Attempt to reduce scalar `\kappa` burden by deriving integer/rational scaffolding from already-selected topology (e.g., loop-space/fundamental-group style constructions where applicable in current formal setting).
+- Requirement: explicit derivation artifacts and reduced clause burden accounting.
+- Acceptance test: lower `\kappa_{\mathrm{scalar}}` enough that required `\Delta\nu` is materially reduced.
 
-## Workstream B — Make Search Dynamics Credible (No Brute-Force Illusion)
+#### Path A-S (synthetic continuum insertion)
+Treat smooth line/continuum object as explicit cohesive primitive at a prior step (e.g., 12.5), then Metric references it.
+- Requirement: explicit clause cost at insertion step and full sequence recomputation.
+- Acceptance test: sequence remains coherent under strict first-use charging and selected ordering is revalidated.
 
-### Problem to close
-Section 7.1 may read like practical enumeration over a near-astronomical MBTT space (e.g., 229-bit candidates), which is not believable if interpreted as blind search.
+### Concrete `pen_unified.tex` edits for Workstream A
+1. Add a scalar provenance policy paragraph in assumptions/foundations: no free scalar imports.
+2. Standardize Step-13 bar references to 5.99.
+3. In Step 13, explicitly state current route (Cauchy, topological compression, or synthetic insertion) and how cost is charged.
+4. Add a dedicated sensitivity subsection/table:
+   - baseline,
+   - V1 full-charge,
+   - V3 mechanical-rescue results,
+   - optional alternative-route run(s).
+5. Clarify that if strict V1 fails for a route, sequence/order may change (research mode), and that this is a result, not an error.
 
-### Planned edits
-1. **Add an explicit search-pipeline diagram/text block** in Section 7.1:
-   - Grammar generation → type checking → prerequisite gating → canonical quotienting → budget/horizon filters → scoring.
-2. **Quantify pruning stages with measurable counters** (to be reported from engine logs or one reproducibility run):
-   - raw syntactic proposals,
-   - well-typed survivors,
-   - admissible-by-prereq survivors,
-   - canonicalized uniques,
-   - scored finalists.
-3. **Clarify autonomy language**:
-   - Replace any wording that implies unrestricted brute-force with wording that accurately describes constrained typed synthesis.
-4. **Add an explicit “what is and is not curated” paragraph**:
-   - If category templates are human-specified, state that clearly.
-   - Emphasize that **selection/scoring** is mechanical even if search grammar is engineered.
-5. **Add a transparency appendix note** with a short complexity discussion:
-   - Why typed inhabitation + constraints dominate practical complexity over raw bitstring space.
+### Workstream A deliverables (revised)
+- A single “Scalar Provenance and Cost” appendix section with:
+  - chosen scalar route,
+  - dependency DAG,
+  - explicit `\kappa_{\mathrm{scalar}}`,
+  - measured/derived `\Delta\nu` evidence,
+  - bar comparison against 5.99.
+- Updated table rows if route/ordering changes are required.
 
-### Deliverables
-- Revised Section 7.1 prose with pipeline semantics.
-- New table with candidate counts per filtering stage.
-- Reproducibility pointer to command(s) generating these counters.
-
-### Validation checks
-- Ensure no remaining sentence can be interpreted as naive exhaustive search over `2^{229}`.
-- Ensure engine claims are backed by either logs, scripts, or explicit caveats.
+### Workstream A acceptance criteria (revised)
+1. No unresolved `\R` origin anywhere in manuscript.
+2. Strict V1 full-charge calculation is shown explicitly.
+3. If Step 13 is retained, bar crossing is demonstrated mechanically (not by policy).
+4. If Step 13 is not retained, revised sequence is documented with reproducible evidence.
+5. All Step-13 bar references are 5.99-consistent.
 
 ---
 
-## Workstream C — Neutralize API Bundling Double-Standard Critique
+## Workstream B — Search Space Transparency (Autonomy)
+1. Add explicit pipeline narrative (typed generation → pruning → canonicalization → scoring).
+2. Report stage counts from run artifacts.
+3. Clarify what is grammar-engineered vs what is algorithmically selected.
 
-### Problem to close
-Reviewers may view `\N` as aggressively minimized while Metric is generously bundled, creating asymmetric scoring.
-
-### Planned edits
-1. **Add a steel-man subsection for `\N` in Rejected Candidates**:
-   - Introduce an intentionally generous 7-clause arithmetic API bundle (e.g., multiplication, exponentiation, primality, factorization schema, zeta-like operator).
-2. **Run comparative scoring envelopes**:
-   - Conservative and generous bounds for `\nu` and `\rho` for this boosted `\N` bundle.
-3. **Show topological bottleneck explicitly**:
-   - Use `\nu_H = 0` for discrete 0-groupoid and prove linear-growth ceiling versus Fibonacci bar growth.
-4. **Add a short proposition/corollary**:
-   - “Even under bundled arithmetic API assumptions, purely discrete branches eventually fail by step 8/9.”
-5. **Cross-link to Constructive Irreducibility Boundary**:
-   - Distinguish derivable operations from genuinely new eliminators uniformly across domains.
-
-### Deliverables
-- Expanded rejected-candidate analysis with fair-bundling stress test.
-- Optional mini-table: `\N` minimal vs `\N` steel-man bundle vs Metric.
-
-### Validation checks
-- Confirm argument demonstrates *topological* reason for failure, not preference bias.
-- Confirm policy language does not appear asymmetric across examples.
+**Deliverable:** table of candidate counts by stage + reproducibility command references.
 
 ---
 
-## Workstream D — Preempt “Semantic Pareidolia” Objections
+## Workstream C — API Bundling Fairness (`\N` vs geometry)
+1. Add steel-man arithmetic bundle analysis.
+2. Show that even with generous discrete API assumptions, topology bottleneck (`\nu_H=0`) remains limiting.
+3. Keep the argument symmetric with metric bundling logic.
 
-### Problem to close
-AST labels like “Ricci scalar” may overstate semantic content when only skeletal signatures are encoded.
-
-### Planned edits
-1. **Promote Appendix A.5 caveat into main text** (concise but explicit):
-   - PEN discovers efficient typed interface skeletons, not full field equations.
-2. **Add “semantic level tags” for key outputs**:
-   - e.g., *structural analogy*, *axiomatized equation*, *fully constrained law*.
-3. **Annotate Table 12 entries** with an “equationally constrained?” column.
-4. **Add a one-paragraph interpretation policy**:
-   - Human labels are mnemonics for isomorphism classes of signatures.
-   - Physical commitments require extra axioms not currently part of selected AST.
-
-### Deliverables
-- Main text disclaimer paragraph.
-- Appendix/table annotation to separate syntax from physics semantics.
-
-### Validation checks
-- Ensure no statement implies PEN derived contracted Bianchi identity unless actually encoded.
-- Ensure every physics-facing label has matching qualification.
+**Deliverable:** mini comparative table (`\N` minimal, `\N` steel-man, metric/scalar route variant).
 
 ---
 
-## Workstream E — Recast Maximal Interface Density as Logic Preservation
+## Workstream D — Semantic Pareidolia Defense
+1. Move “structural analogy vs physical law” disclaimer into main text.
+2. Annotate AST-facing tables with semantic-level tags.
+3. Prevent over-claims that unconstrained signatures imply full physical equations.
 
-### Problem to close
-Current framing leans on “library quality policy,” which looks optional rather than logically necessary.
-
-### Planned edits
-1. **Rewrite Remark 2.10 motivation** toward metatheory:
-   - new constructors/modalities must define eliminator interactions to preserve normalization and prevent stuck terms.
-2. **Add a formal “stuck-term” toy counterexample**:
-   - show failure mode when an operator is added without elimination/computation interaction clauses.
-3. **State a theorem-style claim (or proposition)**:
-   - Interface closure is required for canonicity/decidable checking in this framework.
-4. **Move physics analogy to secondary status**:
-   - keep Equivalence Principle analogy as intuition, not primary justification.
-
-### Deliverables
-- Strengthened logical justification in foundational section.
-- Optional appendix proof sketch linking interface completeness to normalization behavior.
-
-### Validation checks
-- Confirm primary justification is syntactic/metatheoretic necessity.
-- Confirm no remaining language treats the rule as merely editorial preference.
+**Deliverable:** updated main-text disclaimer + annotated table column.
 
 ---
 
-## Workstream F — Defuse “Teleological Grammar” Concern
+## Workstream E — Maximal Interface Density as metatheoretic necessity
+1. Reframe as normalization/canonicity requirement, not style policy.
+2. Add stuck-term counterexample sketch when interaction clauses are omitted.
+3. Keep physics analogy secondary.
 
-### Problem to close
-Including cohesive/temporal modality tokens in MBTT grammar can appear to pre-wire the desired conclusion.
-
-### Planned edits
-1. **Add grammar-design rationale paragraph near Table 6**:
-   - Primitive tokens represent accepted foundational operator families (modal type theory), not target theories.
-2. **Clarify distinction between capacity and selection**:
-   - Grammar grants expressivity; PEN objective determines which combinations survive.
-3. **Add ablation statement (or planned experiment)**:
-   - compare runs with reduced modality alphabets and report effects on achievable candidates and efficiency.
-4. **Document non-selected alternatives built from same grammar**:
-   - show many cohesive/temporal combinations are generated but rejected by bar/efficiency criteria.
-
-### Deliverables
-- Revised MBTT grammar commentary.
-- Optional ablation appendix/table.
-
-### Validation checks
-- Ensure narrative no longer sounds pre-ordained.
-- Ensure claim is “operators were available,” not “operators were destined.”
+**Deliverable:** proposition-style justification + short proof sketch.
 
 ---
 
-## Cross-Cutting Execution Plan
+## Workstream F — MBTT Grammar Teleology
+1. Explain modalities as primitive expressivity choices, not preordained targets.
+2. Add ablation/comparison statement where feasible.
+3. Show non-selected alternatives from same grammar.
 
-### Phase 1 — Textual architecture and definitions
-- Add/relocate the key clarifications (A, D, E, F) in main text before appendix deep dives.
-- Introduce consistent terminology: **syntactic skeleton**, **equational content**, **interface closure**, **explicit imported primitives**.
-
-### Phase 2 — Quantitative transparency updates
-- Produce search-pipeline counts (B).
-- Add fair-bundling stress-test for `\N` (C).
-- Recompute any impacted margins if `\kappa_\R` is introduced (A).
-
-### Phase 3 — Consistency and claim calibration
-- Audit all “autonomous,” “emergence,” and physics-label statements for overreach.
-- Ensure every strong claim has either data, proof, or explicit caveat.
-
-### Phase 4 — Reviewer-facing hardening
-- Add a concise “anticipated objections and responses” subsection summarizing A–F in one location.
-- Ensure all new claims are cross-referenced to equations/tables/appendices.
+**Deliverable:** grammar rationale paragraph + optional ablation note/table.
 
 ---
 
-## Concrete File-Level Edit Targets
-- **Primary:** `pen_unified.tex`
-  - Sections around Remark 2.10, Section 7.1, Step 13 spec, MBTT grammar, and Appendix A.5/C audit.
-- **New helper artifacts (optional but recommended):**
-  - `appendix_search_transparency_table.tex` (if modular tables are used).
-  - `notes/repro_search_counts.md` capturing command outputs used for Section 7.1 transparency table.
+## Cross-cutting execution phases (updated)
+
+### Phase 1 — Policy and consistency lock
+- Freeze strict V1 + bar 5.99 conventions in manuscript and notes.
+- Remove stale references to amortized normativity.
+
+### Phase 2 — Quantitative reruns
+- Run V1 baseline and V3 mechanical-rescue computations.
+- If pursuing A-Topo or A-S, run corresponding route variants.
+
+### Phase 3 — Manuscript integration
+- Apply Workstream A edits first, then B–F.
+- Update all tables/claims that depend on changed sequence/order.
+
+### Phase 4 — Final audit
+- Verify all `\R` references, bars, and accounting formulas are consistent.
+- Confirm every major claim is tied to explicit data/proof/caveat.
 
 ---
 
-## Acceptance Criteria (Definition of Done)
-1. `\R` provenance is explicit and cost-accounted; no silent import remains.
-2. Search process is transparent enough that no reasonable reader infers brute-force over full bitspace.
-3. `\N` receives a fair steel-man bundle and still fails for topology-driven reasons.
-4. Main text clearly states AST outputs are structural interfaces, not full physical laws.
-5. Maximal Interface Density is justified as a canonicity/normalization requirement.
-6. MBTT primitive grammar rationale is explicit, with at least one anti-teleology argument (preferably ablation evidence).
-7. All modified claims are internally cross-consistent and tied to tables/appendices.
+## Immediate next actions
+1. Implement mechanical V3 novelty run (combined Metric + scalar bundle) and extract `\Delta\nu` trace evidence.
+2. Decide whether Cauchy route is salvageable under strict V1, or pivot to A-Topo/A-S.
+3. Only then freeze revised Step 13 (or sequence revision) in `pen_unified.tex`.
 
----
-
-## Suggested Commit Sequence for the Paper Revision (future implementation)
-1. `clarify-R-provenance-and-cost-model`
-2. `add-search-transparency-and-pruning-metrics`
-3. `steelman-N-bundle-and-topology-ceiling`
-4. `separate-structural-signatures-from-physics-semantics`
-5. `justify-interface-density-via-canonicity`
-6. `document-mbtt-grammar-rationale-and-ablation`
-
-This sequence keeps controversial conceptual edits isolated, making peer-review responses and regression checks easier.
