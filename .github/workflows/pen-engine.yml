@@ -86,6 +86,10 @@ jobs:
         run: |
           engine/scripts/check_phase7_default_mode.sh
 
+      - name: Check Phase-7 CI migration + rollback lanes
+        run: |
+          engine/scripts/check_phase7_ci_migration.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
@@ -126,6 +130,12 @@ jobs:
         run: |
           cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv             | tee "../$RUN_DIR/abinitio_mbtt_shadow6.log"
           mv abinitio_mbtt_shadow6.csv "../$RUN_DIR/abinitio_mbtt_shadow6.csv"
+
+      - name: Lane D1-rollback — legacy-generator shadow smoke (required on PR/main)
+        working-directory: engine
+        run: |
+          cabal run ab-initio -- --structural --legacy-generator --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_legacy_shadow6.csv             | tee "../$RUN_DIR/abinitio_legacy_shadow6.log"
+          mv abinitio_legacy_shadow6.csv "../$RUN_DIR/abinitio_legacy_shadow6.csv"
 
       - name: Lane D2 — MBTT-first full replay (main branch)
         if: github.ref == 'refs/heads/main'
@@ -181,6 +191,7 @@ jobs:
               "mbtt_fast": "cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50",
               "mbtt_full": "cabal run acceptance-mbtt (main branch only)",
               "abinitio_mbtt_shadow": "cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv",
+              "abinitio_legacy_shadow": "cabal run ab-initio -- --structural --legacy-generator --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_legacy_shadow6.csv",
               "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)",
               "mbtt_shadow_ladder": "TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder",
               "mbtt_shadow_ladder_main_gate": "TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)",

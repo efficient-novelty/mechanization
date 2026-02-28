@@ -456,8 +456,8 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 ### Phase 7 victory to-do list (one-shot closeout deliveries)
 - [x] **P7-V1 — MBTT-first default + rollback contract**
   - Completed by flipping default runtime behavior to MBTT-first and retaining explicit `--legacy-generator` fallback with deprecation warnings and contract guards.
-- [ ] **P7-V2 — CI/acceptance migration hardening**
-  - Ensure CI lanes and acceptance suites exercise MBTT-first default while retaining deterministic rollback checks.
+- [x] **P7-V2 — CI/acceptance migration hardening**
+  - Completed by adding CI rollback smoke lane (`--legacy-generator --phase1-shadow`) and workflow/report guardrails for default+rollback coverage.
 - [ ] **P7-V3 — Search-space reduction evidence publication**
   - Publish typed-pruning/compositional-narrowing telemetry to answer raw bitstring-space objections.
 
@@ -473,9 +473,9 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
   - **Acceptance evidence:** `check_phase7_default_mode.sh` validates default/fallback wiring and report/roadmap markers; workflow includes `Check Phase-7 default mode migration contract`.
   - **Artifacts:** `docs/reports/p7_v2_default_flip_report.md`.
 
-- [ ] **P7-WP3 — CI/acceptance migration and rollback checks**
-  - **Scope:** update acceptance and workflow lanes so MBTT-first is primary and rollback path is still deterministic and testable.
-  - **Acceptance bar:** CI green for MBTT-first default lanes plus explicit rollback smoke checks.
+- [x] **P7-WP3 — CI/acceptance migration and rollback checks**
+  - **Completed:** CI now includes a required legacy rollback shadow smoke lane alongside MBTT-first lanes, with migration checks enforced by script.
+  - **Acceptance evidence:** `check_phase7_ci_migration.sh` validates workflow/report/roadmap coupling for rollback and default-path coverage.
   - **Artifacts:** `docs/reports/p7_v3_ci_migration_report.md`.
 
 - [ ] **P7-WP4 — Search-space reduction telemetry + phase sign-off**
