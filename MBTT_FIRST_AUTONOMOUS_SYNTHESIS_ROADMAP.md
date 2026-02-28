@@ -215,8 +215,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 - [ ] Extend `nnTrace` from coarse component lines to AST-node-level provenance (rule contributions keyed by node path).
 
 ### Phase 3 victory to-do list (one-shot closeout deliveries)
-- [ ] **P3-V1 — Native ν API + trace schema freeze**
-  - Freeze `NativeNuResult` schema (component fields + explainability trace contract) and add an ADR for trace stability guarantees.
+- [x] **P3-V1 — Native ν API + trace schema freeze**
+  - Completed via `docs/adr/0003-native-nu-trace-contract.md`, `engine/src/MBTTNu.hs`, and acceptance checks (`J8`, `J9`) that freeze result/trace schema and ensure native-total parity with the structural backend during Phase-3 kickoff.
 - [ ] **P3-V2 — Node-level explainability extraction**
   - Emit per-node rule evidence for `ν_G`, `ν_H`, and `ν_C` with canonical-node path IDs.
 - [ ] **P3-V3 — Alpha/canonical invariance evidence**

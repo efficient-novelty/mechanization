@@ -29,6 +29,7 @@ import CoherenceWindow (dBonacciDelta)
 import TelescopeCheck (checkTelescope, CheckResult(..))
 import MBTTEnum (enumerateExprs, enumerateMBTTTelescopes, MBTTCandidate(..), EnumConfig(..), defaultEnumConfig)
 import MBTTCanonical (canonicalizeExpr, canonicalKeyExpr)
+import MBTTNu (computeNativeNu, NativeNuResult(..))
 import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
 
@@ -769,6 +770,46 @@ testJ7CanonicalKeyStability =
       then return Pass
       else return $ Fail "canonicalKeyExpr changed after canonicalizeExpr")
 
+
+-- J8: Native ν adapter parity — computeNativeNu total matches StructuralNu total.
+testJ8NativeNuParity :: Test
+testJ8NativeNuParity =
+  ("J8. [MBTT] NativeNu total matches StructuralNu total", do
+    let step = 6
+        tele = referenceTelescope step
+        lib = canonicalLibAt (step - 1)
+        (snapshots, _) = replayCanonical
+        nuHist = [(i, nu) | (i, (_, nu, _)) <- zip [1..(step-1)] (take (step-1) snapshots)]
+        sr = structuralNu tele lib nuHist
+        nr = computeNativeNu tele lib nuHist
+    if nnTotal nr == snTotal sr
+      then return Pass
+      else return $ Fail $ "native/structural mismatch: " ++ show (nnTotal nr) ++ " vs " ++ show (snTotal sr))
+
+-- J9: Native ν trace schema freeze (P3-V1 contract).
+testJ9NativeNuTraceSchema :: Test
+testJ9NativeNuTraceSchema =
+  ("J9. [MBTT] NativeNu trace schema contains required keys", do
+    let tele = referenceTelescope 4
+        lib = canonicalLibAt 3
+        (_, nuHist) = replayCanonical
+        nr = computeNativeNu tele lib (take 3 nuHist)
+        requiredPrefixes =
+          [ "source="
+          , "nu_g="
+          , "nu_h="
+          , "nu_c="
+          , "bonus_distributive="
+          , "bonus_universe_poly="
+          , "bonus_infinitesimal_shift="
+          , "nu_total="
+          ]
+        hasPrefix pre = any (\line -> take (length pre) line == pre) (nnTrace nr)
+        missing = [pre | pre <- requiredPrefixes, not (hasPrefix pre)]
+    if null missing
+      then return Pass
+      else return $ Fail $ "missing trace keys: " ++ show missing)
+
 -- ============================================
 -- Entry points
 -- ============================================
@@ -825,6 +866,8 @@ mbttTests cfg =
        ++ [ testJ5BitCostOrdering cfg
           , testJ6CanonicalIdempotence
           , testJ7CanonicalKeyStability
+          , testJ8NativeNuParity
+          , testJ9NativeNuTraceSchema
           ]
 
 runAcceptanceWithConfig :: AcceptanceConfig -> IO ()
