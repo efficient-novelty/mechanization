@@ -40,7 +40,7 @@ import Kolmogorov (MBTTExpr(..))
 import Telescope
 import Types (LibraryEntry(..), Library, mkLibraryEntry)
 import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, GenesisStep(..))
-import StructuralNu (structuralNu, StructuralNuResult(..))
+import MBTTNu (computeNativeNu, NativeNuResult(..))
 
 import qualified Data.Set as Set
 
@@ -455,8 +455,8 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
             , strictKappa tele )
           EvalStructural ->
             -- StructuralNu: AST rule extraction, no semantic proxy
-            let result = structuralNu tele lib nuHistory
-            in ( snTotal result
+            let result = computeNativeNu tele lib nuHistory
+            in ( nnTotal result
                , strictKappa tele )
         rho = if kappa > 0 then fromIntegral nu / fromIntegral kappa else 0.0
     in (nu, kappa, rho)
@@ -491,7 +491,7 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
           ( computedNu
           , strictKappa tele )
         EvalStructural ->
-          ( snTotal (structuralNu tele lib [])
+          ( nnTotal (computeNativeNu tele lib [])
           , strictKappa tele )
   in EvalTrace
     { etCanonName      = canonName
