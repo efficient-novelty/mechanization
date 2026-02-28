@@ -204,10 +204,27 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 
 ---
 
-## Phase 3 — Native ν Extraction from Anonymous Terms (Weeks 6–8)
+## Phase 3 — Native ν Extraction from Anonymous Terms (Weeks 6–8) ↻ IN PROGRESS
 
 ### Scope
 Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic labels.
+
+### Kickoff status
+- [x] Added `engine/src/MBTTNu.hs` as a Phase-3 native-ν API boundary (`computeNativeNu`) that returns ν decomposition plus a machine-readable trace scaffold from anonymous MBTT telescopes.
+- [x] Wired `TelescopeEval` `EvalStructural` path through `MBTTNu.computeNativeNu` so Phase-3 work can evolve behind a stable evaluator entrypoint without changing selection semantics.
+- [ ] Extend `nnTrace` from coarse component lines to AST-node-level provenance (rule contributions keyed by node path).
+
+### Phase 3 victory to-do list (one-shot closeout deliveries)
+- [ ] **P3-V1 — Native ν API + trace schema freeze**
+  - Freeze `NativeNuResult` schema (component fields + explainability trace contract) and add an ADR for trace stability guarantees.
+- [ ] **P3-V2 — Node-level explainability extraction**
+  - Emit per-node rule evidence for `ν_G`, `ν_H`, and `ν_C` with canonical-node path IDs.
+- [ ] **P3-V3 — Alpha/canonical invariance evidence**
+  - Add differential/property tests showing native ν and trace are invariant under alpha-equivalence and canonical rewrites.
+- [ ] **P3-V4 — Name-independence hardening**
+  - Remove remaining label-sensitive capability hooks from native ν computation path and document closure of the I1 canary gap.
+- [ ] **P3-V5 — CI evidence lane for native ν**
+  - Add CI lane + artifact summary that records native ν traces for bounded benchmark prefix replay.
 
 ### Haskell workstream
 - Extend `StructuralNu.hs`/`InferenceNu.hs` with MBTT-term entry point:
