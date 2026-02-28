@@ -333,11 +333,11 @@ Attach mathematical interpretation after optimization only.
 ### Kickoff status
 - [x] Captured Phase-5 kickoff baseline and package plan in `docs/reports/p5_v1_kickoff_baseline.md`.
 - [x] Marked Phase-5 status in-progress and decomposed closeout into one-shot packages.
-- [ ] Decoder module/report integration is not yet implemented (tracked in P5-WP2/P5-WP3).
+- [x] Decoder API boundary is implemented (`MBTTDecode`); reporting integration remains tracked in P5-WP3.
 
 ### Phase 5 victory to-do list (one-shot closeout deliveries)
-- [ ] **P5-V1 — Decoder API boundary + contract stub**
-  - Introduce `MBTTDecode` boundary and freeze reporting-only non-interference contract.
+- [x] **P5-V1 — Decoder API boundary + contract stub**
+  - Completed by adding `engine/src/MBTTDecode.hs` with deterministic decode schema (label/confidence/ambiguity/non-interference) and fixture validation tooling.
 - [ ] **P5-V2 — Reporting integration with confidence/ambiguity**
   - Emit decoded labels in reports while preserving anonymous winner ids and decode confidence metadata.
 - [ ] **P5-V3 — Non-interference sign-off**
@@ -350,9 +350,9 @@ Attach mathematical interpretation after optimization only.
 - [x] **P5-WP1 — Kickoff baseline + package plan**
   - **Completed:** Captured baseline, acceptance bars, and artifact plan in `docs/reports/p5_v1_kickoff_baseline.md`.
 
-- [ ] **P5-WP2 — Decoder API skeleton + fixture corpus**
-  - **Scope:** Add `engine/src/MBTTDecode.hs` with deterministic decode result schema and starter fixtures.
-  - **Acceptance bar:** compile-visible decoder API with fixture-driven unit checks.
+- [x] **P5-WP2 — Decoder API skeleton + fixture corpus**
+  - **Completed:** Added `MBTTDecode` API boundary, fixture corpus under `engine/testdata/phase5_decode/`, and validation script `engine/scripts/check_phase5_decode_fixtures.sh`.
+  - **Acceptance evidence:** fixture schema/hash + decoder behavior checks pass via `runghc` harness.
   - **Artifacts:** `docs/reports/p5_v2_decoder_api_report.md`.
 
 - [ ] **P5-WP3 — Reporting layer decode integration**

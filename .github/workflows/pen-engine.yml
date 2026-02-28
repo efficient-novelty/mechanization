@@ -57,6 +57,10 @@ jobs:
         run: |
           engine/scripts/test_phase1_evidence_tools.sh
 
+      - name: Check Phase-5 decoder fixtures
+        run: |
+          engine/scripts/check_phase5_decode_fixtures.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
