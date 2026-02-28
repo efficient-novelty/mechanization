@@ -27,6 +27,8 @@ module Main where
 
 import Telescope
 import TelescopeGen (enumerateTelescopes)
+import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
+import MBTTCanonical (CanonKey(..), canonicalKeySpec)
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -38,6 +40,7 @@ import CoherenceWindow (dBonacciDelta)
 
 import Data.List (sortOn)
 import Data.Ord (Down(..))
+import qualified Data.Map.Strict as Map
 import Control.Monad (when)
 import System.IO (hFlush, stdout)
 import System.Environment (getArgs)
@@ -62,6 +65,14 @@ data AbInitioConfig = AbInitioConfig
   , cfgKappaMode       :: !KappaMode        -- ^ Kappa computation mode (default DesugaredKappa)
   , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
   , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
+  , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
+  , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
+  , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
+  , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
+  , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
+  , cfgSkipMCTS        :: !Bool             -- ^ Skip MCTS phase (useful for bounded shadow evidence)
+  , cfgPhase1Shadow    :: !Bool             -- ^ Preset: bounded Phase-1 MBTT shadow run
+  , cfgNoCanonicalQuotient :: !Bool         -- ^ Ablation: disable canonical quotient cache at candidate stage
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -81,8 +92,15 @@ data StepRecord = StepRecord
   , srDelta  :: !Int
   , srSource :: !String
   , srCands  :: !Int
+  , srRawCands :: !Int
+  , srCanonCands :: !Int
+  , srDedupeRatio :: !Double
+  , srBestCanonKey :: !String
   , srTele   :: Telescope  -- ^ Discovered telescope (for post-hoc analysis)
   } deriving (Show)
+
+-- | Candidate tuple used during step search/selection.
+type Candidate = (Telescope, Int, Int, Double, String)
 
 -- | Convert synthesis mode to evaluation mode.
 -- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
@@ -130,15 +148,36 @@ main = do
     putStrLn "  ABLATION:  --no-canonical-priority (selection by rho only, no name tier)"
   when (cfgMaxRho cfg) $
     putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
+  when (cfgMBTTFirst cfg) $
+    putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
+  when (cfgMBTTFirst cfg) $
+    putStrLn "  OBJECTIVE: κ-first ranking in MBTT-first mode (with ρ/bar viability gate)"
+  when (cfgMaxSteps cfg < 15) $
+    printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
+  when (cfgSkipValidation cfg) $
+    putStrLn "  SPEED:     --skip-validation (Phase 0 validation skipped)"
+  when (cfgMBTTShadowProfile cfg) $
+    putStrLn "  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)"
+  when (cfgSkipMCTS cfg) $
+    putStrLn "  SPEED:     --skip-mcts (disable Phase B MCTS)"
+  when (cfgPhase1Shadow cfg) $
+    putStrLn "  PRESET:    --phase1-shadow (bounded MBTT-first profile)"
+  when (cfgNoCanonicalQuotient cfg) $
+    putStrLn "  ABLATION:  --no-canonical-quotient (disable candidate canonical dedupe)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
   putStrLn ""
 
   -- Phase 0: Validate reference telescopes (uses canonical names for paper comparison)
-  putStrLn "--- Phase 0: Validating Reference Telescopes ---"
-  putStrLn ""
-  validatePhase
+  if cfgSkipValidation cfg
+    then do
+      putStrLn "--- Phase 0: Validation skipped by --skip-validation ---"
+      putStrLn ""
+    else do
+      putStrLn "--- Phase 0: Validating Reference Telescopes ---"
+      putStrLn ""
+      validatePhase
 
   -- Phase 1: Run the ab initio synthesis loop
   putStrLn ""
@@ -166,7 +205,32 @@ parseArgs args =
                     _ -> DesugaredKappa
       noCanonPriority = "--no-canonical-priority" `elem` args
       maxRho = "--max-rho" `elem` args
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho
+      mbttFirst = "--mbtt-first" `elem` args
+      mbttMaxCand = case dropWhile (/= "--mbtt-max-candidates") args of
+                      ("--mbtt-max-candidates" : n : _) ->
+                        case reads n of
+                          [(k,"")] | k > 0 -> Just k
+                          _ -> Nothing
+                      _ -> Nothing
+      hasMaxStepsArg = "--max-steps" `elem` args
+      maxSteps = case dropWhile (/= "--max-steps") args of
+                   ("--max-steps" : n : _) -> case reads n of
+                     [(k,"")] | k >= 1 && k <= 15 -> k
+                     _ -> 15
+                   _ -> 15
+      phase1Shadow = "--phase1-shadow" `elem` args
+      skipValidation = phase1Shadow || "--skip-validation" `elem` args
+      mbttShadowProfile = phase1Shadow || "--mbtt-shadow-profile" `elem` args
+      skipMCTS = phase1Shadow || "--skip-mcts" `elem` args
+      mbttFirstFinal = phase1Shadow || mbttFirst
+      maxStepsFinal = if phase1Shadow && not hasMaxStepsArg then 6 else maxSteps
+      noCanonicalQuotient = "--no-canonical-quotient" `elem` args
+      mbttMaxCandFinal = if phase1Shadow
+                         then case mbttMaxCand of
+                           Just k  -> Just k
+                           Nothing -> Just 20
+                         else mbttMaxCand
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -220,11 +284,11 @@ abInitioLoop cfg = do
     mode = cfgMode cfg
     go :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
     go lib history records step
-      | step > 15 = do
+      | step > cfgMaxSteps cfg = do
           let orderedRecords = reverse records
           putStrLn ""
           putStrLn "============================================"
-          putStrLn "SYNTHESIS COMPLETE: 15 structures discovered"
+          printf   "SYNTHESIS COMPLETE: %d structures discovered\n" (cfgMaxSteps cfg)
           putStrLn "============================================"
           putStrLn ""
           -- Print summary comparing discovered vs paper
@@ -242,13 +306,13 @@ abInitioLoop cfg = do
             putStrLn "  MCTS:     EvalStructural rollout guidance (zero paper lookups)"
             putStrLn "  Library:  Discovered entries only, no paper fallback"
             let totalDiscNu = sum [drNu r | r <- history]
-                totalPapNu  = sum [gsPaperNu s | s <- take 15 genesisLibrarySteps]
+                totalPapNu  = sum [gsPaperNu s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
                 totalDiscK  = sum [drKappa r | r <- history]
-                totalPapK   = sum [gsPaperK s | s <- take 15 genesisLibrarySteps]
-                exact = length [() | (dr, gs) <- zip history (take 15 genesisLibrarySteps)
+                totalPapK   = sum [gsPaperK s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
+                exact = length [() | (dr, gs) <- zip history (take (cfgMaxSteps cfg) genesisLibrarySteps)
                                    , drNu dr == gsPaperNu gs && drKappa dr == gsPaperK gs]
-            printf "  Result:   %d/15 exact match, total nu %d/%d, total kappa %d/%d\n"
-              exact totalDiscNu totalPapNu totalDiscK totalPapK
+            printf "  Result:   %d/%d exact match, total nu %d/%d, total kappa %d/%d\n"
+              exact (cfgMaxSteps cfg) totalDiscNu totalPapNu totalDiscK totalPapK
             -- Print exclusion contract
             printExclusionContract
           -- Write CSV if requested
@@ -268,17 +332,30 @@ abInitioLoop cfg = do
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               nuDepth = 1
-              rawTelescopes = enumerateTelescopes lib enumKmax
-              (validTelescopes, _rejected) = checkAndFilter lib rawTelescopes
+              shadowProfile = cfgMBTTShadowProfile cfg && step <= 6
+              mbttDefaultCandidates = if shadowProfile then 800 else 5000
+              mbttCfg = defaultEnumConfig
+                { ecMaxEntries = enumKmax
+                , ecMaxBitBudget = if shadowProfile then 14 else 20
+                , ecMaxASTDepth = if shadowProfile then 2 else 3
+                , ecMaxCandidates = maybe mbttDefaultCandidates id (cfgMBTTMaxCand cfg)
+                }
+              rawTelescopes = if cfgMBTTFirst cfg
+                              then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
+                              else enumerateTelescopes lib enumKmax
+              (validTelescopesRaw, _rejected) = checkAndFilter lib rawTelescopes
+              -- Phase-2 quotienting kickoff: deduplicate equivalent telescopes
+              -- by canonical MBTT key before scoring.
+              validTelescopes = dedupByCanonicalKey validTelescopesRaw
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
-              enumEvaluated = [ (tele, nu, kappa, rho, "ENUM" :: String)
+              enumSource = if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
+              enumEvaluated = [ (tele, nu, kappa, rho, enumSource)
                               | tele <- validTelescopes
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
-              enumCount = length enumEvaluated
 
           -- Evaluate the reference telescope for comparison / fallback
           let refTele = referenceTelescope step
@@ -317,7 +394,8 @@ abInitioLoop cfg = do
                   else 9
 
               refClearsBar = refRho >= bar || step <= 2
-              needMCTS = mctsKappaEst > 3
+              needMCTS = not (cfgSkipMCTS cfg)
+                      && mctsKappaEst > 3
                       && not (mode == PaperCalibrated && refClearsBar)
 
           mctsCandidates <- if needMCTS
@@ -346,9 +424,14 @@ abInitioLoop cfg = do
                      | (tele, nu, kappa, rho) <- results]
             else return []
 
-          -- Combine all candidates (enum + MCTS + reference)
-          let allCandidates = enumEvaluated ++ mctsCandidates
+          -- Combine and quotient candidates (enum + MCTS + reference)
+          let rawCandidates = enumEvaluated ++ mctsCandidates
                            ++ [(refTele, refNu, refKappa, refRho, "REF")]
+              allCandidates = if cfgNoCanonicalQuotient cfg
+                              then rawCandidates
+                              else quotientCandidates (cfgMBTTFirst cfg && not (cfgMaxRho cfg)) rawCandidates
+              rawCandidateCount = length rawCandidates
+              canonicalCandidateCount = length allCandidates
               -- Filter to those that clear the bar (or all if step ≤ 2)
               viable = if step <= 2
                        then allCandidates
@@ -363,9 +446,10 @@ abInitioLoop cfg = do
           -- mathematical structures, not random telescope fragments.
           --
           -- Within each priority tier (canonical vs generic), select by
-          -- minimal overshoot (ρ - bar), then κ ascending, then name.
+          -- Phase-4 objective: κ-first in MBTT mode, otherwise minimal overshoot.
           let ablation = cfgNoCanonPriority cfg
               useMaxRho = cfgMaxRho cfg
+              kappaFirst = cfgMBTTFirst cfg && not useMaxRho
               selectBest cs = case cs of
                 [] -> (refTele, refNu, refKappa, refRho, "REF")
                 _  | useMaxRho ->
@@ -384,7 +468,9 @@ abInitioLoop cfg = do
                                 isCanon = if ablation then (0 :: Int)
                                           else if cn `elem` knownNames
                                           then 0 else 1
-                            in (isCanon, rho - bar, k, cn)) cs
+                            in if kappaFirst
+                                 then (isCanon, k, rho - bar, cn)
+                                 else (isCanon, rho - bar, k, cn)) cs
                       in case sorted of
                         ((tele, nu, kappa, rho, src):_) -> (tele, nu, kappa, rho, src)
                         [] -> (refTele, refNu, refKappa, refRho, "REF")
@@ -393,7 +479,11 @@ abInitioLoop cfg = do
                 selectBest viable
 
               bestName = detectCanonicalName bestTele lib
-              totalCandidates = enumCount + length mctsCandidates
+              totalCandidates = canonicalCandidateCount
+              dedupeRatio = if rawCandidateCount > 0
+                            then fromIntegral canonicalCandidateCount / fromIntegral rawCandidateCount
+                            else 1.0 :: Double
+              CanonKey bestCanonKey = canonicalKeySpec (map teType (teleEntries bestTele))
 
           -- Display
           printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
@@ -420,7 +510,8 @@ abInitioLoop cfg = do
               newLib = lib ++ [newEntry]
               newHistory = history ++ [DiscoveryRecord bestNu bestKappa]
               newRecord = StepRecord step bestName bestNu bestKappa
-                            bestRho bar delta_n bestSource totalCandidates bestTele
+                            bestRho bar delta_n bestSource totalCandidates
+                            rawCandidateCount canonicalCandidateCount dedupeRatio bestCanonKey bestTele
 
           go newLib newHistory (newRecord : records) (step + 1)
 
@@ -437,11 +528,12 @@ abInitioLoop cfg = do
         ("Step" :: String) ("disc_ν" :: String) ("pap_ν" :: String)
         ("disc_κ" :: String) ("pap_κ" :: String)
       putStrLn (replicate 44 '-')
-      let paperSteps = take 15 genesisLibrarySteps
+      let n = length history
+          paperSteps = take n genesisLibrarySteps
       mapM_ (\(i, dr, gs) ->
         printf "%-4d %8d %8d %8d %8d\n"
           i (drNu dr) (gsPaperNu gs) (drKappa dr) (gsPaperK gs)
-        ) (myZip3 ([1..15] :: [Int]) history paperSteps)
+        ) (myZip3 ([1..n] :: [Int]) history paperSteps)
       let totalDiscNu = sum (map drNu history)
           totalPapNu  = sum (map gsPaperNu paperSteps)
           totalDiscK  = sum (map drKappa history)
@@ -495,7 +587,7 @@ abInitioLoop cfg = do
 -- Includes all three kappa metrics for comparison.
 writeCsv :: FilePath -> [StepRecord] -> IO ()
 writeCsv path recs = do
-  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,k_desugar,k_entry,k_bitcost"
+  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost"
       rows = map formatRow recs
       content = unlines (header : rows)
   writeFile path content
@@ -512,6 +604,10 @@ formatRow r = intercalate ","
   , show (srDelta r)
   , srSource r
   , show (srCands r)
+  , show (srRawCands r)
+  , show (srCanonCands r)
+  , printf' "%.4f" (srDedupeRatio r)
+  , srBestCanonKey r
   , show (desugaredKappa (srTele r))
   , show (teleKappa (srTele r))
   , show (teleBitCost (srTele r))
@@ -604,3 +700,51 @@ printExclusionContract = do
   putStrLn "    Selection uses only: StructuralNu (AST), DesugaredKappa (clause count),"
   putStrLn "    d-bonacci bar (Fibonacci for d=2), canonical structural recognition."
   putStrLn "    No physical constants, no empirical measurements, no fitted parameters."
+
+-- | Deduplicate telescopes by canonicalized MBTT-expression key sequence.
+--
+-- Keeps the first occurrence to preserve deterministic upstream enumeration
+-- ordering while collapsing structurally equivalent forms for Phase-2 quotienting.
+dedupByCanonicalKey :: [Telescope] -> [Telescope]
+dedupByCanonicalKey teles = reverse (snd (foldl step (Map.empty, []) teles))
+  where
+    step (seen, acc) tele =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key seen of
+           Just _  -> (seen, acc)
+           Nothing -> (Map.insert key () seen, tele : acc)
+
+
+-- | Quotient evaluated candidates by canonical MBTT key.
+--
+-- Keeps insertion order of first-seen keys while allowing a better
+-- representative for that key to replace the cached candidate.
+--
+-- In Phase-4 κ-first mode we prefer lower κ first, then higher ρ.
+quotientCandidates :: Bool -> [Candidate] -> [Candidate]
+quotientCandidates kappaFirst cs = [cand | key <- reverse order, Just cand <- [Map.lookup key reps]]
+  where
+    (reps, order) = foldl step (Map.empty, []) cs
+
+    step (m, ord) cand@(tele, _, _, _, _) =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key m of
+           Nothing -> (Map.insert key cand m, key : ord)
+           Just prev ->
+             let pick = if betterCandidate kappaFirst cand prev then cand else prev
+             in (Map.insert key pick m, ord)
+
+-- | Candidate ranking used when two candidates share the same canonical key.
+betterCandidate :: Bool -> Candidate -> Candidate -> Bool
+betterCandidate kappaFirst (_, _, k1, rho1, src1) (_, _, k2, rho2, src2)
+  | kappaFirst = (k1, Down rho1, sourceRank src1) < (k2, Down rho2, sourceRank src2)
+  | otherwise  = (Down rho1, k1, sourceRank src1) < (Down rho2, k2, sourceRank src2)
+
+-- | Prefer references, then exhaustive enumeration, then MCTS when ties occur.
+sourceRank :: String -> Int
+sourceRank src = case src of
+  "REF" -> 0
+  "ENUM_MBTT" -> 1
+  "ENUM" -> 2
+  "MCTS" -> 3
+  _ -> 4
