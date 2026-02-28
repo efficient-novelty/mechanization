@@ -66,3 +66,13 @@ acceptance tests, and CI evidence lanes can evolve without cross-module drift.
 - Added a negative control asserting non-equivalent candidates remain
   distinguishable by native ν outputs.
 - Evidence report: `docs/reports/p3_v3_invariance_report.md`.
+
+## Amendment (P3-V4 name-independence closure)
+
+- Temporal capability derivation in `telescopeToCandidate` no longer requires
+  `name=="DCT"`; it is set from structural evidence (`Next` + `Eventually`).
+- Structural gating for path/truncation prerequisites now keys off library
+  capability signals rather than canonical names.
+- I1 acceptance now requires name-free behavior through steps 1..15 and serves
+  as the closure check for this amendment.
+- Evidence report: `docs/reports/p3_v4_name_independence_report.md`.

@@ -344,15 +344,47 @@ telescopeToCandidate tele lib name =
       -- inflates their ν by unlocking formers they haven't earned.
       -- Example: a κ=2 [Lam(Var 1), Pi(Var 1, Var 2)] classified as TCFormer
       -- would wrongly get leHasDependentFunctions=True, inflating ν from ~2 to ~16.
-      withCaps entry = case name of
-        "Pi"          -> entry { leHasDependentFunctions = True }
-        "Cohesion"    -> entry { leHasModalOps = True }
-        "Connections" -> entry { leHasDifferentialOps = True }
-        "Curvature"   -> entry { leHasCurvature = True }
-        "Metric"      -> entry { leHasMetric = True }
-        "Hilbert"     -> entry { leHasHilbert = True }
-        "DCT"         -> entry { leHasTemporalOps = True }
-        _             -> entry  -- no capability flags for unknown names
+      withCaps entry =
+        let namedCaps = case name of
+              "Pi"          -> entry { leHasDependentFunctions = True }
+              "Cohesion"    -> entry { leHasModalOps = True }
+              "Connections" -> entry { leHasDifferentialOps = True }
+              "Curvature"   -> entry { leHasCurvature = True }
+              "Metric"      -> entry { leHasMetric = True }
+              "Hilbert"     -> entry { leHasHilbert = True }
+              "DCT"         -> entry { leHasTemporalOps = True }
+              _             -> entry
+            refs = [lib !! (i-1) | i <- Set.toList (teleLibRefs tele), i >= 1, i <= length lib]
+            exprs = map teType (teleEntries tele)
+            hasLamExpr (Lam _) = True
+            hasLamExpr _       = False
+            hasPiSigmaExpr (Pi _ _) = True
+            hasPiSigmaExpr (Sigma _ _) = True
+            hasPiSigmaExpr (Lam a) = hasPiSigmaExpr a
+            hasPiSigmaExpr (App a b) = hasPiSigmaExpr a || hasPiSigmaExpr b
+            hasPiSigmaExpr _ = False
+            modalCount = length (filter id
+              [any (\e -> case e of Flat _ -> True; _ -> False) exprs
+              ,any (\e -> case e of Sharp _ -> True; _ -> False) exprs
+              ,any (\e -> case e of Disc _ -> True; _ -> False) exprs
+              ,any (\e -> case e of Shape _ -> True; _ -> False) exprs])
+            depStructural = teleKappa tele >= 3 && any hasLamExpr exprs && any hasPiSigmaExpr exprs && not (any hasLibPointer exprs)
+            modalStructural = modalCount >= 3
+            differentialStructural = teleKappa tele >= 4 && any leHasModalOps refs
+            curvatureStructural = teleKappa tele >= 5 && any leHasDifferentialOps refs
+            metricStructural = teleKappa tele >= 5 && any leHasCurvature refs
+            hilbertStructural = teleKappa tele >= 6 && any leHasMetric refs
+            temporalStructural = hasTemporalOpsExpr tele
+            structuralCaps = namedCaps
+              { leHasDependentFunctions = leHasDependentFunctions namedCaps || depStructural
+              , leHasModalOps = leHasModalOps namedCaps || modalStructural
+              , leHasDifferentialOps = leHasDifferentialOps namedCaps || differentialStructural
+              , leHasCurvature = leHasCurvature namedCaps || curvatureStructural
+              , leHasMetric = leHasMetric namedCaps || metricStructural
+              , leHasHilbert = leHasHilbert namedCaps || hilbertStructural
+              , leHasTemporalOps = leHasTemporalOps namedCaps || temporalStructural
+              }
+        in structuralCaps
       -- Gate structural properties by library state.
       -- Path dimensions and loops only make sense with dependent types (Pi);
       -- truncation only makes sense with HITs (S1 or equivalent).
@@ -360,19 +392,30 @@ telescopeToCandidate tele lib name =
       -- gets lePathDims=[1], leHasLoop=True, leIsTruncated=Just 0, producing
       -- ν≈16 even without the "Trunc" name.
       gateStructural entry =
-        let libNames = map leName lib
-            hasPi = "Pi" `elem` libNames
-            hasS1 = "S1" `elem` libNames
+        let hasPiLike = any leHasDependentFunctions lib
+            hasS1Like = any (\e -> leHasLoop e && 1 `elem` lePathDims e) lib
         in entry
-          { lePathDims    = if hasPi then lePathDims entry else []
-          , leHasLoop     = if hasPi then leHasLoop entry else False
-          , leIsTruncated = if hasS1 then leIsTruncated entry else Nothing
+          { lePathDims    = if hasPiLike then lePathDims entry else []
+          , leHasLoop     = if hasPiLike then leHasLoop entry else False
+          , leIsTruncated = if hasS1Like then leIsTruncated entry else Nothing
           }
   in case cls of
     TCSuspension -> gateStructural (withCaps (makeSuspEntry tele lib name))
     TCHIT        -> gateStructural (withCaps (makeHITEntry tele name))
     TCMap        -> gateStructural (withCaps (base { leHasLoop = True }))
     _            -> withCaps base
+
+
+-- | Structural detector for temporal capability (independent of entry names).
+-- Requires both Next and Eventually forms somewhere in the telescope spec.
+hasTemporalOpsExpr :: Telescope -> Bool
+hasTemporalOpsExpr tele =
+  let exprs = map teType (teleEntries tele)
+      hasNextExpr (Next _) = True
+      hasNextExpr _        = False
+      hasEventuallyExpr (Eventually _) = True
+      hasEventuallyExpr _              = False
+  in any hasNextExpr exprs && any hasEventuallyExpr exprs
 
 -- | Create a LibraryEntry for a HIT telescope.
 makeHITEntry :: Telescope -> String -> LibraryEntry

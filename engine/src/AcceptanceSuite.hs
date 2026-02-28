@@ -464,14 +464,10 @@ testExclusionBarFormula =
 -- Contract C1: StructuralNu is name-free.
 -- structuralNu reads only structural fields (leConstructors, lePathDims,
 -- leHasLoop, leIsTruncated, leHas*) from library entries, never leName.
--- Scrambling library names must not change ν for steps 1-14.
--- Step 15 (DCT) has a KNOWN gap: telescopeToCandidate gates leHasTemporalOps
--- on name=="DCT", causing ν to drop from 103→88 with scrambled names.
--- This canary documents the gap. It will BREAK when MBTT-first fixes it
--- (at which point all 15 steps should match and the canary should be updated).
+-- Scrambling library names must not change ν for steps 1-15.
 testC1StructuralNuNameFree :: Test
 testC1StructuralNuNameFree =
-  ("I1. [C1] StructuralNu name-free for steps 1-14 (step 15 known gap)", do
+  ("I1. [C1] StructuralNu name-free for steps 1-15", do
     -- Replay with canonical names → get ν values
     let (canonSnapshots, _) = replayCanonical
         canonNus = [nu | (_, nu, _) <- take 15 canonSnapshots]
@@ -490,21 +486,14 @@ testC1StructuralNuNameFree =
                 newHist = nuHist ++ [(step, nu)]
             in nu : goScrambled newLib newHist (step + 1)
 
-    -- Steps 1-14 must be identical (name-free)
-    let diffs114 = [(i, c, s) | (i, c, s) <- zip3_ [1..14::Int]
-                                               (take 14 canonNus)
-                                               (take 14 scrambledNus), c /= s]
-    -- Step 15 has known gap: 103 (canonical) vs 88 (scrambled)
-    let canon15 = canonNus !! 14
-        scram15 = scrambledNus !! 14
-        knownGap = canon15 /= scram15
+    -- All steps must be identical (name-free)
+    let diffs = [(i, c, s) | (i, c, s) <- zip3_ [1..15::Int]
+                                          (take 15 canonNus)
+                                          (take 15 scrambledNus), c /= s]
 
-    if not (null diffs114)
-      then return $ Fail $ "Steps 1-14 not name-free: " ++ show diffs114
-      else if not knownGap
-        then return $ Fail $ "Step 15 gap CLOSED (both=" ++ show canon15 ++
-               ") — MBTT-first fix landed! Update this canary to require all 15 match."
-        else return Pass)
+    if null diffs
+      then return Pass
+      else return $ Fail $ "Name-dependence detected at steps: " ++ show diffs)
 
 -- Contract C1b: classifyTelescope is name-free.
 -- Classification depends only on AST structure, not library entry names.

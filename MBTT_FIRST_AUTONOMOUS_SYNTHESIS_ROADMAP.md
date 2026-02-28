@@ -45,7 +45,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] Add architecture decision record (ADR) documenting MBTT-first constraints.
   - `docs/adr/0001-mbtt-first-synthesis.md` — Context, Decision, Constraints (C1–C4), Consequences.
 - [x] Define invariant contracts for:
-  - [x] C1: search-space independence from semantic labels — I1 (steps 1-14 name-free; step 15 known gap via capability flag gating), I2 (classification name-free).
+  - [x] C1: search-space independence from semantic labels — I1 (now steps 1-15 name-free after P3-V4 closure), I2 (classification name-free).
   - [x] C2: canonicalization idempotence — I3 (κ determinism; full canonicalization deferred to Phase 2).
   - [x] C3: κ monotonicity by bit budget — I4 (weak monotonicity with telescope size).
   - [x] C4: post-hoc decoding non-interference — I5 (scoring order invariance), I6 (bar name-free).
@@ -56,7 +56,7 @@ Transition PEN from a two-phase architecture (human-curated candidate templates 
 - [x] 6 new contract tests (I1–I6) in acceptance suite, 52/52 passing.
 
 ### Known gap documented
-- **I1 canary:** Step 15 (DCT) ν drops from 103→88 when library names are scrambled, because `telescopeToCandidate` gates `leHasTemporalOps` on `name=="DCT"`. This capability-flag name-dependence is the primary target for Phase 3 (native ν extraction from anonymous terms). The canary test will fail-positive when the gap is closed.
+- **I1 canary (closed in Phase 3 / P3-V4):** Temporal capability gating is now structural (`Next` + `Eventually`) rather than name-based, so scrambled library names preserve ν through step 15.
 
 ---
 
@@ -221,8 +221,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
   - Completed by extending `MBTTNu.computeNativeNu` trace output with canonical node-path constructor records and deterministic acceptance coverage (`J10`) for node-trace presence/stability.
 - [x] **P3-V3 — Alpha/canonical invariance evidence**
   - Completed with MBTT acceptance coverage (`J11`, `J12`, `J13`) and report `docs/reports/p3_v3_invariance_report.md`, demonstrating invariance for alpha-renaming/canonical rewrites and sensitivity on non-equivalent controls.
-- [ ] **P3-V4 — Name-independence hardening**
-  - Remove remaining label-sensitive capability hooks from native ν computation path and document closure of the I1 canary gap.
+- [x] **P3-V4 — Name-independence hardening**
+  - Completed by replacing DCT name-gated temporal capability assignment with structural detection in `telescopeToCandidate` and updating I1 acceptance to require name-free behavior through steps 1..15.
 - [ ] **P3-V5 — CI evidence lane for native ν**
   - Add CI lane + artifact summary that records native ν traces for bounded benchmark prefix replay.
 
@@ -239,11 +239,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 - [x] **P3-WP2 — P3-V3 alpha/canonical invariance evidence closeout**
   - **Completed:** `J11`/`J12` invariance checks + `J13` negative control added to MBTT acceptance and captured in `docs/reports/p3_v3_invariance_report.md`.
 
-- [ ] **P3-WP3 — P3-V4 name-independence hardening (I1 canary closure)**
-  - **Scope:** Remove remaining label-sensitive capability hooks from native ν path (notably temporal-ops name gating) and ensure scoring is structure-driven only.
-  - **Code touchpoints:** `engine/src/TelescopeEval.hs` / capability derivation path used by native ν; acceptance canary tests in `AcceptanceSuite`.
-  - **Acceptance bar:** I1 canary no longer reports name-induced ν drop; scrambled-name libraries preserve native ν decisions.
-  - **Artifacts:** `docs/reports/p3_v4_name_independence_report.md`; roadmap `P3-V4` checked.
+- [x] **P3-WP3 — P3-V4 name-independence hardening (I1 canary closure)**
+  - **Completed:** structural temporal-capability detection landed in `TelescopeEval`, I1 acceptance upgraded to require steps 1..15 name-free, and evidence captured in `docs/reports/p3_v4_name_independence_report.md`.
 
 - [ ] **P3-WP4 — P3-V5 CI native-ν evidence lane + contract checks**
   - **Scope:** Add a dedicated Phase-3 lane to `.github/workflows/pen-engine.yml` that runs bounded native-ν replay, publishes trace summary, and uploads run-scoped artifacts.
