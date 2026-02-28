@@ -183,10 +183,10 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 
 - [x] **P2-V1 — Canonicalization semantics freeze**
   - Completed via `docs/adr/0002-mbtt-canonicalization-contract.md`, which freezes the V1 normalization/reduction boundaries and records canonical-equivalence examples (idempotence + source-path equivalence) mapping to a single canonical form/key.
-- [ ] **P2-V2 — Quotient cache integration in search stack**
-  - Add a canonical-keyed quotient cache (`CanonKey -> representative`) across Phase A + MCTS expansion so equivalent MBTT candidates are merged before expensive evaluation/rollout.
-- [ ] **P2-V3 — Canonical telemetry in run artifacts**
-  - Extend CSV/manifest/summary outputs with canonicalization counters (`raw_candidates`, `canonical_candidates`, `dedupe_ratio`) and representative canonical keys for replay diagnostics.
+- [x] **P2-V2 — Quotient cache integration in search stack**
+  - Completed by adding canonical-key quotient selection in `RunAbInitio` across combined Phase A + MCTS + reference candidates (`CanonKey -> representative`) before step selection, with deterministic representative replacement rules (higher ρ, lower κ, stable source tie-break).
+- [x] **P2-V3 — Canonical telemetry in run artifacts**
+  - Completed by extending `RunAbInitio` CSV rows with canonicalization counters (`raw_candidates`, `canonical_candidates`, `dedupe_ratio`) and `best_canonical_key`, and propagating canonical telemetry into Phase-1 manifests/summaries for replay diagnostics.
 - [ ] **P2-V4 — Differential performance evidence run**
   - Execute one paired benchmark suite (canonical dedupe OFF vs ON, fixed seed/window/budget), archive artifacts, and demonstrate frontier reduction meeting target (≥40% medium-budget duplicate reduction).
 - [ ] **P2-V5 — Regression safety + quality parity sign-off**

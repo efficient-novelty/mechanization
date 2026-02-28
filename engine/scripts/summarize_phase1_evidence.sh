@@ -26,6 +26,25 @@ ladder_tail() {
   fi
 }
 
+extract_canonical_telemetry() {
+  local csv="$1"
+  if [[ -f "$csv" ]]; then
+    python3 - "$csv" <<'PY2'
+import csv, sys
+path = sys.argv[1]
+with open(path, newline='', encoding='utf-8') as f:
+    rows = list(csv.DictReader(f))
+if not rows:
+    print('raw=n/a canonical=n/a dedupe=n/a best_key=n/a')
+    raise SystemExit(0)
+row = rows[-1]
+print(f"raw={row.get('raw_candidates','n/a')} canonical={row.get('canonical_candidates','n/a')} dedupe={row.get('dedupe_ratio','n/a')} best_key={row.get('best_canonical_key','n/a')}")
+PY2
+  else
+    echo "raw=n/a canonical=n/a dedupe=n/a best_key=n/a"
+  fi
+}
+
 core_result="$(extract_result_line "$RUN_DIR/acceptance-core.log")"
 mbtt_fast_result="$(extract_result_line "$RUN_DIR/acceptance-mbtt-fast.log")"
 mbtt_full_result="$(extract_result_line "$RUN_DIR/acceptance-mbtt-full.log")"
@@ -39,6 +58,9 @@ full_rows=0
 if [[ -f "$RUN_DIR/abinitio_mbtt_structural.csv" ]]; then
   full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_structural.csv" | wc -l | tr -d ' ')
 fi
+
+shadow_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_shadow6.csv")"
+full_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_structural.csv")"
 
 ladder_status="$(ladder_tail "$RUN_DIR/ladder/ladder_status.csv")"
 ladder_main_status="$(ladder_tail "$RUN_DIR/ladder-main/ladder_status.csv")"
@@ -68,11 +90,13 @@ cat >> "$OUT" <<MD
 
 ## Ab-initio lanes
 - shadow_csv_rows: $shadow_rows
+- shadow_canonical_telemetry: $shadow_canon
 MD
 
 if [[ "$MODE" == "main" ]]; then
   cat >> "$OUT" <<MD
 - full_csv_rows: $full_rows
+- full_canonical_telemetry: $full_canon
 MD
 fi
 

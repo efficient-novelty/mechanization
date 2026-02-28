@@ -28,7 +28,7 @@ module Main where
 import Telescope
 import TelescopeGen (enumerateTelescopes)
 import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
-import MBTTCanonical (canonicalKeySpec)
+import MBTTCanonical (CanonKey(..), canonicalKeySpec)
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -91,8 +91,15 @@ data StepRecord = StepRecord
   , srDelta  :: !Int
   , srSource :: !String
   , srCands  :: !Int
+  , srRawCands :: !Int
+  , srCanonCands :: !Int
+  , srDedupeRatio :: !Double
+  , srBestCanonKey :: !String
   , srTele   :: Telescope  -- ^ Discovered telescope (for post-hoc analysis)
   } deriving (Show)
+
+-- | Candidate tuple used during step search/selection.
+type Candidate = (Telescope, Int, Int, Double, String)
 
 -- | Convert synthesis mode to evaluation mode.
 -- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
@@ -343,7 +350,6 @@ abInitioLoop cfg = do
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
-              enumCount = length enumEvaluated
 
           -- Evaluate the reference telescope for comparison / fallback
           let refTele = referenceTelescope step
@@ -412,9 +418,12 @@ abInitioLoop cfg = do
                      | (tele, nu, kappa, rho) <- results]
             else return []
 
-          -- Combine all candidates (enum + MCTS + reference)
-          let allCandidates = enumEvaluated ++ mctsCandidates
+          -- Combine and quotient candidates (enum + MCTS + reference)
+          let rawCandidates = enumEvaluated ++ mctsCandidates
                            ++ [(refTele, refNu, refKappa, refRho, "REF")]
+              allCandidates = quotientCandidates rawCandidates
+              rawCandidateCount = length rawCandidates
+              canonicalCandidateCount = length allCandidates
               -- Filter to those that clear the bar (or all if step ≤ 2)
               viable = if step <= 2
                        then allCandidates
@@ -459,7 +468,11 @@ abInitioLoop cfg = do
                 selectBest viable
 
               bestName = detectCanonicalName bestTele lib
-              totalCandidates = enumCount + length mctsCandidates
+              totalCandidates = canonicalCandidateCount
+              dedupeRatio = if rawCandidateCount > 0
+                            then fromIntegral canonicalCandidateCount / fromIntegral rawCandidateCount
+                            else 1.0 :: Double
+              CanonKey bestCanonKey = canonicalKeySpec (map teType (teleEntries bestTele))
 
           -- Display
           printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
@@ -486,7 +499,8 @@ abInitioLoop cfg = do
               newLib = lib ++ [newEntry]
               newHistory = history ++ [DiscoveryRecord bestNu bestKappa]
               newRecord = StepRecord step bestName bestNu bestKappa
-                            bestRho bar delta_n bestSource totalCandidates bestTele
+                            bestRho bar delta_n bestSource totalCandidates
+                            rawCandidateCount canonicalCandidateCount dedupeRatio bestCanonKey bestTele
 
           go newLib newHistory (newRecord : records) (step + 1)
 
@@ -562,7 +576,7 @@ abInitioLoop cfg = do
 -- Includes all three kappa metrics for comparison.
 writeCsv :: FilePath -> [StepRecord] -> IO ()
 writeCsv path recs = do
-  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,k_desugar,k_entry,k_bitcost"
+  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost"
       rows = map formatRow recs
       content = unlines (header : rows)
   writeFile path content
@@ -579,6 +593,10 @@ formatRow r = intercalate ","
   , show (srDelta r)
   , srSource r
   , show (srCands r)
+  , show (srRawCands r)
+  , show (srCanonCands r)
+  , printf' "%.4f" (srDedupeRatio r)
+  , srBestCanonKey r
   , show (desugaredKappa (srTele r))
   , show (teleKappa (srTele r))
   , show (teleBitCost (srTele r))
@@ -684,3 +702,36 @@ dedupByCanonicalKey teles = reverse (snd (foldl step (Map.empty, []) teles))
       in case Map.lookup key seen of
            Just _  -> (seen, acc)
            Nothing -> (Map.insert key () seen, tele : acc)
+
+
+-- | Quotient evaluated candidates by canonical MBTT key.
+--
+-- Keeps insertion order of first-seen keys, while allowing a better
+-- representative (higher ρ, then lower κ, then source priority) to replace
+-- the cached representative for that key.
+quotientCandidates :: [Candidate] -> [Candidate]
+quotientCandidates cs = [cand | key <- reverse order, Just cand <- [Map.lookup key reps]]
+  where
+    (reps, order) = foldl step (Map.empty, []) cs
+
+    step (m, ord) cand@(tele, _, _, _, _) =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key m of
+           Nothing -> (Map.insert key cand m, key : ord)
+           Just prev ->
+             let pick = if betterCandidate cand prev then cand else prev
+             in (Map.insert key pick m, ord)
+
+-- | Candidate ranking used when two candidates share the same canonical key.
+betterCandidate :: Candidate -> Candidate -> Bool
+betterCandidate (_, _, k1, rho1, src1) (_, _, k2, rho2, src2) =
+  (Down rho1, k1, sourceRank src1) < (Down rho2, k2, sourceRank src2)
+
+-- | Prefer references, then exhaustive enumeration, then MCTS when ties occur.
+sourceRank :: String -> Int
+sourceRank src = case src of
+  "REF" -> 0
+  "ENUM_MBTT" -> 1
+  "ENUM" -> 2
+  "MCTS" -> 3
+  _ -> 4

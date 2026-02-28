@@ -35,6 +35,32 @@ mkdir -p "$OUT_DIR"
 status_file="$OUT_DIR/lane_status.csv"
 echo "lane,status,exit_code" > "$status_file"
 
+
+extract_canonical_json() {
+  local csv="$1"
+  if [[ -f "$csv" ]]; then
+    python3 - "$csv" <<'PY2'
+import csv, json, sys
+path = sys.argv[1]
+with open(path, newline='', encoding='utf-8') as f:
+    rows = list(csv.DictReader(f))
+if not rows:
+    print(json.dumps({"raw_candidates": None, "canonical_candidates": None, "dedupe_ratio": None, "best_canonical_key": None}))
+    raise SystemExit(0)
+row = rows[-1]
+out = {
+  "raw_candidates": row.get("raw_candidates"),
+  "canonical_candidates": row.get("canonical_candidates"),
+  "dedupe_ratio": row.get("dedupe_ratio"),
+  "best_canonical_key": row.get("best_canonical_key"),
+}
+print(json.dumps(out))
+PY2
+  else
+    echo '{"raw_candidates":null,"canonical_candidates":null,"dedupe_ratio":null,"best_canonical_key":null}'
+  fi
+}
+
 run_lane() {
   local lane="$1"
   local logfile="$2"
@@ -105,6 +131,9 @@ if [[ "$RUN_MAIN_GATES" == "1" ]]; then
   fi
 fi
 
+shadow_canon_json="$(extract_canonical_json "$OUT_DIR/abinitio_mbtt_shadow6.csv")"
+full_canon_json="$(extract_canonical_json "$OUT_DIR/abinitio_mbtt_structural.csv")"
+
 cat > "$OUT_DIR/manifest.json" <<JSON
 {
   "contract": "docs/phase1_evidence_contract.md",
@@ -124,6 +153,10 @@ cat > "$OUT_DIR/manifest.json" <<JSON
     "max_candidates": $MAIN_LADDER_MAX_CANDS,
     "steps": "$MAIN_LADDER_STEPS",
     "require_success_through": $MAIN_LADDER_GATE
+  },
+  "canonical_telemetry": {
+    "abinitio_mbtt_shadow6": $shadow_canon_json,
+    "abinitio_mbtt_structural": $full_canon_json
   }
 }
 JSON
