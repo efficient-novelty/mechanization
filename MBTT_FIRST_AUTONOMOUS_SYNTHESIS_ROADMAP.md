@@ -152,9 +152,9 @@ Build a new typed enumerator that directly emits well-typed MBTT ASTs under bit-
 
 ---
 
-## Phase 2 — Canonicalization and Quotienting (Weeks 4–6) ↻ IN PROGRESS
+## Phase 2 — Canonicalization and Quotienting (Weeks 4–6) ✓ COMPLETE
 
-**Last updated:** 2026-02-27
+**Completed:** 2026-02-28 | **Last updated:** 2026-02-28
 
 ### Kickoff status
 - [x] Added `engine/src/MBTTCanonical.hs` with Phase-2 canonicalization primitives (`canonicalizeExpr`, `canonicalizeSpec`) and stable canonical-key helpers (`canonicalKeyExpr`, `canonicalKeySpec`) as the quotient-cache foundation.
@@ -191,13 +191,16 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
   - Completed via `engine/scripts/run_phase2_canonical_differential.sh` and archived report `docs/reports/p2_v4_differential_report.md` (`runs/phase2_differential/p2v4_medium`): canonical dedupe OFF vs ON at fixed medium-budget settings shows 48.33% frontier reduction (target ≥40%).
 - [x] **P2-V5 — Regression safety + quality parity sign-off**
   - Completed via `engine/scripts/run_phase2_quality_parity.sh` and archived report `docs/reports/p2_v5_quality_parity_report.md` (`runs/phase2_parity/p2v5`): canonical quotient OFF vs ON preserves benchmark-step outcomes for the validated prefix (steps 1..2) with parity=true and golden-prefix checks=true.
-- [ ] **P2-V6 — CI gate + docs completion**
-  - Add/enable CI checks that enforce canonicalization invariants and differential threshold checks, then mark Phase 2 status complete with canonical run pointers and replay notes.
+- [x] **P2-V6 — CI gate + docs completion**
+  - Completed by adding CI-enforced Phase-2 gates in `.github/workflows/pen-engine.yml` for differential threshold (`run_phase2_canonical_differential.sh`) and quality parity (`run_phase2_quality_parity.sh`), publishing both reports in `$GITHUB_STEP_SUMMARY`, and wiring workflow-step uniqueness checks in `engine/scripts/check_phase1_workflow_consistency.sh`.
+  - Canonical replay pointers for closeout runs:
+    - Differential: `runs/phase2_differential/p2v4_medium` + `docs/reports/p2_v4_differential_report.md`.
+    - Quality parity: `runs/phase2_parity/p2v5` + `docs/reports/p2_v5_quality_parity_report.md`.
 
 ### Exit criteria
-- [ ] Duplicate rate reduced by agreed threshold (target ≥40% at medium budget).
-- [ ] No regression in discovered best score for benchmark seeds.
-- [ ] Canonical-key telemetry and replay pointers are present in canonical Phase-2 artifact bundles.
+- [x] Duplicate rate reduced by agreed threshold (target ≥40% at medium budget).
+- [x] No regression in discovered best score for benchmark seeds.
+- [x] Canonical-key telemetry and replay pointers are present in canonical Phase-2 artifact bundles.
 
 ---
 

@@ -120,6 +120,20 @@ jobs:
             engine/scripts/run_phase1_shadow_ladder.sh "$RUN_DIR/ladder-main" \
             | tee "$RUN_DIR/phase1-shadow-ladder-main.log"
 
+      - name: Lane P2-V4 — canonical differential gate (required on PR/main)
+        run: |
+          mkdir -p "$RUN_DIR/phase2/differential"
+          THRESHOLD_PCT=40 MAX_CANDIDATES=120 LIB_STEP=3 MAX_BIT_BUDGET=16 MAX_ENTRIES=2 MAX_AST_DEPTH=2 \
+            engine/scripts/run_phase2_canonical_differential.sh "$RUN_DIR/phase2/differential" \
+            | tee "$RUN_DIR/phase2-differential.log"
+
+      - name: Lane P2-V5 — canonical quality parity gate (required on PR/main)
+        run: |
+          mkdir -p "$RUN_DIR/phase2/parity"
+          MAX_STEPS=2 MAX_CANDS=20 \
+            engine/scripts/run_phase2_quality_parity.sh "$RUN_DIR/phase2/parity" \
+            | tee "$RUN_DIR/phase2-quality-parity.log"
+
       - name: Write evidence manifest
         run: |
           cat > "$RUN_DIR/manifest.json" <<JSON
@@ -133,7 +147,9 @@ jobs:
               "abinitio_mbtt_shadow": "cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv",
               "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)",
               "mbtt_shadow_ladder": "TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder",
-              "mbtt_shadow_ladder_main_gate": "TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)"
+              "mbtt_shadow_ladder_main_gate": "TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)",
+              "phase2_canonical_differential_gate": "THRESHOLD_PCT=40 MAX_CANDIDATES=120 LIB_STEP=3 MAX_BIT_BUDGET=16 MAX_ENTRIES=2 MAX_AST_DEPTH=2 engine/scripts/run_phase2_canonical_differential.sh runs/phase1_ci/<run-id>/phase2/differential",
+              "phase2_quality_parity_gate": "MAX_STEPS=2 MAX_CANDS=20 engine/scripts/run_phase2_quality_parity.sh runs/phase1_ci/<run-id>/phase2/parity"
             }
           }
           JSON
@@ -172,6 +188,22 @@ jobs:
             cat "$RUN_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "No summary.md generated" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Publish Phase-2 gate reports in job output
+        if: always()
+        run: |
+          if [[ -f "$RUN_DIR/phase2/differential/report.md" ]]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat "$RUN_DIR/phase2/differential/report.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Missing Phase-2 differential report" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ -f "$RUN_DIR/phase2/parity/report.md" ]]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat "$RUN_DIR/phase2/parity/report.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Missing Phase-2 parity report" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload artifacts
