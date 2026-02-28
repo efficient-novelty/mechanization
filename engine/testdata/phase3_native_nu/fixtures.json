@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "description": "Phase 3 native-nu invariance fixture corpus",
+  "equivalence_cases": [
+    {
+      "id": "alpha_rename_step6",
+      "type": "alpha_rename",
+      "reference_step": 6,
+      "expect_equal": true,
+      "notes": "TeleEntry binder names are metadata and must not affect native ν results."
+    },
+    {
+      "id": "canonical_rewrite_step9",
+      "type": "canonical_rewrite",
+      "reference_step": 9,
+      "expect_equal": true,
+      "notes": "canonicalizeExpr per-entry rewrite must preserve native ν outputs."
+    }
+  ],
+  "control_cases": [
+    {
+      "id": "negative_control_universe_vs_var",
+      "type": "non_equivalent_control",
+      "lhs": { "reference_step": 1 },
+      "rhs": { "telescope": [ { "name": "c1", "expr": "Var(1)" } ] },
+      "expect_equal": false,
+      "notes": "Control pair is intentionally non-equivalent and should be distinguished."
+    }
+  ]
+}
