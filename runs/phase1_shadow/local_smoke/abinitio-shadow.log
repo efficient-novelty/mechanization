@@ -1,0 +1,79 @@
+Up to date
+============================================
+PEN Ab Initio Discovery Engine
+Mode: StructuralAbInitio, d=2
+============================================
+  Evaluator: EvalStructural (StructuralNu AST rule extraction)
+  Bar:       Discovered nu/kappa history only
+  Library:   Discovered entries only, no fallback
+  Features:  3-component decomposition (v_G + v_H + v_C)
+             Meta-theorem multipliers for DCT (Big Bang)
+  PAPER-INDEPENDENCE: Zero paper nu/kappa lookups in evaluation,
+    bar computation, MCTS rollout guidance, or library insertion.
+    All scores derive from AST analysis of discovered telescopes.
+  Window:    d=2 (Fibonacci — intensional HoTT)
+  Kappa:     DesugaredKappa
+  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)
+  SHADOW:    --max-steps 1 (early-stop run)
+  SPEED:     --skip-validation (Phase 0 validation skipped)
+  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)
+  SPEED:     --skip-mcts (disable Phase B MCTS)
+  PRESET:    --phase1-shadow (bounded MBTT-first profile)
+
+Starting from EMPTY LIBRARY.
+The engine will autonomously discover the Generative Sequence.
+
+--- Phase 0: Validation skipped by --skip-validation ---
+
+
+--- Phase 1: Ab Initio Synthesis (StructuralAbInitio, d=2) ---
+
+Step Discovery            ν     κ        ρ      Bar      Δ_n  Source   Candidates
+------------------------------------------------------------------------------------------
+1    Universe             1     2     0.50     0.50        1  REF      4
+
+============================================
+SYNTHESIS COMPLETE: 1 structures discovered
+============================================
+
+Discovery vs Paper Comparison:
+Step   disc_ν    pap_ν   disc_κ    pap_κ
+--------------------------------------------
+1           1        1        2        2
+--------------------------------------------
+SUM         1        1        2        2
+
+Post-Hoc Analysis: StructuralNu vs UniformNu
+(UniformNu computed AFTER selection — not used for discovery)
+Step Name            v_str  v_uni      k    Amplif.
+------------------------------------------------------------
+1    Universe            1      2      2       2.00x
+
+--- Claim Profile (Publication-Grade) ---
+  Mode:     EvalStructural (--structural)
+  Nu:       StructuralNu — AST rule extraction (v_G + v_H + v_C)
+  Kappa:    DesugaredKappa — principled clause counting
+  Bar:      Phi_n * Omega_{n-1}, discovered history only
+  MCTS:     EvalStructural rollout guidance (zero paper lookups)
+  Library:  Discovered entries only, no paper fallback
+  Result:   1/1 exact match, total nu 1/1, total kappa 2/2
+
+--- Exclusion Contract ---
+  PEN derives the KINEMATIC FRAMEWORK of physics:
+    [+] Dependent types, homotopy types, higher inductive types
+    [+] Differential cohesion, connections, curvature, metrics
+    [+] Hilbert functional analysis, Dynamical Cohesive Topos
+
+  PEN does NOT derive:
+    [-] Gauge groups (SU(3) x SU(2) x U(1))
+    [-] Coupling constants (alpha ~ 1/137)
+    [-] Spacetime dimension (3+1)
+    [-] Equations of motion or Lagrangians
+    [-] Particle content or mass spectrum
+    [-] Cosmological parameters (Lambda, H_0)
+
+  Empirical constants in selection: NONE
+    Selection uses only: StructuralNu (AST), DesugaredKappa (clause count),
+    d-bonacci bar (Fibonacci for d=2), canonical structural recognition.
+    No physical constants, no empirical measurements, no fitted parameters.
+CSV written to phase1_shadow.csv (1 steps)
