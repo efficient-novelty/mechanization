@@ -189,8 +189,8 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
   - Completed by extending `RunAbInitio` CSV rows with canonicalization counters (`raw_candidates`, `canonical_candidates`, `dedupe_ratio`) and `best_canonical_key`, and propagating canonical telemetry into Phase-1 manifests/summaries for replay diagnostics.
 - [x] **P2-V4 — Differential performance evidence run**
   - Completed via `engine/scripts/run_phase2_canonical_differential.sh` and archived report `docs/reports/p2_v4_differential_report.md` (`runs/phase2_differential/p2v4_medium`): canonical dedupe OFF vs ON at fixed medium-budget settings shows 48.33% frontier reduction (target ≥40%).
-- [ ] **P2-V5 — Regression safety + quality parity sign-off**
-  - Show no quality regression on agreed golden metrics (best-ρ winners and benchmark-step outcomes) while canonicalization is enabled; publish a short parity report tied to run artifacts.
+- [x] **P2-V5 — Regression safety + quality parity sign-off**
+  - Completed via `engine/scripts/run_phase2_quality_parity.sh` and archived report `docs/reports/p2_v5_quality_parity_report.md` (`runs/phase2_parity/p2v5`): canonical quotient OFF vs ON preserves benchmark-step outcomes for the validated prefix (steps 1..2) with parity=true and golden-prefix checks=true.
 - [ ] **P2-V6 — CI gate + docs completion**
   - Add/enable CI checks that enforce canonicalization invariants and differential threshold checks, then mark Phase 2 status complete with canonical run pointers and replay notes.
 
