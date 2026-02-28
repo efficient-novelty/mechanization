@@ -1,0 +1,10 @@
+{
+  "contract": "docs/phase1_evidence_contract.md",
+  "mode": "phase1-shadow-local",
+  "max_steps": 1,
+  "max_candidates": 5,
+  "commands": {
+    "core": "cabal run acceptance-core",
+    "shadow": "cabal run ab-initio -- --structural --phase1-shadow --max-steps 1 --mbtt-max-candidates 5 --csv phase1_shadow.csv"
+  }
+}
