@@ -219,8 +219,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
   - Completed via `docs/adr/0003-native-nu-trace-contract.md`, `engine/src/MBTTNu.hs`, and acceptance checks (`J8`, `J9`) that freeze result/trace schema and ensure native-total parity with the structural backend during Phase-3 kickoff.
 - [x] **P3-V2 — Node-level explainability extraction**
   - Completed by extending `MBTTNu.computeNativeNu` trace output with canonical node-path constructor records and deterministic acceptance coverage (`J10`) for node-trace presence/stability.
-- [ ] **P3-V3 — Alpha/canonical invariance evidence**
-  - Add differential/property tests showing native ν and trace are invariant under alpha-equivalence and canonical rewrites.
+- [x] **P3-V3 — Alpha/canonical invariance evidence**
+  - Completed with MBTT acceptance coverage (`J11`, `J12`, `J13`) and report `docs/reports/p3_v3_invariance_report.md`, demonstrating invariance for alpha-renaming/canonical rewrites and sensitivity on non-equivalent controls.
 - [ ] **P3-V4 — Name-independence hardening**
   - Remove remaining label-sensitive capability hooks from native ν computation path and document closure of the I1 canary gap.
 - [ ] **P3-V5 — CI evidence lane for native ν**
@@ -236,11 +236,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
   - **Acceptance bar:** deterministic test fixture hashes + failing controls prove harness sensitivity.
   - **Artifacts:** fixture manifest + short report in `docs/reports/p3_wp1_invariance_harness.md`.
 
-- [ ] **P3-WP2 — P3-V3 alpha/canonical invariance evidence closeout**
-  - **Scope:** Prove `computeNativeNu` invariance for `(nnTotal, nnTrace summary fields)` under alpha-equivalent and canonical-rewritten inputs.
-  - **Code touchpoints:** `engine/src/AcceptanceSuite.hs` (`J11`/`J12` style tests), `engine/src/MBTTNu.hs` if trace normalization is needed.
-  - **Acceptance bar:** invariance tests pass for fixture corpus; at least one negative control demonstrates non-equivalent terms are distinguished.
-  - **Artifacts:** `docs/reports/p3_v3_invariance_report.md`; roadmap `P3-V3` checked.
+- [x] **P3-WP2 — P3-V3 alpha/canonical invariance evidence closeout**
+  - **Completed:** `J11`/`J12` invariance checks + `J13` negative control added to MBTT acceptance and captured in `docs/reports/p3_v3_invariance_report.md`.
 
 - [ ] **P3-WP3 — P3-V4 name-independence hardening (I1 canary closure)**
   - **Scope:** Remove remaining label-sensitive capability hooks from native ν path (notably temporal-ops name gating) and ensure scoring is structure-driven only.

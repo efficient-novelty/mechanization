@@ -57,3 +57,12 @@ acceptance tests, and CI evidence lanes can evolve without cross-module drift.
   `node=<entry/path>|ctor=<Ctor>` plus aggregate `node_trace_count=`.
 - This is an additive extension and remains compatible with the V1 required
   key set (no V1 keys removed).
+
+## Amendment (P3-V3 invariance evidence)
+
+- Added acceptance evidence for invariance under:
+  - TeleEntry alpha-renaming (binder-label changes only), and
+  - canonical expression rewrites (`canonicalizeExpr` per entry).
+- Added a negative control asserting non-equivalent candidates remain
+  distinguishable by native ν outputs.
+- Evidence report: `docs/reports/p3_v3_invariance_report.md`.

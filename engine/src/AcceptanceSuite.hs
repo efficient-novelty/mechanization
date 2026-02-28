@@ -828,6 +828,52 @@ testJ10NativeNuNodeTraceDeterministic =
       then return Pass
       else return $ Fail "node trace missing or nondeterministic")
 
+
+-- J11: Native ν invariance under alpha-equivalent telescope renaming.
+-- TeleEntry names are binder labels only; native ν must be unchanged.
+testJ11NativeNuAlphaRenameInvariant :: Test
+testJ11NativeNuAlphaRenameInvariant =
+  ("J11. [MBTT] NativeNu invariant under TeleEntry alpha-renaming", do
+    let step = 6
+        tele = referenceTelescope step
+        teleRenamed = Telescope [ e { teName = "alpha_" ++ show i } | (i, e) <- zip [1 :: Int ..] (teleEntries tele) ]
+        lib = canonicalLibAt (step - 1)
+        (snapshots, _) = replayCanonical
+        nuHist = [(i, nu) | (i, (_, nu, _)) <- zip [1..(step-1)] (take (step-1) snapshots)]
+        n0 = computeNativeNu tele lib nuHist
+        n1 = computeNativeNu teleRenamed lib nuHist
+    if (nnTotal n0 == nnTotal n1) && (nnTrace n0 == nnTrace n1)
+      then return Pass
+      else return $ Fail "alpha-renaming changed native ν or trace")
+
+-- J12: Native ν invariance under canonical rewrites of entry expressions.
+testJ12NativeNuCanonicalRewriteInvariant :: Test
+testJ12NativeNuCanonicalRewriteInvariant =
+  ("J12. [MBTT] NativeNu invariant under canonicalized expression rewrite", do
+    let step = 9
+        tele = referenceTelescope step
+        teleCanon = Telescope [ e { teType = canonicalizeExpr (teType e) } | e <- teleEntries tele ]
+        lib = canonicalLibAt (step - 1)
+        (snapshots, _) = replayCanonical
+        nuHist = [(i, nu) | (i, (_, nu, _)) <- zip [1..(step-1)] (take (step-1) snapshots)]
+        n0 = computeNativeNu tele lib nuHist
+        n1 = computeNativeNu teleCanon lib nuHist
+    if (nnTotal n0 == nnTotal n1) && (nnTrace n0 == nnTrace n1)
+      then return Pass
+      else return $ Fail "canonical rewrite changed native ν or trace")
+
+-- J13: Negative control — genuinely different expression should be distinguished.
+testJ13NativeNuNegativeControl :: Test
+testJ13NativeNuNegativeControl =
+  ("J13. [MBTT] NativeNu distinguishes non-equivalent control", do
+    let teleA = referenceTelescope 1
+        teleB = Telescope [TeleEntry "c1" (Var 1)]
+        nA = computeNativeNu teleA [] []
+        nB = computeNativeNu teleB [] []
+    if (nnTotal nA /= nnTotal nB) || (nnTrace nA /= nnTrace nB)
+      then return Pass
+      else return $ Fail "negative control unexpectedly matched")
+
 -- ============================================
 -- Entry points
 -- ============================================
@@ -887,6 +933,9 @@ mbttTests cfg =
           , testJ8NativeNuParity
           , testJ9NativeNuTraceSchema
           , testJ10NativeNuNodeTraceDeterministic
+          , testJ11NativeNuAlphaRenameInvariant
+          , testJ12NativeNuCanonicalRewriteInvariant
+          , testJ13NativeNuNegativeControl
           ]
 
 runAcceptanceWithConfig :: AcceptanceConfig -> IO ()
