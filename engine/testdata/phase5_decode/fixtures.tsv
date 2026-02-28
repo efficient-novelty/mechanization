@@ -1,0 +1,5 @@
+canonical_name	canonical_key	expected_label	min_conf	max_conf	expect_nonempty_label
+Universe	ck_univ	Universe U₀	1.00	1.00	true
+Pi	ck_pi	Dependent function space	0.85	1.00	true
+Trunc	ck_trunc	Propositional truncation	0.85	1.00	true
+candidate	ck_unknown		0.00	0.10	false
