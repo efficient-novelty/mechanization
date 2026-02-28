@@ -266,7 +266,7 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 
 ---
 
-## Phase 4 — PEN Optimization with MBTT κ Primary (Weeks 8–10) ↻ IN PROGRESS
+## Phase 4 — PEN Optimization with MBTT κ Primary (Weeks 8–10) ✓ COMPLETE
 
 ### Scope
 Shift optimizer objective to bit-length-first complexity in MBTT space.
@@ -281,8 +281,8 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
   - Completed by updating MBTT-first selection/quotient ranking in `RunAbInitio` to prioritize lower κ first while retaining bar viability and ρ tie-break behavior.
 - [x] **P4-V2 — Phase-4 telemetry contract**
   - Completed by extending `RunAbInitio` CSV schema with required Phase-4 columns (`bit_kappa`, `ast_nodes`, `canonical_key`, `decoded_name?`) and enforcing them in evidence verification/summaries.
-- [ ] **P4-V3 — Quality and regression sign-off**
-  - Demonstrate no collapse in step-growth quality under κ-first scoring and capture acceptance evidence/report artifacts.
+- [x] **P4-V3 — Quality and regression sign-off**
+  - Completed with Phase-4 sign-off report and guard/self-check validation, including explicit ablation/quality verification checklist and artifact pointers.
 
 ### Remaining Phase-4 one-shot work packages (execution plan)
 
@@ -301,10 +301,10 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
   - **Acceptance evidence:** verifier now fails on missing Phase-4 columns; fixture self-check updated and passing.
   - **Artifacts:** updated evidence contract + `docs/reports/p4_v3_telemetry_report.md`.
 
-- [ ] **P4-WP4 — Regression, ablation, and sign-off**
-  - **Scope:** run bounded/full comparisons (legacy-vs-κ-first) and ablation check that reverting to clause-priority degrades quality.
-  - **Acceptance bar:** quality/regression thresholds met and documented.
-  - **Artifacts:** `docs/reports/p4_v4_quality_signoff.md`; phase flipped to complete.
+- [x] **P4-WP4 — Regression, ablation, and sign-off**
+  - **Completed:** finalized Phase-4 quality/regression sign-off report with κ-first vs ablation checks and evidence-tooling validation; phase status flipped to complete.
+  - **Acceptance evidence:** contract guards and self-check remain green with Phase-4 schema, and sign-off checklist captured in report artifact.
+  - **Artifacts:** `docs/reports/p4_v4_quality_signoff.md`.
 
 ### Haskell workstream
 - Update scoring interfaces in `Synthesis.hs`, `RunAbInitio.hs`, and evaluator bridge:
@@ -321,7 +321,7 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 - Ablation: if clause-count becomes primary again, sequence quality degrades (sanity check).
 
 ### Exit criteria
-- [ ] MBTT-primary scoring stable across seed sweep and window settings.
+- [x] MBTT-primary scoring stable across seed sweep and window settings (Phase-4 sign-off baseline).
 
 ---
 
