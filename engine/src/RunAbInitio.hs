@@ -68,6 +68,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
   , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
   , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
+  , cfgLegacyGenerator :: !Bool             -- ^ Phase-7 fallback: explicitly use legacy generator path
   , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
   , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
   , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
@@ -151,9 +152,11 @@ main = do
   when (cfgMaxRho cfg) $
     putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
   when (cfgMBTTFirst cfg) $
-    putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
+    putStrLn "  SEARCH:    MBTT-first default active (typed MBTT enumeration in Phase A)"
   when (cfgMBTTFirst cfg) $
     putStrLn "  OBJECTIVE: κ-first ranking in MBTT-first mode (with ρ/bar viability gate)"
+  when (cfgLegacyGenerator cfg) $
+    putStrLn "  FALLBACK:  --legacy-generator (deprecated template-first generator path)"
   when (cfgMaxSteps cfg < 15) $
     printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
   when (cfgSkipValidation cfg) $
@@ -170,6 +173,10 @@ main = do
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
   putStrLn ""
+
+  when (cfgLegacyGenerator cfg) $ do
+    putStrLn "WARNING: --legacy-generator is deprecated in Phase 7 and kept only as rollback fallback."
+    putStrLn "         Prefer default MBTT-first mode for all primary evidence lanes."
 
   -- Phase 0: Validate reference telescopes (uses canonical names for paper comparison)
   if cfgSkipValidation cfg
@@ -207,7 +214,8 @@ parseArgs args =
                     _ -> DesugaredKappa
       noCanonPriority = "--no-canonical-priority" `elem` args
       maxRho = "--max-rho" `elem` args
-      mbttFirst = "--mbtt-first" `elem` args
+      mbttFirstFlag = "--mbtt-first" `elem` args
+      legacyGenerator = "--legacy-generator" `elem` args
       mbttMaxCand = case dropWhile (/= "--mbtt-max-candidates") args of
                       ("--mbtt-max-candidates" : n : _) ->
                         case reads n of
@@ -224,7 +232,7 @@ parseArgs args =
       skipValidation = phase1Shadow || "--skip-validation" `elem` args
       mbttShadowProfile = phase1Shadow || "--mbtt-shadow-profile" `elem` args
       skipMCTS = phase1Shadow || "--skip-mcts" `elem` args
-      mbttFirstFinal = phase1Shadow || mbttFirst
+      mbttFirstFinal = phase1Shadow || mbttFirstFlag || not legacyGenerator
       maxStepsFinal = if phase1Shadow && not hasMaxStepsArg then 6 else maxSteps
       noCanonicalQuotient = "--no-canonical-quotient" `elem` args
       mbttMaxCandFinal = if phase1Shadow
@@ -232,7 +240,7 @@ parseArgs args =
                            Just k  -> Just k
                            Nothing -> Just 20
                          else mbttMaxCand
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal legacyGenerator mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String

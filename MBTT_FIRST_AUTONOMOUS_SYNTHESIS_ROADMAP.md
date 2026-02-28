@@ -451,11 +451,11 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 ### Kickoff status
 - [x] Captured Phase-7 kickoff baseline and package plan in `docs/reports/p7_v1_kickoff_baseline.md`.
 - [x] Entered Phase 7 as in-progress with explicit migration/rollback and telemetry obligations.
-- [ ] MBTT-first default flip + legacy fallback deprecation lane not yet complete (tracked in P7-WP2/P7-WP3).
+- [x] MBTT-first default flip + legacy fallback deprecation lane is now implemented in `RunAbInitio` with explicit deprecation signaling (P7-WP2); CI migration closure remains tracked in P7-WP3.
 
 ### Phase 7 victory to-do list (one-shot closeout deliveries)
-- [ ] **P7-V1 — MBTT-first default + rollback contract**
-  - Promote MBTT-first as default runtime behavior and keep explicit legacy fallback with clear deprecation semantics.
+- [x] **P7-V1 — MBTT-first default + rollback contract**
+  - Completed by flipping default runtime behavior to MBTT-first and retaining explicit `--legacy-generator` fallback with deprecation warnings and contract guards.
 - [ ] **P7-V2 — CI/acceptance migration hardening**
   - Ensure CI lanes and acceptance suites exercise MBTT-first default while retaining deterministic rollback checks.
 - [ ] **P7-V3 — Search-space reduction evidence publication**
@@ -468,9 +468,9 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 - [x] **P7-WP1 — Kickoff baseline + migration decomposition**
   - **Completed:** established migration baseline, package sequencing, and acceptance bars in `docs/reports/p7_v1_kickoff_baseline.md`.
 
-- [ ] **P7-WP2 — Default-path flip + legacy fallback guardrails**
-  - **Scope:** make MBTT-first default in runtime/CLI while preserving `--legacy-generator` fallback and deprecation warnings.
-  - **Acceptance bar:** default-mode CI runs MBTT-first without flags; legacy path remains available and explicitly labeled deprecated.
+- [x] **P7-WP2 — Default-path flip + legacy fallback guardrails**
+  - **Completed:** `RunAbInitio` now enables MBTT-first by default and supports explicit `--legacy-generator` fallback mode with deprecation warnings.
+  - **Acceptance evidence:** `check_phase7_default_mode.sh` validates default/fallback wiring and report/roadmap markers; workflow includes `Check Phase-7 default mode migration contract`.
   - **Artifacts:** `docs/reports/p7_v2_default_flip_report.md`.
 
 - [ ] **P7-WP3 — CI/acceptance migration and rollback checks**
