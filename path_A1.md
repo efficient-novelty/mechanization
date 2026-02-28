@@ -63,6 +63,11 @@ Pick one as canonical in paper text (recommended: **Cauchy completion** for oper
 
 **Decision gate A1:** lock one primary route before editing Step 13 prose.
 
+### A1 resolution (completed)
+- **Primary route locked:** Cauchy completion of `\Q`.
+- **Decision record:** see `decision_gate_A1.md` for criteria, scoring matrix, and recommendation rationale.
+- **Dedekind status:** retained as appendix-level equivalence cross-check, not the primary manuscript route.
+
 ---
 
 ## 2) Define minimal prerequisite interfaces (not full arithmetic encyclopedia)
