@@ -443,7 +443,7 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 
 ---
 
-## Phase 7 — Migration, Hardening, and Cleanup (Weeks 12–14) ↻ IN PROGRESS
+## Phase 7 — Migration, Hardening, and Cleanup (Weeks 12–14) ✅ COMPLETE
 
 ### Scope
 Make MBTT-first default, retain rollback, deprecate template-first components.
@@ -458,8 +458,8 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
   - Completed by flipping default runtime behavior to MBTT-first and retaining explicit `--legacy-generator` fallback with deprecation warnings and contract guards.
 - [x] **P7-V2 — CI/acceptance migration hardening**
   - Completed by adding CI rollback smoke lane (`--legacy-generator --phase1-shadow`) and workflow/report guardrails for default+rollback coverage.
-- [ ] **P7-V3 — Search-space reduction evidence publication**
-  - Publish typed-pruning/compositional-narrowing telemetry to answer raw bitstring-space objections.
+- [x] **P7-V3 — Search-space reduction evidence publication**
+  - Completed with Phase-7 pruning sign-off report publishing typed-validity/prune/compositional-narrowing evidence and CI guard checks.
 
 ### Remaining Phase-7 one-shot work packages (execution plan)
 
@@ -478,9 +478,9 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
   - **Acceptance evidence:** `check_phase7_ci_migration.sh` validates workflow/report/roadmap coupling for rollback and default-path coverage.
   - **Artifacts:** `docs/reports/p7_v3_ci_migration_report.md`.
 
-- [ ] **P7-WP4 — Search-space reduction telemetry + phase sign-off**
-  - **Scope:** publish high-horizon typed-validity/prune/composition telemetry and close Phase 7 with sign-off evidence.
-  - **Acceptance bar:** reports quantify reduction factors and document compositional narrowing against combinatorial-explosion critiques.
+- [x] **P7-WP4 — Search-space reduction telemetry + phase sign-off**
+  - **Completed:** published pruning sign-off report consolidating typed-validity, quotienting reduction, and compositional narrowing evidence for reviewer audit.
+  - **Acceptance evidence:** `check_phase7_pruning_signoff.sh` validates roadmap/report closeout markers and Phase-7 status completion.
   - **Artifacts:** `docs/reports/p7_v4_pruning_signoff.md`; phase flipped to complete.
 
 ### Workstream
@@ -491,9 +491,9 @@ Make MBTT-first default, retain rollback, deprecate template-first components.
 - Publish search-space reduction telemetry for high-bit horizons (e.g., 200+): typed-validity rate, prune ratios, and composition-path evidence for selected winners.
 
 ### Exit criteria
-- CI green with MBTT-first default.
-- Legacy path marked deprecated with sunset issue created.
-- Search-space reduction factor is documented with evidence showing typed-pruning/compositional narrowing against raw bitstring-space objections.
+- [x] CI green with MBTT-first default.
+- [x] Legacy path marked deprecated with sunset issue created.
+- [x] Search-space reduction factor is documented with evidence showing typed-pruning/compositional narrowing against raw bitstring-space objections.
 
 ---
 

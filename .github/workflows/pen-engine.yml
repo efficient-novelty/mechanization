@@ -90,6 +90,10 @@ jobs:
         run: |
           engine/scripts/check_phase7_ci_migration.sh
 
+      - name: Check Phase-7 pruning sign-off
+        run: |
+          engine/scripts/check_phase7_pruning_signoff.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"
