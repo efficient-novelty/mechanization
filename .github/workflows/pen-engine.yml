@@ -61,6 +61,10 @@ jobs:
         run: |
           engine/scripts/check_phase5_decode_fixtures.sh
 
+      - name: Check Phase-5 decode non-interference
+        run: |
+          engine/scripts/check_phase5_decode_non_interference.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"

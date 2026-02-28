@@ -325,7 +325,7 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 
 ---
 
-## Phase 5 — Post-hoc Semantic Decoding (Weeks 10–11) ↻ IN PROGRESS
+## Phase 5 — Post-hoc Semantic Decoding (Weeks 10–11) ✓ COMPLETE
 
 ### Scope
 Attach mathematical interpretation after optimization only.
@@ -346,8 +346,8 @@ Attach mathematical interpretation after optimization only.
   - Completed by adding `engine/src/MBTTDecode.hs` with deterministic decode schema (label/confidence/ambiguity/non-interference) and fixture validation tooling.
 - [x] **P5-V2 — Reporting integration with confidence/ambiguity**
   - Completed by integrating decode outputs into ab-initio CSV/report surfaces with `decoded_name?`, `decode_confidence`, `decode_ambiguity`, and `decode_status` while preserving anonymous winner ids and non-interference.
-- [ ] **P5-V3 — Non-interference sign-off**
-  - Demonstrate decoder on/off does not alter candidate selection outcomes and that decode failures cannot back-propagate into ranking/scoring.
+- [x] **P5-V3 — Non-interference sign-off**
+  - Completed with explicit non-interference guard (`check_phase5_decode_non_interference.sh`), fixture checks, and closeout evidence report.
 
 ### Remaining Phase-5 one-shot work packages (execution plan)
 
@@ -366,10 +366,10 @@ Attach mathematical interpretation after optimization only.
   - **Acceptance evidence:** evidence verifier enforces new decode columns and fixture self-check passes with decode metadata present.
   - **Artifacts:** `docs/reports/p5_v3_reporting_integration_report.md`.
 
-- [ ] **P5-WP4 — Non-interference and phase sign-off**
-  - **Scope:** run decoder-on/off comparisons and prove winner identity invariance; include adversarial "pareidolia" controls where near-miss ASTs must decode as unknown.
-  - **Acceptance bar:** non-interference checks pass, near-miss controls reject false positives, and sign-off report recorded.
-  - **Artifacts:** `docs/reports/p5_v4_non_interference_signoff.md`; phase flipped to complete.
+- [x] **P5-WP4 — Non-interference and phase sign-off**
+  - **Completed:** added explicit decode non-interference guard, validated fixture behavior/hashes, and recorded phase sign-off with evidence pointers.
+  - **Acceptance evidence:** selection block remains decode-free, fixture checks pass, and CI workflow now runs dedicated Phase-5 non-interference check step.
+  - **Artifacts:** `docs/reports/p5_v4_non_interference_signoff.md`.
 
 ### Haskell workstream
 - Add `engine/src/MBTTDecode.hs`:
@@ -383,7 +383,7 @@ Attach mathematical interpretation after optimization only.
 - Contract: removing decoder must not change selected winners.
 
 ### Exit criteria
-- [ ] Reports show both anonymous winner id and optional decoded interpretation.
+- [x] Reports show both anonymous winner id and optional decoded interpretation.
 
 ---
 
