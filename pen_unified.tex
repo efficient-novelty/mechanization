@@ -78,7 +78,7 @@ The Algorithmic Origin of the Kinematic Framework of Physics}}
 \begin{abstract}
 We introduce the \emph{Principle of Efficient Novelty} (PEN), an information-theoretic rule for choosing which mathematical structure should be added next in a growing formal library.  At each stage, candidates are ranked by an efficiency ratio: how much genuinely new derivational power they contribute (novelty, $\nu$) relative to how costly they are to specify and integrate (effort, $\kappa$), with an additional latency penalty for reconciling new structure with recent history.
 
-Starting from empty intensional type theory, this rule yields a deterministic 15-step synthesis trajectory: from dependent types and higher-inductive homotopy primitives to cohesion, connections, curvature, metrics, Hilbert functional structure, and finally the Dynamical Cohesive Topos (DCT).  Candidate generation is split between a combinatorial phase (Steps~1--9) and a theory-guided HoTT-compatible phase (Steps~10--15), but scoring is uniform throughout: $\nu$ and $\kappa$ are computed mechanically from structural AST analysis, without hand-tuned parameters or domain-specific rewards.  On this basis the engine rejects several mathematically natural alternatives (e.g., arithmetic-first, scheme-theoretic, and measure-theoretic branches) as less efficient.
+Starting from empty intensional type theory, this rule yields a deterministic 15-step synthesis trajectory: from dependent types and higher-inductive homotopy primitives to cohesion, connections, curvature, metrics, Hilbert functional structure, and finally the Dynamical Cohesive Topos (DCT).  Candidate generation in the synthesis engine is now MBTT-first by default: the search is type-directed over well-typed ASTs in a minimal prefix-free grammar, with an explicit legacy fallback retained only as a rollback lane.  Scoring and selection remain purely mechanical throughout: $\nu$ and $\kappa$ are computed from structural AST analysis, without hand-tuned parameters or domain-specific rewards.  On this basis the engine rejects several mathematically natural alternatives (e.g., arithmetic-first, scheme-theoretic, and measure-theoretic branches) as less efficient.
 
 Four structural theorems characterize the trajectory: a Coherence Window constraint requiring $d=2$, Fibonacci growth of integration latency induced by two-step coherence, a three-part novelty decomposition (syntactic/topological/logical), and a fixed-point halt at DCT via internal temporal--tangent closure.  Stress tests over $d \in \{1,2,3\}$ and mechanized checks support uniqueness of the $d=2$ path.  The result is a derivation of the \emph{kinematic framework} used by modern physics, rather than a derivation of specific gauge groups, constants, or equations of motion.
 \end{abstract}
@@ -132,9 +132,11 @@ A type-inhabitation-based algorithm with zero domain knowledge independently con
 Formal proofs in Cubical Agda verify the Fibonacci recurrence and the abstraction barrier at steps 8--9.
 
 \paragraph{Scope and limitations.}
-PEN derives the \emph{kinematic framework} of physics---the type-theoretic and categorical structures that constitute the mathematical language---not specific dynamical laws, gauge groups, coupling constants, or spacetime dimension.
-The candidate pool for steps 10--15 is theory-guided (drawn from HoTT-compatible mathematical structures); the engine's contribution is to verify that the selection ordering, and only this ordering, survives the rising bar.
-The model assumes \emph{maximal interface density} (each candidate seals against the entire exported interface of the past $d$ layers), a library-quality policy that produces the Fibonacci latency but is not a native requirement of the HoTT type\-checker.
+A common objection to generative models of physics is teleology---that the target structures were smuggled into the candidate pool.
+Our current implementation addresses this by making MBTT-first typed AST synthesis the default runtime path (with an explicit deprecated rollback lane), so the primary search is syntactic rather than hand-labeled.
+The engine optimizes efficiency mechanically from AST structure ($\nu/\kappa$), and the names in \cref{tab:genesis} are post-hoc semantic identifications of selected syntactic winners.
+PEN therefore derives the \emph{kinematic framework} of physics---the type-theoretic/categorical language---not specific dynamical laws, gauge groups, coupling constants, or spacetime dimension.
+The model still assumes \emph{maximal interface density} (each candidate seals against the exported interface of the past $d$ layers), a library-quality policy that yields Fibonacci latency but is not a native requirement of the HoTT type\-checker.
 
 \paragraph{Outline.}
 \Cref{sec:genesis} presents the complete Generative Sequence and the patterns that govern it.
@@ -164,6 +166,7 @@ PEN derives the \emph{mathematical framework}---the type-theoretic and categoric
     \item \textbf{What PEN derives:} The geometric and functional-analytic structures forming the \emph{kinematic framework} of physics: dependent types, homotopy types, differential cohesion, connections, curvature, metrics, Hilbert space, and the Dynamical Cohesive Topos.
     \item \textbf{What PEN does not derive:} Specific gauge groups ($SU(3) \times SU(2) \times U(1)$), coupling constants ($\alpha \approx 1/137$), spacetime dimension ($3+1$), or the equations of motion of any particular physical theory.
     \item \textbf{The relationship:} Efficiency optimization within $d = 2$ intensional type theory uniquely selects the mathematical \emph{language} in which physical theories are expressed.  The \emph{content} within that language---which fields, which symmetries, which parameters---is a separate question.
+    \item \textbf{Syntactic emergence vs. semantic labeling:} The engine operates over MBTT syntax and does not encode semantic notions such as geometry, time, or physics.  The domain names in \cref{tab:genesis} are post-hoc human translations of selected AST structures.
 \end{enumerate}
 \end{remark}
 
@@ -574,6 +577,13 @@ From admissible candidates, select $X$ with $\rho(X) \geq \mathrm{Bar}_n$ and mi
 Ties broken by minimal $\kappa$.
 If no candidate clears the bar, the tick idles.
 \end{axiom}
+
+\begin{remark}[Algorithmic API assembly and compositional synergy]
+\label{rem:api-assembly}
+The structural unity of steps~10--14 is not treated as a semantic preference in scoring; it is an algorithmic consequence of the bar dynamics.
+Isolated low-clause additions typically have weak cross-interaction ($\nu_C$) and fail the rising threshold, whereas interdependent typed clauses can increase novelty superlinearly relative to additive effort.
+In practice, the selected API-like bundles are the candidates whose internal cross-references and library interactions produce enough compositional amplification in $\nu$ to remain above the bar.
+\end{remark}
 
 \begin{axiom}[Coherent Integration]
 \label{ax:integration}
@@ -1439,13 +1449,11 @@ Starting from an empty library, it generates candidates from nine structural cat
 The generation mechanism operates in two regimes:
 \begin{itemize}[nosep]
     \item \emph{Combinatorial regime (Steps 1--9).}  Candidates in the Foundation, Former, HIT, Suspension, and Map categories are generated by systematic enumeration within each structural category.  Higher inductive types are parametrically enumerated by cost (number of point constructors + sum of path dimensions), with symmetry breaking to eliminate duplicates.  Suspensions are generated for each loopy library entry.  The search space at each step is bounded by the horizon $H$ and fully explored within each category.
-    \item \emph{Library specification regime (Steps 10--14).}  Candidates for Cohesion, Connections, Curvature, Metric, and Hilbert are drawn from the mathematical landscape of HoTT-compatible library specifications (\cref{rem:library-api}).  Each is gated by prerequisite type formers (Cohesion requires fibrations; each subsequent step requires its predecessor).  The candidate pool is theory-guided; the engine evaluates each candidate's efficiency $\rho$ against the selection bar and rejects those that fail (\cref{tab:rejected}).
-    \item \emph{Synthesis terminus (Step 15).}  The DCT is the unique candidate that composes all existing modalities via tensor product.
+    \item \emph{MBTT-first type-directed synthesis regime (default for later stages).}  The engine enumerates well-typed MBTT AST candidates under budget and library-context constraints, then evaluates them mechanically against the same bar/efficiency objective.  The type-checker and prerequisite constraints act as a strong pruning mechanism over raw combinatorics, while canonical quotienting reduces duplicate syntactic paths.
+    \item \emph{Rollback regime.}  A deprecated \texttt{--legacy-generator} lane is retained for CI rollback/smoke validation, but default discovery lanes are MBTT-first.
 \end{itemize}
-The \emph{selection mechanism is deterministic and domain-agnostic}: given the candidate pool at each step, the algorithm selects the efficiency-maximizing structure using only structural AST analysis---zero domain knowledge enters the scoring.
-The candidate pool itself is theory-guided: the structures evaluated are drawn from the mathematical landscape of type-theoretic extensions, including both the structures that are selected and a substantial set of alternatives that are rejected (\cref{tab:rejected}).
-This two-phase architecture---human-curated candidate generation followed by fully mechanical evaluation---means the engine's scientific contribution is to verify that the selection ordering, and only this ordering, survives the rising bar.
-The candidate pool provides the ``what''; the engine proves the ``why.''
+The \emph{selection mechanism is deterministic and domain-agnostic}: given admissible candidates, the algorithm selects using structural AST analysis only (\cref{sec:mbtt-audit}).
+The post-hoc mathematical names in \cref{tab:genesis} are human semantic identifications of selected syntactic outputs, not inputs to scoring.
 
 \paragraph{Novelty computation.}
 The engine supports two modes.
@@ -1688,7 +1696,7 @@ The three meta-theorem detectors are general-purpose AST patterns: any candidate
 \label{rem:automation-scope}
 The verification of the Generative Sequence decomposes into two logically independent claims: (a)~the \emph{selection ordering and bar clearance} ($\rho_n \ge \mathrm{Bar}_n$ for all $n$), and (b)~the \emph{spectral decomposition} ($\nu = \nu_G + \nu_C + \nu_H$ with approximately equal weights).
 
-Claim~(a) is verified computationally for \textbf{all 15~steps} by the Uniform Algorithm with Adjoint Completion (\S\ref{sec:uniform-nu}).  Given a supplied candidate pool, scoring and ordering are fully automated (zero domain knowledge in the evaluator).  The only theoretical ingredient is the Adjoint Completion Principle (\cref{lem:adjoint-completion}), which provides structurally determined elimination credits for the two bootstrap steps (Witness and $\Pi/\Sigma$) whose term-level eliminations are invisible to type inhabitation; for steps~5--15, this completion contributes $+0$ additional credits because eliminations are already visible through homotopy/compositional schemas.  No manual audit or hand-tuned parameter is required for the ordering.
+Claim~(a) is verified computationally for \textbf{all 15~steps} by the Uniform Algorithm with Adjoint Completion (\S\ref{sec:uniform-nu}).  Given admissible typed candidates from the generation layer, scoring and ordering are fully automated (zero domain knowledge in the evaluator).  The only theoretical ingredient is the Adjoint Completion Principle (\cref{lem:adjoint-completion}), which provides structurally determined elimination credits for the two bootstrap steps (Witness and $\Pi/\Sigma$) whose term-level eliminations are invisible to type inhabitation; for steps~5--15, this completion contributes $+0$ additional credits because eliminations are already visible through homotopy/compositional schemas.  No manual audit or hand-tuned parameter is required for the ordering.
 
 \noindent Claim~(b)---the spectral decomposition---is now mechanically verified by the structural AST analysis for all 15~steps.  The $\nu_G$, $\nu_H$, and $\nu_C$ components are extracted directly from the candidate's telescope AST, with no manual audit required.  The Adjoint Completion Principle categorically guarantees $\nu_C \ge \nu_G$ (each Introduction rule determines a corresponding Elimination rule); the computed values are consistent with this bound.
 
@@ -1828,7 +1836,7 @@ The PEN framework makes three testable predictions:
 \section{Metamathematical Boundaries and Algorithmic Limits}
 \label{sec:boundaries}
 
-The preceding sections established the PEN framework as a deterministic model for the emergence of physical-mathematical structure, with autonomous selection from theory-guided candidate pools (\S\ref{sec:verification}).
+The preceding sections established the PEN framework as a deterministic model for the emergence of physical-mathematical structure, with autonomous selection over MBTT-first typed candidate generation in the default runtime/CI path (\S\ref{sec:verification}).
 Before concluding, we identify and address four structural objections that probe the exact limits of the theory.
 In each case, the objection points to a genuine boundary condition---and the boundary itself turns out to be informative.
 
@@ -2106,8 +2114,12 @@ The domain labels in the table above reflect this mixture; the mathematical cont
 % ============================================
 % APPENDIX: FORMAL TYPE SIGNATURES (STEPS 10-14)
 % ============================================
-\section{Formal Type-Theoretic Specifications: Steps 10--14}
+\section{Semantic Identification of Autonomously Discovered ASTs (Steps 10--14)}
 \label{app:formal-specs}
+
+When the synthesis engine selects an efficiency-maximizing candidate, the raw representation is an anonymous MBTT AST (\cref{sec:mbtt-audit}).
+The algorithm itself does not assign semantic labels such as ``metric'' or ``Hilbert''; those names are post-hoc identifications.
+This appendix documents that translation layer for Steps~10--14 by giving the corresponding formal type signatures and clarifying their axiomatic status.
 
 The Generative Sequence's first nine steps---Universe through Hopf fibration---are standard constructions in HoTT, formalizable directly in Cubical Agda.
 Steps 10--14 extend the type theory with differential-geometric structure.
