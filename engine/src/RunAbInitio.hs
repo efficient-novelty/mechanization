@@ -72,6 +72,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
   , cfgSkipMCTS        :: !Bool             -- ^ Skip MCTS phase (useful for bounded shadow evidence)
   , cfgPhase1Shadow    :: !Bool             -- ^ Preset: bounded Phase-1 MBTT shadow run
+  , cfgNoCanonicalQuotient :: !Bool         -- ^ Ablation: disable canonical quotient cache at candidate stage
   } deriving (Show)
 
 -- | Discovery history: accumulated (ν, κ) pairs from each step.
@@ -159,6 +160,8 @@ main = do
     putStrLn "  SPEED:     --skip-mcts (disable Phase B MCTS)"
   when (cfgPhase1Shadow cfg) $
     putStrLn "  PRESET:    --phase1-shadow (bounded MBTT-first profile)"
+  when (cfgNoCanonicalQuotient cfg) $
+    putStrLn "  ABLATION:  --no-canonical-quotient (disable candidate canonical dedupe)"
   putStrLn ""
   putStrLn "Starting from EMPTY LIBRARY."
   putStrLn "The engine will autonomously discover the Generative Sequence."
@@ -219,12 +222,13 @@ parseArgs args =
       skipMCTS = phase1Shadow || "--skip-mcts" `elem` args
       mbttFirstFinal = phase1Shadow || mbttFirst
       maxStepsFinal = if phase1Shadow && not hasMaxStepsArg then 6 else maxSteps
+      noCanonicalQuotient = "--no-canonical-quotient" `elem` args
       mbttMaxCandFinal = if phase1Shadow
                          then case mbttMaxCand of
                            Just k  -> Just k
                            Nothing -> Just 20
                          else mbttMaxCand
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -421,7 +425,9 @@ abInitioLoop cfg = do
           -- Combine and quotient candidates (enum + MCTS + reference)
           let rawCandidates = enumEvaluated ++ mctsCandidates
                            ++ [(refTele, refNu, refKappa, refRho, "REF")]
-              allCandidates = quotientCandidates rawCandidates
+              allCandidates = if cfgNoCanonicalQuotient cfg
+                              then rawCandidates
+                              else quotientCandidates rawCandidates
               rawCandidateCount = length rawCandidates
               canonicalCandidateCount = length allCandidates
               -- Filter to those that clear the bar (or all if step ≤ 2)
