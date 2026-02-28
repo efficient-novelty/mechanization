@@ -400,8 +400,8 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 ### Phase 6 victory to-do list (one-shot closeout deliveries)
 - [x] **P6-V1 — Bridge schema extension for independent checking**
   - Completed by extending bridge exports with canonical metadata + anonymous AST payloads + claimed ν components and adding schema guard checks.
-- [ ] **P6-V2 — Agda-side validation hooks and proof scaffolding**
-  - Add Agda check entrypoints/tests that consume emitted artifacts and validate schema/provenance assumptions.
+- [x] **P6-V2 — Agda-side validation hooks and proof scaffolding**
+  - Completed with Agda-side bridge payload contract harness and CI guard checks for schema/proof-obligation skeletons.
 - [ ] **P6-V3 — Discovery-vs-verification sign-off**
   - Demonstrate Haskell discovery claims are independently checkable by Agda with deterministic replay.
 
@@ -417,9 +417,9 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
   - **Acceptance evidence:** dedicated bridge schema guard (`check_phase6_bridge_schema.sh`) plus workflow-consistency checks pass.
   - **Artifacts:** `docs/reports/p6_v2_bridge_schema_report.md`.
 
-- [ ] **P6-WP3 — Agda harness + contract checks**
-  - **Scope:** add Agda-side check stubs/tests to parse emitted payloads and validate proof-obligation skeletons.
-  - **Acceptance bar:** `agda/Test` validates updated bridge schema and non-interference assumptions.
+- [x] **P6-WP3 — Agda harness + contract checks**
+  - **Completed:** added `agda/Test/BridgePayloadContract.agda` with bridge payload/ν-claim records and explicit proof-obligation skeletons (`CanonicalKeySound`, `NuClaimWellFormed`, `DecodeNonInterference`).
+  - **Acceptance evidence:** `check_phase6_agda_harness.sh` validates Agda harness schema coverage against bridge exporter fields and is wired in CI/workflow consistency checks.
   - **Artifacts:** `docs/reports/p6_v3_agda_harness_report.md`.
 
 - [ ] **P6-WP4 — Phase sign-off and verification split audit**
