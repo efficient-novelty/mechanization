@@ -443,10 +443,45 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 
 ---
 
-## Phase 7 — Migration, Hardening, and Cleanup (Weeks 12–14)
+## Phase 7 — Migration, Hardening, and Cleanup (Weeks 12–14) ↻ IN PROGRESS
 
 ### Scope
 Make MBTT-first default, retain rollback, deprecate template-first components.
+
+### Kickoff status
+- [x] Captured Phase-7 kickoff baseline and package plan in `docs/reports/p7_v1_kickoff_baseline.md`.
+- [x] Entered Phase 7 as in-progress with explicit migration/rollback and telemetry obligations.
+- [ ] MBTT-first default flip + legacy fallback deprecation lane not yet complete (tracked in P7-WP2/P7-WP3).
+
+### Phase 7 victory to-do list (one-shot closeout deliveries)
+- [ ] **P7-V1 — MBTT-first default + rollback contract**
+  - Promote MBTT-first as default runtime behavior and keep explicit legacy fallback with clear deprecation semantics.
+- [ ] **P7-V2 — CI/acceptance migration hardening**
+  - Ensure CI lanes and acceptance suites exercise MBTT-first default while retaining deterministic rollback checks.
+- [ ] **P7-V3 — Search-space reduction evidence publication**
+  - Publish typed-pruning/compositional-narrowing telemetry to answer raw bitstring-space objections.
+
+### Remaining Phase-7 one-shot work packages (execution plan)
+
+> Objective: close migration to MBTT-first default with audited rollback and evidence-backed pruning claims.
+
+- [x] **P7-WP1 — Kickoff baseline + migration decomposition**
+  - **Completed:** established migration baseline, package sequencing, and acceptance bars in `docs/reports/p7_v1_kickoff_baseline.md`.
+
+- [ ] **P7-WP2 — Default-path flip + legacy fallback guardrails**
+  - **Scope:** make MBTT-first default in runtime/CLI while preserving `--legacy-generator` fallback and deprecation warnings.
+  - **Acceptance bar:** default-mode CI runs MBTT-first without flags; legacy path remains available and explicitly labeled deprecated.
+  - **Artifacts:** `docs/reports/p7_v2_default_flip_report.md`.
+
+- [ ] **P7-WP3 — CI/acceptance migration and rollback checks**
+  - **Scope:** update acceptance and workflow lanes so MBTT-first is primary and rollback path is still deterministic and testable.
+  - **Acceptance bar:** CI green for MBTT-first default lanes plus explicit rollback smoke checks.
+  - **Artifacts:** `docs/reports/p7_v3_ci_migration_report.md`.
+
+- [ ] **P7-WP4 — Search-space reduction telemetry + phase sign-off**
+  - **Scope:** publish high-horizon typed-validity/prune/composition telemetry and close Phase 7 with sign-off evidence.
+  - **Acceptance bar:** reports quantify reduction factors and document compositional narrowing against combinatorial-explosion critiques.
+  - **Artifacts:** `docs/reports/p7_v4_pruning_signoff.md`; phase flipped to complete.
 
 ### Workstream
 - Promote `--mbtt-first` to default; add `--legacy-generator` fallback.
