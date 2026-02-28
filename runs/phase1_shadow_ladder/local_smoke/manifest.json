@@ -1,0 +1,8 @@
+{
+  "contract": "docs/phase1_evidence_contract.md",
+  "mode": "phase1-shadow-ladder",
+  "timeout_s": 20,
+  "max_candidates": 5,
+  "steps": "1",
+  "command_template": "cabal run ab-initio -- --structural --phase1-shadow --max-steps <N> --mbtt-max-candidates 5 --csv step_<N>.csv"
+}
