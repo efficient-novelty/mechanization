@@ -63,6 +63,11 @@ Pick one as canonical in paper text (recommended: **Cauchy completion** for oper
 
 **Decision gate A1:** lock one primary route before editing Step 13 prose.
 
+### A1 resolution (completed)
+- **Primary route locked:** Cauchy completion of `\Q`.
+- **Decision record:** see `decision_gate_A1.md` for criteria, scoring matrix, and recommendation rationale.
+- **Dedekind status:** retained as appendix-level equivalence cross-check, not the primary manuscript route.
+
 ---
 
 ## 2) Define minimal prerequisite interfaces (not full arithmetic encyclopedia)
@@ -85,6 +90,11 @@ To avoid reviewer concern that we imported “all of arithmetic,” constrain im
 
 **Decision gate A2:** verify each imported item is truly required by chosen completion route.
 
+### A2 resolution (completed)
+- **Minimal interface validated:** only REQ dependencies for Cauchy completion are retained.
+- **Decision record:** see `decision_gate_A2.md` for required/derivable/optional audit tables.
+- **Accounting implication:** `\kappa_{\mathrm{scalar}}` will be computed on the A2-minimal bundle only.
+
 ---
 
 ## 3) Integrate into PEN accounting
@@ -104,6 +114,11 @@ Define in text:
 Report both to avoid accusations of favorable accounting.
 
 **Decision gate A3:** choose normative mode for main table; keep the other in sensitivity appendix.
+
+### A3 resolution (completed)
+- **Normative mode selected:** amortized shared-infrastructure accounting for main tables.
+- **Mandatory companion disclosure:** conservative full-charge sensitivity table.
+- **Decision record:** see `decision_gate_A3.md`.
 
 ---
 
@@ -125,6 +140,11 @@ If Step 13 fails under conservative charging, explicitly discuss consequences:
 - or revised step-local accounting policy.
 
 **Decision gate A4:** confirm whether PEN’s core narrative survives strict accounting unchanged.
+
+### A4 resolution (completed)
+- **Outcome:** strict conservative first-use scalar charging causes Step 13 failure at current `\nu_{13}=46`.
+- **Recommendation:** preserve canonical sequence under amortized infrastructure accounting; publish conservative sensitivity explicitly.
+- **Decision record:** see `decision_gate_A4.md`.
 
 ---
 
