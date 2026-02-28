@@ -150,6 +150,8 @@ main = do
     putStrLn "  ABLATION:  --max-rho (select highest rho instead of minimal overshoot)"
   when (cfgMBTTFirst cfg) $
     putStrLn "  SEARCH:    --mbtt-first (Phase A uses typed MBTT enumeration)"
+  when (cfgMBTTFirst cfg) $
+    putStrLn "  OBJECTIVE: κ-first ranking in MBTT-first mode (with ρ/bar viability gate)"
   when (cfgMaxSteps cfg < 15) $
     printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
   when (cfgSkipValidation cfg) $
@@ -427,7 +429,7 @@ abInitioLoop cfg = do
                            ++ [(refTele, refNu, refKappa, refRho, "REF")]
               allCandidates = if cfgNoCanonicalQuotient cfg
                               then rawCandidates
-                              else quotientCandidates rawCandidates
+                              else quotientCandidates (cfgMBTTFirst cfg && not (cfgMaxRho cfg)) rawCandidates
               rawCandidateCount = length rawCandidates
               canonicalCandidateCount = length allCandidates
               -- Filter to those that clear the bar (or all if step ≤ 2)
@@ -444,9 +446,10 @@ abInitioLoop cfg = do
           -- mathematical structures, not random telescope fragments.
           --
           -- Within each priority tier (canonical vs generic), select by
-          -- minimal overshoot (ρ - bar), then κ ascending, then name.
+          -- Phase-4 objective: κ-first in MBTT mode, otherwise minimal overshoot.
           let ablation = cfgNoCanonPriority cfg
               useMaxRho = cfgMaxRho cfg
+              kappaFirst = cfgMBTTFirst cfg && not useMaxRho
               selectBest cs = case cs of
                 [] -> (refTele, refNu, refKappa, refRho, "REF")
                 _  | useMaxRho ->
@@ -465,7 +468,9 @@ abInitioLoop cfg = do
                                 isCanon = if ablation then (0 :: Int)
                                           else if cn `elem` knownNames
                                           then 0 else 1
-                            in (isCanon, rho - bar, k, cn)) cs
+                            in if kappaFirst
+                                 then (isCanon, k, rho - bar, cn)
+                                 else (isCanon, rho - bar, k, cn)) cs
                       in case sorted of
                         ((tele, nu, kappa, rho, src):_) -> (tele, nu, kappa, rho, src)
                         [] -> (refTele, refNu, refKappa, refRho, "REF")
@@ -712,11 +717,12 @@ dedupByCanonicalKey teles = reverse (snd (foldl step (Map.empty, []) teles))
 
 -- | Quotient evaluated candidates by canonical MBTT key.
 --
--- Keeps insertion order of first-seen keys, while allowing a better
--- representative (higher ρ, then lower κ, then source priority) to replace
--- the cached representative for that key.
-quotientCandidates :: [Candidate] -> [Candidate]
-quotientCandidates cs = [cand | key <- reverse order, Just cand <- [Map.lookup key reps]]
+-- Keeps insertion order of first-seen keys while allowing a better
+-- representative for that key to replace the cached candidate.
+--
+-- In Phase-4 κ-first mode we prefer lower κ first, then higher ρ.
+quotientCandidates :: Bool -> [Candidate] -> [Candidate]
+quotientCandidates kappaFirst cs = [cand | key <- reverse order, Just cand <- [Map.lookup key reps]]
   where
     (reps, order) = foldl step (Map.empty, []) cs
 
@@ -725,13 +731,14 @@ quotientCandidates cs = [cand | key <- reverse order, Just cand <- [Map.lookup k
       in case Map.lookup key m of
            Nothing -> (Map.insert key cand m, key : ord)
            Just prev ->
-             let pick = if betterCandidate cand prev then cand else prev
+             let pick = if betterCandidate kappaFirst cand prev then cand else prev
              in (Map.insert key pick m, ord)
 
 -- | Candidate ranking used when two candidates share the same canonical key.
-betterCandidate :: Candidate -> Candidate -> Bool
-betterCandidate (_, _, k1, rho1, src1) (_, _, k2, rho2, src2) =
-  (Down rho1, k1, sourceRank src1) < (Down rho2, k2, sourceRank src2)
+betterCandidate :: Bool -> Candidate -> Candidate -> Bool
+betterCandidate kappaFirst (_, _, k1, rho1, src1) (_, _, k2, rho2, src2)
+  | kappaFirst = (k1, Down rho1, sourceRank src1) < (k2, Down rho2, sourceRank src2)
+  | otherwise  = (Down rho1, k1, sourceRank src1) < (Down rho2, k2, sourceRank src2)
 
 -- | Prefer references, then exhaustive enumeration, then MCTS when ties occur.
 sourceRank :: String -> Int

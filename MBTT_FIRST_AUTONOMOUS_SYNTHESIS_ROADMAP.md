@@ -274,11 +274,11 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 ### Kickoff status
 - [x] Captured Phase-4 kickoff baseline and audit plan in `docs/reports/p4_v1_kickoff_baseline.md`.
 - [x] Switched roadmap status to in-progress and decomposed Phase-4 closeout into one-shot work packages.
-- [ ] MBTT-primary scoring is not yet default in `RunAbInitio` scoring path (tracked in P4-WP2).
+- [x] MBTT-primary scoring is now active in `RunAbInitio` MBTT-first ranking path (P4-WP2).
 
 ### Phase 4 victory to-do list (one-shot closeout deliveries)
-- [ ] **P4-V1 — κ-first scoring plumbing**
-  - Promote `bitKappa` to primary optimizer objective in MBTT-first runs while preserving existing bar constraints.
+- [x] **P4-V1 — κ-first scoring plumbing**
+  - Completed by updating MBTT-first selection/quotient ranking in `RunAbInitio` to prioritize lower κ first while retaining bar viability and ρ tie-break behavior.
 - [ ] **P4-V2 — Phase-4 telemetry contract**
   - Land CSV/report schema with required `bit_kappa`, `ast_nodes`, `canonical_key`, and `decoded_name?` fields for replayable audits.
 - [ ] **P4-V3 — Quality and regression sign-off**
@@ -291,9 +291,9 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 - [x] **P4-WP1 — Kickoff baseline + package plan**
   - **Completed:** Captured kickoff baseline, acceptance bars, and artifact plan in `docs/reports/p4_v1_kickoff_baseline.md`.
 
-- [ ] **P4-WP2 — Implement κ-first optimizer path**
-  - **Scope:** Update `Synthesis.hs`/`RunAbInitio.hs` scoring interfaces so MBTT-first mode ranks by `bitKappa` first, with ν/ρ constraints unchanged.
-  - **Acceptance bar:** deterministic replay with κ-first winners and no evaluator contract breakage.
+- [x] **P4-WP2 — Implement κ-first optimizer path**
+  - **Completed:** Updated `RunAbInitio` MBTT-first ranking to be κ-first in both selection ordering and canonical-key representative choice, with bar viability and max-ρ ablation behavior preserved.
+  - **Acceptance evidence:** evidence tooling/consistency guards pass and Phase-4 implementation report recorded.
   - **Artifacts:** `docs/reports/p4_v2_kappa_scoring_report.md`.
 
 - [ ] **P4-WP3 — Telemetry and schema rollout**
