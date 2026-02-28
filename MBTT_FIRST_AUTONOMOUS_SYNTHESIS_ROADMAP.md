@@ -344,8 +344,8 @@ Attach mathematical interpretation after optimization only.
 ### Phase 5 victory to-do list (one-shot closeout deliveries)
 - [x] **P5-V1 — Decoder API boundary + contract stub**
   - Completed by adding `engine/src/MBTTDecode.hs` with deterministic decode schema (label/confidence/ambiguity/non-interference) and fixture validation tooling.
-- [ ] **P5-V2 — Reporting integration with confidence/ambiguity**
-  - Emit decoded labels in reports while preserving anonymous winner ids, decode confidence metadata, and explicit `Unknown/Unidentified_Syntactic_Attractor` handling.
+- [x] **P5-V2 — Reporting integration with confidence/ambiguity**
+  - Completed by integrating decode outputs into ab-initio CSV/report surfaces with `decoded_name?`, `decode_confidence`, `decode_ambiguity`, and `decode_status` while preserving anonymous winner ids and non-interference.
 - [ ] **P5-V3 — Non-interference sign-off**
   - Demonstrate decoder on/off does not alter candidate selection outcomes and that decode failures cannot back-propagate into ranking/scoring.
 
@@ -361,9 +361,9 @@ Attach mathematical interpretation after optimization only.
   - **Acceptance evidence:** fixture schema/hash + decoder behavior checks pass via `runghc` harness.
   - **Artifacts:** `docs/reports/p5_v2_decoder_api_report.md`.
 
-- [ ] **P5-WP3 — Reporting layer decode integration**
-  - **Scope:** integrate decoded interpretation into report/CSV surfaces only, with confidence + ambiguity fields and strict decode-status categories (`exact_isomorphism`, `ambiguous`, `unknown`, `unidentified_syntactic_attractor`).
-  - **Acceptance bar:** reports include decoded metadata without changing selection logic; unknown/alien cases are preserved and surfaced, not suppressed.
+- [x] **P5-WP3 — Reporting layer decode integration**
+  - **Completed:** integrated decoded interpretation into CSV/report surfaces only, including confidence + ambiguity metadata and decode-status categories (`exact_isomorphism`, `ambiguous`, `unknown`, `unidentified_syntactic_attractor`).
+  - **Acceptance evidence:** evidence verifier enforces new decode columns and fixture self-check passes with decode metadata present.
   - **Artifacts:** `docs/reports/p5_v3_reporting_integration_report.md`.
 
 - [ ] **P5-WP4 — Non-interference and phase sign-off**

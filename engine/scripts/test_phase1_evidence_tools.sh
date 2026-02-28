@@ -24,15 +24,15 @@ TXT
 ok
 TXT
   cat > "$dir/abinitio_mbtt_shadow6.csv" <<TXT
-step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?
-1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe
+step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status
+1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe,1.0000,,exact_isomorphism
 TXT
   cat > "$dir/abinitio_mbtt_structural.log" <<TXT
 ok
 TXT
   cat > "$dir/abinitio_mbtt_structural.csv" <<TXT
-step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?
-1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe
+step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status
+1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe,1.0000,,exact_isomorphism
 TXT
   cat > "$dir/phase1-shadow-ladder.log" <<TXT
 ok

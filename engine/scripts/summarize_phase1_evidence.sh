@@ -55,13 +55,13 @@ path = sys.argv[1]
 with open(path, newline='', encoding='utf-8') as f:
     rows = list(csv.DictReader(f))
 if not rows:
-    print('bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a')
+    print('bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a decode_confidence=n/a decode_status=n/a')
     raise SystemExit(0)
 row = rows[-1]
-print(f"bit_kappa={row.get('bit_kappa','n/a')} ast_nodes={row.get('ast_nodes','n/a')} canonical_key={row.get('canonical_key','n/a')} decoded_name={row.get('decoded_name?','n/a')}")
+print(f"bit_kappa={row.get('bit_kappa','n/a')} ast_nodes={row.get('ast_nodes','n/a')} canonical_key={row.get('canonical_key','n/a')} decoded_name={row.get('decoded_name?','n/a')} decode_confidence={row.get('decode_confidence','n/a')} decode_status={row.get('decode_status','n/a')}")
 PY3
   else
-    echo "bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a"
+    echo "bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a decode_confidence=n/a decode_status=n/a"
   fi
 }
 

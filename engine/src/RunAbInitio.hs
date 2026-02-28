@@ -29,6 +29,7 @@ import Telescope
 import TelescopeGen (enumerateTelescopes)
 import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
 import MBTTCanonical (CanonKey(..), canonicalKeySpec)
+import MBTTDecode (decodeCanonicalNameWithKey, DecodeResult(..))
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate, computeKappa,
                       validateReferenceTelescopes, detectCanonicalName)
@@ -588,35 +589,80 @@ abInitioLoop cfg = do
 -- Includes all three kappa metrics for comparison.
 writeCsv :: FilePath -> [StepRecord] -> IO ()
 writeCsv path recs = do
-  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?"
+  let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status"
       rows = map formatRow recs
       content = unlines (header : rows)
   writeFile path content
   printf "CSV written to %s (%d steps)\n" path (length recs)
 
 formatRow :: StepRecord -> String
-formatRow r = intercalate ","
-  [ show (srStep r)
-  , srName r
-  , show (srNu r)
-  , show (srKappa r)
-  , printf' "%.4f" (srRho r)
-  , printf' "%.4f" (srBar r)
-  , show (srDelta r)
-  , srSource r
-  , show (srCands r)
-  , show (srRawCands r)
-  , show (srCanonCands r)
-  , printf' "%.4f" (srDedupeRatio r)
-  , srBestCanonKey r
-  , show (desugaredKappa (srTele r))
-  , show (teleKappa (srTele r))
-  , show (teleBitCost (srTele r))
-  , srBestCanonKey r
-  , show (teleBitCost (srTele r))
-  , show (teleAstNodes (srTele r))
-  , decodedName (srName r)
-  ]
+formatRow r =
+  let dr = decodeCanonicalNameWithKey (srName r) (Just (srBestCanonKey r))
+      decodedLabel = maybe "" id (drDecodedLabel dr)
+      ambiguity = if null (drAmbiguity dr)
+                  then ""
+                  else intercalate "|" (drAmbiguity dr)
+      status = decodeStatus dr
+  in intercalate ","
+      [ show (srStep r)
+      , srName r
+      , show (srNu r)
+      , show (srKappa r)
+      , printf' "%.4f" (srRho r)
+      , printf' "%.4f" (srBar r)
+      , show (srDelta r)
+      , srSource r
+      , show (srCands r)
+      , show (srRawCands r)
+      , show (srCanonCands r)
+      , printf' "%.4f" (srDedupeRatio r)
+      , srBestCanonKey r
+      , show (desugaredKappa (srTele r))
+      , show (teleKappa (srTele r))
+      , show (teleBitCost (srTele r))
+      , srBestCanonKey r
+      , show (teleBitCost (srTele r))
+      , show (teleAstNodes (srTele r))
+      , decodedLabel
+      , printf' "%.4f" (drConfidence dr)
+      , ambiguity
+      , status
+      ]
+
+
+-- | Total AST node count across all MBTT entry types in a telescope.
+teleAstNodes :: Telescope -> Int
+teleAstNodes (Telescope entries) = sum (map (exprNodeCount . teType) entries)
+
+-- | Count nodes in an MBTT expression (constructors-as-nodes metric).
+exprNodeCount :: MBTTExpr -> Int
+exprNodeCount expr = case expr of
+  App f x        -> 1 + exprNodeCount f + exprNodeCount x
+  Lam b          -> 1 + exprNodeCount b
+  Pi a b         -> 1 + exprNodeCount a + exprNodeCount b
+  Sigma a b      -> 1 + exprNodeCount a + exprNodeCount b
+  Univ           -> 1
+  Var _          -> 1
+  Lib _          -> 1
+  Id a x y       -> 1 + exprNodeCount a + exprNodeCount x + exprNodeCount y
+  Refl a         -> 1 + exprNodeCount a
+  Susp a         -> 1 + exprNodeCount a
+  Trunc a        -> 1 + exprNodeCount a
+  PathCon _      -> 1
+  Flat a         -> 1 + exprNodeCount a
+  Sharp a        -> 1 + exprNodeCount a
+  Disc a         -> 1 + exprNodeCount a
+  Shape a        -> 1 + exprNodeCount a
+  Next a         -> 1 + exprNodeCount a
+  Eventually a   -> 1 + exprNodeCount a
+
+-- | Decode status class used in Phase-5 reporting surfaces.
+decodeStatus :: DecodeResult -> String
+decodeStatus dr
+  | drDecodedLabel dr == Nothing && drCanonicalName dr == "candidate" = "unknown"
+  | drDecodedLabel dr == Nothing = "unidentified_syntactic_attractor"
+  | not (null (drAmbiguity dr)) = "ambiguous"
+  | otherwise = "exact_isomorphism"
 
 
 -- | Total AST node count across all MBTT entry types in a telescope.
