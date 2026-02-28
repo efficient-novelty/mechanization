@@ -204,7 +204,7 @@ Normalize MBTT candidates before scoring to avoid syntactic duplicates.
 
 ---
 
-## Phase 3 — Native ν Extraction from Anonymous Terms (Weeks 6–8) ↻ IN PROGRESS
+## Phase 3 — Native ν Extraction from Anonymous Terms (Weeks 6–8) ✓ COMPLETE
 
 ### Scope
 Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic labels.
@@ -244,11 +244,10 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
   - **Acceptance evidence:** `engine/scripts/test_phase1_evidence_tools.sh` fixture now includes Phase-3 native-ν artifacts and passes with required checks.
   - **Artifacts:** `runs/phase1_ci/<run>/phase3/native_nu/*`, summary block in `$GITHUB_STEP_SUMMARY`, `docs/reports/p3_v5_ci_lane_report.md`.
 
-- [ ] **P3-WP5 — Phase-3 exit audit and status flip**
-  - **Scope:** Final audit that P3-V1..V5 evidence exists, tests are stable, and contracts/docs point to canonical replay artifacts.
-  - **Code touchpoints:** roadmap + ADR addendum (if needed) + evidence docs index.
-  - **Acceptance bar:** all Phase-3 exit criteria checked; no open blockers in Phase-3 checklist.
-  - **Artifacts:** `docs/reports/p3_exit_audit.md`; phase header flipped to complete.
+- [x] **P3-WP5 — Phase-3 exit audit and status flip**
+  - **Completed:** Performed final audit across P3-V1..V5 contracts/reports/tests and captured closure evidence in `docs/reports/p3_exit_audit.md`; phase header flipped to complete.
+  - **Acceptance evidence:** fixture integrity guard, evidence tooling self-check, workflow consistency guard, and bounded native-ν evidence replay all pass with required Phase-3 artifacts.
+  - **Artifacts:** `docs/reports/p3_exit_audit.md`.
 
 ### Haskell workstream
 - Extend `StructuralNu.hs`/`InferenceNu.hs` with MBTT-term entry point:
@@ -263,7 +262,7 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 - Consistency: no dependence on label metadata in evaluator inputs.
 
 ### Exit criteria
-- Native ν path is default under `--mbtt-first`; old label-dependent path disabled in that mode.
+- [x] Native ν path is default under `--mbtt-first`; old label-dependent path disabled in that mode.
 
 ---
 
