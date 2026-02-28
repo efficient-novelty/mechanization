@@ -279,8 +279,8 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 ### Phase 4 victory to-do list (one-shot closeout deliveries)
 - [x] **P4-V1 — κ-first scoring plumbing**
   - Completed by updating MBTT-first selection/quotient ranking in `RunAbInitio` to prioritize lower κ first while retaining bar viability and ρ tie-break behavior.
-- [ ] **P4-V2 — Phase-4 telemetry contract**
-  - Land CSV/report schema with required `bit_kappa`, `ast_nodes`, `canonical_key`, and `decoded_name?` fields for replayable audits.
+- [x] **P4-V2 — Phase-4 telemetry contract**
+  - Completed by extending `RunAbInitio` CSV schema with required Phase-4 columns (`bit_kappa`, `ast_nodes`, `canonical_key`, `decoded_name?`) and enforcing them in evidence verification/summaries.
 - [ ] **P4-V3 — Quality and regression sign-off**
   - Demonstrate no collapse in step-growth quality under κ-first scoring and capture acceptance evidence/report artifacts.
 
@@ -296,9 +296,9 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
   - **Acceptance evidence:** evidence tooling/consistency guards pass and Phase-4 implementation report recorded.
   - **Artifacts:** `docs/reports/p4_v2_kappa_scoring_report.md`.
 
-- [ ] **P4-WP3 — Telemetry and schema rollout**
-  - **Scope:** Extend CSV/report outputs to include Phase-4 fields and ensure CI/evidence tooling consumes them.
-  - **Acceptance bar:** schema checks fail on missing new fields; summaries display κ telemetry.
+- [x] **P4-WP3 — Telemetry and schema rollout**
+  - **Completed:** Extended ab-initio CSV/report outputs with Phase-4 telemetry fields and wired evidence tooling to validate/publish κ telemetry in summaries.
+  - **Acceptance evidence:** verifier now fails on missing Phase-4 columns; fixture self-check updated and passing.
   - **Artifacts:** updated evidence contract + `docs/reports/p4_v3_telemetry_report.md`.
 
 - [ ] **P4-WP4 — Regression, ablation, and sign-off**

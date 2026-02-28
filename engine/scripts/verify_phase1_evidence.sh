@@ -31,6 +31,23 @@ require_regex() {
   grep -Eq "$pattern" "$f" || fail "expected pattern /$pattern/ in $f"
 }
 
+require_csv_columns() {
+  local f="$1"
+  shift
+  python3 - "$f" "$@" <<'PYCSV'
+import csv, sys
+path = sys.argv[1]
+required = sys.argv[2:]
+with open(path, newline='', encoding='utf-8') as fh:
+    reader = csv.DictReader(fh)
+    fields = reader.fieldnames or []
+missing = [c for c in required if c not in fields]
+if missing:
+    raise SystemExit(f"missing csv columns in {path}: {', '.join(missing)}")
+PYCSV
+}
+
+
 [[ -d "$RUN_DIR" ]] || fail "run dir does not exist: $RUN_DIR"
 
 require_zero_failed() {
@@ -47,6 +64,7 @@ require_file "$RUN_DIR/acceptance-core.log"
 require_file "$RUN_DIR/acceptance-mbtt-fast.log"
 require_file "$RUN_DIR/abinitio_mbtt_shadow6.log"
 require_file "$RUN_DIR/abinitio_mbtt_shadow6.csv"
+require_csv_columns "$RUN_DIR/abinitio_mbtt_shadow6.csv" raw_candidates canonical_candidates dedupe_ratio best_canonical_key bit_kappa ast_nodes canonical_key "decoded_name?"
 require_file "$RUN_DIR/phase1-shadow-ladder.log"
 require_file "$RUN_DIR/ladder/ladder_status.csv"
 require_file "$RUN_DIR/manifest.json"
@@ -77,6 +95,7 @@ if [[ "$MODE" == "main" ]]; then
   require_regex "$RUN_DIR/summary.md" 'mbtt_full:[[:space:]]+Results:'
   require_file "$RUN_DIR/abinitio_mbtt_structural.log"
   require_file "$RUN_DIR/abinitio_mbtt_structural.csv"
+  require_csv_columns "$RUN_DIR/abinitio_mbtt_structural.csv" raw_candidates canonical_candidates dedupe_ratio best_canonical_key bit_kappa ast_nodes canonical_key "decoded_name?"
   require_zero_failed "$RUN_DIR/acceptance-mbtt-full.log" "acceptance-mbtt-full"
   full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_structural.csv" | wc -l | tr -d ' ' )
   [[ "$full_rows" -ge 1 ]] || fail "expected abinitio_mbtt_structural.csv to contain at least one row"

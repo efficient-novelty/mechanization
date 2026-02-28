@@ -45,6 +45,26 @@ PY2
   fi
 }
 
+
+extract_p4_kappa_telemetry() {
+  local csv="$1"
+  if [[ -f "$csv" ]]; then
+    python3 - "$csv" <<'PY3'
+import csv, sys
+path = sys.argv[1]
+with open(path, newline='', encoding='utf-8') as f:
+    rows = list(csv.DictReader(f))
+if not rows:
+    print('bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a')
+    raise SystemExit(0)
+row = rows[-1]
+print(f"bit_kappa={row.get('bit_kappa','n/a')} ast_nodes={row.get('ast_nodes','n/a')} canonical_key={row.get('canonical_key','n/a')} decoded_name={row.get('decoded_name?','n/a')}")
+PY3
+  else
+    echo "bit_kappa=n/a ast_nodes=n/a canonical_key=n/a decoded_name=n/a"
+  fi
+}
+
 core_result="$(extract_result_line "$RUN_DIR/acceptance-core.log")"
 mbtt_fast_result="$(extract_result_line "$RUN_DIR/acceptance-mbtt-fast.log")"
 mbtt_full_result="$(extract_result_line "$RUN_DIR/acceptance-mbtt-full.log")"
@@ -61,6 +81,8 @@ fi
 
 shadow_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_shadow6.csv")"
 full_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_structural.csv")"
+shadow_p4="$(extract_p4_kappa_telemetry "$RUN_DIR/abinitio_mbtt_shadow6.csv")"
+full_p4="$(extract_p4_kappa_telemetry "$RUN_DIR/abinitio_mbtt_structural.csv")"
 
 ladder_status="$(ladder_tail "$RUN_DIR/ladder/ladder_status.csv")"
 ladder_main_status="$(ladder_tail "$RUN_DIR/ladder-main/ladder_status.csv")"
@@ -96,12 +118,14 @@ cat >> "$OUT" <<MD
 ## Ab-initio lanes
 - shadow_csv_rows: $shadow_rows
 - shadow_canonical_telemetry: $shadow_canon
+- shadow_kappa_telemetry: $shadow_p4
 MD
 
 if [[ "$MODE" == "main" ]]; then
   cat >> "$OUT" <<MD
 - full_csv_rows: $full_rows
 - full_canonical_telemetry: $full_canon
+- full_kappa_telemetry: $full_p4
 MD
 fi
 
