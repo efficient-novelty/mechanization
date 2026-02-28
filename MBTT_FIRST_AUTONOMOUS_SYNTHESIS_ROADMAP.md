@@ -266,10 +266,45 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 
 ---
 
-## Phase 4 — PEN Optimization with MBTT κ Primary (Weeks 8–10)
+## Phase 4 — PEN Optimization with MBTT κ Primary (Weeks 8–10) ↻ IN PROGRESS
 
 ### Scope
 Shift optimizer objective to bit-length-first complexity in MBTT space.
+
+### Kickoff status
+- [x] Captured Phase-4 kickoff baseline and audit plan in `docs/reports/p4_v1_kickoff_baseline.md`.
+- [x] Switched roadmap status to in-progress and decomposed Phase-4 closeout into one-shot work packages.
+- [ ] MBTT-primary scoring is not yet default in `RunAbInitio` scoring path (tracked in P4-WP2).
+
+### Phase 4 victory to-do list (one-shot closeout deliveries)
+- [ ] **P4-V1 — κ-first scoring plumbing**
+  - Promote `bitKappa` to primary optimizer objective in MBTT-first runs while preserving existing bar constraints.
+- [ ] **P4-V2 — Phase-4 telemetry contract**
+  - Land CSV/report schema with required `bit_kappa`, `ast_nodes`, `canonical_key`, and `decoded_name?` fields for replayable audits.
+- [ ] **P4-V3 — Quality and regression sign-off**
+  - Demonstrate no collapse in step-growth quality under κ-first scoring and capture acceptance evidence/report artifacts.
+
+### Remaining Phase-4 one-shot work packages (execution plan)
+
+> Objective: close Phase 4 with minimal churn by landing each package once with explicit artifacts and acceptance bars.
+
+- [x] **P4-WP1 — Kickoff baseline + package plan**
+  - **Completed:** Captured kickoff baseline, acceptance bars, and artifact plan in `docs/reports/p4_v1_kickoff_baseline.md`.
+
+- [ ] **P4-WP2 — Implement κ-first optimizer path**
+  - **Scope:** Update `Synthesis.hs`/`RunAbInitio.hs` scoring interfaces so MBTT-first mode ranks by `bitKappa` first, with ν/ρ constraints unchanged.
+  - **Acceptance bar:** deterministic replay with κ-first winners and no evaluator contract breakage.
+  - **Artifacts:** `docs/reports/p4_v2_kappa_scoring_report.md`.
+
+- [ ] **P4-WP3 — Telemetry and schema rollout**
+  - **Scope:** Extend CSV/report outputs to include Phase-4 fields and ensure CI/evidence tooling consumes them.
+  - **Acceptance bar:** schema checks fail on missing new fields; summaries display κ telemetry.
+  - **Artifacts:** updated evidence contract + `docs/reports/p4_v3_telemetry_report.md`.
+
+- [ ] **P4-WP4 — Regression, ablation, and sign-off**
+  - **Scope:** run bounded/full comparisons (legacy-vs-κ-first) and ablation check that reverting to clause-priority degrades quality.
+  - **Acceptance bar:** quality/regression thresholds met and documented.
+  - **Artifacts:** `docs/reports/p4_v4_quality_signoff.md`; phase flipped to complete.
 
 ### Haskell workstream
 - Update scoring interfaces in `Synthesis.hs`, `RunAbInitio.hs`, and evaluator bridge:
@@ -286,7 +321,7 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 - Ablation: if clause-count becomes primary again, sequence quality degrades (sanity check).
 
 ### Exit criteria
-- MBTT-primary scoring stable across seed sweep and window settings.
+- [ ] MBTT-primary scoring stable across seed sweep and window settings.
 
 ---
 
