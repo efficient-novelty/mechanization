@@ -387,10 +387,45 @@ Attach mathematical interpretation after optimization only.
 
 ---
 
-## Phase 6 — Agda Alignment and Formal Contracts (Weeks 11–12)
+## Phase 6 — Agda Alignment and Formal Contracts (Weeks 11–12) ↻ IN PROGRESS
 
 ### Scope
 Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
+
+### Kickoff status
+- [x] Captured Phase-6 kickoff baseline and package plan in `docs/reports/p6_v1_kickoff_baseline.md`.
+- [x] Marked Phase-6 status in-progress and decomposed closeout into one-shot packages.
+- [ ] Agda bridge output does not yet carry full anonymous AST + ν-claim payloads for independent verification (tracked in P6-WP2/P6-WP3).
+
+### Phase 6 victory to-do list (one-shot closeout deliveries)
+- [ ] **P6-V1 — Bridge schema extension for independent checking**
+  - Extend bridge outputs with canonical metadata + raw anonymous AST payloads + claimed ν components.
+- [ ] **P6-V2 — Agda-side validation hooks and proof scaffolding**
+  - Add Agda check entrypoints/tests that consume emitted artifacts and validate schema/provenance assumptions.
+- [ ] **P6-V3 — Discovery-vs-verification sign-off**
+  - Demonstrate Haskell discovery claims are independently checkable by Agda with deterministic replay.
+
+### Remaining Phase-6 one-shot work packages (execution plan)
+
+> Objective: close Phase 6 with explicit bridge artifacts and machine-checkable verification boundaries.
+
+- [x] **P6-WP1 — Kickoff baseline + package plan**
+  - **Completed:** captured baseline, acceptance bars, and artifact plan in `docs/reports/p6_v1_kickoff_baseline.md`.
+
+- [ ] **P6-WP2 — Bridge payload/schema implementation**
+  - **Scope:** extend `agda-bridge` output schema with canonical key, bit κ provenance, anonymous AST payload, and ν-claim record.
+  - **Acceptance bar:** deterministic bridge output schema validated by script/tests.
+  - **Artifacts:** `docs/reports/p6_v2_bridge_schema_report.md`.
+
+- [ ] **P6-WP3 — Agda harness + contract checks**
+  - **Scope:** add Agda-side check stubs/tests to parse emitted payloads and validate proof-obligation skeletons.
+  - **Acceptance bar:** `agda/Test` validates updated bridge schema and non-interference assumptions.
+  - **Artifacts:** `docs/reports/p6_v3_agda_harness_report.md`.
+
+- [ ] **P6-WP4 — Phase sign-off and verification split audit**
+  - **Scope:** close the discovery-vs-verification loop with deterministic replay evidence and final sign-off.
+  - **Acceptance bar:** independent check path documented and green in CI.
+  - **Artifacts:** `docs/reports/p6_v4_verification_split_signoff.md`; phase flipped to complete.
 
 ### Agda workstream
 - Extend bridge output metadata fields for canonical key + bit κ provenance.
@@ -402,9 +437,9 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 - Add focused tests in `agda/Test` for new bridge record fields.
 
 ### Exit criteria
-- `cabal run agda-bridge -- --check` deterministic with new metadata.
-- Agda test suite validates updated bridge schema.
-- Discovery-vs-verification separation is explicit: Haskell proposes, Agda independently checks encoded claims.
+- [ ] `cabal run agda-bridge -- --check` deterministic with new metadata.
+- [ ] Agda test suite validates updated bridge schema.
+- [ ] Discovery-vs-verification separation is explicit: Haskell proposes, Agda independently checks encoded claims.
 
 ---
 
