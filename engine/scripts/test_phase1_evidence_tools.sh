@@ -7,7 +7,7 @@ trap 'rm -rf "$WORK_DIR"' EXIT
 
 mk_fixture() {
   local dir="$1"
-  mkdir -p "$dir/ladder" "$dir/ladder-main"
+  mkdir -p "$dir/ladder" "$dir/ladder-main" "$dir/phase3/native_nu"
   cat > "$dir/env.txt" <<TXT
 mode=test
 TXT
@@ -40,6 +40,18 @@ TXT
   cat > "$dir/phase1-shadow-ladder-main.log" <<TXT
 ok
 TXT
+  cat > "$dir/phase3-native-nu.log" <<TXT
+ok
+TXT
+  cat > "$dir/phase3/native_nu/native_nu_trace_summary.csv" <<TXT
+step,name,nu_total,node_trace_count,trace_line_count,required_keys
+1,Universe,1,1,10,true
+TXT
+  cat > "$dir/phase3/native_nu/report.md" <<TXT
+# Phase 3 Native Nu Evidence Report
+
+- status: pass
+TXT
   cat > "$dir/ladder/ladder_status.csv" <<TXT
 step,status,exit_code,csv_rows
 1,ok,0,1
@@ -52,7 +64,7 @@ TXT
 pass
 TXT
   cat > "$dir/manifest.json" <<TXT
-{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)"}}
+{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)","phase3_native_nu_evidence":"STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"}}
 TXT
 }
 

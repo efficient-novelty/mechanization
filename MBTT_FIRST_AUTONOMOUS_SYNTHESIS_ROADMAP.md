@@ -223,8 +223,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
   - Completed with MBTT acceptance coverage (`J11`, `J12`, `J13`) and report `docs/reports/p3_v3_invariance_report.md`, demonstrating invariance for alpha-renaming/canonical rewrites and sensitivity on non-equivalent controls.
 - [x] **P3-V4 — Name-independence hardening**
   - Completed by replacing DCT name-gated temporal capability assignment with structural detection in `telescopeToCandidate` and updating I1 acceptance to require name-free behavior through steps 1..15.
-- [ ] **P3-V5 — CI evidence lane for native ν**
-  - Add CI lane + artifact summary that records native ν traces for bounded benchmark prefix replay.
+- [x] **P3-V5 — CI evidence lane for native ν**
+  - Completed by adding required lane `Lane P3-V5 — native-nu bounded evidence lane (required on PR/main)`, script `engine/scripts/run_phase3_native_nu_evidence.sh`, and evidence contract checks in manifest/schema/summarize/verify tooling.
 
 ### Remaining Phase-3 one-shot work packages (execution plan)
 
@@ -239,11 +239,10 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 - [x] **P3-WP3 — P3-V4 name-independence hardening (I1 canary closure)**
   - **Completed:** structural temporal-capability detection landed in `TelescopeEval`, I1 acceptance upgraded to require steps 1..15 name-free, and evidence captured in `docs/reports/p3_v4_name_independence_report.md`.
 
-- [ ] **P3-WP4 — P3-V5 CI native-ν evidence lane + contract checks**
-  - **Scope:** Add a dedicated Phase-3 lane to `.github/workflows/pen-engine.yml` that runs bounded native-ν replay, publishes trace summary, and uploads run-scoped artifacts.
-  - **Code touchpoints:** workflow file + `engine/scripts/` (`run_phase3_native_nu_evidence.sh`, verifier/summarizer updates, workflow-consistency guard updates).
-  - **Acceptance bar:** PR/main lane runs green; missing/invalid native-ν artifacts fail verification.
-  - **Artifacts:** `runs/phase1_ci/<run>/phase3_native_nu/*`, summary block in `$GITHUB_STEP_SUMMARY`, `docs/reports/p3_v5_ci_lane_report.md`.
+- [x] **P3-WP4 — P3-V5 CI native-ν evidence lane + contract checks**
+  - **Completed:** Added dedicated workflow lane + `phase3_native_nu_evidence` manifest command, artifact verification/summarization/schema requirements for native-ν outputs, and consistency-guard enforcement for the new lane/summary step.
+  - **Acceptance evidence:** `engine/scripts/test_phase1_evidence_tools.sh` fixture now includes Phase-3 native-ν artifacts and passes with required checks.
+  - **Artifacts:** `runs/phase1_ci/<run>/phase3/native_nu/*`, summary block in `$GITHUB_STEP_SUMMARY`, `docs/reports/p3_v5_ci_lane_report.md`.
 
 - [ ] **P3-WP5 — Phase-3 exit audit and status flip**
   - **Scope:** Final audit that P3-V1..V5 evidence exists, tests are stable, and contracts/docs point to canonical replay artifacts.

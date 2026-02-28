@@ -69,6 +69,11 @@ if [[ -f "$RUN_DIR/ladder-main/ladder_gate.txt" ]]; then
   ladder_gate="$(tr -d '\n' < "$RUN_DIR/ladder-main/ladder_gate.txt")"
 fi
 
+phase3_report_status="n/a"
+if [[ -f "$RUN_DIR/phase3/native_nu/report.md" ]]; then
+  phase3_report_status="$(grep -E '^- status:' "$RUN_DIR/phase3/native_nu/report.md" | head -n 1 | sed 's/^- status:[[:space:]]*//')"
+fi
+
 cat > "$OUT" <<MD
 # Phase 1 Evidence Summary
 
@@ -104,6 +109,9 @@ cat >> "$OUT" <<MD
 
 ## Ladder telemetry
 - ladder_status_rows: ${ladder_status:-"(none)"}
+
+## Phase 3 native-ν lane
+- native_nu_report_status: ${phase3_report_status:-"(unknown)"}
 MD
 
 if [[ "$MODE" == "main" ]]; then

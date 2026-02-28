@@ -51,9 +51,16 @@ require_file "$RUN_DIR/phase1-shadow-ladder.log"
 require_file "$RUN_DIR/ladder/ladder_status.csv"
 require_file "$RUN_DIR/manifest.json"
 require_file "$RUN_DIR/summary.md"
+require_file "$RUN_DIR/phase3-native-nu.log"
+require_file "$RUN_DIR/phase3/native_nu/native_nu_trace_summary.csv"
+require_file "$RUN_DIR/phase3/native_nu/report.md"
+require_contains "$RUN_DIR/phase3/native_nu/native_nu_trace_summary.csv" 'step,name,nu_total,node_trace_count,trace_line_count,required_keys'
+require_regex "$RUN_DIR/phase3/native_nu/report.md" '^# Phase 3 Native Nu Evidence Report'
+require_regex "$RUN_DIR/phase3/native_nu/report.md" 'status:[[:space:]]+pass'
 
 require_regex "$RUN_DIR/manifest.json" '"contract"[[:space:]]*:[[:space:]]*"docs/phase1_evidence_contract.md"'
 require_regex "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
+require_regex "$RUN_DIR/manifest.json" '"phase3_native_nu_evidence"'
 require_contains "$RUN_DIR/ladder/ladder_status.csv" 'step,status,exit_code,csv_rows'
 require_contains "$RUN_DIR/summary.md" 'Phase 1 Evidence Summary'
 require_regex "$RUN_DIR/summary.md" 'core:[[:space:]]+Results:'
