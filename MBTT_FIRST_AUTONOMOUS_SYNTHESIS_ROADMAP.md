@@ -230,11 +230,8 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 
 > Objective: finish Phase 3 without churn by shipping each package once with explicit artifacts/tests.
 
-- [ ] **P3-WP1 — Invariance harness + fixture corpus (foundational test bed)**
-  - **Scope:** Add a small canonical fixture corpus (`engine/testdata/phase3_native_nu/`) containing alpha-renamed equivalents, canonicalized equivalents, and non-equivalent controls.
-  - **Code touchpoints:** `engine/src/AcceptanceSuite.hs` (new P3 invariance tests), optional `engine/scripts/` helper to regenerate fixture metadata.
-  - **Acceptance bar:** deterministic test fixture hashes + failing controls prove harness sensitivity.
-  - **Artifacts:** fixture manifest + short report in `docs/reports/p3_wp1_invariance_harness.md`.
+- [x] **P3-WP1 — Invariance harness + fixture corpus (foundational test bed)**
+  - **Completed:** Added fixture corpus `engine/testdata/phase3_native_nu/fixtures.json` + hash lock `fixtures.sha256`, validation script `engine/scripts/check_phase3_native_nu_fixtures.sh`, and closeout report `docs/reports/p3_wp1_invariance_harness.md`.
 
 - [x] **P3-WP2 — P3-V3 alpha/canonical invariance evidence closeout**
   - **Completed:** `J11`/`J12` invariance checks + `J13` negative control added to MBTT acceptance and captured in `docs/reports/p3_v3_invariance_report.md`.
