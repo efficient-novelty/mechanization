@@ -19,6 +19,7 @@ module AgdaExport
     exportStep
     -- * Export all steps
   , exportAllSteps
+  , exportAllVerificationPayloads
     -- * MBTT → Agda translation
   , exprToAgda
   , teleToAgda
@@ -26,6 +27,9 @@ module AgdaExport
 
 import Telescope
 import Kolmogorov (MBTTExpr(..))
+import MBTTCanonical (CanonKey(..), canonicalKeySpec)
+import MBTTNu (computeNativeNu, NativeNuResult(..))
+import UniformNu (genesisLibrarySteps, GenesisStep(..))
 
 import qualified Data.Set as Set
 
@@ -204,3 +208,62 @@ exportAllSteps =
   ]
   where
     filename step name = "PEN/Genesis/Step" ++ show step ++ "-" ++ name ++ ".agda"
+
+-- ============================================
+-- Verification Payload Export (Phase 6)
+-- ============================================
+
+-- | Export verification payload JSON files for each genesis step.
+--
+-- These payloads carry anonymous AST and ν-claim metadata so Agda-side tooling
+-- can independently validate discovery outputs.
+exportAllVerificationPayloads :: [(FilePath, String)]
+exportAllVerificationPayloads = reverse (go [] [] stepNames [])
+  where
+    go _ _ [] acc = acc
+    go lib nuHist ((step, name):rest) acc =
+      let tele = referenceTelescope step
+          CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
+          nuRes = computeNativeNu tele lib nuHist
+          payload = payloadJson step name ckey tele nuRes
+          file = "PEN/GenesisPayload/Step" ++ show step ++ "-" ++ name ++ ".payload.json"
+          libEntry = gsEntry (genesisLibrarySteps !! (step - 1))
+          lib' = lib ++ [libEntry]
+          nuHist' = nuHist ++ [(step, nnTotal nuRes)]
+      in go lib' nuHist' rest ((file, payload):acc)
+
+payloadJson :: Int -> String -> String -> Telescope -> NativeNuResult -> String
+payloadJson step name ckey tele nuRes =
+  unlines
+    [ "{"
+    , "  \"step\": " ++ show step ++ ","
+    , "  \"name\": \"" ++ escapeJson name ++ "\","
+    , "  \"canonical_key\": \"" ++ escapeJson ckey ++ "\","
+    , "  \"kappa_bit\": " ++ show (teleBitCost tele) ++ ","
+    , "  \"kappa_desugared\": " ++ show (desugaredKappa tele) ++ ","
+    , "  \"anonymous_ast\": ["
+    , intercalateLines ",\n" ["    \"" ++ escapeJson (show (teType e)) ++ "\"" | e <- teleEntries tele]
+    , "  ],"
+    , "  \"nu_claim\": {"
+    , "    \"nu_g\": " ++ show (nnNuG nuRes) ++ ","
+    , "    \"nu_h\": " ++ show (nnNuH nuRes) ++ ","
+    , "    \"nu_c\": " ++ show (nnNuC nuRes) ++ ","
+    , "    \"nu_total\": " ++ show (nnTotal nuRes)
+    , "  }"
+    , "}"
+    ]
+
+intercalateLines :: String -> [String] -> String
+intercalateLines _ [] = ""
+intercalateLines _ [x] = x
+intercalateLines sep (x:xs) = x ++ sep ++ intercalateLines sep xs
+
+escapeJson :: String -> String
+escapeJson [] = []
+escapeJson (c:cs) = case c of
+  '"' -> '\\' : '"' : escapeJson cs
+  '\\' -> '\\' : '\\' : escapeJson cs
+  '\n' -> '\\' : 'n' : escapeJson cs
+  '\r' -> '\\' : 'r' : escapeJson cs
+  '\t' -> '\\' : 't' : escapeJson cs
+  _ -> c : escapeJson cs

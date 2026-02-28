@@ -65,6 +65,10 @@ jobs:
         run: |
           engine/scripts/check_phase5_decode_non_interference.sh
 
+      - name: Check Phase-6 bridge schema payloads
+        run: |
+          engine/scripts/check_phase6_bridge_schema.sh
+
       - name: Prepare Phase 1 artifact directory
         run: |
           RUN_DIR="runs/phase1_ci/${{ github.run_id }}-${{ github.run_attempt }}"

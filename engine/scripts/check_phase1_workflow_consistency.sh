@@ -19,6 +19,7 @@ check_step_once() {
 check_step_once "Self-check evidence tooling scripts"
 check_step_once "Check Phase-5 decoder fixtures"
 check_step_once "Check Phase-5 decode non-interference"
+check_step_once "Check Phase-6 bridge schema payloads"
 check_step_once "Check Phase-1 repository hygiene"
 check_step_once "Check for unresolved merge markers in Phase-1 files"
 check_step_once "Build evidence summary (PR/main)"

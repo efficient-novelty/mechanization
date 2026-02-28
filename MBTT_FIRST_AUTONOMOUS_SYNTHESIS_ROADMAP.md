@@ -395,11 +395,11 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 ### Kickoff status
 - [x] Captured Phase-6 kickoff baseline and package plan in `docs/reports/p6_v1_kickoff_baseline.md`.
 - [x] Marked Phase-6 status in-progress and decomposed closeout into one-shot packages.
-- [ ] Agda bridge output does not yet carry full anonymous AST + ν-claim payloads for independent verification (tracked in P6-WP2/P6-WP3).
+- [x] Agda bridge output now carries anonymous AST + ν-claim verification payloads (P6-WP2); Agda-side harness checks remain tracked in P6-WP3.
 
 ### Phase 6 victory to-do list (one-shot closeout deliveries)
-- [ ] **P6-V1 — Bridge schema extension for independent checking**
-  - Extend bridge outputs with canonical metadata + raw anonymous AST payloads + claimed ν components.
+- [x] **P6-V1 — Bridge schema extension for independent checking**
+  - Completed by extending bridge exports with canonical metadata + anonymous AST payloads + claimed ν components and adding schema guard checks.
 - [ ] **P6-V2 — Agda-side validation hooks and proof scaffolding**
   - Add Agda check entrypoints/tests that consume emitted artifacts and validate schema/provenance assumptions.
 - [ ] **P6-V3 — Discovery-vs-verification sign-off**
@@ -412,9 +412,9 @@ Synchronize Agda artifacts with MBTT-first candidate provenance and invariants.
 - [x] **P6-WP1 — Kickoff baseline + package plan**
   - **Completed:** captured baseline, acceptance bars, and artifact plan in `docs/reports/p6_v1_kickoff_baseline.md`.
 
-- [ ] **P6-WP2 — Bridge payload/schema implementation**
-  - **Scope:** extend `agda-bridge` output schema with canonical key, bit κ provenance, anonymous AST payload, and ν-claim record.
-  - **Acceptance bar:** deterministic bridge output schema validated by script/tests.
+- [x] **P6-WP2 — Bridge payload/schema implementation**
+  - **Completed:** extended `agda-bridge` exports with verification payload JSON files carrying canonical key, bit κ provenance, anonymous AST payloads, and ν-claim records.
+  - **Acceptance evidence:** dedicated bridge schema guard (`check_phase6_bridge_schema.sh`) plus workflow-consistency checks pass.
   - **Artifacts:** `docs/reports/p6_v2_bridge_schema_report.md`.
 
 - [ ] **P6-WP3 — Agda harness + contract checks**
