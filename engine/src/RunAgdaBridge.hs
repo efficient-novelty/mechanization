@@ -11,7 +11,7 @@
 
 module Main where
 
-import AgdaExport (exportAllSteps, exportStep)
+import AgdaExport (exportAllSteps, exportStep, exportAllVerificationPayloads)
 
 import System.Environment (getArgs)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
@@ -30,8 +30,8 @@ main = do
 
   if checkMode then do
     -- Determinism check: generate twice, compare
-    let files1 = exportAllSteps
-        files2 = exportAllSteps
+    let files1 = exportAllSteps ++ exportAllVerificationPayloads
+        files2 = exportAllSteps ++ exportAllVerificationPayloads
     if files1 == files2
       then do
         putStrLn "PASS: Agda bridge output is deterministic"
@@ -54,7 +54,7 @@ main = do
     putStrLn "============================================"
     putStrLn ""
 
-    let allFiles = exportAllSteps
+    let allFiles = exportAllSteps ++ exportAllVerificationPayloads
         files = case stepFilter of
           Just s -> filter (\(fp, _) -> show s `isInfixOf'` fp) allFiles
           Nothing -> allFiles
