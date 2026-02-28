@@ -325,10 +325,45 @@ Shift optimizer objective to bit-length-first complexity in MBTT space.
 
 ---
 
-## Phase 5 — Post-hoc Semantic Decoding (Weeks 10–11)
+## Phase 5 — Post-hoc Semantic Decoding (Weeks 10–11) ↻ IN PROGRESS
 
 ### Scope
 Attach mathematical interpretation after optimization only.
+
+### Kickoff status
+- [x] Captured Phase-5 kickoff baseline and package plan in `docs/reports/p5_v1_kickoff_baseline.md`.
+- [x] Marked Phase-5 status in-progress and decomposed closeout into one-shot packages.
+- [ ] Decoder module/report integration is not yet implemented (tracked in P5-WP2/P5-WP3).
+
+### Phase 5 victory to-do list (one-shot closeout deliveries)
+- [ ] **P5-V1 — Decoder API boundary + contract stub**
+  - Introduce `MBTTDecode` boundary and freeze reporting-only non-interference contract.
+- [ ] **P5-V2 — Reporting integration with confidence/ambiguity**
+  - Emit decoded labels in reports while preserving anonymous winner ids and decode confidence metadata.
+- [ ] **P5-V3 — Non-interference sign-off**
+  - Demonstrate decoder on/off does not alter candidate selection outcomes.
+
+### Remaining Phase-5 one-shot work packages (execution plan)
+
+> Objective: finish Phase 5 with one-pass deliveries and explicit artifacts/tests.
+
+- [x] **P5-WP1 — Kickoff baseline + package plan**
+  - **Completed:** Captured baseline, acceptance bars, and artifact plan in `docs/reports/p5_v1_kickoff_baseline.md`.
+
+- [ ] **P5-WP2 — Decoder API skeleton + fixture corpus**
+  - **Scope:** Add `engine/src/MBTTDecode.hs` with deterministic decode result schema and starter fixtures.
+  - **Acceptance bar:** compile-visible decoder API with fixture-driven unit checks.
+  - **Artifacts:** `docs/reports/p5_v2_decoder_api_report.md`.
+
+- [ ] **P5-WP3 — Reporting layer decode integration**
+  - **Scope:** integrate decoded interpretation into report/CSV surfaces only, with confidence + ambiguity fields.
+  - **Acceptance bar:** reports include decoded metadata without changing selection logic.
+  - **Artifacts:** `docs/reports/p5_v3_reporting_integration_report.md`.
+
+- [ ] **P5-WP4 — Non-interference and phase sign-off**
+  - **Scope:** run decoder-on/off comparisons and prove winner identity invariance.
+  - **Acceptance bar:** non-interference checks pass and sign-off report recorded.
+  - **Artifacts:** `docs/reports/p5_v4_non_interference_signoff.md`; phase flipped to complete.
 
 ### Haskell workstream
 - Add `engine/src/MBTTDecode.hs`:
@@ -342,7 +377,7 @@ Attach mathematical interpretation after optimization only.
 - Contract: removing decoder must not change selected winners.
 
 ### Exit criteria
-- Reports show both anonymous winner id and optional decoded interpretation.
+- [ ] Reports show both anonymous winner id and optional decoded interpretation.
 
 ---
 
