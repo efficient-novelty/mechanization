@@ -226,6 +226,40 @@ Compute `ν_G`, `ν_H`, `ν_C` directly from MBTT AST behavior, not semantic lab
 - [ ] **P3-V5 — CI evidence lane for native ν**
   - Add CI lane + artifact summary that records native ν traces for bounded benchmark prefix replay.
 
+### Remaining Phase-3 one-shot work packages (execution plan)
+
+> Objective: finish Phase 3 without churn by shipping each package once with explicit artifacts/tests.
+
+- [ ] **P3-WP1 — Invariance harness + fixture corpus (foundational test bed)**
+  - **Scope:** Add a small canonical fixture corpus (`engine/testdata/phase3_native_nu/`) containing alpha-renamed equivalents, canonicalized equivalents, and non-equivalent controls.
+  - **Code touchpoints:** `engine/src/AcceptanceSuite.hs` (new P3 invariance tests), optional `engine/scripts/` helper to regenerate fixture metadata.
+  - **Acceptance bar:** deterministic test fixture hashes + failing controls prove harness sensitivity.
+  - **Artifacts:** fixture manifest + short report in `docs/reports/p3_wp1_invariance_harness.md`.
+
+- [ ] **P3-WP2 — P3-V3 alpha/canonical invariance evidence closeout**
+  - **Scope:** Prove `computeNativeNu` invariance for `(nnTotal, nnTrace summary fields)` under alpha-equivalent and canonical-rewritten inputs.
+  - **Code touchpoints:** `engine/src/AcceptanceSuite.hs` (`J11`/`J12` style tests), `engine/src/MBTTNu.hs` if trace normalization is needed.
+  - **Acceptance bar:** invariance tests pass for fixture corpus; at least one negative control demonstrates non-equivalent terms are distinguished.
+  - **Artifacts:** `docs/reports/p3_v3_invariance_report.md`; roadmap `P3-V3` checked.
+
+- [ ] **P3-WP3 — P3-V4 name-independence hardening (I1 canary closure)**
+  - **Scope:** Remove remaining label-sensitive capability hooks from native ν path (notably temporal-ops name gating) and ensure scoring is structure-driven only.
+  - **Code touchpoints:** `engine/src/TelescopeEval.hs` / capability derivation path used by native ν; acceptance canary tests in `AcceptanceSuite`.
+  - **Acceptance bar:** I1 canary no longer reports name-induced ν drop; scrambled-name libraries preserve native ν decisions.
+  - **Artifacts:** `docs/reports/p3_v4_name_independence_report.md`; roadmap `P3-V4` checked.
+
+- [ ] **P3-WP4 — P3-V5 CI native-ν evidence lane + contract checks**
+  - **Scope:** Add a dedicated Phase-3 lane to `.github/workflows/pen-engine.yml` that runs bounded native-ν replay, publishes trace summary, and uploads run-scoped artifacts.
+  - **Code touchpoints:** workflow file + `engine/scripts/` (`run_phase3_native_nu_evidence.sh`, verifier/summarizer updates, workflow-consistency guard updates).
+  - **Acceptance bar:** PR/main lane runs green; missing/invalid native-ν artifacts fail verification.
+  - **Artifacts:** `runs/phase1_ci/<run>/phase3_native_nu/*`, summary block in `$GITHUB_STEP_SUMMARY`, `docs/reports/p3_v5_ci_lane_report.md`.
+
+- [ ] **P3-WP5 — Phase-3 exit audit and status flip**
+  - **Scope:** Final audit that P3-V1..V5 evidence exists, tests are stable, and contracts/docs point to canonical replay artifacts.
+  - **Code touchpoints:** roadmap + ADR addendum (if needed) + evidence docs index.
+  - **Acceptance bar:** all Phase-3 exit criteria checked; no open blockers in Phase-3 checklist.
+  - **Artifacts:** `docs/reports/p3_exit_audit.md`; phase header flipped to complete.
+
 ### Haskell workstream
 - Extend `StructuralNu.hs`/`InferenceNu.hs` with MBTT-term entry point:
   - derive eliminator/introduction/computation interaction signatures from anonymous term;
