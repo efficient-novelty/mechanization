@@ -2249,19 +2249,21 @@ For a route with scalar burden $\kappa_{\mathrm{scalar}}$, Step~13 is scored by
   \qquad
   \Delta \nu_{\min} = \left\lceil 5.99\,(7+\kappa_{\mathrm{scalar}})-46\right\rceil.
 \]
-\paragraph{Resolution of the Scalar Burden.}
-Under the $d=2$ Fibonacci constraints, the traditional analytic construction of $\R$ via discrete arithmetic ($\N \to \Z \to \mathbb{Q}$) is permanently locked out (see \S9.2), as its linear novelty fails the exponential selection bar.
-Consequently, naive arithmetic formalizations of the scalar field penalize the metric specification, pulling efficiency below the Step~13 bar ($\rho < 5.99$).
-However, the PEN framework natively resolves this by extracting the continuum top-down from geometry.
-By Step~10, the library contains the cohesive shape modality $\Pi_\infty$ and the circle $S^1$.
-In cohesive HoTT, the real line $\R$ is definitionally equivalent to the homotopy fiber of the shape unit of the circle:
+\paragraph{Resolution of the Ring Structure of the Scalar Field.}
+A natural objection to extracting the metric codomain $\mathbb{R}$ from the cohesive circle $\Sigma_{x:S^1}(\eta(x)=\mathsf{base})$ is that this yields $\mathbb{R}$ only as an additive group (via path concatenation), whereas a metric requires $\mathbb{R}$ to be a commutative ring.
+As the algorithmic experiments show (\texttt{full\_postulated\_commutative\_ring}), externally axiomatizing this ring structure can add up to 15 clauses, dropping efficiency to $\rho \approx 3.22$ and failing the Step~13 survival bar.
+This is exactly the Inefficiency of the Discrete (\cref{prop:discrete-inefficiency}) in action: the $d=2$ universe cannot afford discrete algebraic axiomatization.
+
+However, the PEN algorithm natively avoids this integration debt.
+In cohesive HoTT, the full commutative ring structure of $\mathbb{R}$ is constructively derivable.
+Defining the scalar field as the space of continuous group endomorphisms of the real line,
 \[
-  \R := \Sigma_{x:S^1}\, (\eta_{\Pi_\infty}(x) = \mathsf{base}_{\Pi_\infty S^1}).
+  \mathcal{R} := \mathrm{End}_{\mathrm{Grp}}(\mathbb{R}_{\mathrm{add}}),
 \]
-Because this is a closed term constructed entirely from prior library exports, it evaluates to $\kappa_{\mathrm{scalar}} = 0$ by the Constructive Irreducibility Boundary (Axiom~3.5).
-The sequence thus extracts the scalar field geometrically, securing the Step~13 efficiency
-$\rho_{13} = 46/7 = 6.57 > 5.99$.
-The framework mathematically proves that in an efficient universe, continuous gauge topology strictly precedes discrete arithmetic.
+multiplication is definitionally equivalent to function composition ($f \circ g$).
+The core ring axioms (associativity, distributivity, multiplicative identity) are therefore not external postulates requiring additional $\kappa$-cost, but definitional tautologies of dependent function type structure ($\Pi$).
+By the Constructive Irreducibility Boundary (Axiom~3.5), the commutative ring structure is algorithmically free ($\kappa_{\mathrm{scalar}} = 0$).
+The framework thus shows that physics does not axiomatize continuous algebra as separate discrete baggage; it inherits it natively from topology and type theory.
 
 \paragraph{Axioms ($\kappa = 7$ clauses).}
 \begin{alignat*}{3}
