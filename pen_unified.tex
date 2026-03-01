@@ -2396,6 +2396,16 @@ $\Diamond(A)$          & \texttt{111111111} & 9 & Eventually (temporal) \\
 \end{tabular}
 \end{table}
 
+\paragraph{Why modal and temporal nodes are primitive in MBTT.}
+The table includes primitive unary nodes for $\flat$, $\sharp$, \textsc{Shape}, $\bigcirc$, and $\Diamond$.
+This does \emph{not} encode the DCT as a target; it encodes the ambient proof language in which cohesion and temporality can be stated at all.
+In the audit grammar, ``primitive'' means only that these operators are atomic AST constructors (like \textsc{Pi} or \textsc{Sigma}) rather than macro-expanded abbreviations.
+The reason is technical: if modalities were encoded as derived macros, their specification cost would be hidden in expansion conventions, and $\kappa$/$\nu$ comparisons across candidates would no longer be representation-invariant.
+Treating them as explicit nodes makes their cost visible and \emph{penalizes} them by assigning long prefixes (7--9 bits), so they are selected only when their induced novelty clears the same efficiency bar as all alternatives.
+
+This choice grants \emph{possibility}, not \emph{destiny}: the grammar permits many cohesive/temporal combinations, including inefficient ones that are rejected.
+PEN's substantive claim is therefore optimization, not vocabulary injection: among all well-typed combinations expressible in the shared grammar, the selected operators and interaction laws are those that maximize admissible efficiency under the rising Fibonacci integration debt.
+
 \noindent\textbf{Elias Gamma coding.}
 For a positive integer $n$, $|\gamma(n)| = 2\lfloor \log_2 n \rfloor + 1$ bits.
 Examples: $\gamma(1) = 1$~bit; $\gamma(2)\text{--}\gamma(3) = 3$~bits; $\gamma(4)\text{--}\gamma(7) = 5$~bits; $\gamma(8)\text{--}\gamma(15) = 7$~bits.
@@ -2520,6 +2530,7 @@ Three properties establish this:
 \item \textbf{Standard prefix-free design.}
 The prefix lengths follow the standard entropy-coding principle: constructors that appear most frequently in dependent type theory (\textsc{App}, \textsc{Lam}, \textsc{Pi}) receive the shortest prefixes (2--3~bits), while domain-specific operators (modal, temporal) receive longer ones (7--9~bits).
 This is the same design principle used in Huffman and arithmetic codes.
+Crucially, the modal/temporal nodes are not ``rewarded'' by this encoding; they are assigned \emph{higher} local description cost than core constructors.
 
 \item \textbf{Separation of concerns.}
 The main text uses $\kappa$ = clause count, which is entirely encoding-independent.
@@ -2528,6 +2539,7 @@ The MBTT bit-lengths serve only as an independent audit: they verify that no cla
 \item \textbf{Reproducibility.}
 The complete MBTT encoding is implemented in \texttt{engine/src/Kolmogorov.hs} (428~lines of Haskell).
 Running \texttt{cabal run kolmogorov-audit} in the engine directory produces \cref{tab:mbtt-audit} deterministically.
+Because all candidate families are scored in this single grammar, the result is an apples-to-apples optimum test over combinations, not a hand-picked proof that one pre-named structure must win.
 \end{enumerate}
 
 \subsection{Search-Space Tractability and Runtime Autonomy}
