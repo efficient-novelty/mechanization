@@ -1,0 +1,24 @@
+{
+  "run_id": "20260301T071435Z",
+  "timestamp_utc": "20260301T071435Z",
+  "bar": 5.99,
+  "nu_base": 46,
+  "kappa_metric": 7,
+  "policy": "strict_v1_first_use_full_charge",
+  "routes": [
+    {
+      "route": "cauchy_minimal",
+      "kappa_scalar": 4
+    },
+    {
+      "route": "topological_arithmetic",
+      "kappa_scalar": 3
+    },
+    {
+      "route": "synthetic_continuum",
+      "kappa_scalar": 2
+    }
+  ],
+  "generator": "scripts/run_missing_schemas_pipeline.py",
+  "notes": "Mechanical symbolic enumeration pipeline executed without external theorem prover dependency."
+}
