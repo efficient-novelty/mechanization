@@ -1,0 +1,10 @@
+route,control,count
+cauchy_minimal,metric_only,31
+cauchy_minimal,scalar_only,14
+cauchy_minimal,combined,45
+topological_arithmetic,metric_only,31
+topological_arithmetic,scalar_only,9
+topological_arithmetic,combined,40
+synthetic_continuum,metric_only,31
+synthetic_continuum,scalar_only,10
+synthetic_continuum,combined,41
