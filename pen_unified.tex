@@ -136,7 +136,7 @@ A common objection to generative models of physics is teleology---that the targe
 Our current implementation addresses this by making MBTT-first typed AST synthesis the default runtime path (with an explicit deprecated rollback lane), so the primary search is syntactic rather than hand-labeled.
 The engine optimizes efficiency mechanically from AST structure ($\nu/\kappa$), and the names in Table~\ref{tab:genesis} are post-hoc semantic identifications of selected syntactic winners.
 PEN therefore derives the \emph{kinematic framework} of physics---the type-theoretic/categorical language---not specific dynamical laws, gauge groups, coupling constants, or spacetime dimension.
-The model still assumes \emph{maximal interface density} (each candidate seals against the exported interface of the past $d$ layers), a library-quality policy that yields Fibonacci latency but is not a native requirement of the HoTT type\-checker.
+The model still assumes \emph{maximal interface density} (each candidate seals against the exported interface of the past $d$ layers), now treated as a \emph{foundational canonicity condition}: without explicit interaction clauses against prior eliminators, normalization can get stuck and the $d=2$ Fibonacci latency theorem loses its logical basis.
 
 \paragraph{Outline.}
 \Cref{sec:genesis} presents the complete Generative Sequence and the patterns that govern it.
@@ -394,31 +394,24 @@ Hence $|\mathcal{G}_{\mathrm{obl}}| = |I^{(d)}_n|$.
 machine-checked abstraction barrier at steps~8--9 in Cubical Agda (\texttt{Saturation/\allowbreak AbstractionBarrier.agda}, \texttt{AbstractionBarrier9.agda}); see \S\ref{sec:verification}.
 \end{proof}
 
-\begin{remark}[Maximal interface density as a modeling assumption]
+\begin{remark}[Maximal interface density as a syntactic canonicity requirement]
 \label{rem:maximal-coupling}
-The Integration Trace Principle posits that each candidate must seal against the \emph{entire} exported interface of the past~$d$ layers.
-This \emph{maximal interface density} is a modeling choice of the PEN framework, not a native requirement of the HoTT typechecker.
-In standard MLTT/HoTT, defining $S^2$ does not require writing explicit interaction clauses with, say, Propositional Truncation---the type theory is well-formed regardless.
+The Integration Trace Principle requires each candidate to seal against the \emph{entire} exported interface of the past~$d$ layers.
+In this manuscript, that requirement is not treated as optional library hygiene, but as a syntactic condition for foundational type theory itself: every new constructor, modality, or axiom schema must define its computational interaction with all eliminators already present in the active context telescope.
 
-The PEN model imposes maximal coupling as a \emph{library quality constraint}: a well-integrated mathematical library must document how every new structure interacts with every existing export.
-This requirement admits three independent justifications:
+\emph{Logical core (canonicity preservation).}
+Normalization proceeds by reducing eliminators against constructor clauses.
+If a new type former or modality omits interaction clauses for some existing eliminator in the coherence window, reduction terms are generated with no defining equation; evaluation reaches a neutral form that is not canonical, i.e., computation gets stuck.
+Once such stuck terms are admitted, one loses the canonicity/normalization package that underwrites decidable type checking and computational meaning.
+Therefore maximal interface density is a \emph{proof-theoretic well-formedness condition} on foundational extensions: global computational closure must be specified, not deferred.
 
-\emph{Physical justification (universal coupling).}
-In general relativity, the Equivalence Principle mandates that gravity couples universally to all matter and energy---no sector of physics decouples from the metric.
-Maxwell's equations, the Standard Model Lagrangian, and the stress-energy tensor of any matter field must all be formulated on a curved background.
-Maximal interface density is the type-theoretic analog of this universality: a foundational extension must explicitly compute its interaction with \emph{all} prior structure, not merely the subset it finds convenient.
+\emph{Consequence for scaling.}
+Under this closure condition, each prior export contributes one mandatory sealing obligation, so the active burden at depth $d$ is exactly $|I_n^{(d)}|$ and the $d=2$ case yields $\Delta_{n+1}=\Delta_n+\Delta_{n-1}$.
+Dropping the condition permits partial interfaces with skipped eliminator interactions; then obligations no longer match interface size, the recurrence is undercut, and the Fibonacci law ceases to be derivable.
 
-\emph{Logical justification (canonicity preservation).}
-In foundational type theory, a new type former that fails to specify its interaction with existing types breaks \emph{canonicity}: the normalization algorithm cannot reduce terms involving unhandled cases.
-For a library extension to be considered \emph{foundational}---rather than a siloed module---it must provide the transport lemmas, compatibility isomorphisms, and functorial actions needed to preserve the decidability of type-checking across the entire library.
-A type that ignores prior exports is a well-typed but non-canonical addition, analogous to a software library that compiles but produces undefined behavior when composed with existing modules.
-
-\emph{Combinatorial justification (complete API).}
-Each new library module must provide interaction data for every prior module in the coherence window.
-This is the standard engineering requirement for a \emph{complete API}: no undefined method calls, no unhandled type combinations, no missing compatibility lemmas.
-
-Without this coupling policy, the Fibonacci latency does not arise: a candidate that ignores prior exports faces no integration debt.
-The PEN framework's predictive power comes precisely from this strict coupling: it transforms the mathematical landscape from an unstructured collection of definitions into a sequential optimization problem with escalating costs.
+\emph{Physical analogy (secondary, not primary).}
+The analogy to universal coupling in general relativity remains suggestive, but it is logically downstream.
+The primary justification is internal to type theory: preserving normalization and canonicity by enforcing explicit computational interaction with the full prior interface.
 
 \emph{Concrete obligations for axiomatic extensions.}
 For the HIT steps (3--9), the integration obligations are native to the type theory: the eliminator $\mathrm{rec}_X$ must handle each prior constructor and path constructor in the coherence window.
@@ -1771,7 +1764,7 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
 
 \paragraph{Assumed.}
 \begin{itemize}[nosep]
-    \item \textbf{Maximal interface density} (\cref{rem:maximal-coupling}): the model requires each candidate to seal against the entire exported interface of the past $d$ layers.  This is a library-quality policy of the PEN framework, not a native requirement of HoTT.  Without this coupling policy, the Fibonacci latency does not arise.
+    \item \textbf{Maximal interface density} (\cref{rem:maximal-coupling}): each candidate must seal against the entire exported interface of the past $d$ layers to preserve global normalization/canonicity; otherwise eliminator interactions are underspecified, reduction can get stuck, and the $\Delta_n=F_n$ derivation no longer follows.
     \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and library specifications) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
     \item The $\nu$ values in \cref{tab:genesis}: all 15 values are mechanically verified by the synthesis engine's structural AST analysis (\S\ref{sec:inference-nu}), which extracts $\nu_G$, $\nu_H$, $\nu_C$ directly from candidate telescopes.  Steps~1--12 match exactly; steps~13--14 are within 7\%/3\% of earlier hand counts (the structural interaction counting is tighter). The type-inhabitation-based uniform algorithm with adjoint completion (\S\ref{sec:uniform-nu}) independently confirms all 15 ordering constraints.
     \item The DCT novelty $\nu = 103$ is computed by the structural AST analysis via three meta-theorem detectors: Distributive Law ($+38$), Universe Polymorphism ($+42$), and Infinitesimal Dimension Shift ($+15$), plus 2~type formers and 6~base axiom rules. The decomposition is fully mechanized and deterministic.
