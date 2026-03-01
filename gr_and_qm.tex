@@ -84,7 +84,7 @@ We follow realization numbering from \emph{Deriving the Standard Model from PEN}
 
 A previous formulation conflated copying data with generating new derivation schemas. Here novelty remains strictly logical: $\nu$ counts genuinely new inference/program schemas. In that sense, unrestricted Cartesian copying is not ``free novelty''; it is a degeneracy pressure.
 
-In homotopy type theory, imposing strict global cloning coherence drives types toward h-sets (0-groupoids), suppressing higher path structure. That collapse shrinks higher-geometric novelty channels and reduces long-run $\nu$.
+In homotopy type theory, imposing strict global cloning coherence drives types toward h-sets (0-groupoids), suppressing higher path structure \cite{hottbook}. That collapse shrinks higher-geometric novelty channels and reduces long-run $\nu$. The operational no-cloning pressure in quantum theory is classically captured by standard no-cloning results \cite{wootters-zurek,dieks}, while resource-sensitive proof theory is rooted in linear logic \cite{girard-linear-logic}.
 
 \subsection{Linearization and Stable Homotopy Gain}
 
@@ -116,7 +116,7 @@ We remove the claim of a full formalized enumeration of exotic smooth structures
 \begin{equation}
 \star : \Omega^2(M^d) \to \Omega^{d-2}(M^d).
 \end{equation}
-Only at $d=4$ does $\star$ close on 2-forms, giving a native endomorphism
+Only at $d=4$ does $\star$ close on 2-forms, giving a native endomorphism \cite{atiyah-hitchin-singer,donaldson-kronheimer}
 \begin{equation}
 \star : \Omega^2 \to \Omega^2,
 \end{equation}
@@ -134,11 +134,11 @@ and immediate splitting into self-dual/anti-self-dual sectors. This doubles gaug
 
 R15 (DCT) carries distinct modalities: Cohesion ($\flatmod$) for extended shape and Flow ($\nextmod$) for temporal update. A physical metric must realize this distinction rather than quotienting it away.
 
-By univalence, sufficiently coherent geometric paths induce type equivalences. In Euclidean signature $(++++)$, $SO(4)$ isotropy enables continuous rotation between any unit directions. If one direction is interpreted as Flow and another as Cohesion, isotropy supplies a path that univalence promotes toward equivalence, yielding modal collapse $\nextmod \simeq \flatmod$.
+By univalence, sufficiently coherent geometric paths induce type equivalences \cite{hottbook}. In Euclidean signature $(++++)$, $SO(4)$ isotropy enables continuous rotation between any unit directions. If one direction is interpreted as Flow and another as Cohesion, isotropy supplies a path that univalence promotes toward equivalence, yielding modal collapse $\nextmod \simeq \flatmod$.
 
 \subsection{Light Cone as a Type-Theoretic Barrier}
 
-Lorentzian signature $(-+++)$ partitions tangent vectors into timelike/spacelike/null classes. Under $SO(1,3)$, timelike and spacelike regions are disconnected by the null cone; no continuous path crosses the barrier while preserving causal class. Therefore the specific univalent path needed to identify $\nextmod$ with $\flatmod$ is blocked.
+Lorentzian signature $(-+++)$ partitions tangent vectors into timelike/spacelike/null classes. Under $SO(1,3)$, timelike and spacelike regions are disconnected by the null cone; no continuous path crosses the barrier while preserving causal class \cite{hawking-ellis,wald-gr}. Therefore the specific univalent path needed to identify $\nextmod$ with $\flatmod$ is blocked.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
@@ -152,7 +152,7 @@ We replace an over-strong ``fully formalized Lovelock uniqueness'' claim with a 
 \begin{equation}
 S_{\mathrm{EH}} = \int (R - 2\Lambda)\,\sqrt{-g}\,d^4x
 \end{equation}
-has minimal abstract syntax depth/size. Terms like $R^2$ or $R_{\mu\nu}R^{\mu\nu}$ require strictly larger constructor trees, hence larger $\kappa$ unless forced by additional constraints.
+has minimal abstract syntax depth/size. Terms like $R^2$ or $R_{\mu\nu}R^{\mu\nu}$ require strictly larger constructor trees, hence larger $\kappa$ unless forced by additional constraints; this is compatible with the classical Lovelock classification context in four dimensions \cite{lovelock-1971}.
 
 \section{Predictions}
 
@@ -187,9 +187,37 @@ Generate candidate scalar curvature invariants and compare AST complexity; certi
 
 With corrected geometry, consistent indexing, and realistic formalization scope, the PEN derivation becomes sharper: linear quantum kinematics maximizes resource-sensitive novelty, four dimensions maximize reusable structure plus Hodge gain, Lorentzian signature preserves modal logic, and Einstein--Hilbert dynamics minimizes syntactic cost. The architecture of spacetime is therefore treated as a constrained optimum, not an arbitrary backdrop.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
+% BibTeX-ready equivalents for these keys are provided in gr_and_qm_refs.bib.
 \bibitem{pen-unified}
 H.S.~Lande, ``The Principle of Efficient Novelty: Unified Manuscript,'' \texttt{pen\_unified.tex}, 2026.
+
+\bibitem{girard-linear-logic}
+J.-Y.~Girard, ``Linear Logic,'' \emph{Theoretical Computer Science} \textbf{50} (1987), 1--101.
+
+\bibitem{wootters-zurek}
+W.K.~Wootters and W.H.~Zurek, ``A Single Quantum Cannot be Cloned,'' \emph{Nature} \textbf{299} (1982), 802--803.
+
+\bibitem{dieks}
+D.~Dieks, ``Communication by EPR Devices,'' \emph{Physics Letters A} \textbf{92} (1982), 271--272.
+
+\bibitem{hottbook}
+The Univalent Foundations Program, ``Homotopy Type Theory: Univalent Foundations of Mathematics,'' Institute for Advanced Study, 2013.
+
+\bibitem{atiyah-hitchin-singer}
+M.F.~Atiyah, N.J.~Hitchin, and I.M.~Singer, ``Self-Duality in Four-Dimensional Riemannian Geometry,'' \emph{Proceedings of the Royal Society A} \textbf{362} (1978), 425--461.
+
+\bibitem{donaldson-kronheimer}
+S.K.~Donaldson and P.B.~Kronheimer, \emph{The Geometry of Four-Manifolds}, Oxford University Press, 1990.
+
+\bibitem{hawking-ellis}
+S.W.~Hawking and G.F.R.~Ellis, \emph{The Large Scale Structure of Space-Time}, Cambridge University Press, 1973.
+
+\bibitem{wald-gr}
+R.M.~Wald, \emph{General Relativity}, University of Chicago Press, 1984.
+
+\bibitem{lovelock-1971}
+D.~Lovelock, ``The Einstein Tensor and Its Generalizations,'' \emph{Journal of Mathematical Physics} \textbf{12} (1971), 498--501.
 \end{thebibliography}
 
 \end{document}
