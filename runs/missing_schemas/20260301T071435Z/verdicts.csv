@@ -1,0 +1,4 @@
+route,kappa_scalar,kappa_full,nu_base,delta_nu_min,delta_nu_mech,nu_new,rho_new,bar,margin,pass,raw_new_count,canonical_new_count,dedupe_ratio
+cauchy_minimal,4,11,46,20,64,110,10.0,5.99,4.01,true,64,64,1.0
+topological_arithmetic,3,10,46,14,64,110,11.0,5.99,5.01,true,64,64,1.0
+synthetic_continuum,2,9,46,8,64,110,12.222222,5.99,6.232222,true,64,64,1.0
