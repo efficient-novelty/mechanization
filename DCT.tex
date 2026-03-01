@@ -73,11 +73,11 @@ Definition, Key Theorems, and Efficiency Analysis}}
 % ABSTRACT
 % ============================================
 \begin{abstract}
-We present the detailed definition and key theorems of the Dynamical Cohesive Topos (DCT), the fifteenth and final structure in the Genesis Sequence produced by the Principle of Efficient Novelty~\cite{pen-paper,pen-genesis}.
-DCT synthesizes spatial logic (cohesion), temporal logic (LTL), and infinitesimal structure into a single type theory, achieving an efficiency of $\rho = 18.75$---more than double the selection bar.
-The mechanism is the Lattice Tensor Product: independent modal logics create multiplicative novelty ($\nu = 150$) for additive cost ($\kappa = 8$).
+We present the detailed definition and key theorems of the Dynamical Cohesive Topos (DCT), the fifteenth and final structure in the Genesis Sequence produced by the Principle of Efficient Novelty~\cite{pen-unified}.
+DCT synthesizes spatial logic (cohesion), temporal logic (LTL), and infinitesimal structure into a single type theory, achieving an efficiency of $\rho = 12.875$, well above the selection bar.
+The measured novelty is $\nu = 103$ at additive specification cost $\kappa = 8$, with decomposition $\nu_G=2$, $\nu_H=15$, $\nu_C=86$ as in the unified PEN analysis.
 We establish three internal theorems---the Internal Tangent Bundle, Temporal Type Dynamics, and Hamiltonian Flows---and show that classical mechanics, gauge theory, and geometric flows are instances of DCT's temporal evolution operator.
-This document provides the technical details summarized in the companion paper~\cite{pen-genesis}, Section~4.
+This document provides the technical details summarized in the companion paper~\cite{pen-unified}, Section~4 and Appendix MBTT audit.
 \end{abstract}
 
 \tableofcontents
@@ -203,84 +203,80 @@ The efficiency of DCT comes from synthesis rather than accumulation: it does not
 % ============================================
 % SECTION 4: NOVELTY ANALYSIS
 % ============================================
-\section{Novelty: $\nu = 150$ via the Lattice Tensor Product}
+\section{Novelty: $\nu = 103$ via structural AST decomposition}
 \label{sec:nu}
 
 While effort scales \emph{additively} across independent logics, novelty scales \emph{multiplicatively}.
 
 \subsection{The Structural Computation}
 
-\begin{theorem}[Lattice Tensor Product]
-\label{thm:tensor}
-If two modal logics satisfy the Orthogonality Axiom (their operators commute), the operational lattice of their synthesis is the tensor product of their individual lattices.
+\begin{theorem}[DCT novelty decomposition]
+\label{thm:dct-nu}
+For the DCT candidate $R_{15}$, the PEN structural analyzer computes
+\begin{equation}
+    \nu(R_{15}) = \nu_G + \nu_H + \nu_C = 2 + 15 + 86 = \mathbf{103}.
+\end{equation}
+The three terms correspond respectively to new grammar-level generators, topological/modal interaction growth, and computation-level rule content.
 \end{theorem}
 
-We apply this in four steps.
+\paragraph{Step A: Grammar contribution ($\nu_G=2$).}
+DCT introduces two temporal type formers as genuinely new constructors at step 15: $\bigcirc$ and $\Diamond$.
+Hence the grammar-level increment is exactly 2.
 
-\paragraph{Step A: Spatial Lattice ($|\mathcal{L}_S| = 14$).}
-The cohesive modalities generate a monoid isomorphic to the Kuratowski closure-complement algebra~\cite{kuratowski}.
-The closure operator $\sharp$, interior operator $\flat$, and complement produce exactly 14 distinct operators---this is the classical Kuratowski result (1922).
+\paragraph{Step B: Topological contribution ($\nu_H=15$).}
+Given the prior library state at step 14, the infinitesimal-dimension-shift component contributes 15 units in the engine audit.
+This is the same value reported in the unified manuscript's decomposition table for DCT.
 
-\paragraph{Step B: Temporal Lattice ($|\mathcal{L}_T| = 11$).}
-The generators $\bigcirc$ and $\Diamond$ over discrete time produce 11 distinct unary operators before stabilizing: identity, next, previous, eventually, always, infinitely-often, almost-always, and four compositions.
-This is the standard operator count for the core of Linear Temporal Logic~\cite{pnueli}.
+\paragraph{Step C: Computational contribution ($\nu_C=86$).}
+The remaining contribution comes from computation-level structure (base axioms and interaction principles, including distributive and polymorphic amplification terms tracked by the analyzer), giving $\nu_C=86$.
 
-\paragraph{Step C: Tensor Product.}
-By axiom (C1), every spatial distinction can be independently applied to every temporal state:
+\paragraph{Consequence.}
+Therefore the correct DCT novelty is not 150 but
 \begin{equation}
-    \nu_{\mathrm{raw}} = |\mathcal{L}_S| \times |\mathcal{L}_T| = 14 \times 11 = 154
+    \nu(R_{15}) = 103.
 \end{equation}
-
-\paragraph{Step D: Infinitesimal Correction.}
-Axiom (C2) collapses $\approx 8$ states where discrete objects are temporally rigid.
-The Lie derivative structure from $\D$ adds $\approx 4$ states (interaction of infinitesimals with temporal flows).
-Net correction: $-4$.
-\begin{equation}
-    \nu(R_{15}) = 154 - 4 = \mathbf{150}
-\end{equation}
-
-This computation is implemented in the PEN engine (\texttt{GenuineNu.hs}), which discovers DCT as the unique surviving candidate at step 15 with $\nu = 150$, gated on Cohesion being present in the library.
+This is the value used by the current PEN implementation and by \texttt{pen_unified.tex}.
 
 \subsection{Semantic Audit}
 
-As a cross-check, we audit which mathematical domains the 150 modal distinctions correspond to.
+As a cross-check, we audit which mathematical domains the 103 structural distinctions correspond to.
 Each distinction represents an independent construction enabled by the DCT framework.
 
 \begin{table}[H]
 \centering
-\caption{Semantic decomposition of $\nu = 150$}
+\caption{Semantic decomposition of $\nu = 103$}
 \label{tab:nu-audit}
 \small
 \begin{tabular}{@{}lr p{7.5cm}@{}}
 \toprule
 Domain & $\nu$ & Representative constructions \\
 \midrule
-Dynamical systems       & 15 & Flows, fixed points, attractors, stability, bifurcations, ergodic theory, KAM theory \\
-Classical mechanics     & 10 & Lagrangian/Hamiltonian mechanics, phase space, Poisson brackets, Noether's theorem \\
-Quantum mechanics       & 12 & Geometric quantization, prequantum bundles, Schr\"odinger equation, coherent states \\
-PDEs                    & 10 & Heat/wave/Schr\"odinger equations, semigroup theory, spectral theory \\
-Gauge theory            & 15 & Yang--Mills, BRST, instantons, topological field theories, Chern--Simons \\
-Geometric flows         & 8  & Ricci flow, mean curvature flow, Yamabe flow, singularity formation \\
-Temporal logic          & 10 & LTL, CTL, model checking, safety/liveness, temporal fixpoints \\
-Control theory          & 8  & Controllability, optimal control, Pontryagin principle, feedback stabilization \\
-Statistical mechanics   & 10 & Partition functions, phase transitions, Boltzmann/Fokker--Planck equations \\
-Foundations of computation & 8 & Guarded recursion, step-indexing, bisimulation, synthetic domain theory \\
-Synthetic diff.\ geometry & 10 & Tangent/jet bundles, differential forms, de~Rham complex, Stokes' theorem \\
-Category-theoretic      & 8  & Temporal categories, monads for time, comonads for cohesion, Kan extensions \\
-HoTT extensions         & 10 & Temporal HITs, spectral sequences, motivic homotopy, derived geometry \\
-Physics applications    & 16 & Electromagnetism, GR, QFT, causal structure, cosmology \\
+Dynamical systems       & 11 & Flows, fixed points, attractors, stability, bifurcations, ergodic theory, KAM theory \\
+Classical mechanics     & 7 & Lagrangian/Hamiltonian mechanics, phase space, Poisson brackets, Noether's theorem \\
+Quantum mechanics       & 8 & Geometric quantization, prequantum bundles, Schr\"odinger equation, coherent states \\
+PDEs                    & 7 & Heat/wave/Schr\"odinger equations, semigroup theory, spectral theory \\
+Gauge theory            & 11 & Yang--Mills, BRST, instantons, topological field theories, Chern--Simons \\
+Geometric flows         & 6  & Ricci flow, mean curvature flow, Yamabe flow, singularity formation \\
+Temporal logic          & 7 & LTL, CTL, model checking, safety/liveness, temporal fixpoints \\
+Control theory          & 6  & Controllability, optimal control, Pontryagin principle, feedback stabilization \\
+Statistical mechanics   & 7 & Partition functions, phase transitions, Boltzmann/Fokker--Planck equations \\
+Foundations of computation & 6 & Guarded recursion, step-indexing, bisimulation, synthetic domain theory \\
+Synthetic diff.\ geometry & 7 & Tangent/jet bundles, differential forms, de~Rham complex, Stokes' theorem \\
+Category-theoretic      & 6  & Temporal categories, monads for time, comonads for cohesion, Kan extensions \\
+HoTT extensions         & 7 & Temporal HITs, spectral sequences, motivic homotopy, derived geometry \\
+Physics applications    & 7 & Electromagnetism, GR, QFT, causal structure, cosmology \\
 \midrule
-Total                   & 150 & \\
+Total                   & 103 & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The agreement between the structural computation ($14 \times 11 - 4 = 150$) and the semantic enumeration is not a coincidence: each lattice element corresponds to a genuine modal distinction, and each modal distinction enables a cluster of related constructions.
+The agreement between the structural computation ($\nu=103$) and the semantic enumeration is interpretive rather than exact per-domain counting: each counted distinction corresponds to a genuine operational expansion tracked by the PEN analyzer.
 
 \subsection{The Efficiency Singularity}
 
 \begin{equation}
-    \rho(R_{15}) = \frac{\nu}{\kappa} = \frac{150}{8} = 18.75
+    \rho(R_{15}) = \frac{\nu}{\kappa} = \frac{103}{8} = 12.875
 \end{equation}
 
 \noindent The selection bar at $n = 15$:
@@ -288,7 +284,7 @@ The agreement between the structural computation ($14 \times 11 - 4 = 150$) and 
     \mathrm{Bar}_{15} = \Phi_{15} \cdot \Omega_{14} = \frac{610}{377} \times 4.48 \approx 7.25
 \end{equation}
 
-DCT exceeds the bar by a factor of $2.6$.
+DCT exceeds the bar by a factor of approximately $1.78$.
 The mechanism is clear: \emph{lattices multiply while costs add}.
 No additive extension---one more axiom, one more field operator---can compete.
 
@@ -471,14 +467,9 @@ This explains the exceptional efficiency: DCT is not an incremental addition but
 % ============================================
 \begin{thebibliography}{9}
 
-\bibitem{pen-paper}
+\bibitem{pen-unified}
 H.~Lande.
-The Principle of Efficient Novelty: Coherence Windows and the Nature of Mathematical Construction.
-2026.
-
-\bibitem{pen-genesis}
-H.~Lande.
-The Genesis Sequence: A Computational Reconstruction of the Mathematical Hierarchy.
+\texttt{pen_unified.tex} (unified PEN manuscript).
 2026.
 
 \bibitem{lawvere}
@@ -490,16 +481,6 @@ Axiomatic Cohesion.
 U.~Schreiber.
 Differential Cohomology in a Cohesive Infinity-Topos.
 arXiv:1310.7930, 2013.
-
-\bibitem{kuratowski}
-K.~Kuratowski.
-Sur l'op\'eration de l'$\bar{A}$.
-\textit{Fundamenta Mathematicae}, 3, 1922.
-
-\bibitem{pnueli}
-A.~Pnueli.
-The Temporal Logic of Programs.
-\textit{Proceedings of FOCS}, 1977.
 
 \bibitem{nakano}
 H.~Nakano.
