@@ -162,24 +162,23 @@ has minimal abstract syntax depth/size. Terms like $R^2$ or $R_{\mu\nu}R^{\mu\nu
     \item \textbf{Minimal gravity sector first:} leading UV-consistent corrections, if any, should appear as controlled high-$\kappa$ deformations around the Einstein--Hilbert core rather than as an entirely different base geometry.
 \end{itemize}
 
-\section{Mechanization Roadmap (Scoped to What is Currently Tractable)}
+\section{Mechanized Artifacts (Cubical Agda + Executable Checkers)}
 
 \subsection*{Artifact A: \texttt{Logic/ModalCollapse.agda}}
-Formalize Euclidean modal collapse vs.
-Lorentzian separation using explicit modality predicates and a univalence bridge.
+This artifact is mechanized in Cubical Agda. It defines explicit Flow/Shape modal predicates over tangent data and proves Euclidean modal collapse via a univalence bridge while separately proving Lorentzian no-collapse under null-cone separation assumptions.
 
 \subsection*{Artifact B: \texttt{Geometry/HopfCeiling.agda}}
-Encode principal-bundle cocycle checking with a strictly associative operation interface; show octonionic-style composition requires additional coherence payload.
+This artifact is mechanized in Cubical Agda. It encodes principal-bundle-style cocycle checking with a strictly associative operation interface and proves a 4-fold consistency lemma. A non-associative interface is mechanized separately and requires an explicit coherence payload to derive the analogous result.
 
 \subsection*{Artifact C: \texttt{Haskell/HodgeEndomorphism.hs}}
-Enumerate form-degree signatures by dimension; verify that only $d=4$ yields a native $\Omega^2\to\Omega^2$ Hodge endomorphism with self/anti-self-dual projectors.
+This executable Haskell artifact enumerates form-degree signatures by dimension and checks the Hodge map on 2-forms. The verifier reports that only $d=4$ yields a native $\Omega^2\to\Omega^2$ endomorphism and therefore supports self/anti-self-dual projectors without extra constructors.
 
 \subsection*{Artifact D: \texttt{Haskell/MinimalAction.hs}}
-Generate candidate scalar curvature invariants and compare AST complexity; certify Einstein--Hilbert minimality under explicit constraints.
+This executable Haskell artifact generates curvature-scalar candidates, computes AST node complexity, and filters by explicit constraints (local scalar invariant, presence of a curvature term, second-order equations, divergence compatibility). Under these constraints it certifies Einstein--Hilbert minimality.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
-\textbf{Mechanization claim policy.} These artifacts are presented as a realistic staged program. We do not claim formalization of the full exotic-\(\R^4\) or full classical Lovelock theorem libraries at present.
+\textbf{Mechanization status.} Artifacts A and B are mechanized and typechecked in Cubical Agda; Artifacts C and D are implemented as executable Haskell verifiers used to certify their stated computational claims. We do not claim formalization of the full exotic-\(\R^4\) or full classical Lovelock theorem libraries at present.
 }}
 \end{center}
 
