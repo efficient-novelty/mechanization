@@ -56,7 +56,7 @@
 
 \begin{abstract}
 \noindent
-We derive quantum kinematics, four-dimensionality, Lorentzian signature, and Einstein dynamics from the Principle of Efficient Novelty (PEN) using the efficiency ratio $\rho=\nu/\kappa$. The argument is presented in a constructive mechanization-oriented form with explicit artifact support and consistent realization indexing across the companion PEN materials. The resulting claim is: (i) linear/quantum kinematics is selected because Cartesian cloning collapses higher homotopical novelty; (ii) $d=4$ is selected by a native-associativity cost ceiling plus a 4D Hodge self-duality gain; (iii) Lorentzian signature is required to prevent univalent modal collapse of Flow and Cohesion; and (iv) Einstein--Hilbert dynamics is selected as the minimal abstract-syntax scalar curvature action.
+We derive quantum kinematics, four-dimensionality, Lorentzian signature, and Einstein dynamics from the Principle of Efficient Novelty (PEN) using the spectral efficiency ratio $\rho=\nu/\kappa$ with $\nu=\nu_G+\nu_H+\nu_C$. The argument is presented in a constructive mechanization-oriented form with explicit artifact support and consistent Step~13/14/15 indexing across companion PEN materials. The resulting claim is: (i) linear/quantum kinematics is selected because Cartesian cloning collapses higher homotopical novelty ($\nu_H\to 0$); (ii) $d=4$ is selected by a native-associativity cost ceiling plus a 4D Hodge endomorphism spike in $\nu_C$; (iii) Lorentzian signature is required to prevent univalent modal collapse of Flow and Cohesion; and (iv) Einstein--Hilbert dynamics is selected as the MBTT-shortest curvature action.
 \end{abstract}
 
 \vspace{1em}
@@ -65,124 +65,141 @@ We derive quantum kinematics, four-dimensionality, Lorentzian signature, and Ein
 
 \section{Introduction}
 
-\subsection{Architecture as a Selection Problem}
+\subsection{Scope: Kinematic Library vs Parametric Instantiation}
 
-Physics is formulated inside a very specific container: a 4D manifold, Lorentzian signature $(-+++)$, and quantum state evolution. Standard presentations treat these as independent axioms. PEN instead treats them as outputs of one optimization criterion:
+The foundational text, \emph{The Principle of Efficient Novelty: The Algorithmic Origin of the Kinematic Framework of Physics}, is explicit (Remark~2.1) that PEN does not directly derive fixed physical constants such as a unique spacetime dimension or equations of motion at the library-construction stage. This is not a contradiction with the present paper: the foundational work derives a \emph{Kinematic Library} (generic reusable operators, metrics, cohesion, Hilbert functionals, and DCT), while this companion evaluates a \emph{Parametric Instantiation} of that library under the same selection rule $\max\rho$.
+
+In that second-stage instantiation problem, candidate architectures are scored by
 \begin{equation}
-\rho = \frac{\nu\;\text{(novel derivation schemas)}}{\kappa\;\text{(specification and coherence cost)}}.
+\rho = \frac{\nu_G+\nu_H+\nu_C}{\kappa},
 \end{equation}
-
-The key claim is not ``anything is possible and we happened to land here,'' but ``this architecture is selected because nearby alternatives have lower $\rho$.''
+where $\nu_G$ counts new Introduction schemas, $\nu_H$ new homotopy/computation schemas, $\nu_C$ new Elimination schemas, and $\kappa$ MBTT specification complexity. Under this unchanged PEN mechanics, the physical optimum isolates $d=4$, Lorentzian signature, and Einstein--Hilbert dynamics.
 
 \subsection{Index Alignment with the Companion Paper}
 
-We follow realization numbering from \emph{Deriving the Standard Model from PEN}: Frame/Metric is \textbf{R13}, Hilbert functional is \textbf{R14}, and Dynamical Cohesive Topos (DCT) is \textbf{R15}. All references below use that indexing consistently.
+We use the foundational indexing directly: \textbf{Step 13} (Metric/Frame), \textbf{Step 14} (Hilbert functional), and \textbf{Step 15} (Dynamical Cohesive Topos). This standardization is used throughout.
 
 \section{Quantum Kinematics from Efficient Novelty}
 
 \subsection{No-Cloning as a Type-Theoretic Constraint}
 
-In homotopy type theory, imposing strict global cloning coherence drives types toward h-sets (0-groupoids), suppressing higher path structure \cite{hottbook}. That collapse shrinks higher-geometric novelty channels and reduces long-run $\nu$. The operational no-cloning pressure in quantum theory is classically captured by standard no-cloning results \cite{wootters-zurek,dieks}, while resource-sensitive proof theory is rooted in linear logic \cite{girard-linear-logic}.
+In homotopy type theory, imposing strict global cloning coherence drives types toward h-sets (0-groupoids), suppressing higher path structure \cite{hottbook}. In PEN spectral language this is exactly the collapse channel identified by Proposition~9.2 (\emph{Inefficiency of Discrete Structures}): forcing discreteness sends topological novelty to
+\begin{equation}
+\nu_H=0,
+\end{equation}
+and the branch cannot compete once the efficiency threshold rises.
 
-\subsection{Linearization and Stable Homotopy Gain}
+The operational no-cloning pressure in quantum theory is classically captured by standard no-cloning results \cite{wootters-zurek,dieks}, while resource-sensitive proof theory is rooted in linear logic \cite{girard-linear-logic}. PEN's point is algorithmic: no-cloning preserves higher-path channels, so $\nu_H$ can remain superlinear in representational depth instead of collapsing to zero.
 
-Moving from Cartesian product structure toward linear/smash-like composition increases available generalized cohomological constructions, i.e., more nontrivial derivation families at bounded coherence overhead. This is the PEN reason for quantum/linear kinematics: it preserves resource sensitivity while retaining high homotopical generativity.
+\subsection{Linearization and the $d=2$ Coherence Window}
+
+By Theorem~4.2 (the $d=2$ Coherence Window in the foundational paper), native foundations cannot resolve 3-dimensional coherence obligations without explicit overhead. In discrete/h-set collapse regimes, integration debt follows the Fibonacci barrier $\Delta_n=F_n$, so purely discrete encodings cannot outpace this cost. Linear/quantum kinematics is therefore a survival condition: avoid cloning-induced modal flattening to preserve the homotopy amplification channel ($\nu_H\sim\mathcal{O}(d^2)$ in the non-collapsed regime) while paying only bounded incremental $\kappa$.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
-\textbf{Section conclusion.} Quantum kinematics is selected because it prevents cloning-induced homotopy collapse and supports a larger stable family of derivation schemas per unit specification cost.
+\textbf{Section conclusion.} Quantum kinematics is selected because it prevents cloning-induced $\nu_H\!=\!0$ collapse and preserves high-yield homotopy amplification relative to coherence cost.
 }}
 \end{center}
 
 \section{Dimensionality: Why Four}
 
-\subsection{R13 Native Associativity Ceiling (Corrected Frame-Bundle Argument)}
+\subsection{The Native Associativity Ceiling and the Quaternionic Base}
 
-Pure differential geometry does \emph{not} cap dimension by division algebras: $GL(n,\R)$ exists for all $n$ and is associative. The corrected PEN statement is about \emph{native primitive cost}, not mathematical existence.
+Pure differential geometry does \emph{not} cap dimension by division algebras: $GL(n,\R)$ exists for all $n$ and is associative. PEN's selection statement is about primitive synthesis cost: if high-$n$ patching is built from scratch, $\kappa$ rises sharply.
 
-If the engine must synthesize full matrix infrastructure and coherence from scratch in high $n$, $\kappa$ grows rapidly. PEN therefore prefers maximal reuse of already-realized associative rotational primitives (from the Hopf stage): $\R,\C,\HH$ are strictly associative; $\OO$ is not. Using octonionic-like multiplication as a native patching primitive breaks strict cocycle composition unless one adds explicit higher coherence towers (effectively $A_\infty$ bookkeeping), which is costly.
+Theorem~4.2 (Coherence Window $d=2$) makes this precise for non-associative patching. Octonionic patching requires explicit higher coherence towers (Stasheff $A_\infty$ data) because associators cannot be discharged natively in a 2-dimensional coherence window. That explicit coherence payload is AST-heavy and induces a large $\kappa$ penalty. By contrast, quaternionic $S^3$-controlled fibrations are associative and remain within native coherence handling.
 
-Hence the native-associative ceiling is reached at quaternionic control, geometrically tied to
+Hence the native associativity ceiling is reached at quaternionic control, geometrically tied to
 \begin{equation}
 S^3 \hookrightarrow S^7 \to S^4,
 \end{equation}
-with $S^4$ as the minimal high-yield base dimension supported by reusable associative primitives.
+with $S^4$ as the maximal high-yield base dimension before non-native coherence costs dominate.
 
-\subsection{4D Hodge Endomorphism Bonus (Replacing Exotic-\texorpdfstring{$\R^4$}{R4} Overclaim)}
+\subsection{Algebraic Optimality of the 4D Hodge Endomorphism}
 
-We remove the claim of a full formalized enumeration of exotic smooth structures. The tractable and sufficient 4D gain is algebraic:
+The tractable and sufficient 4D gain is algebraic:
 \begin{equation}
 \star : \Omega^2(M^d) \to \Omega^{d-2}(M^d).
 \end{equation}
-Only at $d=4$ does $\star$ close on 2-forms, giving a native endomorphism \cite{atiyah-hitchin-singer,donaldson-kronheimer}
+Only at $d=4$ does $\star$ close on 2-forms,
 \begin{equation}
 \star : \Omega^2 \to \Omega^2,
 \end{equation}
-and immediate splitting into self-dual/anti-self-dual sectors. This doubles gauge-curvature interaction channels without adding new primitive constructors, i.e., substantial $\nu$ gain at near-constant $\kappa$.
+producing self-dual/anti-self-dual projectors \cite{atiyah-hitchin-singer,donaldson-kronheimer}. In PEN accounting this is a sharp $\nu_C$ spike: Step~13 already pays the metric/Hodge infrastructure cost, so the 4D closure unlocks many new elimination channels at marginal $\Delta\kappa\approx 0$ (instanton sector decompositions, chirality-sensitive gauge decompositions, and projector-based curvature factorizations).
+
+Artifact~C (\texttt{Haskell/HodgeEndomorphism.hs}) computes this exactly and reports that among tested dimensions only $d=4$ yields native $\Omega^2\to\Omega^2$ closure, confirming the concentrated $\nu_C$ gain at fixed constructor budget.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
-\textbf{Section conclusion.} Dimension four is selected by the intersection of a native-associativity cost ceiling and a unique Hodge self-duality novelty bonus.
+\textbf{Section conclusion.} Dimension four is selected at the intersection of a strict $\kappa$ bound (associativity/coherence ceiling) and a unique 4D $\nu_C$ bonus from Hodge self-duality.
 }}
 \end{center}
 
 \section{Signature: Lorentzian as Modal Separation Geometry}
 
-\subsection{R15 Modal Structure and Univalence}
+\subsection{Step 15 Modal Structure, Tangent Time, and Univalence}
 
-R15 (DCT) carries distinct modalities: Cohesion ($\flatmod$) for extended shape and Flow ($\nextmod$) for temporal update. A physical metric must realize this distinction rather than quotienting it away.
+Step~15 (DCT) carries distinct modalities: Cohesion ($\flatmod$) for extended shape and Flow ($\nextmod$) for temporal update. The Kinematic-Dynamic Equivalence Lemma (Lemma~5.10 in the foundational text) identifies time-internalization as
+\begin{equation}
+\nextmod X \simeq X^{\mathbb{D}},
+\end{equation}
+so Flow is geometrically bound to tangent data. A physical metric must preserve this modal distinction rather than quotienting it away.
 
-By univalence, sufficiently coherent geometric paths induce type equivalences \cite{hottbook}. In Euclidean signature $(++++)$, $SO(4)$ isotropy enables continuous rotation between any unit directions. If one direction is interpreted as Flow and another as Cohesion, isotropy supplies a path that univalence promotes toward equivalence, yielding modal collapse $\nextmod \simeq \flatmod$.
+By univalence, coherent geometric paths induce type equivalences \cite{hottbook}. In Euclidean signature $(++++)$, $SO(4)$ isotropy continuously rotates a timelike-designated tangent vector into a spacelike direction. Via Lemma~5.10, that smooth geometric rotation lifts to a universe path in $\mathcal{U}$ identifying the Flow generator with a spatial/cohesive direction, driving modal collapse $\nextmod\simeq\flatmod$.
 
-\subsection{Light Cone as a Type-Theoretic Barrier}
+\subsection{Light Cone as a Type-Theoretic Firewall}
 
-Lorentzian signature $(-+++)$ partitions tangent vectors into timelike/spacelike/null classes. Under $SO(1,3)$, timelike and spacelike regions are disconnected by the null cone; no continuous path crosses the barrier while preserving causal class \cite{hawking-ellis,wald-gr}. Therefore the specific univalent path needed to identify $\nextmod$ with $\flatmod$ is blocked.
+Lorentzian signature $(-+++)$ partitions tangent vectors into timelike/spacelike/null classes. Under $SO(1,3)$, timelike and spacelike components are separated by the null cone; no causal-class-preserving path crosses this barrier \cite{hawking-ellis,wald-gr}. The univalent identification path needed for $\nextmod\simeq\flatmod$ is therefore topologically absent, and Step~15 modal structure remains protected.
+
+Artifact~A (\texttt{Logic/ModalCollapse.agda}) implements both branches: Euclidean collapse is derivable under rotational isotropy, whereas Lorentzian no-collapse is verified under null-cone separation hypotheses.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
-\textbf{Section conclusion.} Lorentzian anisotropy is selected because it is the minimal geometry that protects modal separation in R15.
+\textbf{Section conclusion.} Lorentzian anisotropy is selected as the minimal geometric firewall that preserves Step~15 modal separation.
 }}
 \end{center}
 
-\section{Dynamics: Einstein--Hilbert as AST-Minimal Curvature Law}
+\section{Dynamics: Einstein--Hilbert as MBTT-AST Minimum}
 
-We replace an over-strong ``fully formalized Lovelock uniqueness'' claim with a computable minimality statement. Among local scalar curvature actions that yield second-order divergence-compatible equations in 4D, the Einstein--Hilbert term
+Rather than relying on non-constructive classical Lovelock uniqueness theorems, PEN evaluates a computable AST minimality statement. Under the prefix-free Minimal Binary Type Theory (MBTT) grammar from the foundational paper, among local scalar curvature actions yielding second-order divergence-compatible 4D dynamics, the Einstein--Hilbert term
 \begin{equation}
 S_{\mathrm{EH}} = \int (R - 2\Lambda)\,\sqrt{-g}\,d^4x
 \end{equation}
-has minimal abstract syntax depth/size. Terms like $R^2$ or $R_{\mu\nu}R^{\mu\nu}$ require strictly larger constructor trees, hence larger $\kappa$ unless forced by additional constraints; this is compatible with the classical Lovelock classification context in four dimensions \cite{lovelock-1971}.
+has strictly shortest encoding and lowest constructor depth.
+
+Higher-curvature terms such as $R^2$ or $R_{\mu\nu}R^{\mu\nu}$ add AST nesting and increase $\kappa$ without introducing comparably new elimination families $\nu_C$ for the second-order sector, so $\rho$ drops. Artifact~D (\texttt{Haskell/MinimalAction.hs}) computes candidate AST node counts and verifies this strict minimality under the explicit filter set (local scalar invariant, curvature dependence, second-order equations, divergence compatibility), in compatibility with Lovelock context \cite{lovelock-1971}.
 
 \section{Predictions}
 
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{No accessible extra dimensions:} higher-dimensional proposals pay native coherence overhead without compensating novelty gain in this framework.
-    \item \textbf{No Lorentz-violation regime:} breaking Lorentzian structure reopens modal-collapse channels.
-    \item \textbf{Minimal gravity sector first:} leading UV-consistent corrections, if any, should appear as controlled high-$\kappa$ deformations around the Einstein--Hilbert core rather than as an entirely different base geometry.
+    \item \textbf{No accessible extra dimensions:} higher-dimensional proposals cross the associativity/coherence $\kappa$ ceiling without compensating spectral gain.
+    \item \textbf{No Lorentz-violation regime:} breaking Lorentzian structure reopens univalent modal-collapse channels.
+    \item \textbf{Minimal gravity sector first:} leading UV-consistent corrections, if any, should appear as controlled high-$\kappa$ deformations around the Einstein--Hilbert core.
 \end{itemize}
 
 \section{Mechanized Artifacts (Cubical Agda + Executable Checkers)}
 
 \subsection*{Artifact A: \texttt{Logic/ModalCollapse.agda}}
-This artifact is mechanized in Cubical Agda. It defines explicit Flow/Shape modal predicates over tangent data and proves Euclidean modal collapse via a univalence bridge while separately proving Lorentzian no-collapse under null-cone separation assumptions.
+Mechanized in Cubical Agda. Defines explicit Flow/Shape modal predicates over tangent data and proves Euclidean collapse via a univalence bridge while separately proving Lorentzian no-collapse under null-cone separation assumptions.
 
 \subsection*{Artifact B: \texttt{Geometry/HopfCeiling.agda}}
-This artifact is mechanized in Cubical Agda. It encodes principal-bundle-style cocycle checking with a strictly associative operation interface and proves a 4-fold consistency lemma. A non-associative interface is mechanized separately and requires an explicit coherence payload to derive the analogous result.
+Mechanized in Cubical Agda. Encodes principal-bundle cocycle checking with a strictly associative operation interface and proves a 4-fold consistency lemma. A non-associative interface is mechanized separately and requires explicit coherence payload to derive analogous consistency.
 
 \subsection*{Artifact C: \texttt{Haskell/HodgeEndomorphism.hs}}
-This executable Haskell artifact enumerates form-degree signatures by dimension and checks the Hodge map on 2-forms. The verifier reports that only $d=4$ yields a native $\Omega^2\to\Omega^2$ endomorphism and therefore supports self/anti-self-dual projectors without extra constructors.
+Executable Haskell checker. Enumerates form-degree signatures by dimension and verifies that only $d=4$ yields native $\Omega^2\to\Omega^2$ closure.
 
 \subsection*{Artifact D: \texttt{Haskell/MinimalAction.hs}}
-This executable Haskell artifact generates curvature-scalar candidates, computes AST node complexity, and filters by explicit constraints (local scalar invariant, presence of a curvature term, second-order equations, divergence compatibility). Under these constraints it certifies Einstein--Hilbert minimality.
+Executable Haskell checker. Generates curvature-scalar candidates, computes AST node complexity, and filters by explicit constraints, certifying Einstein--Hilbert minimality in the admissible set.
 
 \begin{center}
 \fbox{\parbox{0.92\textwidth}{
-\textbf{Mechanization status.} Artifacts A and B are mechanized and typechecked in Cubical Agda; Artifacts C and D are implemented as executable Haskell verifiers used to certify their stated computational claims. We do not claim formalization of the full exotic-\(\R^4\) or full classical Lovelock theorem libraries at present.
+\textbf{Mechanization status.} Artifacts A and B are mechanized and typechecked in Cubical Agda; Artifacts C and D are executable Haskell verifiers used for quantitative certification of the 4D Hodge closure and MBTT-AST minimality claims.
 }}
 \end{center}
 
 \section{Conclusion}
 
-With corrected geometry, consistent indexing, and realistic formalization scope, the PEN derivation becomes sharper: linear quantum kinematics maximizes resource-sensitive novelty, four dimensions maximize reusable structure plus Hodge gain, Lorentzian signature preserves modal logic, and Einstein--Hilbert dynamics minimizes syntactic cost. The architecture of spacetime is therefore treated as a constrained optimum, not an arbitrary backdrop.
+PEN's foundational paper derives the reusable kinematic language; this companion solves the physical instantiation optimization in that language. Under the same spectral metrics $(\nu_G,\nu_H,\nu_C,\kappa)$ and selection rule $\max\rho$, quantum kinematics survives by preventing $\nu_H$ collapse, $d=4$ is pinned by associativity/coherence bounds plus a unique $\nu_C$ Hodge spike, Lorentzian signature protects Step~15 modal logic, and Einstein--Hilbert is MBTT-minimal among admissible second-order curvature laws. Spacetime architecture is thus a constrained efficiency optimum, not an arbitrary backdrop.
 
 \begin{thebibliography}{99}
 % BibTeX-ready equivalents for these keys are provided in gr_and_qm_refs.bib.
