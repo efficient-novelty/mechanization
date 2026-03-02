@@ -504,7 +504,7 @@ each type former $F$ is the left adjoint of a forgetful functor $U$; the Introdu
 The $\beta$-rule is the triangle identity $\varepsilon F \circ F\eta = \mathrm{id}_F$; the $\eta$-rule is the other triangle identity $U\varepsilon \circ \eta U = \mathrm{id}_U$.
 Both are uniquely determined by the adjunction data.
 
-The Adjoint Completion Principle is \emph{not} a retroactive correction; it is a foundational measurement axiom for the Generative Capacity.
+The Adjoint Completion Principle is a foundational measurement axiom for the Generative Capacity.
 Because Elimination rules are term-level operations (they produce new proofs within existing types, not new inhabited types), they are invisible to type-inhabitation comparisons.
 The principle closes this observational gap categorically: Lawvere's adjointness in foundations~\cite{lawvere-adjoint} universally guarantees that Introduction natively yields Elimination, so accounting for both is a completeness requirement of the $\nu$ metric, not an ad hoc bonus.
 The Uniform Algorithm (\S\ref{sec:uniform-nu}) applies this principle at exactly two bootstrap steps (Witness and $\Pi/\Sigma$) to recover the correct $\nu$ values.
@@ -524,10 +524,7 @@ $\Phi_n := \Delta_n / \Delta_{n-1} = F_n/F_{n-1} \to \varphi$.
 
 \begin{remark}
 \label{rem:phi-not-tau}
-An earlier draft defined $\Phi_n$ as $\tau_n / \tau_{n-1}$.
-This is incorrect: at $n = 4$, $\tau_4/\tau_3 = 7/4 = 1.75$ would raise the bar above $\rho_4 = 1.67$, killing the infrastructure phase.
-The correct $\Phi_4 = 3/2 = 1.50$ allows dependent types to survive.
-Inflation measures the \emph{marginal} growth of interface debt, not the cumulative burden.
+Inflation is defined from marginal integration cost, not cumulative elapsed time: if one used $\tau_n / \tau_{n-1}$, then at $n = 4$ the value $7/4 = 1.75$ would raise the bar above $\rho_4 = 1.67$ and block the infrastructure phase. The marginal ratio $\Phi_4 = 3/2 = 1.50$ preserves admissibility at Step~4. Inflation therefore measures the \emph{marginal} growth of interface debt, not the cumulative burden.
 \end{remark}
 
 \begin{definition}[Cumulative Baseline]
@@ -1282,12 +1279,12 @@ $n$ & Structure & $\nu_G$ & $\nu_H$ & $\nu_C$ & $\nu$ \\
 \end{tabular}
 \end{table}
 
-\begin{remark}[Corrected attribution]
-\label{rem:corrected}
+\begin{remark}[Witness and $\Pi/\Sigma$ axis attribution]
+\label{rem:witness-pisigma-attribution}
 Under the Generative Capacity definition, the Witness and $\Pi/\Sigma$ steps naturally split across axes:
 the term $\star$ is an Introduction rule ($\nu_G = 1$) while pattern matching on $\mathbf{1}$ is an Elimination rule ($\nu_C = 1$); similarly, $\lambda$-abstraction and pair formation are Introduction rules ($\nu_G = 2$) while apply, fst, and snd are Elimination rules ($\nu_C = 3$).
-This corrects an earlier attribution that placed all Witness novelty in grammar and all $\Pi/\Sigma$ novelty in capability.
-The total $\nu$ is unchanged; the decomposition is refined.
+This yields a principled axis attribution in which both steps contribute across syntactic and capability components.
+The total $\nu$ is unchanged; only the decomposition is made explicit.
 \end{remark}
 
 \begin{remark}[The $S^3$ H-space anomaly: $\nu_C = 3$]
@@ -1781,7 +1778,7 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
 \begin{itemize}[nosep]
     \item \textbf{Maximal interface density} (\cref{rem:maximal-coupling}): each candidate must seal against the entire exported interface of the past $d$ layers to preserve global normalization/canonicity; otherwise eliminator interactions are underspecified, reduction can get stuck, and the $\Delta_n=F_n$ derivation no longer follows.
     \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and library specifications) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
-    \item The $\nu$ values in \cref{tab:genesis}: all 15 values are mechanically verified by the synthesis engine's structural AST analysis (\S\ref{sec:inference-nu}), which extracts $\nu_G$, $\nu_H$, $\nu_C$ directly from candidate telescopes.  Steps~1--12 match exactly; steps~13--14 are within 7\%/3\% of earlier hand counts (the structural interaction counting is tighter). The type-inhabitation-based uniform algorithm with adjoint completion (\S\ref{sec:uniform-nu}) independently confirms all 15 ordering constraints.
+    \item The $\nu$ values in \cref{tab:genesis}: all 15 values are mechanically verified by the synthesis engine's structural AST analysis (\S\ref{sec:inference-nu}), which extracts $\nu_G$, $\nu_H$, $\nu_C$ directly from candidate telescopes.  Steps~1--12 match exactly; steps~13--14 are within 7\%/3\% of the baseline analytical estimates (the structural interaction counting is tighter). The type-inhabitation-based uniform algorithm with adjoint completion (\S\ref{sec:uniform-nu}) independently confirms all 15 ordering constraints.
     \item The DCT novelty $\nu = 103$ is computed by the structural AST analysis via three meta-theorem detectors: Distributive Law ($+38$), Universe Polymorphism ($+42$), and Infinitesimal Dimension Shift ($+15$), plus 2~type formers and 6~base axiom rules. The decomposition is fully mechanized and deterministic.
 \end{itemize}
 
@@ -1806,7 +1803,7 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
 
 \paragraph{The sample size and formula sensitivity.}
 All three spectral axes are simultaneously nonzero at exactly three steps ($S^1$, $S^2$, $S^3$)---the higher inductive types.
-Under the corrected attribution (\cref{rem:corrected}), the Witness and $\Pi/\Sigma$ steps also exercise both the syntactic and logical axes.
+Under the attribution in \cref{rem:witness-pisigma-attribution}, the Witness and $\Pi/\Sigma$ steps also exercise both the syntactic and logical axes.
 This is enough to demonstrate independence ($S^2 \equiv S^3$ syntactic identity) and to constrain the weight space, but a skeptic may view this as thin evidence.
 We stress that the claim is limited: the Spectral Decomposition is a property of the Generative Sequence, not a theorem about arbitrary mathematical structures.
 The strength of the claim rests on the intrinsic definition (Generative Capacity), which makes the three-way partition tautological and the equal-weight property the only empirical content.
