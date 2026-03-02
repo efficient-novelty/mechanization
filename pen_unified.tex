@@ -579,10 +579,14 @@ A natural objection: what prevents an opaque axiom $\mathtt{StandardModel} : \ma
 \begin{axiom}[Selection]
 \label{ax:selection}
 The Selection Bar is $\mathrm{Bar}_n := \Phi_n \cdot \Omega_{n-1}$.
-From admissible candidates, select $X$ with $\rho(X) \geq \mathrm{Bar}_n$ and minimal positive overshoot.
+From admissible candidates, select $X$ with $\rho(X) \geq \mathrm{Bar}_n$ and \emph{minimal positive overshoot.}
 Ties broken by minimal $\kappa$.
 If no candidate clears the bar, the tick idles.
 \end{axiom}
+
+\begin{remark}[Minimal overshoot]
+The minimal-overshoot criterion is not an optimization heuristic but an ontological constraint. In a process where structure emerges constructively — where each step's legitimacy is grounded entirely in prior realizations — the only candidate with full ontological standing is the one whose efficiency is maximally continuous with the cumulative baseline. Excess efficiency above the bar represents inferential content without constructive ground; minimal overshoot is the requirement that no such ungrounded content enters the library. It is the generative analogue of the principle of sufficient reason: nothing is realized without a reason commensurate with the history that gives rise to it.
+\end{remark}
 
 \begin{remark}[Algorithmic API assembly and compositional synergy]
 \label{rem:api-assembly}

@@ -11,125 +11,127 @@
 \contentsline {section}{\numberline {3}The Model}{8}{section.3}%
 \contentsline {subsection}{\numberline {3.1}State and Candidates}{8}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}The Dual-Cost Model}{8}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Novelty: Generative Capacity}{11}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.3}Novelty: Generative Capacity}{10}{subsection.3.3}%
 \contentsline {paragraph}{Scalar provenance policy (strict first-use).}{11}{section*.7}%
 \contentsline {subsection}{\numberline {3.4}Selection Dynamics}{12}{subsection.3.4}%
 \contentsline {subsection}{\numberline {3.5}The Five Axioms}{12}{subsection.3.5}%
 \contentsline {subsection}{\numberline {3.6}Realization Time}{13}{subsection.3.6}%
 \contentsline {section}{\numberline {4}Coherence Windows}{13}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Induced Obligations}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.1}Induced Obligations}{14}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Theorem A: Extensional Systems ($d = 1$)}{14}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}Theorem B: Intensional Systems ($d = 2$)}{14}{subsection.4.3}%
 \contentsline {subsubsection}{\numberline {4.3.1}Upper Bound: $d \leq 2$}{14}{subsubsection.4.3.1}%
 \contentsline {subsubsection}{\numberline {4.3.2}Lower Bound: $d \geq 2$}{15}{subsubsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.4}The Adjunction Depth Barrier}{15}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.4}The Adjunction Depth Barrier}{16}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}Cohomological Upper Bound: Spectral Degeneration}{16}{subsection.4.5}%
 \contentsline {subsection}{\numberline {4.6}Topological Lower Bound: The Clutching Family}{17}{subsection.4.6}%
-\contentsline {section}{\numberline {5}The Complexity Scaling Theorem}{17}{section.5}%
+\contentsline {section}{\numberline {5}The Complexity Scaling Theorem}{18}{section.5}%
 \contentsline {subsection}{\numberline {5.1}Stagnation of Class~1 Systems}{18}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Acceleration of Class~2 Systems}{18}{subsection.5.2}%
 \contentsline {section}{\numberline {6}The Combinatorial Novelty Theorem}{18}{section.6}%
 \contentsline {subsection}{\numberline {6.1}OIT Exponentiality}{18}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}HIT Constraints}{18}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Restoring Superlinear Growth}{18}{subsection.6.3}%
-\contentsline {paragraph}{Mechanism 1: Dependent Elimination.}{18}{section*.8}%
-\contentsline {paragraph}{Mechanism 2: Library Cross-Interaction.}{18}{section*.9}%
-\contentsline {paragraph}{Mechanism 3: Composite Constructions.}{18}{section*.10}%
+\contentsline {subsection}{\numberline {6.3}Restoring Superlinear Growth}{19}{subsection.6.3}%
+\contentsline {paragraph}{Mechanism 1: Dependent Elimination.}{19}{section*.8}%
+\contentsline {paragraph}{Mechanism 2: Library Cross-Interaction.}{19}{section*.9}%
+\contentsline {paragraph}{Mechanism 3: Composite Constructions.}{19}{section*.10}%
 \contentsline {subsection}{\numberline {6.4}Combinatorial Schema Synthesis}{19}{subsection.6.4}%
 \contentsline {subsection}{\numberline {6.5}Divergence of Efficiency}{19}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}The Tangent Topos Hypothesis: The G\"odelian Horizon}{20}{subsection.6.6}%
-\contentsline {section}{\numberline {7}The Spectral Decomposition}{21}{section.7}%
+\contentsline {subsection}{\numberline {6.6}The Tangent Topos Hypothesis: The Univalent Horizon}{20}{subsection.6.6}%
+\contentsline {section}{\numberline {7}The Spectral Decomposition}{22}{section.7}%
 \contentsline {subsection}{\numberline {7.1}The Three Axes}{22}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}The Spectral Decomposition Table}{25}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.2}The Spectral Decomposition Table}{26}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Independence of Axes}{26}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}Equal-Weight Property}{27}{subsection.7.4}%
 \contentsline {paragraph}{Method.}{27}{section*.11}%
 \contentsline {paragraph}{1D Windows.}{27}{section*.12}%
 \contentsline {paragraph}{2D Sweep.}{27}{section*.13}%
-\contentsline {paragraph}{Non-Additive Rules.}{27}{section*.14}%
+\contentsline {paragraph}{Non-Additive Rules.}{28}{section*.14}%
 \contentsline {subsection}{\numberline {7.5}Interpretation: The Balanced Universe}{28}{subsection.7.5}%
 \contentsline {paragraph}{Critical Margins.}{28}{section*.15}%
-\contentsline {section}{\numberline {8}Computational Verification}{28}{section.8}%
-\contentsline {subsection}{\numberline {8.1}The Haskell Engine}{28}{subsection.8.1}%
-\contentsline {paragraph}{Candidate generation.}{28}{section*.16}%
+\contentsline {section}{\numberline {8}Computational Verification}{29}{section.8}%
+\contentsline {subsection}{\numberline {8.1}The Haskell Engine}{29}{subsection.8.1}%
+\contentsline {paragraph}{Candidate generation.}{29}{section*.16}%
 \contentsline {paragraph}{Novelty computation.}{29}{section*.17}%
 \contentsline {paragraph}{Results.}{29}{section*.18}%
-\contentsline {paragraph}{Cross-validation.}{29}{section*.19}%
-\contentsline {paragraph}{Rejected candidates.}{29}{section*.20}%
+\contentsline {paragraph}{Cross-validation.}{30}{section*.19}%
+\contentsline {paragraph}{Rejected candidates.}{30}{section*.20}%
+\contentsline {paragraph}{Steel-man arithmetic bundle (symmetry check).}{30}{section*.21}%
 \contentsline {subsection}{\numberline {8.2}Schema Canonicality Verification}{31}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Uniform Nu Verification}{31}{subsection.8.3}%
-\contentsline {paragraph}{Algorithm.}{31}{section*.21}%
-\contentsline {paragraph}{Formal AST filter definitions.}{32}{section*.22}%
-\contentsline {paragraph}{Adjoint completion.}{32}{section*.23}%
-\contentsline {paragraph}{Results.}{32}{section*.24}%
-\contentsline {paragraph}{Schemas vs.\ atomic rules.}{33}{section*.25}%
+\contentsline {subsection}{\numberline {8.3}Uniform Nu Verification}{32}{subsection.8.3}%
+\contentsline {paragraph}{Algorithm.}{32}{section*.22}%
+\contentsline {paragraph}{Formal AST filter definitions.}{32}{section*.23}%
+\contentsline {paragraph}{Adjoint completion.}{32}{section*.24}%
+\contentsline {paragraph}{Results.}{33}{section*.25}%
+\contentsline {paragraph}{Schemas vs.\ atomic rules.}{33}{section*.26}%
 \contentsline {subsection}{\numberline {8.4}Meta-Theoretic Rule Audit}{33}{subsection.8.4}%
-\contentsline {paragraph}{Results.}{34}{section*.26}%
+\contentsline {paragraph}{Results.}{34}{section*.27}%
 \contentsline {subsection}{\numberline {8.5}Combination Rule Sweep}{35}{subsection.8.5}%
 \contentsline {subsection}{\numberline {8.6}Cubical Agda Mechanization}{35}{subsection.8.6}%
-\contentsline {paragraph}{Obligation decomposition and the abstraction barrier.}{35}{section*.27}%
-\contentsline {subsection}{\numberline {8.7}Coherence Window Stress-Testing}{35}{subsection.8.7}%
+\contentsline {paragraph}{Obligation decomposition and the abstraction barrier.}{35}{section*.28}%
+\contentsline {subsection}{\numberline {8.7}Coherence Window Stress-Testing}{36}{subsection.8.7}%
 \contentsline {section}{\numberline {9}Discussion}{36}{section.9}%
 \contentsline {subsection}{\numberline {9.1}What Is Proved, What Is Assumed, What Is Open}{36}{subsection.9.1}%
-\contentsline {paragraph}{Proved.}{36}{section*.28}%
-\contentsline {paragraph}{Assumed.}{36}{section*.29}%
-\contentsline {paragraph}{Open.}{37}{section*.30}%
+\contentsline {paragraph}{Proved.}{36}{section*.29}%
+\contentsline {paragraph}{Assumed.}{36}{section*.30}%
+\contentsline {paragraph}{Open.}{37}{section*.31}%
 \contentsline {subsection}{\numberline {9.2}Limitations}{37}{subsection.9.2}%
-\contentsline {paragraph}{The sample size and formula sensitivity.}{37}{section*.31}%
-\contentsline {paragraph}{Spectral decomposition for axiomatic steps.}{37}{section*.32}%
-\contentsline {paragraph}{The $\nu = 103$ computation.}{38}{section*.33}%
+\contentsline {paragraph}{The sample size and formula sensitivity.}{37}{section*.32}%
+\contentsline {paragraph}{Spectral decomposition for axiomatic steps.}{38}{section*.33}%
+\contentsline {paragraph}{The $\nu = 103$ computation.}{38}{section*.34}%
 \contentsline {subsection}{\numberline {9.3}Physical Implications}{38}{subsection.9.3}%
 \contentsline {subsection}{\numberline {9.4}Falsifiability}{38}{subsection.9.4}%
-\contentsline {section}{\numberline {10}Metamathematical Boundaries and Algorithmic Limits}{38}{section.10}%
-\contentsline {subsection}{\numberline {10.1}Algorithmic Criticality}{38}{subsection.10.1}%
-\contentsline {paragraph}{The objection.}{38}{section*.34}%
-\contentsline {paragraph}{The response: criticality, not overfitting.}{39}{section*.35}%
-\contentsline {subsection}{\numberline {10.2}The Algorithmic Inefficiency of the Discrete}{39}{subsection.10.2}%
-\contentsline {paragraph}{The objection.}{39}{section*.36}%
-\contentsline {paragraph}{The response: the discrete is algorithmically expensive.}{39}{section*.37}%
-\contentsline {subsection}{\numberline {10.3}The G\"odelian Horizon}{40}{subsection.10.3}%
-\contentsline {paragraph}{The objection.}{40}{section*.38}%
-\contentsline {paragraph}{The concession.}{40}{section*.39}%
-\contentsline {paragraph}{The reinterpretation.}{40}{section*.40}%
+\contentsline {section}{\numberline {10}Metamathematical Boundaries and Algorithmic Limits}{39}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Algorithmic Criticality}{39}{subsection.10.1}%
+\contentsline {paragraph}{The objection.}{39}{section*.35}%
+\contentsline {paragraph}{The response: criticality, not overfitting.}{39}{section*.36}%
+\contentsline {subsection}{\numberline {10.2}The Algorithmic Inefficiency of the Discrete}{40}{subsection.10.2}%
+\contentsline {paragraph}{The objection.}{40}{section*.37}%
+\contentsline {paragraph}{The response: the discrete is algorithmically expensive.}{40}{section*.38}%
+\contentsline {subsection}{\numberline {10.3}The Univalent Horizon}{40}{subsection.10.3}%
+\contentsline {paragraph}{The objection.}{40}{section*.39}%
+\contentsline {paragraph}{The concession.}{40}{section*.40}%
+\contentsline {paragraph}{The reinterpretation.}{41}{section*.41}%
 \contentsline {subsection}{\numberline {10.4}The DCT Novelty Count and Adjoint Completion}{41}{subsection.10.4}%
-\contentsline {paragraph}{The objection.}{41}{section*.41}%
-\contentsline {paragraph}{The response: univalent equivalence classes, not raw syntax.}{41}{section*.42}%
+\contentsline {paragraph}{The objection.}{41}{section*.42}%
+\contentsline {paragraph}{The response: univalent equivalence classes, not raw syntax.}{41}{section*.43}%
 \contentsline {section}{\numberline {11}Conclusion}{42}{section.11}%
-\contentsline {section}{\numberline {A}DCT: Key Theorems and Applications}{42}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Internal Tangent Bundle}{42}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Temporal Evolution}{42}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{42}{subsection.A.3}%
+\contentsline {section}{\numberline {A}DCT: Key Theorems and Applications}{43}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Internal Tangent Bundle}{43}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Temporal Evolution}{43}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Hamiltonian Flows}{43}{subsection.A.3}%
 \contentsline {subsection}{\numberline {A.4}Representative Applications}{43}{subsection.A.4}%
 \contentsline {subsection}{\numberline {A.5}Semantic Audit of DCT Novelty}{43}{subsection.A.5}%
-\contentsline {paragraph}{Concrete schema examples.}{43}{section*.43}%
+\contentsline {paragraph}{Concrete schema examples.}{44}{section*.44}%
 \contentsline {section}{\numberline {B}Semantic Identification of Autonomously Discovered ASTs (Steps 10--14)}{44}{appendix.B}%
-\contentsline {paragraph}{Axiomatic status.}{44}{section*.44}%
-\contentsline {subsection}{\numberline {B.1}Step 10: Cohesion (Adjoint Quadruple of Modalities)}{44}{subsection.B.1}%
-\contentsline {paragraph}{Type formation axioms ($\kappa = 4$ clauses).}{45}{section*.45}%
-\contentsline {paragraph}{Derived inference rules ($\nu = 19$: $\nu _G = 2$, $\nu _C = 17$).}{45}{section*.46}%
+\contentsline {paragraph}{Axiomatic status.}{45}{section*.45}%
+\contentsline {subsection}{\numberline {B.1}Step 10: Cohesion (Adjoint Quadruple of Modalities)}{45}{subsection.B.1}%
+\contentsline {paragraph}{Type formation axioms ($\kappa = 4$ clauses).}{45}{section*.46}%
+\contentsline {paragraph}{Derived inference rules ($\nu = 19$: $\nu _G = 2$, $\nu _C = 17$).}{45}{section*.47}%
 \contentsline {subsection}{\numberline {B.2}Step 11: Connections ($\nabla $ on Cohesive Types)}{45}{subsection.B.2}%
-\contentsline {paragraph}{Axioms ($\kappa = 5$ clauses).}{45}{section*.47}%
-\contentsline {paragraph}{Derived inference rules ($\nu = 26$: $\nu _G = 2$, $\nu _C = 24$).}{45}{section*.48}%
-\contentsline {paragraph}{Why not definable.}{45}{section*.49}%
+\contentsline {paragraph}{Axioms ($\kappa = 5$ clauses).}{46}{section*.48}%
+\contentsline {paragraph}{Derived inference rules ($\nu = 26$: $\nu _G = 2$, $\nu _C = 24$).}{46}{section*.49}%
+\contentsline {paragraph}{Why not definable.}{46}{section*.50}%
 \contentsline {subsection}{\numberline {B.3}Step 12: Curvature ($R = d\nabla + \nabla \wedge \nabla $)}{46}{subsection.B.3}%
-\contentsline {paragraph}{Axioms ($\kappa = 6$ clauses).}{46}{section*.50}%
-\contentsline {paragraph}{Derived inference rules ($\nu = 34$: $\nu _G = 2$, $\nu _C = 32$).}{46}{section*.51}%
-\contentsline {paragraph}{Why not definable.}{46}{section*.52}%
+\contentsline {paragraph}{Axioms ($\kappa = 6$ clauses).}{46}{section*.51}%
+\contentsline {paragraph}{Derived inference rules ($\nu = 34$: $\nu _G = 2$, $\nu _C = 32$).}{46}{section*.52}%
+\contentsline {paragraph}{Why not definable.}{46}{section*.53}%
 \contentsline {subsection}{\numberline {B.4}Step 13: Metric ($g : TX \otimes TX \to \mathbb {R}$)}{46}{subsection.B.4}%
-\contentsline {paragraph}{How $\mathbb {R}$ is typed (explicit dependency accounting).}{46}{section*.53}%
-\contentsline {paragraph}{Resolution of the Scalar Burden.}{46}{section*.54}%
-\contentsline {paragraph}{Axioms ($\kappa = 7$ clauses).}{47}{section*.55}%
-\contentsline {paragraph}{Derivation schemas ($\nu = 46$: $\nu _G = 4$, $\nu _C = 42$).}{47}{section*.56}%
-\contentsline {paragraph}{Why not definable.}{47}{section*.57}%
-\contentsline {paragraph}{Derivability of components vs.\ $\mathbb {N}$'s addition.}{47}{section*.58}%
-\contentsline {subsection}{\numberline {B.5}Step 14: Hilbert Functional (Operator Algebra)}{47}{subsection.B.5}%
-\contentsline {paragraph}{Axioms ($\kappa = 9$ clauses).}{48}{section*.59}%
-\contentsline {paragraph}{Derived inference rules ($\nu = 62$: $\nu _G = 5$, $\nu _C = 57$).}{48}{section*.60}%
-\contentsline {paragraph}{Why not definable.}{48}{section*.61}%
-\contentsline {paragraph}{Selection margin at Step~14.}{48}{section*.62}%
-\contentsline {section}{\numberline {C}The MBTT Encoding Audit}{48}{appendix.C}%
-\contentsline {subsection}{\numberline {C.1}The MBTT Grammar}{48}{subsection.C.1}%
+\contentsline {paragraph}{How $\mathbb {R}$ is typed (explicit dependency accounting).}{47}{section*.54}%
+\contentsline {paragraph}{Resolution of the Ring Structure of the Scalar Field.}{47}{section*.55}%
+\contentsline {paragraph}{Axioms ($\kappa = 7$ clauses).}{47}{section*.56}%
+\contentsline {paragraph}{Derivation schemas ($\nu = 46$: $\nu _G = 4$, $\nu _C = 42$).}{47}{section*.57}%
+\contentsline {paragraph}{Why not definable.}{48}{section*.58}%
+\contentsline {paragraph}{Derivability of components vs.\ $\mathbb {N}$'s addition.}{48}{section*.59}%
+\contentsline {subsection}{\numberline {B.5}Step 14: Hilbert Functional (Operator Algebra)}{48}{subsection.B.5}%
+\contentsline {paragraph}{Axioms ($\kappa = 9$ clauses).}{48}{section*.60}%
+\contentsline {paragraph}{Derived inference rules ($\nu = 62$: $\nu _G = 5$, $\nu _C = 57$).}{48}{section*.61}%
+\contentsline {paragraph}{Why not definable.}{49}{section*.62}%
+\contentsline {paragraph}{Selection margin at Step~14.}{49}{section*.63}%
+\contentsline {section}{\numberline {C}The MBTT Encoding Audit}{49}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}The MBTT Grammar}{49}{subsection.C.1}%
+\contentsline {paragraph}{Why modal and temporal nodes are primitive in MBTT.}{50}{section*.64}%
 \contentsline {subsection}{\numberline {C.2}Full Audit: Clause Counts vs.\ MBTT Bit-Lengths}{50}{subsection.C.2}%
-\contentsline {subsection}{\numberline {C.3}Per-Clause Breakdown: Steps 13--15}{50}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.3}Per-Clause Breakdown: Steps 13--15}{51}{subsection.C.3}%
 \contentsline {subsection}{\numberline {C.4}Canonicality of the Encoding}{51}{subsection.C.4}%
-\contentsline {subsection}{\numberline {C.5}Search-Space Tractability and Runtime Autonomy}{51}{subsection.C.5}%
+\contentsline {subsection}{\numberline {C.5}Search-Space Tractability and Runtime Autonomy}{52}{subsection.C.5}%
