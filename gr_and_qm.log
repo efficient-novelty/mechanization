@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.11.18)  2 MAR 2026 09:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.11.18)  2 MAR 2026 10:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -493,11 +493,6 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 59.
 (c:/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Overfull \hbox (13.37888pt too wide) in paragraph at lines 79--80
-\T1/cmr/m/n/12 We fol-low re-al-iza-tion num-ber-ing from \T1/cmr/m/it/12 De-ri
-v-ing the Stan-dard Model from PEN\T1/cmr/m/n/12 : Frame/Metric
- []
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -510,6 +505,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 ]
 
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 94.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 94.
+
+
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
 (fancyhdr)                \setlength{\headheight}{13.59999pt}.
@@ -517,11 +520,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [2]
-Overfull \hbox (9.90187pt too wide) in paragraph at lines 161--162
-[]\T1/cmr/bx/n/12 No Lorentz-violation regime: \T1/cmr/m/n/12 break-ing Lorentz
-ian struc-ture re-opens modal-collapse
- []
-
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -531,7 +529,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [3]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 167.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 182.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -548,22 +546,30 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[5] (./gr_and_qm.aux)
+[5]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[6] (./gr_and_qm.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-11-06>
  ***********
 Package rerunfilecheck Info: File `gr_and_qm.out' has not changed.
-(rerunfilecheck)             Checksum: 97D7FCBDD1C66166FDE6B48F4BFA09EE;4101.
+(rerunfilecheck)             Checksum: 2876C3E39C3B06CECD87BC45B7254D66;4136.
  ) 
 Here is how much of TeX's memory you used:
- 12654 strings out of 467538
- 191657 string characters out of 5423724
- 624056 words of memory out of 5000000
- 41361 multiletter control sequences out of 15000+600000
- 642963 words of font info for 77 fonts, out of 8000000 for 9000
+ 12653 strings out of 467538
+ 191643 string characters out of 5423724
+ 625056 words of memory out of 5000000
+ 41359 multiletter control sequences out of 15000+600000
+ 641433 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,79p,876b,582s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,79p,922b,580s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tex
 live/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2025/texmf-di
@@ -581,10 +587,10 @@ super/sfrm1095.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm
 1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1440.pfb><
 c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb><c:/texlive
 /2025/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on gr_and_qm.pdf (5 pages, 291833 bytes).
+Output written on gr_and_qm.pdf (6 pages, 300810 bytes).
 PDF statistics:
- 230 PDF objects out of 1000 (max. 8388607)
- 182 compressed objects within 2 object streams
- 37 named destinations out of 1000 (max. 500000)
+ 236 PDF objects out of 1000 (max. 8388607)
+ 187 compressed objects within 2 object streams
+ 40 named destinations out of 1000 (max. 500000)
  129 words of extra memory for PDF output out of 10000 (max. 10000000)
 
