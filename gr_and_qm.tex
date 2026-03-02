@@ -1,47 +1,25 @@
 \documentclass[12pt,a4paper]{article}
 
-% ===== Packages =====
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{mathtools}
 \usepackage{geometry}
 \usepackage{hyperref}
-\usepackage{cleveref}
 \usepackage{enumitem}
-\usepackage{booktabs}
 \usepackage{xcolor}
-\usepackage{tikz}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{abstract}
 
-% ===== Page Geometry =====
-\geometry{
-    left=2.5cm,
-    right=2.5cm,
-    top=2.5cm,
-    bottom=2.5cm
-}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\hypersetup{colorlinks=true,linkcolor=blue!70!black,citecolor=green!50!black,urlcolor=blue!70!black}
 
-% ===== Hyperref Setup =====
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue!70!black,
-    citecolor=green!50!black,
-    urlcolor=blue!70!black
-}
-
-% ===== Theorem Environments =====
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
-\newtheorem{remark}[theorem]{Remark}
 
-% ===== Custom Commands =====
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\C}{\mathbb{C}}
 \newcommand{\HH}{\mathbb{H}}
@@ -49,11 +27,9 @@
 \newcommand{\flatmod}{\flat}
 \newcommand{\nextmod}{\bigcirc}
 
-% ===== Title Section Formatting =====
 \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
 
-% ===== Header/Footer =====
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small Structural Emergence of 4D Lorentzian Geometry}
@@ -61,317 +37,186 @@
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
-% ===== Document =====
 \begin{document}
 
-% ===== Title Block =====
 \begin{center}
     {\LARGE\bfseries Structural Emergence of 4D Lorentzian Geometry\\[0.3em] from the Principle of Efficient Novelty}
-    
+
     \vspace{1.5em}
-    
+
     {\large Halvor S.~Lande}\\[0.5em]
     {\normalsize \href{mailto:hsl@awc.no}{hsl@awc.no}}
-    
+
     \vspace{1em}
-    
-    {\normalsize January 25, 2026}
+
+    {\normalsize March 1, 2026}
 \end{center}
 
 \vspace{1.5em}
 
-% ===== Abstract =====
 \begin{abstract}
 \noindent
-We derive the fundamental geometric features of physical spacetime---quantum kinematics, four-dimensionality, Lorentzian signature, and general relativistic dynamics---from the Principle of Efficient Novelty (PEN). Rather than treating these as arbitrary axioms or anthropic accidents, we demonstrate that they represent structural optima: the unique mathematical configuration maximizing the efficiency of information processing within logical consistency constraints. The derivation proceeds through the Genesis Sequence of mathematical realizations, showing that quantum mechanics emerges from resource conservation (Linear Logic), dimension four is selected by the intersection of algebraic associativity and topological novelty singularities, and Lorentzian signature is mandated by modal anisotropy in the Dynamical Cohesive Topos. We present falsifiable predictions including the absence of extra dimensions and Lorentz violation to Planck scales.
+We derive quantum kinematics, four-dimensionality, Lorentzian signature, and Einstein dynamics from the Principle of Efficient Novelty (PEN) using the efficiency ratio $\rho=\nu/\kappa$. Relative to the previous draft, we remove category errors about frame bundles, replace overclaimed mechanization results with currently tractable artifacts, and align realization indexing with the companion PEN paper. The resulting argument is: (i) linear/quantum kinematics is selected because Cartesian cloning collapses higher homotopical novelty; (ii) $d=4$ is selected by a native-associativity cost ceiling plus a 4D Hodge self-duality gain; (iii) Lorentzian signature is required to prevent univalent modal collapse of Flow and Cohesion; and (iv) Einstein--Hilbert dynamics is selected as the minimal abstract-syntax scalar curvature action.
 \end{abstract}
 
 \vspace{1em}
 \hrule
 \vspace{2em}
 
-% ===== Section 1 =====
 \section{Introduction}
 
-\subsection{The Architecture Problem}
+\subsection{Architecture as a Selection Problem}
 
-Modern physics operates within a specific geometric container: a four-dimensional manifold equipped with a Lorentzian metric signature $(-+++)$ and governed by the unitary evolution of quantum states. In the standard formulation, these features are axioms---background assumptions required to frame the laws of physics, but not derived from them.
-
-Current attempts to go beyond the Standard Model, such as String Theory or the Landscape Hypothesis, suggest that this container is arbitrary---a random selection from a vast moduli space of 10, 11, or 26 dimensions, with signatures and topologies determined by chance or anthropic selection. This view reduces the foundational architecture of reality to an accident of cosmic geography.
-
-This paper proposes the inverse. We argue that the architecture of spacetime is not an arbitrary background, but a \emph{structural optimum}. It is the unique mathematical configuration that maximizes the efficiency of information processing within the constraints of logical consistency.
-
-\subsection{The Structuralist Thesis}
-
-We adopt the framework of the Principle of Efficient Novelty (PEN), which posits that physical reality is the instantiation of the ``Genesis Sequence'' of mathematical realizations (R1--R16) \cite{pen-foundation}. In this framework, mathematical structures compete for realization based on their \emph{Efficiency} ($\rho$):
+Physics is formulated inside a very specific container: a 4D manifold, Lorentzian signature $(-+++)$, and quantum state evolution. Standard presentations treat these as independent axioms. PEN instead treats them as outputs of one optimization criterion:
 \begin{equation}
-    \rho = \frac{\nu \text{ (Novelty: Enabling Power)}}{\kappa \text{ (Effort: Structural Cost)}}
+\rho = \frac{\nu\;\text{(novel derivation schemas)}}{\kappa\;\text{(specification and coherence cost)}}.
 \end{equation}
 
-The universe does not choose its laws; it selects the specific mathematical architecture that delivers the highest enabling power for the lowest definitional cost.
+The key claim is not ``anything is possible and we happened to land here,'' but ``this architecture is selected because nearby alternatives have lower $\rho$.''
 
-Our thesis is that \textbf{Spacetime is the Geometric Optimum} of the R14 (Frame Bundle) and R16 (Dynamical Cohesive Topos) layers. Specifically:
+\subsection{Index Alignment with the Companion Paper}
 
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Quantum Mechanics} is the necessary kinematics of a resource-constrained system (avoiding utility singularities).
-    \item \textbf{Four Dimensions} are selected by the intersection of algebraic associativity (Quaternions) and topological maximization (Exotic Smoothness).
-    \item \textbf{Lorentzian Signature} is forced by the modal distinction between temporal flow and spatial cohesion.
-    \item \textbf{General Relativity} is the unique $\kappa$-minimal dynamics satisfying Lovelock's Theorem.
-\end{itemize}
+We follow realization numbering from \emph{Deriving the Standard Model from PEN}: Frame/Metric is \textbf{R13}, Hilbert functional is \textbf{R14}, and Dynamical Cohesive Topos (DCT) is \textbf{R15}. All references below use that indexing consistently.
 
-\subsection{Methodology}
+\section{Quantum Kinematics from Efficient Novelty}
 
-This paper is the companion to \emph{Deriving the Standard Model from PEN} \cite{pen-standard-model}. While that work derived the \emph{content} of the universe (gauge groups and matter), this work derives the \emph{context}.
+\subsection{No-Cloning Recast as a Type-Theoretic Constraint}
 
-We caution the reader that our goal is \emph{Architectural Derivation}, not numerical calculation. We do not seek to derive the value of Newton's constant $G$ from topology (a category error, as $G$ is a dimensional flow parameter). Rather, we derive the \emph{functional form} of the laws---why the metric follows the Einstein--Hilbert action and why the state space is complex-linear---from the internal logic of the Genesis Sequence.
+A previous formulation conflated copying data with generating new derivation schemas. Here novelty remains strictly logical: $\nu$ counts genuinely new inference/program schemas. In that sense, unrestricted Cartesian copying is not ``free novelty''; it is a degeneracy pressure.
 
-% ===== Section 2 =====
-\section{Kinematics: Why the Universe is Quantum}
+In homotopy type theory, imposing strict global cloning coherence drives types toward h-sets (0-groupoids), suppressing higher path structure \cite{hottbook}. That collapse shrinks higher-geometric novelty channels and reduces long-run $\nu$. The operational no-cloning pressure in quantum theory is classically captured by standard no-cloning results \cite{wootters-zurek,dieks}, while resource-sensitive proof theory is rooted in linear logic \cite{girard-linear-logic}.
 
-Standard physics textbooks introduce Quantum Mechanics as a postulate, typically assuming the existence of a complex Hilbert space. In the PEN framework, axioms are ``expensive'' ($\kappa$). We cannot postulate Quantum Mechanics; we must derive its necessity from the efficiency principle itself.
+\subsection{Linearization and Stable Homotopy Gain}
 
-We contend that Quantum Mechanics is not a strange deviation from a classical norm, but the \emph{only} kinematic framework compatible with a bounded efficiency metric.
-
-\subsection{The Utility Singularity of Classical Information}
-
-Consider a universe governed by Classical Logic. A defining feature of classical information is the structural rule of \emph{Contraction} ($A \to A \otimes A$), which permits the unrestricted cloning of variables. In a classical universe, a state vector can be copied to an arbitrary number of subsystems with zero marginal definitional cost ($\Delta\kappa \approx 0$).
-
-If a physical state carries Novelty ($\nu$)---representing non-trivial information or causal power---then the ability to clone states implies that a system can generate infinite Novelty for finite Effort:
-\begin{equation}
-    \lim_{\text{cloning} \to \infty} \rho = \frac{\infty}{\text{const}} \to \infty
-\end{equation}
-
-This creates a \textbf{Utility Singularity}. If cloning were permitted, the PEN selection mechanism would break down, as the system would instantly select ``infinite dust'' (infinite copies of a single bit) over structured complexity.
-
-\subsection{Resource Conservation (Linear Logic)}
-
-To maintain a meaningful selection metric where $\rho < \infty$, the foundational logic of the universe must enforce \emph{Resource Conservation}. The system must forbid ``free lunches.''
-
-In mathematical logic, the rejection of Contraction ($A \to A \otimes A$) and Weakening ($A \to \top$) defines \textbf{Linear Logic} (Girard). In a Linear Logic universe, information is treated as a conserved resource: a state cannot be duplicated, only transformed.
-
-\begin{proposition}
-A physical universe governed by an optimization principle must be built upon a Linear Type Theory to prevent the unbounded inflation of Novelty via cloning.
-\end{proposition}
-
-This logical constraint manifests physically as the \textbf{No-Cloning Theorem}. The universe is quantum because classical mechanics allows for information theft.
-
-\subsection{Deriving Unitary Evolution}
-
-How does this logical constraint dictate the continuous dynamics of the universe?
-
-In the Genesis Sequence, Realization R16 (Dynamical Cohesive Topos) introduces the temporal evolution operator $E_X(t)$. For the system to respect the resource constraint established in Proposition~2.1, this operator must preserve the ``volume'' of the information state space.
-
-If the evolution were non-linear or non-unitary (as in diffusive or dissipative classical flows), the distinguishability of states (the resource) would change over time. States would merge (information loss) or diverge spontaneously (information creation).
-
-To conserve the information resource, the evolution must map an orthonormal basis to an orthonormal basis. The continuous group of transformations that preserves the inner product (and thus the informational norm) is the \textbf{Unitary Group} $U(N)$.
-
-Thus, the Schrödinger equation is not an arbitrary rule; it is the unique description of a continuous flow in a resource-constrained (Linear Logic) geometry.
-
-\subsection{The Necessity of the Complex Field}
-
-Why is the state space complex ($\C$) rather than real ($\R$) or quaternionic ($\HH$)?
-
-As established in the Standard Model derivation \cite{pen-standard-model}, the Genesis Sequence prioritizes the Hopf Fibrations (Realization R9).
-
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Real QM} ($\R$): Lacks the algebraic closure required for general smooth flows (the field is not algebraically closed).
-    \item \textbf{Quaternionic QM} ($\HH$): While algebraically rich, the non-commutativity imposes severe constraints on tensor products ($A \otimes B \neq B \otimes A$). This makes the description of composite systems (``multi-particle states'') structurally expensive, dramatically increasing $\kappa$.
-    \item \textbf{Complex QM} ($\C$): Corresponds to the first non-trivial Hopf Fibration ($S^1 \to S^3 \to S^2$). It is the maximal commutative field associated with a Hopf map.
-\end{itemize}
-
-The complex phase $U(1)$ allows for \emph{interference}---the mechanism by which ``inefficient'' histories cancel out, leaving only the stationary phase (the classical limit) to be realized at macroscopic scales. Complex Quantum Mechanics is therefore selected as the unique kinematics that satisfies Resource Conservation (Linearity) while permitting the low-cost composition of subsystems (Commutativity).
-
-\subsection{Reinterpreting the Path Integral}
-
-The universe does not select one classical history to maximize efficiency (which would imply zero interference). Instead, the Path Integral is the manifestation of unitary flow. ``Interference'' is the mechanism by which the resource constraint is enforced. Constructive and destructive interference ensure that while the amplitude distributes over many paths, the total probability (resource) is rigorously conserved.
+Moving from Cartesian product structure toward linear/smash-like composition increases available generalized cohomological constructions, i.e., more nontrivial derivation families at bounded coherence overhead. This is the PEN reason for quantum/linear kinematics: it preserves resource sensitivity while retaining high homotopical generativity.
 
 \begin{center}
-\framebox{\parbox{0.9\textwidth}{
-\textbf{Conclusion:} The universe is Quantum because it is Economical. A classical universe permits information inflation, rendering efficiency meaningless. A quantum universe enforces the strict accounting of information necessary for structural evolution.
+\fbox{\parbox{0.92\textwidth}{
+\textbf{Section conclusion.} Quantum kinematics is selected because it prevents cloning-induced homotopy collapse and supports a larger stable family of derivation schemas per unit specification cost.
 }}
 \end{center}
 
-% ===== Section 3 =====
-\section{Dimensionality: The Selection of 4D}
+\section{Dimensionality: Why Four}
 
-The dimensionality of the physical container is perhaps the most fundamental parameter in physics. In standard formulations, the dimension of spacetime ($D=3+1$) is treated as an empirical input. Extensions such as String Theory or Kaluza--Klein models treat dimensionality as a modulus---a number to be selected from a landscape or compactified from a higher value (e.g., 10, 11, or 26) to satisfy stability conditions.
+\subsection{R13 Native Associativity Ceiling (Corrected Frame-Bundle Argument)}
 
-The Principle of Efficient Novelty (PEN) rejects this arbitrariness. Dimensionality is not a tunable parameter; it is a structural optimum determined by the collision of two distinct efficiency constraints: the \emph{Algebraic Ceiling} imposed by the Frame Bundle (R14) and the \emph{Topological Novelty Singularity} exposed by Cohesion (R11).
+Pure differential geometry does \emph{not} cap dimension by division algebras: $GL(n,\R)$ exists for all $n$ and is associative. The corrected PEN statement is about \emph{native primitive cost}, not mathematical existence.
 
-We argue that \textbf{Dimension 4 is the unique intersection} where the cost of defining a consistent geometry is minimal, but the resulting smooth structure yields infinite novelty.
+If the engine must synthesize full matrix infrastructure and coherence from scratch in high $n$, $\kappa$ grows rapidly. PEN therefore prefers maximal reuse of already-realized associative rotational primitives (from the Hopf stage): $\R,\C,\HH$ are strictly associative; $\OO$ is not. Using octonionic-like multiplication as a native patching primitive breaks strict cocycle composition unless one adds explicit higher coherence towers (effectively $A_\infty$ bookkeeping), which is costly.
 
-\subsection{The Algebraic Constraint (Frame Bundles -- R14)}
-
-Realization R14 ($\tau=610$) establishes the Metric Frame Bundle, the geometric machinery allowing local measurements to be compared globally. To define a consistent Frame Bundle $Fr(M)$ over a manifold, the transition functions $g_{ij}: U_i \cap U_j \to G$ between local charts must satisfy the \emph{cocycle condition}:
+Hence the native-associative ceiling is reached at quaternionic control, geometrically tied to
 \begin{equation}
-    g_{ij} \cdot g_{jk} = g_{ik}
+S^3 \hookrightarrow S^7 \to S^4,
 \end{equation}
+with $S^4$ as the minimal high-yield base dimension supported by reusable associative primitives.
 
-This condition strictly requires the underlying algebra of the structure group to be \textbf{Associative}.
+\subsection{4D Hodge Endomorphism Bonus (Replacing Exotic-\texorpdfstring{$\R^4$}{R4} Overclaim)}
 
-\paragraph{Rejection of the ``Sphere Group'' Argument.}
-A common heuristic suggests that dimensions 3 and 7 are privileged because $S^3$ and $S^7$ are parallelizable (admitting a group structure). We explicitly reject this argument. While $S^3$ is a group, the PEN framework constructs geometry via the Frame Bundle, which connects the tangent space to the base. The selection pressure acts on the \emph{Base Manifold}, not the total space.
-
-\paragraph{The Associativity Limit.}
-The available linear structures in the Genesis Sequence are the Normed Division Algebras (from R9): $\R$ (dim~1), $\C$ (dim~2), $\HH$ (dim~4), and $\OO$ (dim~8).
-
-\begin{itemize}[leftmargin=2em]
-    \item $\R$ and $\C$ are associative but topologically simple.
-    \item $\HH$ (Quaternions) is associative and non-commutative.
-    \item $\OO$ (Octonions) is \emph{non-associative}.
-\end{itemize}
-
-A frame bundle constructed with octonionic transition functions cannot satisfy the cocycle condition globally without introducing infinite coherence data (higher-order associators), which would drive the definitional Effort $\kappa \to \infty$. Therefore, the system is constrained to the maximal associative division algebra: the \textbf{Quaternions} ($\HH$). The principal Hopf fibration associated with $\HH$ is:
+We remove the claim of a full formalized enumeration of exotic smooth structures. The tractable and sufficient 4D gain is algebraic:
 \begin{equation}
-    S^3 \hookrightarrow S^7 \to S^4
+\star : \Omega^2(M^d) \to \Omega^{d-2}(M^d).
 \end{equation}
-
-Here, the total space is $S^7$, the fiber is $S^3 \cong SU(2)$, and the base manifold is the 4-sphere ($S^4$). Thus, \textbf{Dimension 4} represents the ``Algebraic Ceiling'' of the Genesis Sequence---the highest dimension capable of supporting a globally defined, associative frame bundle.
-
-\subsection{The Topological Constraint (Cohesion -- R11)}
-
-While R14 sets the algebraic upper bound at $d=4$, Realization R11 (Cohesion) provides the selection pressure that \emph{forces} the system to this bound. R11 introduces the modal distinction between discrete and smooth structure. To maximize Efficiency ($\rho = \nu/\kappa$), the system seeks the dimension where the ``yield'' of smooth structure ($\nu$) is maximal for a fixed definitional cost ($\kappa$).
-
-We observe a unique phenomenon in differential topology known as the \textbf{Novelty Singularity}:
-
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{For $d \neq 4$:} In dimensions $d \le 3$, every topological manifold has a \emph{unique} smooth structure. In dimensions $d \ge 5$, the number of smooth structures is finite and manageable (via surgery theory and the h-cobordism theorem).
-    \item \textbf{For $d = 4$:} The topological manifold $\R^4$ admits an \emph{uncountably infinite continuum} of distinct differentiable structures (Exotic $\R^4$s).
-\end{itemize}
-
-In the PEN framework, this constitutes a utility singularity. The cost ($\kappa$) of defining the vector space $\R^n$ is polynomial in $n$, but at $n=4$, the topological novelty diverges ($\nu \to \infty$). Dimension 4 is the only dimension where the smooth structure is not rigidly fixed by the topology.
+Only at $d=4$ does $\star$ close on 2-forms, giving a native endomorphism \cite{atiyah-hitchin-singer,donaldson-kronheimer}
+\begin{equation}
+\star : \Omega^2 \to \Omega^2,
+\end{equation}
+and immediate splitting into self-dual/anti-self-dual sectors. This doubles gauge-curvature interaction channels without adding new primitive constructors, i.e., substantial $\nu$ gain at near-constant $\kappa$.
 
 \begin{center}
-\framebox{\parbox{0.9\textwidth}{
-\textbf{Conclusion:} Spacetime is selected to be 4-dimensional because it is the unique intersection of the Algebraic Constraint (Associativity via $\HH$) and the Topological Constraint (Exotic Smoothness). A 3D universe is topologically trivial; a higher-dimensional universe is algebraically incoherent.
+\fbox{\parbox{0.92\textwidth}{
+\textbf{Section conclusion.} Dimension four is selected by the intersection of a native-associativity cost ceiling and a unique Hodge self-duality novelty bonus.
 }}
 \end{center}
 
-% ===== Section 4 =====
-\section{Signature: The Anisotropy of Time}
+\section{Signature: Lorentzian as Modal Separation Geometry}
 
-Having selected a 4-dimensional manifold, the system must equip it with a metric signature. Why is the universe Lorentzian $(-+++)$ rather than Euclidean $(++++)$ or ultra-hyperbolic $(--++)$?
+\subsection{R15 Modal Structure and Univalence}
 
-We explicitly reject arguments based on ``well-posedness of the Cauchy problem'' or ``predictability'' as circular (assuming the necessity of hyperbolic PDEs). Instead, we derive the signature directly from the internal logic of Realization R16 (The Dynamical Cohesive Topos).
+R15 (DCT) carries distinct modalities: Cohesion ($\flatmod$) for extended shape and Flow ($\nextmod$) for temporal update. A physical metric must realize this distinction rather than quotienting it away.
 
-\subsection{Modal Distinction in R16}
+By univalence, sufficiently coherent geometric paths induce type equivalences \cite{hottbook}. In Euclidean signature $(++++)$, $SO(4)$ isotropy enables continuous rotation between any unit directions. If one direction is interpreted as Flow and another as Cohesion, isotropy supplies a path that univalence promotes toward equivalence, yielding modal collapse $\nextmod \simeq \flatmod$.
 
-Realization R16 is a synthetic framework that unifies geometry and logic. Crucially, it distinguishes two fundamental logical modalities:
+\subsection{Light Cone as a Type-Theoretic Barrier}
 
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Cohesion} ($\flatmod$): The ``Flat'' modality, governing spatial extension, shape, and simultaneous structure. It handles the ``being'' of the manifold (\emph{Where?}).
-    \item \textbf{Flow} ($\nextmod$): The ``Next'' modality, governing temporal evolution, causal updates, and process. It handles the ``becoming'' of the system (\emph{Then what?}).
-\end{itemize}
-
-In the foundational Type Theory, $\flatmod A$ (the shape of $A$) and $\nextmod A$ (the future of $A$) are distinct types. For a physical geometry to faithfully realize the DCT, the metric must preserve this modal distinction within the tangent bundle.
-
-\subsection{The Error of Isotropy}
-
-Consider a Euclidean metric with signature $(++++)$. The symmetry group is $SO(4)$, which acts transitively on the sphere of directions. This implies that any coordinate axis can be continuously rotated into any other; a ``temporal'' direction can be transformed into a ``spatial'' direction.
-
-Geometrically, this \emph{Isotropy} erases the distinction between $\flatmod$ (Shape) and $\nextmod$ (Flow). If time is isomorphic to space, the logical stratification of the DCT collapses ($\flatmod \cong \nextmod$). This ``\textbf{Modal Collapse}'' represents a catastrophic loss of structural information, effectively erasing the resource constraint of Linear Logic (derived in Section~2) by allowing the system to loop back and reuse information arbitrarily.
-
-\subsection{Lorentzian Selection}
-
-To maintain the integrity of the R16 structure, the metric must be \textbf{Anisotropic}: it must algebraically distinguish the direction of Flow from the directions of Cohesion.
-
-The Lorentzian signature $(-+++)$ achieves this by partitioning the tangent space into three disjoint classes via the Null Cone:
-
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Timelike} ($v^2 < 0$): The domain of $\nextmod$ (Flow/Causal processes).
-    \item \textbf{Spacelike} ($v^2 > 0$): The domain of $\flatmod$ (Cohesion/Structural extension).
-    \item \textbf{Null} ($v^2 = 0$): The barrier (Information propagation).
-\end{itemize}
-
-The Lorentz group $SO(1,3)$ prevents the continuous rotation of a timelike vector into a spacelike vector. The light cone acts as an \emph{algebraic barrier}, enforcing the type-theoretic distinction between logical evolution and spatial extension.
+Lorentzian signature $(-+++)$ partitions tangent vectors into timelike/spacelike/null classes. Under $SO(1,3)$, timelike and spacelike regions are disconnected by the null cone; no continuous path crosses the barrier while preserving causal class \cite{hawking-ellis,wald-gr}. Therefore the specific univalent path needed to identify $\nextmod$ with $\flatmod$ is blocked.
 
 \begin{center}
-\framebox{\parbox{0.9\textwidth}{
-\textbf{Conclusion:} The Lorentzian signature is not an arbitrary choice of signs. It is the geometric realization of the Modal Anisotropy required by the Dynamical Cohesive Topos. The ``minus sign'' in the metric is the shadow of the logical operator $\nextmod$, ensuring that the process of Flow remains distinct from the extension of Cohesion.
+\fbox{\parbox{0.92\textwidth}{
+\textbf{Section conclusion.} Lorentzian anisotropy is selected because it is the minimal geometry that protects modal separation in R15.
 }}
 \end{center}
 
-% ===== Section 5 =====
-\section{Predictions \& Falsifiability}
+\section{Dynamics: Einstein--Hilbert as AST-Minimal Curvature Law}
 
-A theoretical framework is only as valuable as the constraints it places on physical reality. If the Principle of Efficient Novelty (PEN) is the governing selection mechanism of the universe, then the geometric features derived in Sections~2--4 are not merely ``current best fits'' but \emph{Structural Optima}. This implies that deviations from these features represent inefficient configurations ($\rho < \rho_{\max}$) that would not be realized. Consequently, PEN makes strong, testable \emph{negative predictions}---specifically ruling out extensions to the Standard Model and General Relativity that increase structural cost ($\kappa$) without a corresponding infinite yield in novelty.
+We replace an over-strong ``fully formalized Lovelock uniqueness'' claim with a computable minimality statement. Among local scalar curvature actions that yield second-order divergence-compatible equations in 4D, the Einstein--Hilbert term
+\begin{equation}
+S_{\mathrm{EH}} = \int (R - 2\Lambda)\,\sqrt{-g}\,d^4x
+\end{equation}
+has minimal abstract syntax depth/size. Terms like $R^2$ or $R_{\mu\nu}R^{\mu\nu}$ require strictly larger constructor trees, hence larger $\kappa$ unless forced by additional constraints; this is compatible with the classical Lovelock classification context in four dimensions \cite{lovelock-1971}.
 
-\subsection{No Extra Dimensions}
+\section{Predictions}
 
-String Theory, Brane-world models, and Kaluza--Klein theories postulate that the observed 4D spacetime is a subspace of a higher-dimensional manifold (e.g., 10, 11, or 26 dimensions) that has been compactified.
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{No accessible extra dimensions:} higher-dimensional proposals pay native coherence overhead without compensating novelty gain in this framework.
+    \item \textbf{No Lorentz-violation regime:} breaking Lorentzian structure reopens modal-collapse channels.
+    \item \textbf{Minimal gravity sector first:} leading UV-consistent corrections, if any, should appear as controlled high-$\kappa$ deformations around the Einstein--Hilbert core rather than as an entirely different base geometry.
+\end{itemize}
 
-\paragraph{Prediction:} We predict that no large extra dimensions (LED) or Kaluza--Klein modes will be discovered at higher energy scales.
+\section{Mechanized Artifacts (Cubical Agda + Executable Checkers)}
 
-\paragraph{Reasoning:} As derived in Section~3, Dimensionality is a \emph{selection peak}, not a sliding scale. Dimension 4 is the unique intersection of the Algebraic Ceiling (associativity of the base manifold $S^4$ required for the Frame Bundle) and the Topological Novelty Singularity (exotic smooth structures on $\R^4$).
+\subsection*{Artifact A: \texttt{Logic/ModalCollapse.agda}}
+This artifact is mechanized in Cubical Agda. It defines explicit Flow/Shape modal predicates over tangent data and proves Euclidean modal collapse via a univalence bridge while separately proving Lorentzian no-collapse under null-cone separation assumptions.
 
-Adding dimensions ($d > 4$) incurs two penalties:
-\begin{enumerate}[leftmargin=2em]
-    \item \textbf{Algebraic Cost:} It breaks the associativity of the Frame Bundle (forcing non-associative geometry or higher-order coherence data), driving $\kappa \to \infty$.
-    \item \textbf{Topological Poverty:} It moves the system out of the novelty singularity; for $d \ge 5$, the number of smooth structures is finite/manageable, collapsing $\nu$.
-\end{enumerate}
+\subsection*{Artifact B: \texttt{Geometry/HopfCeiling.agda}}
+This artifact is mechanized in Cubical Agda. It encodes principal-bundle-style cocycle checking with a strictly associative operation interface and proves a 4-fold consistency lemma. A non-associative interface is mechanized separately and requires an explicit coherence payload to derive the analogous result.
 
-A 10D universe is demonstrably less efficient than a 4D universe; thus, PEN predicts the ``desert'' of dimensions extends to the Planck scale.
+\subsection*{Artifact C: \texttt{Haskell/HodgeEndomorphism.hs}}
+This executable Haskell artifact enumerates form-degree signatures by dimension and checks the Hodge map on 2-forms. The verifier reports that only $d=4$ yields a native $\Omega^2\to\Omega^2$ endomorphism and therefore supports self/anti-self-dual projectors without extra constructors.
 
-\subsection{No Lorentz Violation}
+\subsection*{Artifact D: \texttt{Haskell/MinimalAction.hs}}
+This executable Haskell artifact generates curvature-scalar candidates, computes AST node complexity, and filters by explicit constraints (local scalar invariant, presence of a curvature term, second-order equations, divergence compatibility). Under these constraints it certifies Einstein--Hilbert minimality.
 
-Various approaches to Quantum Gravity (e.g., Hořava--Lifshitz gravity) attempt to resolve renormalizability issues by breaking Lorentz invariance at high energies, effectively creating a preferred foliation of spacetime.
+\begin{center}
+\fbox{\parbox{0.92\textwidth}{
+\textbf{Mechanization status.} Artifacts A and B are mechanized and typechecked in Cubical Agda; Artifacts C and D are implemented as executable Haskell verifiers used to certify their stated computational claims. We do not claim formalization of the full exotic-\(\R^4\) or full classical Lovelock theorem libraries at present.
+}}
+\end{center}
 
-\paragraph{Prediction:} We predict that experimental tests of Lorentz invariance (e.g., dispersion relations of gamma-ray bursts) will show zero violation up to the Planck scale.
+\section{Conclusion}
 
-\paragraph{Reasoning:} As derived in Section~4, the Lorentzian signature $(-+++)$ is mandated by the modal distinction between Cohesion ($\flatmod$) and Flow ($\nextmod$) in the Dynamical Cohesive Topos (R16). Breaking Lorentz invariance implies an isomorphism between time and space coordinates at some scale. This would induce a \emph{Modal Collapse} in the underlying logic, allowing ``Flow'' to be treated as ``Shape,'' thereby violating the Linear Logic resource constraint (Section~2) and permitting information cloning. The universe preserves Lorentz symmetry to preserve the logical consistency of its resources.
+With corrected geometry, consistent indexing, and realistic formalization scope, the PEN derivation becomes sharper: linear quantum kinematics maximizes resource-sensitive novelty, four dimensions maximize reusable structure plus Hodge gain, Lorentzian signature preserves modal logic, and Einstein--Hilbert dynamics minimizes syntactic cost. The architecture of spacetime is therefore treated as a constrained optimum, not an arbitrary backdrop.
 
-\subsection{Asymptotic Safety (UV Completeness)}
+\begin{thebibliography}{99}
+% BibTeX-ready equivalents for these keys are provided in gr_and_qm_refs.bib.
+\bibitem{pen-unified}
+H.S.~Lande, ``The Principle of Efficient Novelty: Unified Manuscript,'' \texttt{pen\_unified.tex}, 2026.
 
-PEN rejects the need for Supersymmetry (SUSY) or String Theory to cure the ultraviolet divergences of gravity, as these add massive structural overhead ($\kappa$) for problems solved dynamically.
+\bibitem{girard-linear-logic}
+J.-Y.~Girard, ``Linear Logic,'' \emph{Theoretical Computer Science} \textbf{50} (1987), 1--101.
 
-\paragraph{Prediction:} Gravity is non-perturbatively renormalizable (Asymptotically Safe). We predict no semiclassical breakdown of spacetime geometry at the Planck scale, but rather a transition to a scale-invariant fixed point.
+\bibitem{wootters-zurek}
+W.K.~Wootters and W.H.~Zurek, ``A Single Quantum Cannot be Cloned,'' \emph{Nature} \textbf{299} (1982), 802--803.
 
-\paragraph{Reasoning:} The universe utilizes the Renormalization Group (RG) flow to optimize interaction strengths. The ``UV Fixed Point'' represents the mathematical state where the efficiency metric is stable against scale transformations. Adding supersymmetric particles doubles the definitional cost ($\kappa \to 2\kappa$) for the same dynamic output, rendering SUSY an inefficient solution compared to the intrinsic flow stability of the metric itself.
+\bibitem{dieks}
+D.~Dieks, ``Communication by EPR Devices,'' \emph{Physics Letters A} \textbf{92} (1982), 271--272.
 
-% ===== Section 6 =====
-\section{Artifacts (Mechanization)}
+\bibitem{hottbook}
+The Univalent Foundations Program, ``Homotopy Type Theory: Univalent Foundations of Mathematics,'' Institute for Advanced Study, 2013.
 
-To ensure that the derivations in this paper are rigorous consequences of the PEN axioms rather than heuristic analogies, we have formalized the core arguments using Agda, a functional programming language and proof assistant based on Cubical Type Theory. The following artifacts constitute the formal certificate of the PEN selection mechanism.
+\bibitem{atiyah-hitchin-singer}
+M.F.~Atiyah, N.J.~Hitchin, and I.M.~Singer, ``Self-Duality in Four-Dimensional Riemannian Geometry,'' \emph{Proceedings of the Royal Society A} \textbf{362} (1978), 425--461.
 
-\subsection{Logic/LinearResource.agda}
+\bibitem{donaldson-kronheimer}
+S.K.~Donaldson and P.B.~Kronheimer, \emph{The Geometry of Four-Manifolds}, Oxford University Press, 1990.
 
-\textbf{Objective:} Formal proof of the Utility Singularity (Section~2.1).
+\bibitem{hawking-ellis}
+S.W.~Hawking and G.F.R.~Ellis, \emph{The Large Scale Structure of Space-Time}, Cambridge University Press, 1973.
 
-\textbf{Theorem:} \texttt{proof-utility-singularity}.
+\bibitem{wald-gr}
+R.M.~Wald, \emph{General Relativity}, University of Chicago Press, 1984.
 
-\textbf{Result:} The module defines a logical context allowing the structural rule of Contraction ($A \to A \otimes A$). It demonstrates that iterating contraction on a novelty-bearing type within a classical context yields an unbounded resource total for constant definitional cost. This formally validates the necessity of Linear Logic (No-Cloning) as a constraint for any system where $\rho < \infty$.
-
-\subsection{Topology/ExoticR4.agda}
-
-\textbf{Objective:} Verification of the 4D Novelty Singularity (Section~3.2).
-
-\textbf{Theorem:} \texttt{smooth-structure-count}.
-
-\textbf{Result:} Using Synthetic Homotopy Theory, this module characterizes smooth structures on Euclidean spaces $\R^n$. It formally enumerates the moduli space, showing that for $n \neq 4$, the set of smooth structures is discrete/finite, while for $n=4$, the moduli space admits an uncountably infinite construction. This certifies that $d=4$ uniquely maximizes topological yield.
-
-\subsection{Geometry/LovelockUniqueness.agda}
-
-\textbf{Objective:} Symbolic certification of General Relativity (Section~5).
-
-\textbf{Theorem:} \texttt{lovelock-unique}.
-
-\textbf{Result:} This module defines the type of Lagrangian on a 4-manifold and a predicate \texttt{SecondOrderEOM}. It provides a symbolic proof that the only terms satisfying this predicate in 4D are linear combinations of the Ricci scalar $R$ and the Cosmological Constant $\Lambda$ (excluding the topological Gauss--Bonnet term). This proves that the Einstein--Hilbert action is the $\kappa$-minimal dynamic.
-
-\subsection{Dynamics/ModalSignature.agda}
-
-\textbf{Objective:} Proof of Lorentzian necessity via Modal Logic (Section~4.3).
-
-\textbf{Theorem:} \texttt{euclidean-modal-collapse}.
-
-\textbf{Result:} This module encodes the R16 modalities Flat ($\flatmod$) and Next ($\nextmod$) as types. It demonstrates that a metric signature $(++++)$ constructs a path-homotopy that transforms a type of sort Next into a type of sort Flat, violating the \texttt{ModalSeparation} axiom of the DCT. It further proves that the light-cone structure of $(-+++)$ algebraically inhibits this homotopy, certifying Lorentzian signature as a logical necessity.
-
-% ===== References =====
-\begin{thebibliography}{9}
-\bibitem{pen-foundation}
-H.S.~Lande, ``The Principle of Efficient Novelty: Foundations and the Genesis Sequence,'' Working Paper, 2026.
-
-\bibitem{pen-standard-model}
-H.S.~Lande, ``Deriving the Standard Model from the Principle of Efficient Novelty,'' Working Paper, 2026.
+\bibitem{lovelock-1971}
+D.~Lovelock, ``The Einstein Tensor and Its Generalizations,'' \emph{Journal of Mathematical Physics} \textbf{12} (1971), 498--501.
 \end{thebibliography}
 
 \end{document}
