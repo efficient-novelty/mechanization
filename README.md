@@ -76,29 +76,6 @@ Read the generated report:
 
 ---
 
-## How to make this repository digestible for new visitors
-
-A practical documentation strategy for this project:
-
-1. **Keep the root README short, visual, and task-oriented** (what PEN is, where proofs live, how to run).
-2. **Move deeper design detail into dedicated docs** (architecture, ADRs, phase reports).
-3. **Document workflows by role**:
-   - *Reader* (papers + high-level map),
-   - *Verifier* (Agda + benchmark scripts),
-   - *Contributor* (architecture + ADR trail).
-4. **Prefer command-copyability over prose** for setup and run sections.
-
-This README follows that pattern and links to deeper docs.
-
----
-
-## Should architecture be separate from README?
-
-**Recommendation: yes.**
-
-- Keep an **architecture summary** in this README (for orientation).
-- Keep a **separate detailed architecture doc** for maintainability and versioned design evolution.
-
 ➡ See [`docs/architecture.md`](docs/architecture.md) for the full system view.
 
 ---

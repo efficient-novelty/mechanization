@@ -11,24 +11,18 @@ This repository contains the research artifacts for:
 This Zenodo deposition is organized into separate archival bundles for clarity and reproducibility.
 
 ### 1) Paper bundle
+- `pen_paper_v1.0.zip`
 
-Recommended filename:
+Contents:
 
-- `pen_unified_paper_vX.Y.zip`
-
-Expected contents:
-
-- `pen_unified.tex` — source manuscript
-- `pen_unified.pdf` — compiled manuscript
+- `pen_paper.tex` — source manuscript
+- `pen_paper.pdf` — compiled manuscript
 - `README_zenodo.md` — this file
 
 ### 2) Code bundle
+- `pen_code_v1.0.zip`
 
-Recommended filename:
-
-- `pen_unified_code_vX.Y.zip`
-
-Expected contents:
+Contents:
 
 - `agda/` — Cubical Agda mechanization
 - `engine/` — Haskell synthesis/verification engine
@@ -36,24 +30,8 @@ Expected contents:
 - `README.md`
 - `environment_requirements.md`
 
-### Optional 3) Runs/artifacts bundle
-
-Recommended filename:
-
-- `pen_unified_runs_vX.Y.zip`
-
-Use this only if you want to archive generated run outputs (CSV/log/report artifacts) as a frozen dataset.
-
----
-
-## Why split into bundles?
-
-- **Paper readers** can access the manuscript immediately.
-- **Reproducibility reviewers** can download only the code package.
-- **Metadata quality** improves when each artifact type is clearly labeled.
-- **Versioning clarity**: paper and code can evolve together while remaining navigable.
-
----
+### 3) Runs/artifacts bundle
+- `pen_runs_v1.0.zip`
 
 ## Reproducibility quick checks
 
@@ -104,26 +82,15 @@ Minimum tooling summary:
 - Cabal 2.4+
 - Optional: `pdflatex` for manuscript rebuilds
 
----
-
-## Recommended exclusions when creating ZIP archives
-
-Do **not** include temporary/build products unless intentionally archiving them:
-
-- LaTeX auxiliaries: `.aux`, `.log`, `.out`, `.toc`
-- Cabal build dirs: `dist-newstyle/`
-- Editor/OS cruft: `.DS_Store`, swap files, etc.
-
----
 
 ## Suggested citation text (example)
 
-> Lande, H. (2026). *The Principle of Efficient Novelty (PEN): Manuscript, mechanization, and reproducible engine* (Version X.Y) [Data set]. Zenodo. https://doi.org/XX.XXXX/zenodo.XXXXXXX
+> Lande, H. (2026). *The Principle of Efficient Novelty (PEN): Manuscript, mechanization, and reproducible engine* (Version 1.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18841121
 
 Replace title/version/DOI with the final Zenodo metadata.
 
----
+## Github
+https://github.com/efficient-novelty/mechanization
 
 ## Contact
-
-For questions regarding this deposition, use the contact information in the manuscript metadata and repository documentation.
+halvor.s.lande@gmail.com
