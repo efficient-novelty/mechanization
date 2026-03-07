@@ -88,8 +88,15 @@ deriveGoalProfile :: Library -> GoalProfile
 deriveGoalProfile lib =
   let bootstrap = [NeedBootstrap | length lib < 3]
       former = [NeedFormer | not (any leHasDependentFunctions lib)]
-      hit = [NeedHIT | not (any leHasLoop lib)]
-      modal = [NeedModal | not (any leHasModalOps lib)]
+      hasLoop = any leHasLoop lib
+      hasTrunc = any hasTruncEntry lib
+      hasDim1 = any (elem 1 . lePathDims) lib
+      hasDim2 = any (elem 2 . lePathDims) lib
+      hasDim3 = any (elem 3 . lePathDims) lib
+      hitMature = hasTrunc && hasDim1 && hasDim2 && hasDim3
+      hit = [NeedHIT | not hasLoop || not hitMature]
+      modalReady = hasLoop && hitMature
+      modal = [NeedModal | modalReady && not (any leHasModalOps lib)]
       differential = [NeedDifferential | any leHasModalOps lib && not (any leHasDifferentialOps lib)]
       temporal = [NeedTemporal | any leHasHilbert lib && not (any leHasTemporalOps lib)]
       bridge = [NeedBridge | any leHasDifferentialOps lib && not (any leHasHilbert lib)]
@@ -97,6 +104,10 @@ deriveGoalProfile lib =
     { gpIntents = bootstrap ++ former ++ hit ++ modal ++ differential ++ bridge ++ temporal
     , gpPreferReuse = not (null lib)
     }
+  where
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
 
 -- | An action: a choice of MBTT node to fill a hole.
 -- Each action may create sub-holes that need to be filled.
@@ -253,8 +264,14 @@ actionGatedByLibrary lib act = case act of
   AEventually -> hasTemporalPrereqs
   _           -> True
   where
-    hasModalCap      = any leHasModalOps lib
+    hasModalCap      = any leHasModalOps lib || hasModalPrereqs
+    hasModalPrereqs  = any leHasDependentFunctions lib
+                    && any hasTruncEntry lib
+                    && maximum (0 : concatMap lePathDims lib) >= 3
     hasTemporalPrereqs = any leHasHilbert lib
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
 
 -- | Minimum bit cost of an action (assuming minimal children).
 actionMinCost :: Action -> Int
@@ -314,7 +331,7 @@ actionPriority libSize act = case act of
   ADisc    -> 26
   AShape   -> 24
   -- Truncation
-  ATrunc   -> 20
+  ATrunc   -> 66
   -- Temporal (only at late stages)
   ANext       -> 15
   AEventually -> 14

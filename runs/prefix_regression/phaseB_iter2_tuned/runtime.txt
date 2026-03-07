@@ -1,0 +1,7 @@
+exit_code=0
+duration_s=22
+timeout_s=60
+max_steps=7
+report_file=prefix_report.csv
+summary_file=prefix_summary.csv
+log_file=prefix_run.log

@@ -8,6 +8,7 @@
 
 module Parallel
   ( parMapChunked
+  , parMapChunkedWHNF
   , parMapList
   , parEnumeratePartitioned
   , numCPUs
@@ -15,10 +16,12 @@ module Parallel
 
 import Control.Parallel.Strategies
 import Control.DeepSeq ()
+import GHC.Conc (numCapabilities)
 
--- | Number of available CPUs (configured at compile time via -N8)
+-- | Number of active capabilities from RTS (+RTS -N...).
+-- This tracks runtime core configuration rather than a compile-time constant.
 numCPUs :: Int
-numCPUs = 8
+numCPUs = max 1 numCapabilities
 
 -- | Parallel map with chunking for balanced load distribution.
 -- Splits the input list into chunks (one per CPU) and evaluates
@@ -27,6 +30,15 @@ parMapChunked :: NFData b => (a -> b) -> [a] -> [b]
 parMapChunked f xs =
   let chunks = splitIntoChunks numCPUs xs
       results = map (map f) chunks `using` parList rdeepseq
+  in concat results
+
+-- | Parallel map with chunking to weak head normal form.
+-- Use when the caller forces fields explicitly (e.g., with seq) and
+-- no NFData instance is available.
+parMapChunkedWHNF :: (a -> b) -> [a] -> [b]
+parMapChunkedWHNF f xs =
+  let chunks = splitIntoChunks numCPUs xs
+      results = map (map f) chunks `using` parList (parList rseq)
   in concat results
 
 -- | Parallel map over a list using parList strategy.

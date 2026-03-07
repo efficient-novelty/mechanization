@@ -7,7 +7,7 @@ trap 'rm -rf "$WORK_DIR"' EXIT
 
 mk_fixture() {
   local dir="$1"
-  mkdir -p "$dir/ladder" "$dir/ladder-main" "$dir/phase3/native_nu"
+  mkdir -p "$dir/ladder" "$dir/ladder-main" "$dir/prefix" "$dir/phase3/native_nu"
   cat > "$dir/env.txt" <<TXT
 mode=test
 TXT
@@ -40,6 +40,42 @@ TXT
   cat > "$dir/phase1-shadow-ladder-main.log" <<TXT
 ok
 TXT
+  cat > "$dir/prefix-regression.log" <<TXT
+ok
+TXT
+  cat > "$dir/prefix/prefix_report.csv" <<TXT
+step,status,bar,raw_candidates,viable_candidates,selected_name,selected_nu,selected_kappa,selected_rho,selected_source
+1,selected,0.5000,10,10,Universe,1,2,0.5000,ENUM_MBTT
+2,selected,0.5000,10,10,Unit,1,1,1.0000,ENUM_MBTT
+3,selected,1.3333,8,4,Witness,2,1,2.0000,ENUM_MBTT
+4,selected,1.5000,8,4,Pi,5,3,1.6667,AGENDA
+5,selected,2.1429,8,4,S1,8,3,2.6667,AGENDA
+6,selected,2.7200,8,4,Trunc,6,2,3.0000,AGENDA
+7,selected,3.1146,8,4,S2,8,2,4.0000,AGENDA
+TXT
+  cat > "$dir/prefix/prefix_summary.csv" <<TXT
+step,status,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,bar,raw_candidates,viable_candidates
+1,selected,Universe,1,2,0.5000,ENUM_MBTT,0.5000,10,10
+2,selected,Unit,1,1,1.0000,ENUM_MBTT,0.5000,10,10
+3,selected,Witness,2,1,2.0000,ENUM_MBTT,1.3333,8,4
+4,selected,Pi,5,3,1.6667,AGENDA,1.5000,8,4
+5,selected,S1,8,3,2.6667,AGENDA,2.1429,8,4
+6,selected,Trunc,6,2,3.0000,AGENDA,2.7200,8,4
+7,selected,S2,8,2,4.0000,AGENDA,3.1146,8,4
+TXT
+  cat > "$dir/prefix/prefix_gate.txt" <<TXT
+pass
+observed=1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2
+TXT
+  cat > "$dir/prefix/runtime.txt" <<TXT
+exit_code=0
+duration_s=12
+timeout_s=30
+max_steps=7
+TXT
+  cat > "$dir/prefix/manifest.json" <<TXT
+{"mode":"strict-prefix-regression"}
+TXT
   cat > "$dir/phase3-native-nu.log" <<TXT
 ok
 TXT
@@ -64,7 +100,7 @@ TXT
 pass
 TXT
   cat > "$dir/manifest.json" <<TXT
-{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)","phase3_native_nu_evidence":"STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"}}
+{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)","strict_prefix_regression":"TIMEOUT_S=30 MAX_STEPS=7 REQUIRE_SUCCESS_THROUGH=7 RTS_CORES=-N EXPECTED_NAMES='1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2' bash engine/scripts/run_prefix_regression.sh runs/phase1_ci/<run-id>/prefix","phase3_native_nu_evidence":"STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"}}
 TXT
 }
 

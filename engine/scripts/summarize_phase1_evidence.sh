@@ -90,6 +90,15 @@ ladder_gate="n/a"
 if [[ -f "$RUN_DIR/ladder-main/ladder_gate.txt" ]]; then
   ladder_gate="$(tr -d '\n' < "$RUN_DIR/ladder-main/ladder_gate.txt")"
 fi
+prefix_gate="n/a"
+prefix_observed="(none)"
+if [[ -f "$RUN_DIR/prefix/prefix_gate.txt" ]]; then
+  prefix_gate="$(head -n 1 "$RUN_DIR/prefix/prefix_gate.txt" | tr -d '\n')"
+  prefix_observed_line="$(grep -E '^observed=' "$RUN_DIR/prefix/prefix_gate.txt" | head -n 1 || true)"
+  if [[ -n "$prefix_observed_line" ]]; then
+    prefix_observed="${prefix_observed_line#observed=}"
+  fi
+fi
 
 phase3_report_status="n/a"
 if [[ -f "$RUN_DIR/phase3/native_nu/report.md" ]]; then
@@ -133,6 +142,8 @@ cat >> "$OUT" <<MD
 
 ## Ladder telemetry
 - ladder_status_rows: ${ladder_status:-"(none)"}
+- strict_prefix_gate: ${prefix_gate:-"(missing)"}
+- strict_prefix_observed: ${prefix_observed:-"(none)"}
 
 ## Phase 3 native-ν lane
 - native_nu_report_status: ${phase3_report_status:-"(unknown)"}

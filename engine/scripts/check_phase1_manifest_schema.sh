@@ -32,6 +32,7 @@ required = [
     'abinitio_mbtt_shadow',
     'abinitio_mbtt_full',
     'mbtt_shadow_ladder',
+    'strict_prefix_regression',
     'phase3_native_nu_evidence',
 ]
 for k in required:

@@ -1,0 +1,65 @@
+============================================
+PEN Ab Initio Discovery Engine
+Mode: StrictAbInitio, d=2
+============================================
+  Evaluator: EvalStrictComputed (computeUniformNu + strictKappa, zero paper tables)
+  Bar:       Discovered nu/kappa history only
+  Library:   Discovered entries only, no fallback
+  Window:    d=2 (Fibonacci — intensional HoTT)
+  Kappa:     DesugaredKappa
+  SEARCH:    MBTT-first default active (typed MBTT enumeration in Phase A)
+  SHADOW:    --max-steps 7 (early-stop run)
+  SPEED:     --skip-validation (Phase 0 validation skipped)
+  PROFILE:   --mbtt-shadow-profile (tighter MBTT Phase-1 bounds)
+  SPEED:     --skip-mcts (disable Phase B MCTS)
+  PRESET:    --phase1-shadow (bounded MBTT-first profile)
+  MEMORY:    adaptive memory/pagefile guards enabled
+  SEED:      42
+  REPORT:    --prefix-report strict_prefix_report.csv
+
+Starting from EMPTY LIBRARY.
+The engine will autonomously discover the Generative Sequence.
+
+--- Phase 0: Validation skipped (claim-grade default) ---
+
+
+--- Phase 1: Ab Initio Synthesis (StrictAbInitio, d=2) ---
+
+Step Discovery            ν     κ        ρ      Bar      Δ_n  Source   Candidates
+------------------------------------------------------------------------------------------
+  [MEM step 1] pressure=low live=0MiB inuse=51MiB peak=51MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+1    Universe             1     2     0.50     0.50        1  ENUM_MBTT 11
+  [MEM step 2] pressure=low live=0MiB inuse=52MiB peak=52MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+2    Unit                 1     1     1.00     0.50        1  ENUM_MBTT 11
+  [MEM step 3] pressure=low live=0MiB inuse=66MiB peak=145MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+3    Witness              2     1     2.00     1.33        2  ENUM_MBTT 3
+  [MEM step 4] pressure=low live=0MiB inuse=65MiB peak=1025MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+4    Pi                   5     3     1.67     1.50        3  AGENDA   15
+  [MEM step 5] pressure=low live=0MiB inuse=62MiB peak=1025MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+5    S1                   8     3     2.67     2.14        5  AGENDA   9
+  [MEM step 6] pressure=low live=0MiB inuse=62MiB peak=1025MiB enum(bit=14,depth=2,cands=20) mcts(iters=1200,depth=3,topK=10)
+  [GOAL step 6] intents=[NeedHIT] loop=True trunc=False modal=False diff=False hilbert=False maxDim=1
+  [HIT step 6] trunc_candidates=7 trunc_viable=5 trunc_best_rho=6.50
+6    Trunc                6     2     3.00     2.72        8  AGENDA   5
+  [MEM step 7] pressure=low live=0MiB inuse=61MiB peak=1025MiB enum(bit=16,depth=2,cands=12) mcts(iters=720,depth=3,topK=10)
+  [STEP 7] stage-A tight found no viable candidate in 0.00s; running widened stage-B.
+  [GOAL step 7] intents=[NeedHIT] loop=True trunc=True modal=False diff=False hilbert=False maxDim=1
+  [HIT step 7] trunc_candidates=2 trunc_viable=2 trunc_best_rho=5.50
+7    S2                   8     2     4.00     3.11       13  AGENDA_WIDE 4
+
+============================================
+SYNTHESIS COMPLETE: 7 structures discovered
+============================================
+
+Discovery vs Paper Comparison:
+Step   disc_ν    pap_ν   disc_κ    pap_κ
+--------------------------------------------
+1           1        1        2        2
+2           1        1        1        1
+3           2        2        1        1
+4           5        5        3        3
+5           8        7        3        3
+6           6        8        2        3
+7           8       10        2        3
+--------------------------------------------
+SUM        31       34       14       16

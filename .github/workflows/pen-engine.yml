@@ -163,6 +163,14 @@ jobs:
             engine/scripts/run_phase1_shadow_ladder.sh "$RUN_DIR/ladder-main" \
             | tee "$RUN_DIR/phase1-shadow-ladder-main.log"
 
+      - name: Lane E3 — strict prefix regression gate through step 7 (required on PR/main)
+        run: |
+          mkdir -p "$RUN_DIR/prefix"
+          TIMEOUT_S=30 MAX_STEPS=7 REQUIRE_SUCCESS_THROUGH=7 RTS_CORES=-N \
+          EXPECTED_NAMES='1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2' \
+            bash engine/scripts/run_prefix_regression.sh "$RUN_DIR/prefix" \
+            | tee "$RUN_DIR/prefix-regression.log"
+
       - name: Lane P2-V4 — canonical differential gate (required on PR/main)
         run: |
           mkdir -p "$RUN_DIR/phase2/differential"
@@ -199,6 +207,7 @@ jobs:
               "abinitio_mbtt_full": "cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)",
               "mbtt_shadow_ladder": "TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder",
               "mbtt_shadow_ladder_main_gate": "TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)",
+              "strict_prefix_regression": "TIMEOUT_S=30 MAX_STEPS=7 REQUIRE_SUCCESS_THROUGH=7 RTS_CORES=-N EXPECTED_NAMES='1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2' bash engine/scripts/run_prefix_regression.sh runs/phase1_ci/<run-id>/prefix",
               "phase2_canonical_differential_gate": "THRESHOLD_PCT=40 MAX_CANDIDATES=120 LIB_STEP=3 MAX_BIT_BUDGET=16 MAX_ENTRIES=2 MAX_AST_DEPTH=2 engine/scripts/run_phase2_canonical_differential.sh runs/phase1_ci/<run-id>/phase2/differential",
               "phase2_quality_parity_gate": "MAX_STEPS=2 MAX_CANDS=20 engine/scripts/run_phase2_quality_parity.sh runs/phase1_ci/<run-id>/phase2/parity",
               "phase3_native_nu_evidence": "STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"

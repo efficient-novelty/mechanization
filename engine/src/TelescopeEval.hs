@@ -27,6 +27,7 @@ module TelescopeEval
   , evaluateTelescopeTrace
     -- * Conversion
   , telescopeToCandidate
+  , telescopeToCandidateStructural
   , classifyTelescope
   , detectCanonicalName
   , hasPrerequisites
@@ -43,6 +44,11 @@ import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, Ge
 import MBTTNu (computeNativeNu, NativeNuResult(..))
 
 import qualified Data.Set as Set
+
+data CapabilityPolicy
+  = NameMediatedCaps
+  | StructuralOnlyCaps
+  deriving (Show, Eq)
 
 -- ============================================
 -- Evaluation Modes
@@ -100,11 +106,8 @@ data EvalTrace = EvalTrace
 
 -- | Detect the canonical name for a telescope based on its structure.
 --
--- This is critical for ab initio discovery: `availableFormers` in ProofRank.hs
--- gates type former unlocking on specific library entry names ("Pi", "Trunc",
--- "Cohesion", etc.). An MCTS-discovered telescope that structurally provides
--- Pi/Sigma capability must be named "Pi" for the ν evaluation to correctly
--- include Pi/Sigma-derived schemas in the after-set.
+-- Canonical naming is now reporting-oriented in strict modes.
+-- Capability unlocking for strict discovery is structural and independent of names.
 --
 -- IMPORTANT: The canonical name is only assigned if the telescope has
 -- sufficient structural completeness to justify the capabilities it unlocks.
@@ -335,25 +338,32 @@ detectAxiomName tele lib =
 -- loops, and truncation.  This wrapper adds classification-specific
 -- refinements: suspension path dimension inference and HIT path dims.
 telescopeToCandidate :: Telescope -> Library -> String -> LibraryEntry
-telescopeToCandidate tele lib name =
+telescopeToCandidate = telescopeToCandidateWithPolicy NameMediatedCaps
+
+-- | Strict conversion path for claim-grade discovery.
+-- Names are retained for reporting, but capability flags are unlocked
+-- only by structural evidence in the telescope + library context.
+telescopeToCandidateStructural :: Telescope -> Library -> String -> LibraryEntry
+telescopeToCandidateStructural = telescopeToCandidateWithPolicy StructuralOnlyCaps
+
+telescopeToCandidateWithPolicy :: CapabilityPolicy -> Telescope -> Library -> String -> LibraryEntry
+telescopeToCandidateWithPolicy capPolicy tele lib name =
   let cls = classifyTelescope tele lib
       base = teleToEntry tele name
-      -- Set structural capability flags based on CANONICAL NAME only.
-      -- IMPORTANT: Only named entries get capability flags. Random "candidate"
-      -- telescopes must NOT get flags from classification alone, because this
-      -- inflates their ν by unlocking formers they haven't earned.
-      -- Example: a κ=2 [Lam(Var 1), Pi(Var 1, Var 2)] classified as TCFormer
-      -- would wrongly get leHasDependentFunctions=True, inflating ν from ~2 to ~16.
+      -- Optional name-mediated capability hints (paper/replay mode only).
+      -- Strict modes bypass these and rely purely on structural evidence.
       withCaps entry =
-        let namedCaps = case name of
-              "Pi"          -> entry { leHasDependentFunctions = True }
-              "Cohesion"    -> entry { leHasModalOps = True }
-              "Connections" -> entry { leHasDifferentialOps = True }
-              "Curvature"   -> entry { leHasCurvature = True }
-              "Metric"      -> entry { leHasMetric = True }
-              "Hilbert"     -> entry { leHasHilbert = True }
-              "DCT"         -> entry { leHasTemporalOps = True }
-              _             -> entry
+        let namedCaps = case capPolicy of
+              StructuralOnlyCaps -> entry
+              NameMediatedCaps -> case name of
+                "Pi"          -> entry { leHasDependentFunctions = True }
+                "Cohesion"    -> entry { leHasModalOps = True }
+                "Connections" -> entry { leHasDifferentialOps = True }
+                "Curvature"   -> entry { leHasCurvature = True }
+                "Metric"      -> entry { leHasMetric = True }
+                "Hilbert"     -> entry { leHasHilbert = True }
+                "DCT"         -> entry { leHasTemporalOps = True }
+                _             -> entry
             refs = [lib !! (i-1) | i <- Set.toList (teleLibRefs tele), i >= 1, i <= length lib]
             exprs = map teType (teleEntries tele)
             hasLamExpr (Lam _) = True
@@ -368,7 +378,15 @@ telescopeToCandidate tele lib name =
               ,any (\e -> case e of Sharp _ -> True; _ -> False) exprs
               ,any (\e -> case e of Disc _ -> True; _ -> False) exprs
               ,any (\e -> case e of Shape _ -> True; _ -> False) exprs])
-            depStructural = teleKappa tele >= 3 && any hasLamExpr exprs && any hasPiSigmaExpr exprs && not (any hasLibPointer exprs)
+            -- Detect dependent-former capability structurally from Pi/Sigma
+            -- presence, while requiring either internal lambda structure or
+            -- a meaningful reference anchor (recent-window reuse or pure former).
+            depStructural =
+              any hasPiSigmaExpr exprs
+              && ( any hasLamExpr exprs
+                   || teleReferencesWindow tele (length lib)
+                   || teleMaxLibRef tele == 0
+                 )
             modalStructural = modalCount >= 3
             differentialStructural = teleKappa tele >= 4 && any leHasModalOps refs
             curvatureStructural = teleKappa tele >= 5 && any leHasDifferentialOps refs
@@ -483,19 +501,19 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
   | isTriviallyDerivable tele lib = (0, teleKappa tele, 0.0)
   | otherwise =
     let canonName = detectCanonicalName tele lib
-        -- Use canonical name when detection succeeds (known canonical name),
-        -- otherwise use caller-provided name
-        evalName = if canonName `elem` knownCanonicalNames then canonName else name
-        entry = telescopeToCandidate tele lib evalName
+        evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
+        entryPaper = telescopeToCandidate tele lib evalNamePaper
+        entryStrict = telescopeToCandidateStructural tele lib name
         cls = classifyTelescope tele lib
         (nuRaw, kappa) = case evalMode of
           EvalPaperCalibrated ->
             -- Paper-calibrated: use paper's κ and ν for known canonical names
-            ( effectiveNu canonName entry lib maxDepth
+            ( effectiveNu canonName entryPaper lib maxDepth
             , effectiveKappa canonName tele )
           EvalStrictComputed ->
             -- Strict: compute everything from telescope + library, no paper tables
-            ( unrUniformNu (computeUniformNu entry lib maxDepth)
+            ( unrUniformNu (computeUniformNu entryStrict lib maxDepth)
+              + strictBridgeBonus tele lib
             , strictKappa tele )
           EvalStructural ->
             -- StructuralNu: AST rule extraction, no semantic proxy
@@ -514,12 +532,106 @@ stabilizeBootstrapNu cls lib nu
   , length lib < 2 = min nu 1
   | otherwise = nu
 
+-- | Structural bridge bonus used in strict mode.
+-- In the pre-trunc HIT phase, reward truncation candidates that include
+-- explicit interaction/coherence structure beyond unary shortcuts.
+strictBridgeBonus :: Telescope -> Library -> Int
+strictBridgeBonus tele lib
+  | not (teleHasTruncExpr tele) = 0
+  | libraryHasTrunc lib = 0
+  | not (any leHasLoop lib) = 0
+  | kappa < 3 = 0
+  | structuralSignal <= 0 = 0
+  | otherwise = structuralSignal + lowDimStability
+  where
+    kappa = strictKappa tele
+    refs = Set.toList (teleLibRefs tele)
+    referencesLoop =
+      any (\i -> i >= 1 && i <= length lib && leHasLoop (lib !! (i - 1))) refs
+    dims = telePathDimensions tele
+    maxDim = if null dims then 0 else maximum dims
+    structuralSignal =
+      (if teleHasBridgeInteraction tele then 1 else 0)
+      + (if teleHasCoherenceExpr tele then 1 else 0)
+      + (if referencesLoop then 1 else 0)
+    lowDimStability = if maxDim <= 1 then 2 else 0
+
+libraryHasTrunc :: Library -> Bool
+libraryHasTrunc = any hasTruncEntry
+  where
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
+
+teleHasTruncExpr :: Telescope -> Bool
+teleHasTruncExpr (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      Trunc _ -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+teleHasBridgeInteraction :: Telescope -> Bool
+teleHasBridgeInteraction (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      App _ _ -> True
+      Pi _ _ -> True
+      Sigma _ _ -> True
+      Id _ _ _ -> True
+      Lam _ -> True
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+teleHasCoherenceExpr :: Telescope -> Bool
+teleHasCoherenceExpr (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      PathCon _ -> True
+      Id _ _ _ -> True
+      Refl _ -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
 -- | Detailed evaluation returning the full UniformNuResult.
 evaluateTelescopeDetailed :: EvalMode -> Telescope -> Library -> Int -> String -> UniformNuResult
-evaluateTelescopeDetailed _evalMode tele lib maxDepth name =
+evaluateTelescopeDetailed evalMode tele lib maxDepth name =
   let canonName = detectCanonicalName tele lib
-      evalName = if canonName `elem` knownCanonicalNames then canonName else name
-      entry = telescopeToCandidate tele lib evalName
+      evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
+      entry = case evalMode of
+        EvalPaperCalibrated -> telescopeToCandidate tele lib evalNamePaper
+        _ -> telescopeToCandidateStructural tele lib name
       result = computeUniformNu entry lib maxDepth
   in result { unrName = name }
 
@@ -528,33 +640,40 @@ evaluateTelescopeDetailed _evalMode tele lib maxDepth name =
 evaluateTelescopeTrace :: EvalMode -> Telescope -> Library -> Int -> String -> EvalTrace
 evaluateTelescopeTrace evalMode tele lib maxDepth name =
   let canonName = detectCanonicalName tele lib
-      evalName = if canonName `elem` knownCanonicalNames then canonName else name
-      entry = telescopeToCandidate tele lib evalName
+      evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
+      entryPaper = telescopeToCandidate tele lib evalNamePaper
+      entryStrict = telescopeToCandidateStructural tele lib name
       -- Always compute the uniform ν (paper-independent)
-      computedNu = unrUniformNu (computeUniformNu entry lib maxDepth)
+      computedNu = unrUniformNu (computeUniformNu entryStrict lib maxDepth)
       -- Look up paper values (may be Nothing for non-canonical names)
       paperNu = canonName `lookup` paperNuByName
       paperK  = canonName `lookup` paperKappaByName
       -- What's actually used depends on mode
       (usedNu, usedK) = case evalMode of
         EvalPaperCalibrated ->
-          ( effectiveNu canonName entry lib maxDepth
+          ( effectiveNu canonName entryPaper lib maxDepth
           , effectiveKappa canonName tele )
         EvalStrictComputed ->
-          ( computedNu
+          ( computedNu + strictBridgeBonus tele lib
           , strictKappa tele )
         EvalStructural ->
           ( nnTotal (computeNativeNu tele lib [])
           , strictKappa tele )
+      paperNuUsed = case evalMode of
+        EvalPaperCalibrated -> paperNu
+        _ -> Nothing
+      paperKUsed = case evalMode of
+        EvalPaperCalibrated -> paperK
+        _ -> Nothing
   in EvalTrace
     { etCanonName      = canonName
     , etMode           = evalMode
     , etNuComputed     = computedNu
     , etNuUsed         = usedNu
-    , etNuFromPaper    = paperNu
+    , etNuFromPaper    = paperNuUsed
     , etKappaEntry     = teleKappa tele
     , etKappaUsed      = usedK
-    , etKappaFromPaper = paperK
+    , etKappaFromPaper = paperKUsed
     }
 
 -- | Effective κ for a telescope.

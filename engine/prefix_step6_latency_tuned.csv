@@ -1,0 +1,7 @@
+step,status,bar,raw_candidates,viable_candidates,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,runner_1,runner_2,runner_3,agenda_expanded,agenda_sigma_prunes,agenda_dominance_prunes,agenda_critic_transitions,agenda_action_failures,agenda_near_misses
+1,selected,0.5000,12,11,Universe,1,2,0.5000,ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,Universe|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
+2,selected,0.5000,11,11,Unit,1,1,1.0000,ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
+3,selected,1.3333,7,3,Witness,2,1,2.0000,ENUM_MBTT,Witness|2|1|2.0000|ENUM_MBTT,candidate|5|1|5.0000|ENUM_MBTT,,0,0,0,0,0,0
+4,selected,1.5000,23,13,Pi,5,3,1.6667,AGENDA,candidate|7|3|2.3333|AGENDA,candidate|7|3|2.3333|AGENDA,candidate|7|3|2.3333|AGENDA,30,0,15,0,3,8
+5,selected,2.1429,7,4,S1,8,3,2.6667,AGENDA,HIT|8|3|2.6667|AGENDA,candidate|10|3|3.3333|AGENDA,HIT|12|3|4.0000|AGENDA,18,19,35,0,3,8
+6,selected,2.7200,1,1,S2,13,3,4.3333,AGENDA,,,,11,44,10,0,0,8

@@ -361,6 +361,21 @@ candidateHeuristic tele lib profile =
       refsRecent = not (Set.null refs) && (Set.member libSize refs || Set.member (libSize - 1) refs)
       connectivity = if teleIsConnected tele then 2 else 0
       intentBonus = sum [2 | intent <- gpIntents profile, teleSupportsIntent tele intent]
+      kappa = desugaredKappa tele
+      bridgePhase = any leHasLoop lib && not (any hasTruncEntry lib)
+      hasTruncBridgeExpr = any hasTruncExpr exprs
+      truncBridgeRichness =
+        if bridgePhase && hasTruncBridgeExpr
+        then
+          (if kappa >= 3 then 8 else 0)
+          + (if any hasBridgeInteraction exprs then 3 else 0)
+          + (if any hasCoherenceExpr exprs then 2 else 0)
+          + (if hasFormer then 2 else 0)
+        else 0
+      truncShortcutPenalty =
+        if bridgePhase && hasTruncBridgeExpr && kappa <= 2 && not (any hasBridgeInteraction exprs)
+        then 4
+        else 0
       base =
           (if hasTypeFormation then 6 else 0)
         + (if hasFormer then 5 else 0)
@@ -389,7 +404,7 @@ candidateHeuristic tele lib profile =
           TCAxiomatic -> if any leHasModalOps lib then 0 else 6
           TCSynthesis -> if any leHasHilbert lib then 0 else 8
           TCUnknown -> 4
-  in base - penalties - readinessPenalty
+  in base + truncBridgeRichness - penalties - readinessPenalty - truncShortcutPenalty
   where
     isTypeFormationExpr Univ = True
     isTypeFormationExpr (App Univ _) = True
@@ -427,6 +442,62 @@ candidateHeuristic tele lib profile =
 
     countConstructed = length . filter leConstructorsPositive
     leConstructorsPositive e = leConstructors e > 0
+
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
+
+    hasTruncExpr expr = case expr of
+      Trunc _ -> True
+      Lam a -> hasTruncExpr a
+      Refl a -> hasTruncExpr a
+      Susp a -> hasTruncExpr a
+      Flat a -> hasTruncExpr a
+      Sharp a -> hasTruncExpr a
+      Disc a -> hasTruncExpr a
+      Shape a -> hasTruncExpr a
+      Next a -> hasTruncExpr a
+      Eventually a -> hasTruncExpr a
+      Pi a b -> hasTruncExpr a || hasTruncExpr b
+      Sigma a b -> hasTruncExpr a || hasTruncExpr b
+      App a b -> hasTruncExpr a || hasTruncExpr b
+      Id a x y -> hasTruncExpr a || hasTruncExpr x || hasTruncExpr y
+      _ -> False
+
+    hasBridgeInteraction expr = case expr of
+      App _ _ -> True
+      Pi _ _ -> True
+      Sigma _ _ -> True
+      Id _ _ _ -> True
+      Lam a -> hasBridgeInteraction a
+      Refl a -> hasBridgeInteraction a
+      Susp a -> hasBridgeInteraction a
+      Trunc a -> hasBridgeInteraction a
+      Flat a -> hasBridgeInteraction a
+      Sharp a -> hasBridgeInteraction a
+      Disc a -> hasBridgeInteraction a
+      Shape a -> hasBridgeInteraction a
+      Next a -> hasBridgeInteraction a
+      Eventually a -> hasBridgeInteraction a
+      _ -> False
+
+    hasCoherenceExpr expr = case expr of
+      PathCon _ -> True
+      Id _ _ _ -> True
+      Refl _ -> True
+      Lam a -> hasCoherenceExpr a
+      App a b -> hasCoherenceExpr a || hasCoherenceExpr b
+      Pi a b -> hasCoherenceExpr a || hasCoherenceExpr b
+      Sigma a b -> hasCoherenceExpr a || hasCoherenceExpr b
+      Susp a -> hasCoherenceExpr a
+      Trunc a -> hasCoherenceExpr a
+      Flat a -> hasCoherenceExpr a
+      Sharp a -> hasCoherenceExpr a
+      Disc a -> hasCoherenceExpr a
+      Shape a -> hasCoherenceExpr a
+      Next a -> hasCoherenceExpr a
+      Eventually a -> hasCoherenceExpr a
+      _ -> False
 
 -- | Small macro-reuse lane: compose existing library structures directly.
 -- Keeps the lane tiny and deterministic, providing intelligent reuse seeds.

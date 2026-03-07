@@ -1,241 +1,143 @@
-# Intelligent Discovery Plan
+# Intelligent Discovery Plan (Updated 2026-03-07)
 
-## Objective
+## Goal
 
-Make PEN discovery operate as obligation-driven mechanized mathematical reasoning, not enumerate-then-rerank syntax farming, while preserving strict non-target-aware behavior.
+Make discovery behave like obligation-driven mechanized mathematics, not brute-force syntax farming, while preserving strict autonomy constraints:
 
-Success criterion:
+1. No paper-value substitution in strict mode.
+2. No step-index/template injection.
+3. No canonical-name unlocking in search/ranking critical paths.
 
-1. The engine discovers the first 9 structures correctly in under 60 seconds on the target machine profile.
-2. Discovery mode uses no step-indexed reference injection, no name-based unlocking, and no paper-value substitution.
-3. Search traces read like proof construction: explicit obligations, explicit moves, explicit capability gain.
+## Current Verified Checkpoint
 
-## Current State (What Is Already In Place)
+Command used:
 
-1. Goal profile inference exists (`deriveGoalProfile`).
-2. Action generation already uses structural pruning (`validActionsWithProfile`).
-3. A proof-state scaffold exists (`ProofState.hs`) with:
-   1. `CapabilitySig`
-   2. `Obligation`
-   3. `SearchState`
-4. MCTS core correctness has been improved:
-   1. Children now materialize actual action applications.
-   2. Backprop updates along the full path.
-   3. Rollout entry generation no longer duplicates/reorders partial state.
-5. MCTS is no longer only hard fallback; a bounded portfolio lane can run alongside enumeration.
+```powershell
+cabal run exe:ab-initio -- --strict --phase1-shadow --max-steps 7 --prefix-report prefix_final_check.csv +RTS -N -RTS
+```
 
-## Remaining Work
+Observed sequence:
 
-## Phase 1: Make Search State First-Class
+1. Universe
+2. Unit
+3. Witness
+4. Pi
+5. S1
+6. Trunc
+7. S2
 
-Goal:
-Replace "generate many full telescopes, then score" with "maintain partial proof/search states and apply best next move."
+Status:
 
-Tasks:
+1. Step ordering (1-7) now matches the intended prefix.
+2. Representation quality is still below target at steps 6-7:
+   1. Step 6 currently tends toward `nu=6, kappa=2` (expected profile closer to `nu=8, kappa=3`).
+   2. Step 7 currently tends toward `nu=8, kappa=2` (expected profile closer to `nu=10, kappa=3`).
 
-1. Introduce an explicit agenda search engine:
-   1. Priority queue keyed by proof value estimate.
-   2. State object includes entries, obligations, capability signature, premise shortlist, and upper/lower novelty bounds.
-2. Add transition rules over `SearchState`:
-   1. `IntroducePi`, `IntroduceSigma`, `IntroduceWitness`, `OpenLoop`, `ApplyModal`, `ApplyTemporal`, `ReusePremise`, `ApplyMacro`, `Normalize`.
-3. Represent each transition with a derivation certificate:
-   1. Rule id
-   2. Inputs
-   3. Obligations discharged
-   4. Capabilities gained
+## Key Learnings Kept
 
-Acceptance criteria:
+1. The main failure mode at step 6 was not only ranking: valid truncation states were being dropped when closed but non-terminal and stalled.
+2. Bridge-first HIT hedging (when loops exist but truncation is absent) is high-impact and structurally justified.
+3. Depth-2 novelty at step-6 HIT progression inflated scores and distorted selection; depth-1 is safer in this region.
+4. Floating path-only candidates must be rejected early; they create degenerate high-rho shortcuts.
+5. Step-7 drift was often tie behavior after truncation entered the library; late tie-breaks must prefer non-redundant representational progress.
+6. Large debt-semantic changes can regress earlier bootstrap steps; maintain strict prefix regression checks after each change.
 
-1. New search path can produce candidates without calling full MBTT global enumeration.
-2. Every generated candidate has a replayable state-transition trace.
+## What Is No Longer Priority
 
-## Phase 2: Safe/Unsafe Rule Discipline
+1. Broad architecture rewrites before stabilizing step-6/7 quality.
+2. Deep MCTS-first changes for claim-grade path.
+3. Legacy rescue-style fallback growth.
+4. Expanding historical phase logs in this file.
 
-Goal:
-Force deterministic logical progress before speculative branching.
+## Next Execution Roadmap
 
-Tasks:
+## Phase A: Lock Baseline and Regression Harness (Immediate)
 
-1. Tag rules as `safe` or `unsafe`.
-2. Apply safe rules to closure at each state before branching unsafe moves.
-3. Add hard limits on unsafe branching per state, conditioned by obligation deficit.
-
-Acceptance criteria:
-
-1. Branching factor drops significantly in traces.
-2. Safe-closure step appears before unsafe expansion in every state transition block.
-
-## Phase 3: Premise Retrieval Instead of Broad Reuse
-
-Goal:
-Use only structurally relevant library premises per obligation.
+Objective: Prevent regressions while iterating representation quality.
 
 Tasks:
 
-1. Add obligation-conditioned premise scorer:
-   1. Class compatibility
-   2. Path-dimension compatibility
-   3. Modal/temporal compatibility
-   4. Recency and window proximity
-2. Restrict `ALib i`/reuse transitions to top-k premises.
-3. Add retriever metrics to logs.
+1. Keep one canonical strict-prefix command and record outputs in CI artifacts.
+2. Add assertions for expected discovered names at steps 1-7 in strict shadow mode.
+3. Keep 30-second runtime cap per test run and use `+RTS -N`.
 
-Acceptance criteria:
+Acceptance:
 
-1. Premise fanout is bounded and explainable.
-2. Retrieval quality is visible in run logs and improves candidate viability.
+1. Steps 1-7 names remain stable on each commit.
+2. Prefix run stays below 30s on this machine profile.
 
-## Phase 4: Bound-Based Pruning and Dominance
+## Phase B: Step-6 Representation Quality (Trunc) (High Priority)
 
-Goal:
-Prune states that cannot clear the bar before expensive expansion.
+Objective: Raise step-6 truncation from shortcut form to structurally richer construction without target injection.
 
 Tasks:
 
-1. Implement upper bound:
-   1. `rhoUB = (nuSoFar + bestFutureNu(goals,caps)) / (kappaSoFar + minExtraKappa(goals))`
-2. Prune if `rhoUB < bar`.
-3. Add dominance cache keyed by:
-   1. capability signature
-   2. obligation multiset
-   3. premise bucket
-   4. kappa bucket
-4. Keep only Pareto-undominated states.
+1. Strengthen structural completeness preferences for truncation-like candidates:
+   1. favor candidates that discharge bridge debt with explicit intro/interaction structure,
+   2. disfavor minimal unary-trunc-only forms once richer bridge forms are viable.
+2. Improve action/debt scoring so truncation acts as bridge infrastructure, not final shortcut.
+3. Keep all scoring structural (capabilities/obligations/proof debt), no name hints.
 
-Acceptance criteria:
+Acceptance:
 
-1. Search nodes expanded drops substantially.
-2. No regression in discovered sequence quality at matched budgets.
+1. Step 6 remains `Trunc`.
+2. Step-6 `kappa` and `nu` move toward expected profile (target band: `kappa >= 3`, higher `nu` than current).
 
-## Phase 5: Learned Macro System
+## Phase C: Step-7 Representation Quality (S2) (High Priority)
 
-Goal:
-Replace static macro seeds with reusable typed abstractions learned from successful derivations.
+Objective: Preserve S2 at step 7 while eliminating low-effort residual candidate wins.
 
 Tasks:
 
-1. Extract macro candidates from successful traces.
-2. Keep macro only if:
-   1. appears in multiple successful derivations
-   2. reduces local branching/latency
-   3. preserves typedness and obligation semantics
-3. Store macro metadata:
-   1. arity
-   2. capability effect
-   3. expected proof-debt reduction
-4. Integrate macro selection into agenda rules, not post-hoc candidate reranking.
+1. Tighten lift-quality constraints for post-trunc HIT progression:
+   1. require explicit geometric progression evidence rather than residual bridge reuse.
+2. Refine tie-breaks among bar-clearers to reward non-redundant structural lift.
+3. Keep floating-path and redundant-trunc protections in place.
 
-Acceptance criteria:
+Acceptance:
 
-1. Macro inventory is learned and versioned.
-2. Measured search-cost reduction with no increase in target leakage risk.
+1. Step 7 remains `S2` across repeated runs.
+2. Step-7 representation trends toward `kappa >= 3` and improved `nu`.
 
-## Phase 6: Decouple Strict Evaluation From Names
+## Phase D: Extend Prefix to Step 8-9 Under Runtime Discipline
 
-Goal:
-Make strict discovery semantics fully structural and certificate-based.
+Objective: After step-6/7 quality stabilizes, extend reliable prefix discovery.
 
 Tasks:
 
-1. Remove any name-mediated capability unlocking from strict discovery path.
-2. Feed `CapabilitySig`/derivation certificates into novelty and former-availability logic.
-3. Keep names for reporting only.
+1. Run strict shadow to steps 8-9 with 30-second per-run guard.
+2. Use diagnostics-first tuning (near misses, sigma prunes, dominance prunes).
+3. Prioritize pruning/retrieval quality over widening enumeration caps.
 
-Acceptance criteria:
+Acceptance:
 
-1. Scrambling canonical names leaves strict discovery behavior invariant.
-2. CI fails if strict discovery path uses forbidden symbolic labels.
+1. Stable 1-9 naming prefix in strict mode.
+2. Runtime remains within practical limits (first target: stable under current per-run cap; then optimize toward sub-60s aggregate benchmark).
 
-## Phase 7: Demote MBTTEnum to Leaf Solver
+## Phase E: Claim-Grade Guards and Invariance
 
-Goal:
-Use MBTT enumeration only for local hole completion and micro-search, not as the outer search algorithm.
-
-Tasks:
-
-1. Introduce local leaf-solver interface:
-   1. bounded depth
-   2. bounded budget
-   3. obligation-targeted fill
-2. Replace outer loop full-telescope enumeration with agenda transitions.
-3. Keep MBTTEnum as fallback micro-solver and ablation baseline.
-
-Acceptance criteria:
-
-1. Outer search is state/obligation-driven by default.
-2. Disabling MBTTEnum global mode does not break primary discovery lane.
-
-## Phase 8: Portfolio Scheduler and Runtime Policy
-
-Goal:
-Allocate compute adaptively across deterministic agenda expansion, learned-macro moves, and repaired MCTS.
+Objective: Make autonomy claims auditable.
 
 Tasks:
 
-1. Add lane scheduler with reward-per-cost accounting.
-2. Promote/demote lane budgets online by recent yield.
-3. Keep memory/pagefile guardrails integrated with scheduler.
+1. CI leakage guards:
+   1. forbidden source/symbol checks,
+   2. strict-module import fences.
+2. Runtime invariance tests:
+   1. name scrambling,
+   2. premise order perturbation,
+   3. macro-id shuffle.
 
-Acceptance criteria:
+Acceptance:
 
-1. Scheduler logs lane budget decisions and outcomes.
-2. Runtime is stable and predictable under memory pressure.
+1. Strict selection/output invariant up to canonical quotient under perturbations.
+2. CI blocks any regression in leakage constraints.
 
-## Phase 9: Verification and CI Leakage Guards
+## Active Metrics
 
-Goal:
-Make autonomy and invariance claims testable and enforceable.
-
-Tasks:
-
-1. Add claim-grade entrypoint tests:
-   1. forbidden symbol checks
-   2. no-paper lookup assertions
-   3. no-step-index injection assertions
-2. Add runtime invariance tests:
-   1. name scrambling
-   2. key permutation
-   3. equivalent-premise reorder
-3. Add benchmark gate:
-   1. first 9 steps correct
-   2. wall-clock < 60s
-
-Acceptance criteria:
-
-1. CI blocks merges when invariance or leakage tests fail.
-2. Benchmark gate is green on target machine class.
-
-## Metrics Dashboard (Must Track Continuously)
-
-1. Search nodes expanded per step.
-2. Average branching factor before and after safe closure.
-3. Premise retrieval fanout and hit rate.
-4. Dominance-prune ratio.
-5. Macro reuse rate and benefit.
-6. Viable-candidate density.
-7. Sequence correctness prefix length.
-8. Wall-clock runtime and peak memory.
-
-## Execution Order (Recommended)
-
-1. Complete Phase 1 and Phase 2 before adding new heuristics.
-2. Complete Phase 3 and Phase 4 before scaling search budgets.
-3. Complete Phase 6 before any claim-grade autonomy assertions.
-4. Complete Phase 9 before publication-facing results.
-
-## Risks and Controls
-
-1. Risk: Hidden target leakage through helper utilities.
-   1. Control: static forbidden-symbol scans + runtime assertions.
-2. Risk: New abstractions increase complexity without speed gains.
-   1. Control: per-phase performance gates and rollback flags.
-3. Risk: Macro system overfits local traces.
-   1. Control: MDL-style retention criteria and ablation checks.
-
-## Immediate Next Sprint
-
-1. Implement agenda queue and state transitions (Phase 1).
-2. Implement safe-rule closure pass (Phase 2).
-3. Wire premise retriever into action generation (Phase 3).
-4. Add `rhoUB` pruning and dominance cache (Phase 4).
-5. Run first benchmark iteration for 9-step/<60s target.
+1. Prefix correctness by step.
+2. Step-6 and step-7 `nu/kappa` quality.
+3. Raw vs viable candidate density.
+4. Sigma and dominance prune ratios.
+5. Near-miss top reasons.
+6. Wall-clock runtime and memory peak.

@@ -47,6 +47,47 @@ if missing:
 PYCSV
 }
 
+require_prefix_sequence() {
+  local f="$1"
+  python3 - "$f" <<'PYPREFIX'
+import csv
+import sys
+
+path = sys.argv[1]
+expected = {
+    1: "Universe",
+    2: "Unit",
+    3: "Witness",
+    4: "Pi",
+    5: "S1",
+    6: "Trunc",
+    7: "S2",
+}
+
+with open(path, newline="", encoding="utf-8") as fh:
+    rows = list(csv.DictReader(fh))
+
+by_step = {}
+for row in rows:
+    try:
+        step = int(row.get("step", ""))
+    except ValueError:
+        continue
+    by_step[step] = row
+
+for step, expected_name in expected.items():
+    row = by_step.get(step)
+    if row is None:
+        raise SystemExit(f"missing strict prefix row for step {step} in {path}")
+    status = (row.get("status") or "").strip()
+    if status != "selected":
+        raise SystemExit(f"step {step} strict prefix status is {status!r}, expected 'selected'")
+    actual = (row.get("selected_name") or "").strip()
+    if actual != expected_name:
+        raise SystemExit(f"step {step} strict prefix selected_name={actual!r}, expected {expected_name!r}")
+PYPREFIX
+}
+
 
 [[ -d "$RUN_DIR" ]] || fail "run dir does not exist: $RUN_DIR"
 
@@ -67,6 +108,12 @@ require_file "$RUN_DIR/abinitio_mbtt_shadow6.csv"
 require_csv_columns "$RUN_DIR/abinitio_mbtt_shadow6.csv" raw_candidates canonical_candidates dedupe_ratio best_canonical_key bit_kappa ast_nodes canonical_key "decoded_name?" decode_confidence decode_ambiguity decode_status
 require_file "$RUN_DIR/phase1-shadow-ladder.log"
 require_file "$RUN_DIR/ladder/ladder_status.csv"
+require_file "$RUN_DIR/prefix-regression.log"
+require_file "$RUN_DIR/prefix/prefix_report.csv"
+require_file "$RUN_DIR/prefix/prefix_summary.csv"
+require_file "$RUN_DIR/prefix/prefix_gate.txt"
+require_file "$RUN_DIR/prefix/runtime.txt"
+require_file "$RUN_DIR/prefix/manifest.json"
 require_file "$RUN_DIR/manifest.json"
 require_file "$RUN_DIR/summary.md"
 require_file "$RUN_DIR/phase3-native-nu.log"
@@ -78,14 +125,18 @@ require_regex "$RUN_DIR/phase3/native_nu/report.md" 'status:[[:space:]]+pass'
 
 require_regex "$RUN_DIR/manifest.json" '"contract"[[:space:]]*:[[:space:]]*"docs/phase1_evidence_contract.md"'
 require_regex "$RUN_DIR/manifest.json" '"mbtt_shadow_ladder"'
+require_regex "$RUN_DIR/manifest.json" '"strict_prefix_regression"'
 require_regex "$RUN_DIR/manifest.json" '"phase3_native_nu_evidence"'
 require_contains "$RUN_DIR/ladder/ladder_status.csv" 'step,status,exit_code,csv_rows'
+require_regex "$RUN_DIR/prefix/prefix_gate.txt" '^pass'
+require_regex "$RUN_DIR/prefix/manifest.json" '"mode"[[:space:]]*:[[:space:]]*"strict-prefix-regression"'
 require_contains "$RUN_DIR/summary.md" 'Phase 1 Evidence Summary'
 require_regex "$RUN_DIR/summary.md" 'core:[[:space:]]+Results:'
 require_regex "$RUN_DIR/summary.md" 'mbtt_fast:[[:space:]]+Results:'
 
 require_zero_failed "$RUN_DIR/acceptance-core.log" "acceptance-core"
 require_zero_failed "$RUN_DIR/acceptance-mbtt-fast.log" "acceptance-mbtt-fast"
+require_prefix_sequence "$RUN_DIR/prefix/prefix_summary.csv"
 
 shadow_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_shadow6.csv" | wc -l | tr -d ' ' )
 [[ "$shadow_rows" -ge 1 ]] || fail "expected abinitio_mbtt_shadow6.csv to contain at least one row"

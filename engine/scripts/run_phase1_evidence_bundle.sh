@@ -21,6 +21,9 @@ MAIN_LADDER_TIMEOUT_S="${MAIN_LADDER_TIMEOUT_S:-90}"
 MAIN_LADDER_MAX_CANDS="${MAIN_LADDER_MAX_CANDS:-20}"
 MAIN_LADDER_STEPS="${MAIN_LADDER_STEPS:-1 2 3 4 5 6}"
 MAIN_LADDER_GATE="${MAIN_LADDER_GATE:-6}"
+PREFIX_TIMEOUT_S="${PREFIX_TIMEOUT_S:-30}"
+PREFIX_MAX_STEPS="${PREFIX_MAX_STEPS:-7}"
+PREFIX_EXPECTED_NAMES="${PREFIX_EXPECTED_NAMES:-1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2}"
 
 mkdir -p "$OUT_DIR"
 
@@ -107,6 +110,19 @@ else
   failed=1
 fi
 
+set +e
+TIMEOUT_S="$PREFIX_TIMEOUT_S" MAX_STEPS="$PREFIX_MAX_STEPS" REQUIRE_SUCCESS_THROUGH="$PREFIX_MAX_STEPS" RTS_CORES=-N EXPECTED_NAMES="$PREFIX_EXPECTED_NAMES" \
+  bash "$ROOT_DIR/engine/scripts/run_prefix_regression.sh" "$OUT_DIR/prefix" \
+  > "$OUT_DIR/prefix-regression.log" 2>&1
+ec=$?
+set -e
+if [[ $ec -eq 0 ]]; then
+  echo "strict_prefix_regression,ok,$ec" >> "$status_file"
+else
+  echo "strict_prefix_regression,fail,$ec" >> "$status_file"
+  failed=1
+fi
+
 if [[ "$RUN_MAIN_GATES" == "1" ]]; then
   run_lane "acceptance_mbtt_full" "$OUT_DIR/acceptance-mbtt-full.log" \
     cabal run acceptance-mbtt || failed=1
@@ -147,6 +163,11 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "ladder": {
     "timeout_s": $LADDER_TIMEOUT_S,
     "steps": "$LADDER_STEPS"
+  },
+  "strict_prefix": {
+    "timeout_s": $PREFIX_TIMEOUT_S,
+    "max_steps": $PREFIX_MAX_STEPS,
+    "expected_names": "$PREFIX_EXPECTED_NAMES"
   },
   "main_ladder_gate": {
     "timeout_s": $MAIN_LADDER_TIMEOUT_S,
