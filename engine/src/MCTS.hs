@@ -36,6 +36,7 @@ import TelescopeGen (Action(..), GoalProfile(..), GoalIntent(..), deriveGoalProf
                      Hole(..), HoleGoal(..), actionPriority)
 import TelescopeEval (EvalMode(..), evaluateTelescope)
 import TelescopeCheck (checkTelescope, CheckResult(..))
+import ProofState (deriveSearchState, actionGoalGain, isSafeAction)
 import Types (Library)
 
 import qualified Data.Map.Strict as Map
@@ -198,52 +199,43 @@ mctsIteration :: EvalMode -> MCTSConfig -> Library -> MCTSNode -> StdGen
               -> (MCTSNode, StdGen, Double, Maybe Telescope, Bool)
 mctsIteration evalMode cfg lib root gen0 =
   let maxK = mctsMaxKappa cfg
-
-      -- Phase 1: SELECTION — walk down tree following UCT
-      -- Collect the path of (action, node) pairs for backpropagation
-      (path, leaf, gen1) = selectPath cfg lib root gen0
-
-      -- Phase 2: PROGRESSIVE EXPANSION — add children up to widening limit
+      (pathToLeaf, leaf) = selectPath cfg lib root
       currentDepth = length (nodeEntries leaf)
-      (leaf', gen2)
-        | currentDepth >= maxK = (leaf, gen1)
-        | otherwise = progressiveExpand cfg lib leaf gen1
-
-      -- Phase 3: ROLLOUT — complete the telescope randomly, check validity, evaluate
-      (reward, maybeTele, valid, gen3) = rolloutFromNode evalMode cfg lib leaf' gen2
-
-      -- Phase 4: BACKPROPAGATION — update reward/visits along the selection path
-      root' = backpropagate root path leaf' reward
+      (leafExpanded, gen1)
+        | currentDepth >= maxK = (leaf, gen0)
+        | otherwise = progressiveExpand cfg lib leaf gen0
+      (rolloutPath, rolloutNode, gen2)
+        | currentDepth >= maxK || Map.null (nodeChildren leafExpanded) =
+            (pathToLeaf, leafExpanded, gen1)
+        | otherwise =
+            let (act, child, g) = selectChildForRollout cfg leafExpanded gen1
+            in (pathToLeaf ++ [act], child, g)
+      (reward, maybeTele, valid, gen3) = rolloutFromNode evalMode cfg lib rolloutNode gen2
+      rootPrepared = replaceNodeAtPath root pathToLeaf leafExpanded
+      root' = backpropagateAlongPath rootPrepared rolloutPath reward
 
   in (root', gen3, reward, maybeTele, valid)
-
 -- | Walk down the tree following UCT until we reach a leaf or a node that
 -- needs widening (more children allowed than currently exist).
 -- Returns (path, leaf_node, gen).
 -- Path is a list of (Action, child_node) pairs from root to leaf.
-selectPath :: MCTSConfig -> Library -> MCTSNode -> StdGen
-           -> ([(Action, MCTSNode)], MCTSNode, StdGen)
+selectPath :: MCTSConfig -> Library -> MCTSNode -> ([Action], MCTSNode)
 selectPath cfg lib = go []
   where
-    go path node gen
-      -- Stop at max depth
-      | length (nodeEntries node) >= mctsMaxKappa cfg = (reverse path, node, gen)
-      -- Stop at leaf nodes (no children yet)
-      | Map.null (nodeChildren node) = (reverse path, node, gen)
-      -- Stop if progressive widening allows more children at this node
-      | needsWidening cfg lib node = (reverse path, node, gen)
+    go path node
+      | length (nodeEntries node) >= mctsMaxKappa cfg = (reverse path, node)
+      | Map.null (nodeChildren node) = (reverse path, node)
+      | needsWidening cfg lib node = (reverse path, node)
       | otherwise =
-        -- UCT selection: pick the child with highest UCT score
         let parentN = max 1 (nodeVisits node)
             children = Map.toList (nodeChildren node)
             scored = [(a, child, uctScore (mctsExploreC cfg) child parentN)
                      | (a, child) <- children]
             (bestA, bestChild, _) = maximumByScore scored
-        in go ((bestA, bestChild) : path) bestChild gen
+        in go (bestA : path) bestChild
 
     maximumByScore [] = error "maximumByScore: empty list"
     maximumByScore xs = foldr1 (\a@(_,_,s1) b@(_,_,s2) -> if s1 >= s2 then a else b) xs
-
 -- ============================================
 -- Progressive Widening
 -- ============================================
@@ -282,14 +274,52 @@ progressiveExpand cfg lib node gen =
      else
        let entries    = nodeEntries node
            hole       = Hole entries AnyHole 0 100
-           allActions = validActionsWithProfile (activeGoalProfile cfg lib) hole lib  -- sorted by descending priority
-           unexpanded = [a | a <- allActions, not (Map.member a (nodeChildren node))]
+           goalProfile = activeGoalProfile cfg lib
+           state = deriveSearchState lib goalProfile entries
+           allActions = validActionsWithProfile goalProfile hole lib
+           rankAction a =
+             let safeBonus = if isSafeAction a then 1 :: Int else 0
+                 goalGain = actionGoalGain state a
+                 pri = actionPriority (length lib) a
+             in (Down safeBonus, Down goalGain, Down pri)
+           rankedActions = sortOn rankAction allActions
+           unexpanded = [a | a <- rankedActions, not (Map.member a (nodeChildren node))]
            toAdd      = take (max 1 (limit - current)) unexpanded
-           newChildren = Map.fromList [(a, freshNode entries) | a <- toAdd]
+           (added, gen') = buildChildren entries toAdd gen
+           newChildren = Map.fromList added
            allChildren = Map.union (nodeChildren node) newChildren
            fullyDone   = Map.size allChildren >= length allActions
-       in (node { nodeChildren = allChildren, nodeExpanded = fullyDone }, gen)
+       in (node { nodeChildren = allChildren, nodeExpanded = fullyDone }, gen')
+  where
+    buildChildren _ [] g = ([], g)
+    buildChildren entries (a:as) g =
+      let (entry, g1) = instantiateActionEntry cfg lib entries a g
+          child = freshNode (entries ++ [entry])
+          (rest, g2) = buildChildren entries as g1
+      in ((a, child) : rest, g2)
 
+selectChildForRollout :: MCTSConfig -> MCTSNode -> StdGen -> (Action, MCTSNode, StdGen)
+selectChildForRollout cfg node gen =
+  let children = Map.toList (nodeChildren node)
+      unvisited = [(a, c) | (a, c) <- children, nodeVisits c == 0]
+  in case unvisited of
+       [] ->
+         let parentN = max 1 (nodeVisits node)
+             scored = [(a, c, uctScore (mctsExploreC cfg) c parentN) | (a, c) <- children]
+             (bestA, bestChild, _) = foldr1
+               (\x@(_,_,sx) y@(_,_,sy) -> if sx >= sy then x else y)
+               scored
+         in (bestA, bestChild, gen)
+       _ ->
+         let (idx, gen') = randomR (0, length unvisited - 1) gen
+             (a, c) = unvisited !! idx
+         in (a, c, gen')
+
+instantiateActionEntry :: MCTSConfig -> Library -> [TeleEntry] -> Action -> StdGen -> (TeleEntry, StdGen)
+instantiateActionEntry cfg lib ctx act gen =
+  let name = "c" ++ show (length ctx + 1)
+      (expr, gen') = randomExprFromAction cfg act lib ctx gen (max 1 (mctsMaxDepth cfg))
+  in (TeleEntry name expr, gen')
 -- | Rollout: complete the telescope from the current node and evaluate.
 -- Ill-formed telescopes (detected by TelescopeCheck) receive reward 0
 -- and are not added to the candidate pool. UCT naturally depresses
@@ -327,36 +357,30 @@ rolloutFromNode evalMode cfg lib node gen0 =
           reward = rho * connectBonus * windowBonus
       in (reward, if nu > 0 then Just tele else Nothing, True, gen1)
 
--- | Backpropagate reward along the selection path.
--- Updates visits and reward for the root and each node on the path.
-backpropagate :: MCTSNode -> [(Action, MCTSNode)] -> MCTSNode -> Double -> MCTSNode
-backpropagate root [] _leaf reward =
-  -- Only the root was visited (no tree descent happened)
-  root { nodeVisits = nodeVisits root + 1
-       , nodeReward = nodeReward root + reward
-       }
-backpropagate root ((firstAct, _) : restPath) leaf reward =
-  -- Update the root and reconstruct the tree with updated children
-  let -- Update the leaf node
-      updatedLeaf = leaf { nodeVisits = nodeVisits leaf + 1
-                         , nodeReward = nodeReward leaf + reward
-                         }
-      -- Walk back up the path, rebuilding children
-      updatedChild = foldr updateChild updatedLeaf (zip (map fst restPath) (map fst restPath))
-      -- Update root's child map
-      rootChildren = Map.adjust (const updatedChild) firstAct (nodeChildren root)
-  in root { nodeVisits  = nodeVisits root + 1
-          , nodeReward  = nodeReward root + reward
-          , nodeChildren = rootChildren
-          }
-  where
-    -- This is a simplified backprop that only updates visit counts.
-    -- A full implementation would rebuild the entire tree path.
-    -- For now, we update the leaf and the direct child of root.
-    updateChild (_, _) n = n { nodeVisits = nodeVisits n + 1
-                             , nodeReward = nodeReward n + reward
-                             }
+-- | Replace a subtree at an action path.
+replaceNodeAtPath :: MCTSNode -> [Action] -> MCTSNode -> MCTSNode
+replaceNodeAtPath _ [] replacement = replacement
+replaceNodeAtPath node (a:as) replacement =
+  case Map.lookup a (nodeChildren node) of
+    Nothing -> node
+    Just child ->
+      let child' = replaceNodeAtPath child as replacement
+      in node { nodeChildren = Map.insert a child' (nodeChildren node) }
 
+-- | Backpropagate reward along the full action path.
+backpropagateAlongPath :: MCTSNode -> [Action] -> Double -> MCTSNode
+backpropagateAlongPath node [] reward =
+  node { nodeVisits = nodeVisits node + 1
+       , nodeReward = nodeReward node + reward
+       }
+backpropagateAlongPath node (a:as) reward =
+  let fallback = freshNode (nodeEntries node)
+      child = Map.findWithDefault fallback a (nodeChildren node)
+      child' = backpropagateAlongPath child as reward
+  in node { nodeVisits = nodeVisits node + 1
+          , nodeReward = nodeReward node + reward
+          , nodeChildren = Map.insert a child' (nodeChildren node)
+          }
 -- ============================================
 -- Random Telescope Generation (Rollout Policy)
 -- ============================================
@@ -375,18 +399,21 @@ _randomTelescope cfg lib gen0 =
       tele = Telescope entries
   in (tele, gen2)
 
--- | Generate a sequence of random telescope entries.
+-- | Generate N fresh entries extending an existing context.
+-- Returns only newly generated entries (in forward order).
 generateRandomEntries :: MCTSConfig -> Library -> Int -> [TeleEntry] -> StdGen -> ([TeleEntry], StdGen)
-generateRandomEntries _   _   0 acc gen = (reverse acc, gen)
-generateRandomEntries cfg lib n acc gen =
-  let (entry, gen') = randomEntry cfg lib acc gen
-  in generateRandomEntries cfg lib (n-1) (entry : acc) gen'
-
+generateRandomEntries _   _   0 _ctx gen = ([], gen)
+generateRandomEntries cfg lib n ctx gen =
+  let (entry, gen1) = randomEntry cfg lib ctx gen
+      ctx' = ctx ++ [entry]
+      (rest, gen2) = generateRandomEntries cfg lib (n - 1) ctx' gen1
+  in (entry : rest, gen2)
 -- | Generate a single random telescope entry.
 randomEntry :: MCTSConfig -> Library -> [TeleEntry] -> StdGen -> (TeleEntry, StdGen)
 randomEntry cfg lib ctx gen =
   let hole = Hole ctx AnyHole 0 100
       goalProfile = activeGoalProfile cfg lib
+      state = deriveSearchState lib goalProfile ctx
       actions = validActionsWithProfile goalProfile hole lib
       name = "c" ++ show (length ctx + 1)
       macroExprs = macroReuseExprs goalProfile lib ctx
@@ -397,7 +424,12 @@ randomEntry cfg lib ctx gen =
           then let (idx, gen') = randomR (0, length macroExprs - 1) gen0
                in (TeleEntry name (macroExprs !! idx), gen')
      else let libSize = length lib
-              weighted = [(a, fromIntegral (actionPriority libSize a)) | a <- actions]
+              weighted = [ (a, w a) | a <- actions ]
+              w a =
+                let base = fromIntegral (max 1 (actionPriority libSize a)) :: Double
+                    gain = fromIntegral (1 + actionGoalGain state a) :: Double
+                    safety = if isSafeAction a then 1.15 else 1.0 :: Double
+                in base * gain * safety
               (act, gen') = weightedChoice weighted gen0
               expr = randomExprFromAction cfg act lib ctx gen' 3
           in (TeleEntry name (fst expr), snd expr)
@@ -565,3 +597,4 @@ mctsSearchStep evalMode cfg lib bar = do
                   , rho >= bar
                   ]
   return (sortOn (\(_, _, _, rho) -> Down rho) evaluated, mrStats result)
+

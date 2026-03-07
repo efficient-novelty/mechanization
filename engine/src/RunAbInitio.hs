@@ -29,6 +29,7 @@ module Main where
 import Telescope
 import TelescopeGen (enumerateTelescopes, GoalProfile(..), GoalIntent(..), deriveGoalProfile)
 import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
+import AgendaSearch (agendaGenerateCandidates, defaultAgendaConfig, AgendaConfig(..), AgendaCandidate(..))
 import MBTTCanonical (CanonKey(..), canonicalKeySpec)
 import MBTTDecode (decodeCanonicalNameWithKey, DecodeResult(..))
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
@@ -45,7 +46,7 @@ import Data.List (sortOn)
 import Data.Ord (Down(..))
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-import Control.Monad (when, unless)
+import Control.Monad (when)
 import System.IO (hFlush, stdout, stderr, hSetEncoding, utf8)
 import System.Environment (getArgs)
 import System.Mem (performMajorGC)
@@ -413,8 +414,26 @@ abInitioLoop cfg = do
                 , ecGoalProfile = Just goalProfile
                 , ecEnableMacros = True
                 }
+              agendaCfg = defaultAgendaConfig
+                { agMaxEntries = enumKmax
+                , agMaxAgendaStates = max 80 (stepMaxCandidates * 8)
+                , agBranchPerState = max 6 (min 18 (stepMaxCandidates `div` 2 + 4))
+                , agMaxCandidates = max 10 stepMaxCandidates
+                , agBitBudget = stepBitBudget
+                , agRequireConnected = length lib >= 2
+                }
+              agendaActive = cfgMBTTFirst cfg && length lib >= 2
+              agendaGenerated = if agendaActive
+                                then agendaGenerateCandidates lib goalProfile agendaCfg
+                                else []
+              agendaTelescopes = [acTelescope c | c <- agendaGenerated]
+              fallbackTelescopes = if cfgMBTTFirst cfg
+                                   then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
+                                   else []
               rawTelescopes = if cfgMBTTFirst cfg
-                              then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
+                              then if agendaActive
+                                   then take (stepMaxCandidates * 2) (agendaTelescopes ++ fallbackTelescopes)
+                                   else fallbackTelescopes
                               else enumerateTelescopes lib enumKmax
               (validTelescopesRaw, _rejected) = checkAndFilter lib rawTelescopes
               -- Phase-2 quotienting kickoff: deduplicate equivalent telescopes
@@ -429,24 +448,16 @@ abInitioLoop cfg = do
                 if null semanticallyRelevant
                 then validTelescopes
                 else map fst (take semanticCap (sortOn (Down . snd) semanticallyRelevant))
-              witnessLike (Telescope [TeleEntry _ (App (Lib _) (Var _))]) = True
-              witnessLike _ = False
-              witnessRawCount = length [() | tele <- validTelescopes, witnessLike tele]
-              witnessSelCount = length [() | tele <- selectedBySemantic, witnessLike tele]
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
-              enumSource = if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
+              enumSource = if agendaActive then "AGENDA_MIX"
+                           else if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
               enumEvaluated = [ (tele, nu, kappa, rho, enumSource)
                               | tele <- selectedBySemantic
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
-
-          when (step <= 3) $
-            printf "  [DBG step %d] valid=%d semRel=%d selected=%d witness(raw=%d,sel=%d)\n"
-              step (length validTelescopes) (length semanticallyRelevant) (length selectedBySemantic)
-              witnessRawCount witnessSelCount
 
           -- Phase B: MCTS for larger telescopes (κ > 3)
           -- Use a state-derived estimate from discovered history rather than
@@ -456,21 +467,31 @@ abInitioLoop cfg = do
                 [] -> 3
                 _  -> maximum (map drKappa history)
               mctsKappaEst = min 12 (max 3 (observedKappa + 2))
-              -- MCTS is a fallback lane when bounded enumeration cannot clear the bar.
+              mctsFallback = null enumViable
+              mctsPortfolio = not mctsFallback && step >= 3
               needMCTS = not (cfgSkipMCTS cfg)
                       && not (sbForceSkipMCTS budget)
-                      && null enumViable
                       && mctsKappaEst > enumKmax
+                      && (mctsFallback || mctsPortfolio)
+              mctsIterBudget =
+                if mctsFallback then sbMCTSIterations budget
+                else max 80 (sbMCTSIterations budget `div` 10)
+              mctsDepthBudget =
+                if mctsFallback then sbMCTSDepth budget
+                else min 2 (sbMCTSDepth budget)
+              mctsTopKBudget =
+                if mctsFallback then sbMCTSTopK budget
+                else min 4 (sbMCTSTopK budget)
 
           mctsCandidates <- if needMCTS
             then do
               when (cfgAdaptiveMemory cfg || cfgMemorySafe cfg) performMajorGC
               let mctsCfg = defaultMCTSConfig
-                    { mctsIterations = sbMCTSIterations budget
+                    { mctsIterations = mctsIterBudget
                     , mctsMaxKappa   = max 5 (mctsKappaEst + 2)
-                    , mctsMaxDepth   = sbMCTSDepth budget
+                    , mctsMaxDepth   = mctsDepthBudget
                     , mctsNuDepth    = nuDepth
-                    , mctsTopK       = sbMCTSTopK budget
+                    , mctsTopK       = mctsTopKBudget
                     , mctsSeed       = step * 137 + 42
                     , mctsVerbose    = False
                     , mctsGoalProfile = Just goalProfile
@@ -507,17 +528,6 @@ abInitioLoop cfg = do
               putStrLn ""
               printf "NO BAR-CLEARING CANDIDATE at step %d (bar=%.4f, raw=%d, viable=%d). Stopping.\n"
                 step bar rawCandidateCount canonicalCandidateCount
-              let rankRaw (_, nu, kappa, rho, _) = (Down rho, Down nu, kappa)
-                  topRaw = take 8 (sortOn rankRaw rawCandidates)
-              unless (null topRaw) $ do
-                putStrLn "  Top raw candidates:"
-                mapM_ (\(tele, nu, kappa, rho, src) ->
-                  let cls = classifyTelescope tele lib
-                      bestGuess = detectCanonicalName tele lib
-                  in printf "    rho=%6.3f nu=%3d k=%2d class=%-12s src=%-8s guess=%-12s key=%s\n"
-                       rho nu kappa (show cls) src bestGuess
-                       (show (canonicalKeySpec (map teType (teleEntries tele)))))
-                  topRaw
               let orderedRecords = reverse records
               case cfgCsv cfg of
                 Just csvPath -> writeCsv csvPath orderedRecords
@@ -549,9 +559,6 @@ abInitioLoop cfg = do
               printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
                 step bestName bestNu bestKappa bestRho bar delta_n
                 bestSource totalCandidates
-              when (step <= 3) $
-                printf "  [DBG chosen step %d] key=%s tele=%s\n"
-                  step bestCanonKey (show bestTele)
               hFlush stdout
 
               -- Insert selected candidate only (no step-index fallback).
@@ -1030,7 +1037,9 @@ betterCandidate (_, _, k1, rho1, src1) (_, _, k2, rho2, src2) =
 -- | Prefer exhaustive enumeration over MCTS when ties occur.
 sourceRank :: String -> Int
 sourceRank src = case src of
-  "ENUM_MBTT" -> 0
-  "ENUM" -> 1
-  "MCTS" -> 2
-  _ -> 4
+  "AGENDA" -> 0
+  "AGENDA_MIX" -> 1
+  "ENUM_MBTT" -> 2
+  "ENUM" -> 3
+  "MCTS" -> 4
+  _ -> 5
