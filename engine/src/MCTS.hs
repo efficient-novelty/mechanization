@@ -32,7 +32,8 @@ module MCTS
 
 import Kolmogorov (MBTTExpr(..))
 import Telescope (Telescope(..), TeleEntry(..), teleIsConnected, teleReferencesWindow)
-import TelescopeGen (Action(..), validActions, Hole(..), HoleGoal(..), actionPriority)
+import TelescopeGen (Action(..), GoalProfile(..), GoalIntent(..), deriveGoalProfile, validActionsWithProfile,
+                     Hole(..), HoleGoal(..), actionPriority)
 import TelescopeEval (EvalMode(..), evaluateTelescope)
 import TelescopeCheck (checkTelescope, CheckResult(..))
 import Types (Library)
@@ -58,6 +59,7 @@ data MCTSConfig = MCTSConfig
   , mctsVerbose      :: !Bool    -- ^ Print progress
   , mctsWidenC       :: !Double  -- ^ Progressive widening coefficient (default 1.0)
   , mctsWidenAlpha   :: !Double  -- ^ Progressive widening exponent (default 0.5)
+  , mctsGoalProfile  :: !(Maybe GoalProfile) -- ^ Optional semantic intent profile
   } deriving (Show)
 
 defaultMCTSConfig :: MCTSConfig
@@ -72,7 +74,13 @@ defaultMCTSConfig = MCTSConfig
   , mctsVerbose      = True
   , mctsWidenC       = 1.0
   , mctsWidenAlpha   = 0.5
+  , mctsGoalProfile  = Nothing
   }
+
+activeGoalProfile :: MCTSConfig -> Library -> GoalProfile
+activeGoalProfile cfg lib = case mctsGoalProfile cfg of
+  Just gp -> gp
+  Nothing -> deriveGoalProfile lib
 
 -- ============================================
 -- MCTS Tree
@@ -258,7 +266,7 @@ needsWidening cfg lib node =
       current   = Map.size (nodeChildren node)
       entries   = nodeEntries node
       hole      = Hole entries AnyHole 0 100
-      available = length (validActions hole lib)
+      available = length (validActionsWithProfile (activeGoalProfile cfg lib) hole lib)
   in current < limit && current < available
 
 -- | Progressive expansion: add children up to the widening limit.
@@ -274,7 +282,7 @@ progressiveExpand cfg lib node gen =
      else
        let entries    = nodeEntries node
            hole       = Hole entries AnyHole 0 100
-           allActions = validActions hole lib  -- sorted by descending priority
+           allActions = validActionsWithProfile (activeGoalProfile cfg lib) hole lib  -- sorted by descending priority
            unexpanded = [a | a <- allActions, not (Map.member a (nodeChildren node))]
            toAdd      = take (max 1 (limit - current)) unexpanded
            newChildren = Map.fromList [(a, freshNode entries) | a <- toAdd]
@@ -299,7 +307,7 @@ rolloutFromNode evalMode cfg lib node gen0 =
       (finalEntries, gen1)
         | remainingK <= 0 && currentK > 0 = (currentEntries, gen0)
         | otherwise =
-          let (extraEntries, g) = generateRandomEntries lib remainingK currentEntries gen0
+          let (extraEntries, g) = generateRandomEntries cfg lib remainingK currentEntries gen0
           in (currentEntries ++ extraEntries, g)
 
       tele = Telescope finalEntries
@@ -363,111 +371,141 @@ _randomTelescope cfg lib gen0 =
              else 2
       (kappaIdx, gen1) = randomR (0 :: Int, max 0 (maxK - minK)) gen0
       kappa = minK + kappaIdx
-      (entries, gen2) = generateRandomEntries lib kappa [] gen1
+      (entries, gen2) = generateRandomEntries cfg lib kappa [] gen1
       tele = Telescope entries
   in (tele, gen2)
 
 -- | Generate a sequence of random telescope entries.
-generateRandomEntries :: Library -> Int -> [TeleEntry] -> StdGen -> ([TeleEntry], StdGen)
-generateRandomEntries _   0 acc gen = (reverse acc, gen)
-generateRandomEntries lib n acc gen =
-  let (entry, gen') = randomEntry lib acc gen
-  in generateRandomEntries lib (n-1) (entry : acc) gen'
+generateRandomEntries :: MCTSConfig -> Library -> Int -> [TeleEntry] -> StdGen -> ([TeleEntry], StdGen)
+generateRandomEntries _   _   0 acc gen = (reverse acc, gen)
+generateRandomEntries cfg lib n acc gen =
+  let (entry, gen') = randomEntry cfg lib acc gen
+  in generateRandomEntries cfg lib (n-1) (entry : acc) gen'
 
 -- | Generate a single random telescope entry.
-randomEntry :: Library -> [TeleEntry] -> StdGen -> (TeleEntry, StdGen)
-randomEntry lib ctx gen =
+randomEntry :: MCTSConfig -> Library -> [TeleEntry] -> StdGen -> (TeleEntry, StdGen)
+randomEntry cfg lib ctx gen =
   let hole = Hole ctx AnyHole 0 100
-      actions = validActions hole lib
+      goalProfile = activeGoalProfile cfg lib
+      actions = validActionsWithProfile goalProfile hole lib
       name = "c" ++ show (length ctx + 1)
+      macroExprs = macroReuseExprs goalProfile lib ctx
+      (macroTicket, gen0) = randomR (0 :: Int, 99) gen
   in if null actions
      then (TeleEntry name Univ, gen)
+     else if not (null macroExprs) && macroTicket < 35
+          then let (idx, gen') = randomR (0, length macroExprs - 1) gen0
+               in (TeleEntry name (macroExprs !! idx), gen')
      else let libSize = length lib
               weighted = [(a, fromIntegral (actionPriority libSize a)) | a <- actions]
-              (act, gen') = weightedChoice weighted gen
-              expr = randomExprFromAction act lib ctx gen' 3
+              (act, gen') = weightedChoice weighted gen0
+              expr = randomExprFromAction cfg act lib ctx gen' 3
           in (TeleEntry name (fst expr), snd expr)
 
+-- | Macro-reuse expression lane for rollout policy.
+-- Reuses recent library/context structures instead of constructing from scratch.
+macroReuseExprs :: GoalProfile -> Library -> [TeleEntry] -> [MBTTExpr]
+macroReuseExprs profile lib ctx =
+  let recentLib = [length lib, length lib - 1]
+      libAtoms = [Lib i | i <- recentLib, i >= 1]
+      ctxAtom = if null ctx then [] else [Var 1]
+      atoms = if null libAtoms then ctxAtom else libAtoms ++ ctxAtom
+      intents = gpIntents profile
+      allow needs = null intents || any (`elem` intents) needs
+      former = if allow [NeedFormer, NeedBridge, NeedDifferential]
+               then [Pi a a | a <- atoms] ++ [Sigma a a | a <- atoms]
+               else []
+      hit = if allow [NeedHIT]
+            then [Susp a | a <- atoms] ++ [Trunc a | a <- atoms]
+            else []
+      modal = if allow [NeedModal, NeedBridge]
+              then [Flat a | a <- atoms] ++ [Sharp a | a <- atoms]
+              else []
+      temporal = if allow [NeedTemporal]
+                 then [Next a | a <- atoms] ++ [Eventually a | a <- atoms]
+                 else []
+  in former ++ hit ++ modal ++ temporal
+
 -- | Generate a random MBTT expression from an action.
-randomExprFromAction :: Action -> Library -> [TeleEntry] -> StdGen -> Int
+randomExprFromAction :: MCTSConfig -> Action -> Library -> [TeleEntry] -> StdGen -> Int
                      -> (MBTTExpr, StdGen)
-randomExprFromAction act lib ctx gen maxD = case act of
+randomExprFromAction cfg act lib ctx gen maxD = case act of
   AUniv        -> (Univ, gen)
   AVar i       -> (Var i, gen)
   ALib i       -> (Lib i, gen)
   APathCon d   -> (PathCon d, gen)
 
   APi    | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
-        (b, gen2) = randomSubExpr lib ctx gen1 (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
+        (b, gen2) = randomSubExpr cfg lib ctx gen1 (maxD - 1)
     in (Pi a b, gen2)
 
   ASigma | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
-        (b, gen2) = randomSubExpr lib ctx gen1 (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
+        (b, gen2) = randomSubExpr cfg lib ctx gen1 (maxD - 1)
     in (Sigma a b, gen2)
 
   ALam   | maxD > 0 ->
-    let (body, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (body, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Lam body, gen1)
 
   AApp   | maxD > 0 ->
-    let (f, gen1) = randomSubExpr lib ctx gen (maxD - 1)
-        (x, gen2) = randomSubExpr lib ctx gen1 (maxD - 1)
+    let (f, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
+        (x, gen2) = randomSubExpr cfg lib ctx gen1 (maxD - 1)
     in (App f x, gen2)
 
   ASusp  | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Susp a, gen1)
 
   ATrunc | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Trunc a, gen1)
 
   ARefl  | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Refl a, gen1)
 
   AId    | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
-        (x, gen2) = randomSubExpr lib ctx gen1 (maxD - 1)
-        (y, gen3) = randomSubExpr lib ctx gen2 (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
+        (x, gen2) = randomSubExpr cfg lib ctx gen1 (maxD - 1)
+        (y, gen3) = randomSubExpr cfg lib ctx gen2 (maxD - 1)
     in (Id a x y, gen3)
 
   AFlat  | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Flat a, gen1)
 
   ASharp | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Sharp a, gen1)
 
   ADisc  | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Disc a, gen1)
 
   AShape | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Shape a, gen1)
 
   ANext  | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Next a, gen1)
 
   AEventually | maxD > 0 ->
-    let (a, gen1) = randomSubExpr lib ctx gen (maxD - 1)
+    let (a, gen1) = randomSubExpr cfg lib ctx gen (maxD - 1)
     in (Eventually a, gen1)
 
   -- Depth exceeded: fall back to terminal
   _ -> randomTerminal lib ctx gen
 
 -- | Generate a random sub-expression.
-randomSubExpr :: Library -> [TeleEntry] -> StdGen -> Int -> (MBTTExpr, StdGen)
-randomSubExpr lib ctx gen maxD
+randomSubExpr :: MCTSConfig -> Library -> [TeleEntry] -> StdGen -> Int -> (MBTTExpr, StdGen)
+randomSubExpr cfg lib ctx gen maxD
   | maxD <= 0 = randomTerminal lib ctx gen
   | otherwise =
     let hole = Hole ctx AnyHole 0 100
-        actions = validActions hole lib
+        actions = validActionsWithProfile (activeGoalProfile cfg lib) hole lib
         terminalWeight = if maxD <= 1 then 3.0 else 1.0 :: Double
         weighted = [(a, w * (if isTerminalAction a then terminalWeight else 1.0))
                    | a <- actions
@@ -475,7 +513,7 @@ randomSubExpr lib ctx gen maxD
     in if null weighted
        then (Univ, gen)
        else let (act, gen') = weightedChoice weighted gen
-            in randomExprFromAction act lib ctx gen' maxD
+            in randomExprFromAction cfg act lib ctx gen' maxD
 
 isTerminalAction :: Action -> Bool
 isTerminalAction AUniv      = True

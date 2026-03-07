@@ -41,6 +41,7 @@ data CheckResult
 data CheckError
   = LibRefOutOfBounds   Int Int    -- ^ Lib i, but library has size n (i > n or i < 1)
   | VarRefOutOfBounds   Int Int    -- ^ Var i, but context has depth n (i > n or i < 1)
+  | AmbientContextTooLarge Int Int -- ^ Required ambient depth exceeds checker limit
   | EmptyTelescope                 -- ^ Telescope has no entries
   | BareUnivAsArgument             -- ^ Univ used as function argument (App _ Univ)
   deriving (Show, Eq)
@@ -61,14 +62,17 @@ data CheckError
 checkTelescope :: Library -> Telescope -> CheckResult
 checkTelescope lib (Telescope entries)
   | null entries = CheckFail EmptyTelescope
+  | ambientNeed > maxAmbient = CheckFail (AmbientContextTooLarge ambientNeed maxAmbient)
   | otherwise = go 0 entries
   where
     libSize = length lib
+    maxAmbient = 2
+    ambientNeed = requiredAmbientDepth (Telescope entries)
 
     go :: Int -> [TeleEntry] -> CheckResult
     go _ctxDepth [] = CheckOK
     go !ctxDepth (TeleEntry _name expr : rest) =
-      case checkExpr libSize ctxDepth expr of
+      case checkExpr libSize ambientNeed ctxDepth expr of
         CheckOK    -> go (ctxDepth + 1) rest
         err        -> err
 
@@ -78,15 +82,15 @@ checkTelescope lib (Telescope entries)
 --   libSize  - number of entries in the library
 --   ctxDepth - number of variables in scope (from preceding telescope entries)
 --   expr     - the expression to check
-checkExpr :: Int -> Int -> MBTTExpr -> CheckResult
-checkExpr libSize ctxDepth expr = case expr of
+checkExpr :: Int -> Int -> Int -> MBTTExpr -> CheckResult
+checkExpr libSize ambientDepth ctxDepth expr = case expr of
   -- Terminal nodes: check reference bounds
   Lib i
     | i < 1 || i > libSize -> CheckFail (LibRefOutOfBounds i libSize)
     | otherwise            -> CheckOK
 
   Var i
-    | i < 1 || i > ctxDepth -> CheckFail (VarRefOutOfBounds i ctxDepth)
+    | i < 1 || i > (ctxDepth + ambientDepth) -> CheckFail (VarRefOutOfBounds i (ctxDepth + ambientDepth))
     | otherwise              -> CheckOK
 
   Univ -> CheckOK
@@ -95,43 +99,75 @@ checkExpr libSize ctxDepth expr = case expr of
 
   -- Binders: extend context depth by 1 for the body
   Pi dom cod ->
-    case checkExpr libSize ctxDepth dom of
-      CheckOK -> checkExpr libSize (ctxDepth + 1) cod
+    case checkExpr libSize ambientDepth ctxDepth dom of
+      CheckOK -> checkExpr libSize ambientDepth (ctxDepth + 1) cod
       err     -> err
 
   Sigma dom cod ->
-    case checkExpr libSize ctxDepth dom of
-      CheckOK -> checkExpr libSize (ctxDepth + 1) cod
+    case checkExpr libSize ambientDepth ctxDepth dom of
+      CheckOK -> checkExpr libSize ambientDepth (ctxDepth + 1) cod
       err     -> err
 
-  Lam body -> checkExpr libSize (ctxDepth + 1) body
+  Lam body -> checkExpr libSize ambientDepth (ctxDepth + 1) body
 
   -- Application: check both sides, reject bare Univ as argument
   App _f Univ -> CheckFail BareUnivAsArgument
   App f x ->
-    case checkExpr libSize ctxDepth f of
-      CheckOK -> checkExpr libSize ctxDepth x
+    case checkExpr libSize ambientDepth ctxDepth f of
+      CheckOK -> checkExpr libSize ambientDepth ctxDepth x
       err     -> err
 
   -- Identity type
   Id a x y ->
-    case checkExpr libSize ctxDepth a of
-      CheckOK -> case checkExpr libSize ctxDepth x of
-        CheckOK -> checkExpr libSize ctxDepth y
+    case checkExpr libSize ambientDepth ctxDepth a of
+      CheckOK -> case checkExpr libSize ambientDepth ctxDepth x of
+        CheckOK -> checkExpr libSize ambientDepth ctxDepth y
         err     -> err
       err -> err
 
-  Refl a -> checkExpr libSize ctxDepth a
+  Refl a -> checkExpr libSize ambientDepth ctxDepth a
 
   -- Unary operators: just recurse
-  Susp a       -> checkExpr libSize ctxDepth a
-  Trunc a      -> checkExpr libSize ctxDepth a
-  Flat a       -> checkExpr libSize ctxDepth a
-  Sharp a      -> checkExpr libSize ctxDepth a
-  Disc a       -> checkExpr libSize ctxDepth a
-  Shape a      -> checkExpr libSize ctxDepth a
-  Next a       -> checkExpr libSize ctxDepth a
-  Eventually a -> checkExpr libSize ctxDepth a
+  Susp a       -> checkExpr libSize ambientDepth ctxDepth a
+  Trunc a      -> checkExpr libSize ambientDepth ctxDepth a
+  Flat a       -> checkExpr libSize ambientDepth ctxDepth a
+  Sharp a      -> checkExpr libSize ambientDepth ctxDepth a
+  Disc a       -> checkExpr libSize ambientDepth ctxDepth a
+  Shape a      -> checkExpr libSize ambientDepth ctxDepth a
+  Next a       -> checkExpr libSize ambientDepth ctxDepth a
+  Eventually a -> checkExpr libSize ambientDepth ctxDepth a
+
+-- | Infer minimal ambient context depth needed for open telescope schemas.
+-- Context depth grows by one per telescope entry and binder.
+requiredAmbientDepth :: Telescope -> Int
+requiredAmbientDepth (Telescope entries) = go 0 entries
+  where
+    go :: Int -> [TeleEntry] -> Int
+    go _ [] = 0
+    go !ctx (TeleEntry _ expr : rest) =
+      max (requiredAmbientExpr ctx expr) (go (ctx + 1) rest)
+
+requiredAmbientExpr :: Int -> MBTTExpr -> Int
+requiredAmbientExpr !ctx expr = case expr of
+  Var i          -> max 0 (i - ctx)
+  Lib _          -> 0
+  Univ           -> 0
+  PathCon _      -> 0
+  Lam body       -> requiredAmbientExpr (ctx + 1) body
+  Refl a         -> requiredAmbientExpr ctx a
+  Susp a         -> requiredAmbientExpr ctx a
+  Trunc a        -> requiredAmbientExpr ctx a
+  Flat a         -> requiredAmbientExpr ctx a
+  Sharp a        -> requiredAmbientExpr ctx a
+  Disc a         -> requiredAmbientExpr ctx a
+  Shape a        -> requiredAmbientExpr ctx a
+  Next a         -> requiredAmbientExpr ctx a
+  Eventually a   -> requiredAmbientExpr ctx a
+  Pi a b         -> max (requiredAmbientExpr ctx a) (requiredAmbientExpr (ctx + 1) b)
+  Sigma a b      -> max (requiredAmbientExpr ctx a) (requiredAmbientExpr (ctx + 1) b)
+  App f x        -> max (requiredAmbientExpr ctx f) (requiredAmbientExpr ctx x)
+  Id a x y       -> max (requiredAmbientExpr ctx a)
+                        (max (requiredAmbientExpr ctx x) (requiredAmbientExpr ctx y))
 
 -- ============================================
 -- Convenience: Filter Telescopes

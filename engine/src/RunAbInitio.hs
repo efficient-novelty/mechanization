@@ -27,7 +27,7 @@
 module Main where
 
 import Telescope
-import TelescopeGen (enumerateTelescopes)
+import TelescopeGen (enumerateTelescopes, GoalProfile(..), GoalIntent(..), deriveGoalProfile)
 import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
 import MBTTCanonical (CanonKey(..), canonicalKeySpec)
 import MBTTDecode (decodeCanonicalNameWithKey, DecodeResult(..))
@@ -38,17 +38,18 @@ import TelescopeCheck (checkAndFilter)
 import MCTS
 import UniformNu (genesisLibrarySteps, GenesisStep(..), computeUniformNu, UniformNuResult(..))
 import Kolmogorov (MBTTExpr(..))
-import Types (Library)
+import Types (Library, LibraryEntry(..))
 import CoherenceWindow (dBonacciDelta)
 
 import Data.List (sortOn)
 import Data.Ord (Down(..))
 import qualified Data.Map.Strict as Map
-import Control.Monad (when)
+import qualified Data.Set as Set
+import Control.Monad (when, unless)
 import System.IO (hFlush, stdout, stderr, hSetEncoding, utf8)
 import System.Environment (getArgs)
 import System.Mem (performMajorGC)
-import GHC.Stats (getRTSStatsEnabled, getRTSStats, max_live_bytes, max_mem_in_use_bytes)
+import GHC.Stats (getRTSStatsEnabled, getRTSStats, gc, gcdetails_live_bytes, gcdetails_mem_in_use_bytes, max_mem_in_use_bytes)
 import Text.Printf (printf)
 
 -- ============================================
@@ -73,6 +74,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
   , cfgLegacyGenerator :: !Bool             -- ^ Phase-7 fallback: explicitly use legacy generator path
   , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
+  , cfgMBTTAstDepth    :: !(Maybe Int)      -- ^ Optional override for MBTT AST depth in Phase A
   , cfgMaxSteps        :: !Int              -- ^ Optional early stop for shadow-mode runs (<=15)
   , cfgSkipValidation  :: !Bool             -- ^ Skip Phase 0 reference validation (faster shadow runs)
   , cfgMBTTShadowProfile :: !Bool           -- ^ Use tighter MBTT Phase-1 bounds for shadow runs
@@ -121,6 +123,7 @@ data MemoryPressure
 -- | Runtime memory snapshot from RTS stats (MiB).
 data MemorySnapshot = MemorySnapshot
   { msLiveMiB :: !Int
+  , msInUseMiB :: !Int
   , msPeakMiB :: !Int
   } deriving (Show)
 
@@ -189,6 +192,10 @@ main = do
     putStrLn "  SEARCH:    MBTT-first default active (typed MBTT enumeration in Phase A)"
   when (cfgLegacyGenerator cfg) $
     putStrLn "  FALLBACK:  --legacy-generator (deprecated template-first generator path)"
+  case cfgMBTTAstDepth cfg of
+    Just astDepth ->
+      printf   "  SEARCH:    --mbtt-ast-depth %d (manual Phase-A AST depth override)\n" astDepth
+    Nothing -> return ()
   when (cfgMaxSteps cfg < 15) $
     printf   "  SHADOW:    --max-steps %d (early-stop run)\n" (cfgMaxSteps cfg)
   when (cfgSkipValidation cfg) $
@@ -260,6 +267,12 @@ parseArgs args =
                           [(k,"")] | k > 0 -> Just k
                           _ -> Nothing
                       _ -> Nothing
+      mbttAstDepth = case dropWhile (/= "--mbtt-ast-depth") args of
+                       ("--mbtt-ast-depth" : n : _) ->
+                         case reads n of
+                           [(k,"")] | k >= 1 && k <= 5 -> Just k
+                           _ -> Nothing
+                       _ -> Nothing
       hasMaxStepsArg = "--max-steps" `elem` args
       maxSteps = case dropWhile (/= "--max-steps") args of
                    ("--max-steps" : n : _) -> case reads n of
@@ -281,7 +294,7 @@ parseArgs args =
                            Just k  -> Just k
                            Nothing -> Just 20
                          else mbttMaxCand
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal legacyGenerator mbttMaxCandFinal maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient adaptiveMemory memorySafe
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal legacyGenerator mbttMaxCandFinal mbttAstDepth maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient adaptiveMemory memorySafe
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -383,15 +396,22 @@ abInitioLoop cfg = do
           -- Phase A: Exhaustive enumeration for κ ≤ 3
           -- Type-check to filter ill-formed telescopes, then evaluate honestly
           let emode = toEvalMode mode
+              goalProfile = deriveGoalProfile lib
+              needsFormerLift = NeedFormer `elem` gpIntents goalProfile && length lib >= 3
+              stepBitBudget = if needsFormerLift then max (sbBitBudget budget) 20 else sbBitBudget budget
+              stepAstDepth = if needsFormerLift then max (sbAstDepth budget) 3 else sbAstDepth budget
+              stepMaxCandidates = if needsFormerLift then max (sbMaxCandidates budget) 80 else sbMaxCandidates budget
               enumKmax = 3
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               nuDepth = 1
               mbttCfg = defaultEnumConfig
                 { ecMaxEntries = enumKmax
-                , ecMaxBitBudget = sbBitBudget budget
-                , ecMaxASTDepth = sbAstDepth budget
-                , ecMaxCandidates = sbMaxCandidates budget
+                , ecMaxBitBudget = stepBitBudget
+                , ecMaxASTDepth = stepAstDepth
+                , ecMaxCandidates = stepMaxCandidates
+                , ecGoalProfile = Just goalProfile
+                , ecEnableMacros = True
                 }
               rawTelescopes = if cfgMBTTFirst cfg
                               then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
@@ -400,15 +420,33 @@ abInitioLoop cfg = do
               -- Phase-2 quotienting kickoff: deduplicate equivalent telescopes
               -- by canonical MBTT key before scoring.
               validTelescopes = dedupByCanonicalKey validTelescopesRaw
+              semanticallyScored = [ (tele, semanticDeltaScore tele lib goalProfile)
+                                   | tele <- validTelescopes
+                                   ]
+              semanticallyRelevant = [ (tele, s) | (tele, s) <- semanticallyScored, s > 0 ]
+              semanticCap = max 8 (min 40 (stepMaxCandidates `div` 2))
+              selectedBySemantic =
+                if null semanticallyRelevant
+                then validTelescopes
+                else map fst (take semanticCap (sortOn (Down . snd) semanticallyRelevant))
+              witnessLike (Telescope [TeleEntry _ (App (Lib _) (Var _))]) = True
+              witnessLike _ = False
+              witnessRawCount = length [() | tele <- validTelescopes, witnessLike tele]
+              witnessSelCount = length [() | tele <- selectedBySemantic, witnessLike tele]
               -- Build nuHistory for structural mode
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
               enumSource = if cfgMBTTFirst cfg then "ENUM_MBTT" else "ENUM"
               enumEvaluated = [ (tele, nu, kappa, rho, enumSource)
-                              | tele <- validTelescopes
+                              | tele <- selectedBySemantic
                               , let (nu, kappa, rho) = evaluateTelescopeWithHistory emode tele lib nuDepth "candidate" nuHist
                               , nu > 0
                               ]
+
+          when (step <= 3) $
+            printf "  [DBG step %d] valid=%d semRel=%d selected=%d witness(raw=%d,sel=%d)\n"
+              step (length validTelescopes) (length semanticallyRelevant) (length selectedBySemantic)
+              witnessRawCount witnessSelCount
 
           -- Phase B: MCTS for larger telescopes (κ > 3)
           -- Use a state-derived estimate from discovered history rather than
@@ -435,6 +473,7 @@ abInitioLoop cfg = do
                     , mctsTopK       = sbMCTSTopK budget
                     , mctsSeed       = step * 137 + 42
                     , mctsVerbose    = False
+                    , mctsGoalProfile = Just goalProfile
                     }
               (results, mctsStats) <- mctsSearchStep emode mctsCfg lib bar
               -- Print MCTS validity stats
@@ -468,20 +507,36 @@ abInitioLoop cfg = do
               putStrLn ""
               printf "NO BAR-CLEARING CANDIDATE at step %d (bar=%.4f, raw=%d, viable=%d). Stopping.\n"
                 step bar rawCandidateCount canonicalCandidateCount
+              let rankRaw (_, nu, kappa, rho, _) = (Down rho, Down nu, kappa)
+                  topRaw = take 8 (sortOn rankRaw rawCandidates)
+              unless (null topRaw) $ do
+                putStrLn "  Top raw candidates:"
+                mapM_ (\(tele, nu, kappa, rho, src) ->
+                  let cls = classifyTelescope tele lib
+                      bestGuess = detectCanonicalName tele lib
+                  in printf "    rho=%6.3f nu=%3d k=%2d class=%-12s src=%-8s guess=%-12s key=%s\n"
+                       rho nu kappa (show cls) src bestGuess
+                       (show (canonicalKeySpec (map teType (teleEntries tele)))))
+                  topRaw
               let orderedRecords = reverse records
               case cfgCsv cfg of
                 Just csvPath -> writeCsv csvPath orderedRecords
                 Nothing      -> return ()
             else do
               -- SELECTION: unified objective across all discovery modes.
-              -- Rank by minimal overshoot, then lower κ, then canonical key,
-              -- then source rank for deterministic tie-breaking.
-              let candidateRank (tele, _, kappa, rho, src) =
+              -- Rank by structural utility first (deficit/readiness aware),
+              -- then minimal overshoot, then lower κ, then canonical key.
+              let withUtility = [ (cand, semanticDeltaScore tele lib goalProfile)
+                                | cand@(tele, _, _, _, _) <- viable
+                                ]
+                  candidateRank ((tele, _, kappa, rho, src), util) =
                     let CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
-                    in (rho - bar, kappa, ckey, sourceRank src)
-                  sorted = sortOn candidateRank viable
-                  (bestTele, bestNu, bestKappa, bestRho, bestSource) = case sorted of
-                    (best:_) -> best
+                    in (Down util, rho - bar, kappa, ckey, sourceRank src)
+                  sorted = sortOn candidateRank withUtility
+                  (bestTele, bestNu, bestKappa, bestRho, bestSource, _bestUtility) = case sorted of
+                    ((best, u):_) ->
+                      let (bt, bn, bk, br, bs) = best
+                      in (bt, bn, bk, br, bs, u)
                     [] -> error "internal error: viable candidate set became empty after ranking"
                   bestName = detectCanonicalName bestTele lib
                   totalCandidates = canonicalCandidateCount
@@ -494,6 +549,9 @@ abInitioLoop cfg = do
               printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
                 step bestName bestNu bestKappa bestRho bar delta_n
                 bestSource totalCandidates
+              when (step <= 3) $
+                printf "  [DBG chosen step %d] key=%s tele=%s\n"
+                  step bestCanonKey (show bestTele)
               hFlush stdout
 
               -- Insert selected candidate only (no step-index fallback).
@@ -664,6 +722,74 @@ intercalate _ [x]    = x
 intercalate sep (x:xs) = x ++ sep ++ intercalate sep xs
 
 -- ============================================
+-- Semantic Candidate Prefilter
+-- ============================================
+
+-- | Cheap structural relevance score used before expensive ν-evaluation.
+-- Keeps candidates that add meaningful structure, capability, or reuse.
+semanticDeltaScore :: Telescope -> Library -> GoalProfile -> Int
+semanticDeltaScore tele lib goalProfile
+  | isTriviallyDerivable tele lib = 0
+  | not (classReadiness lib cls) = 0
+  | otherwise = reuseScore + pathScore + classScore + intentScore
+  where
+    cls = classifyTelescope tele lib
+    refs = teleLibRefs tele
+    reuseScore
+      | Set.null refs = if teleMaxLibRef tele == 0 then 1 else 0
+      | otherwise = 2 + if teleReferencesWindow tele (length lib) then 1 else 0
+
+    knownPathDims = Set.fromList [d | entry <- lib, d <- lePathDims entry]
+    newPathDims = [d | d <- telePathDimensions tele, not (Set.member d knownPathDims)]
+    pathScore = if null newPathDims then 0 else 2 + length newPathDims
+
+    classScore = case cls of
+      TCFoundation -> if length lib < 3 then 10 else 1
+      TCFormer -> if any leHasDependentFunctions lib then 2 else 7
+      TCHIT -> if any leHasLoop lib then 3 else 6
+      TCSuspension -> 2
+      TCMap -> if Set.null refs then 0 else 2
+      TCModal -> if any leHasModalOps lib then 2 else 6
+      TCAxiomatic
+        | not (any leHasDifferentialOps lib) -> 5
+        | not (any leHasCurvature lib) -> 2
+        | not (any leHasMetric lib) -> 2
+        | not (any leHasHilbert lib) -> 2
+        | otherwise -> 1
+      TCSynthesis -> if any leHasTemporalOps lib then 2 else 6
+      TCUnknown -> 0
+
+    intentScore = sum [2 | intent <- gpIntents goalProfile, classSupportsIntent cls intent]
+
+classSupportsIntent :: TelescopeClass -> GoalIntent -> Bool
+classSupportsIntent cls intent = case intent of
+  NeedBootstrap -> cls == TCFoundation
+  NeedFormer -> cls == TCFormer
+  NeedHIT -> cls == TCHIT || cls == TCSuspension
+  NeedModal -> cls == TCModal
+  NeedDifferential -> cls == TCAxiomatic || cls == TCMap
+  NeedTemporal -> cls == TCSynthesis
+  NeedBridge -> cls == TCMap || cls == TCAxiomatic || cls == TCFormer
+
+-- | Structural readiness gate: prevents semantically premature classes.
+-- This is derived from available capabilities in the discovered library,
+-- not from a fixed step index or target sequence.
+classReadiness :: Library -> TelescopeClass -> Bool
+classReadiness lib cls = case cls of
+  TCFoundation -> True
+  TCFormer -> hasConcrete
+  TCHIT -> hasConcrete && any leHasDependentFunctions lib
+  TCSuspension -> any leHasLoop lib
+  TCMap -> concreteCount >= 2
+  TCModal -> any leHasDependentFunctions lib && any leHasLoop lib
+  TCAxiomatic -> any leHasModalOps lib
+  TCSynthesis -> any leHasHilbert lib && any leHasModalOps lib
+  TCUnknown -> hasConcrete
+  where
+    concreteCount = length [() | e <- lib, leConstructors e > 0]
+    hasConcrete = concreteCount > 0
+
+-- ============================================
 -- Adaptive Memory Budgets
 -- ============================================
 
@@ -676,18 +802,20 @@ readMemorySnapshot = do
     else do
       stats <- getRTSStats
       let toMiB bytes = fromIntegral bytes `div` (1024 * 1024)
+          gcStats = gc stats
       return $ Just MemorySnapshot
-        { msLiveMiB = toMiB (max_live_bytes stats)
+        { msLiveMiB = toMiB (gcdetails_live_bytes gcStats)
+        , msInUseMiB = toMiB (gcdetails_mem_in_use_bytes gcStats)
         , msPeakMiB = toMiB (max_mem_in_use_bytes stats)
         }
 
 -- | Classify coarse pressure from live/peak RTS memory.
 classifyMemoryPressure :: Maybe MemorySnapshot -> MemoryPressure
-classifyMemoryPressure Nothing = MemModerate
+classifyMemoryPressure Nothing = MemHigh
 classifyMemoryPressure (Just snap)
-  | msPeakMiB snap >= 4096 || msLiveMiB snap >= 3072 = MemCritical
-  | msPeakMiB snap >= 3072 || msLiveMiB snap >= 2048 = MemHigh
-  | msPeakMiB snap >= 1536 || msLiveMiB snap >= 1024 = MemModerate
+  | msInUseMiB snap >= 4096 || msLiveMiB snap >= 3072 = MemCritical
+  | msInUseMiB snap >= 3072 || msLiveMiB snap >= 2048 = MemHigh
+  | msInUseMiB snap >= 1536 || msLiveMiB snap >= 1024 = MemModerate
   | otherwise = MemLow
 
 -- | Move one pressure tier up (used by --memory-safe).
@@ -709,41 +837,43 @@ computeSearchBudget cfg step = do
             then readMemorySnapshot
             else return Nothing
   let shadowProfile = cfgMBTTShadowProfile cfg && step <= 6
-      baseBitBudget = if shadowProfile then 14 else 20
-      baseAstDepth = if shadowProfile then 2 else 3
-      baseMaxCandidates = maybe (if shadowProfile then 800 else 5000) id (cfgMBTTMaxCand cfg)
-      baseMCTSIterations = 2000
+      baseBitBudget = if shadowProfile then 14 else 16
+      baseAstDepth = maybe 2 id (cfgMBTTAstDepth cfg)
+      baseMaxCandidates = maybe (if shadowProfile then 800 else 800) id (cfgMBTTMaxCand cfg)
+      baseMCTSIterations = 1200
       baseMCTSDepth = 3
       baseMCTSTopK = 10
 
       pressure0 = if cfgAdaptiveMemory cfg then classifyMemoryPressure snap else MemLow
       pressure = if cfgMemorySafe cfg then raisePressure pressure0 else pressure0
 
-      stepScale = if step >= 13 then 35
-                  else if step >= 10 then 50
-                  else if step >= 7 then 70
+      stepScale = if step >= 13 then 30
+                  else if step >= 10 then 40
+                  else if step >= 7 then 60
                   else 100
       enumScale = case pressure of
         MemLow -> 100
-        MemModerate -> 75
-        MemHigh -> 45
-        MemCritical -> 25
+        MemModerate -> 60
+        MemHigh -> 30
+        MemCritical -> 15
       mctsScale = case pressure of
         MemLow -> 100
-        MemModerate -> 70
-        MemHigh -> 40
-        MemCritical -> 20
+        MemModerate -> 60
+        MemHigh -> 30
+        MemCritical -> 10
 
       tunedBitBudget = case pressure of
         MemLow -> baseBitBudget
-        MemModerate -> min baseBitBudget 18
+        MemModerate -> min baseBitBudget 16
         MemHigh -> min baseBitBudget 14
         MemCritical -> min baseBitBudget 12
-      tunedAstDepth = case pressure of
-        MemHigh -> min baseAstDepth 2
-        MemCritical -> min baseAstDepth 2
-        _ -> baseAstDepth
-      tunedCandidates = max 80 (scalePct (scalePct baseMaxCandidates stepScale) enumScale)
+      depthPressureCap = case pressure of
+        MemLow -> baseAstDepth
+        MemModerate -> 2
+        MemHigh -> 2
+        MemCritical -> 2
+      tunedAstDepth = max 1 (min baseAstDepth depthPressureCap)
+      tunedCandidates = max 1 (scalePct (scalePct baseMaxCandidates stepScale) enumScale)
       tunedMCTSIterations = max 150 (scalePct (scalePct baseMCTSIterations stepScale) mctsScale)
       tunedMCTSDepth = if pressure >= MemHigh then 2 else baseMCTSDepth
       tunedMCTSTopK = case pressure of
@@ -777,8 +907,8 @@ printSearchBudget step budget = do
   let mctsSuffix = if sbForceSkipMCTS budget then ",forced-off" else ""
   case sbSnapshot budget of
     Just snap ->
-      printf "  [MEM step %d] pressure=%s live=%dMiB peak=%dMiB enum(bit=%d,depth=%d,cands=%d) mcts(iters=%d,depth=%d,topK=%d%s)\n"
-        step (pressureLabel (sbPressure budget)) (msLiveMiB snap) (msPeakMiB snap)
+      printf "  [MEM step %d] pressure=%s live=%dMiB inuse=%dMiB peak=%dMiB enum(bit=%d,depth=%d,cands=%d) mcts(iters=%d,depth=%d,topK=%d%s)\n"
+        step (pressureLabel (sbPressure budget)) (msLiveMiB snap) (msInUseMiB snap) (msPeakMiB snap)
         (sbBitBudget budget) (sbAstDepth budget) (sbMaxCandidates budget)
         (sbMCTSIterations budget) (sbMCTSDepth budget) (sbMCTSTopK budget) mctsSuffix
     Nothing ->

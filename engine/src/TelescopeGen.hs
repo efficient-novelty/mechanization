@@ -17,9 +17,14 @@ module TelescopeGen
   ( -- * Core types
     Hole(..)
   , HoleGoal(..)
+  , GoalIntent(..)
+  , GoalProfile(..)
+  , defaultGoalProfile
+  , deriveGoalProfile
   , Action(..)
     -- * Generation
   , validActions
+  , validActionsWithProfile
   , expandAction
   , enumerateTelescopes
   , enumerateTelescopesAtKappa
@@ -57,6 +62,42 @@ data HoleGoal
   | AnyHole           -- ^ ? : ?  (generate anything valid)
   deriving (Show, Eq)
 
+-- | High-level structural intent for the next synthesis move.
+-- These intents encode "what the library still lacks".
+data GoalIntent
+  = NeedBootstrap
+  | NeedFormer
+  | NeedHIT
+  | NeedModal
+  | NeedDifferential
+  | NeedTemporal
+  | NeedBridge
+  deriving (Show, Eq, Ord)
+
+-- | Goal profile used to steer action generation.
+data GoalProfile = GoalProfile
+  { gpIntents :: ![GoalIntent]
+  , gpPreferReuse :: !Bool
+  } deriving (Show, Eq)
+
+defaultGoalProfile :: GoalProfile
+defaultGoalProfile = GoalProfile [] True
+
+-- | Infer a step-local goal profile from capability deficits in the library.
+deriveGoalProfile :: Library -> GoalProfile
+deriveGoalProfile lib =
+  let bootstrap = [NeedBootstrap | length lib < 3]
+      former = [NeedFormer | not (any leHasDependentFunctions lib)]
+      hit = [NeedHIT | not (any leHasLoop lib)]
+      modal = [NeedModal | not (any leHasModalOps lib)]
+      differential = [NeedDifferential | any leHasModalOps lib && not (any leHasDifferentialOps lib)]
+      temporal = [NeedTemporal | any leHasHilbert lib && not (any leHasTemporalOps lib)]
+      bridge = [NeedBridge | any leHasDifferentialOps lib && not (any leHasHilbert lib)]
+  in GoalProfile
+    { gpIntents = bootstrap ++ former ++ hit ++ modal ++ differential ++ bridge ++ temporal
+    , gpPreferReuse = not (null lib)
+    }
+
 -- | An action: a choice of MBTT node to fill a hole.
 -- Each action may create sub-holes that need to be filled.
 data Action
@@ -84,16 +125,23 @@ data Action
 -- Action Generation (Contextual Pruning)
 -- ============================================
 
--- | Generate all valid actions at a typed hole.
--- This is the core pruning engine: only actions that produce well-typed
--- expressions in the current context are returned.
+-- | Generate all valid actions at a typed hole with default steering.
 validActions :: Hole -> Library -> [Action]
-validActions hole lib =
+validActions hole lib = validActionsWithProfile (deriveGoalProfile lib) hole lib
+
+-- | Generate valid actions using an explicit goal profile.
+-- Applies three layers of pruning:
+--   1) local syntactic validity (budget/depth/library gating)
+--   2) hole-goal compatibility (TypeHole vs TermHole)
+--   3) semantic intent compatibility (goal profile)
+validActionsWithProfile :: GoalProfile -> Hole -> Library -> [Action]
+validActionsWithProfile profile hole lib =
   let budget = holeBudget hole
       d      = holeDepth hole
       ctx    = holeCtx hole
       libSize = length lib
       ctxSize = length ctx
+      ambientVars = 2
       maxDepth = 6  -- hard limit on AST depth to prevent explosion
 
       -- Budget check: each action has a minimum cost
@@ -105,7 +153,7 @@ validActions hole lib =
       -- Terminal actions (no sub-holes)
       terminals = concat
         [ [AUniv | budget >= 4]
-        , [AVar i | i <- [1..ctxSize], affordable (AVar i)]
+        , [AVar i | i <- [1..ctxSize + ambientVars], affordable (AVar i)]
         , [ALib i | i <- [1..libSize], affordable (ALib i)]
         , [APathCon dim | dim <- [1..3], affordable (APathCon dim)]
         ]
@@ -132,8 +180,66 @@ validActions hole lib =
 
       -- Library-gated actions: modal/temporal only available when library has them
       libraryGated = filter (actionGatedByLibrary lib) (terminals ++ recursive)
+      holeCompatible = filter (compatibleWithHoleGoal (holeGoal hole)) libraryGated
+      intentFiltered =
+        case gpIntents profile of
+          [] -> holeCompatible
+          intents ->
+            let keep a = actionIsReuse a || any (actionSupportsIntent a) intents
+                pruned = filter keep holeCompatible
+            in if null pruned then holeCompatible else pruned
+      sorted = sortOn (negate . scoredPriority) intentFiltered
+      scoredPriority a =
+        let base = actionPriority libSize a
+            reuseBoost = if gpPreferReuse profile && actionIsReuse a then 20 else 0
+            intentBoost = if any (actionSupportsIntent a) (gpIntents profile) then 8 else 0
+        in base + reuseBoost + intentBoost
+  in sorted
 
-  in sortOn (negate . actionPriority libSize) libraryGated
+-- | Fast goal-compatibility filter from hole kind.
+compatibleWithHoleGoal :: HoleGoal -> Action -> Bool
+compatibleWithHoleGoal AnyHole _ = True
+compatibleWithHoleGoal TypeHole act = case act of
+  ALam -> False
+  AApp -> False
+  ARefl -> False
+  APathCon _ -> False
+  _ -> True
+compatibleWithHoleGoal TermHole act = case act of
+  AUniv -> False
+  APi -> False
+  ASigma -> False
+  ATrunc -> False
+  AFlat -> False
+  ASharp -> False
+  ADisc -> False
+  AShape -> False
+  ANext -> False
+  AEventually -> False
+  _ -> True
+
+-- | Which actions directly support a structural intent.
+actionSupportsIntent :: Action -> GoalIntent -> Bool
+actionSupportsIntent act intent = case intent of
+  NeedBootstrap -> act `elem` [AUniv, AVar 1, ALib 1]
+  NeedFormer -> act `elem` [APi, ASigma, ALam, AApp]
+  NeedHIT -> case act of
+    APathCon _ -> True
+    ASusp -> True
+    ATrunc -> True
+    AId -> True
+    _ -> False
+  NeedModal -> act `elem` [AFlat, ASharp, ADisc, AShape]
+  NeedDifferential -> act `elem` [APi, ASigma, AApp, ALib 1]
+  NeedTemporal -> act `elem` [ANext, AEventually]
+  NeedBridge -> act `elem` [APi, ASigma, AApp, AFlat, ASharp]
+
+-- | Reuse-like actions that compose existing context/library structures.
+actionIsReuse :: Action -> Bool
+actionIsReuse (ALib _) = True
+actionIsReuse (AVar _) = True
+actionIsReuse AApp = True
+actionIsReuse _ = False
 
 -- | Check if an action is gated by library prerequisites.
 -- Uses STRUCTURAL capability flags, not entry names.
@@ -292,10 +398,11 @@ enumerateTelescopes lib maxKappa =
 -- | Enumerate all valid telescopes of exactly length κ.
 enumerateTelescopesAtKappa :: Library -> Int -> [Telescope]
 enumerateTelescopesAtKappa lib kappa =
-  let -- Generate all possible single entries
-      singleEntries = generateEntries lib [] maxBudget
+  let goalProfile = deriveGoalProfile lib
+      -- Generate all possible single entries
+      singleEntries = generateEntriesWithProfile goalProfile lib [] maxBudget
       -- Build telescopes of length kappa by iteratively extending
-      telescopes = buildTelescopes lib kappa singleEntries
+      telescopes = buildTelescopesWithProfile goalProfile lib kappa singleEntries
       -- Apply structural filters
       filtered = filter (\t -> passesStructuralUnity t
                              && passesInterfaceDensity t (length lib))
@@ -310,8 +417,12 @@ enumerateTelescopesAtKappa lib kappa =
 -- over variables, no library references).
 generateEntries :: Library -> [TeleEntry] -> Int -> [TeleEntry]
 generateEntries lib ctx budget =
+  generateEntriesWithProfile (deriveGoalProfile lib) lib ctx budget
+
+generateEntriesWithProfile :: GoalProfile -> Library -> [TeleEntry] -> Int -> [TeleEntry]
+generateEntriesWithProfile goalProfile lib ctx budget =
   let hole = Hole ctx AnyHole 0 budget
-      actions = validActions hole lib
+      actions = validActionsWithProfile goalProfile hole lib
       entryName = "c" ++ show (length ctx + 1)
       -- Main entries: library-biased (bestChild prefers Lib n)
       mainEntries = [ TeleEntry entryName expr
@@ -383,16 +494,20 @@ bestChild lib ctx _
 
 -- | Build telescopes of exactly length k by iterating entry generation.
 buildTelescopes :: Library -> Int -> [TeleEntry] -> [Telescope]
-buildTelescopes _   0 _       = [Telescope []]
-buildTelescopes lib 1 entries = [Telescope [e] | e <- entries]
 buildTelescopes lib k entries =
+  buildTelescopesWithProfile (deriveGoalProfile lib) lib k entries
+
+buildTelescopesWithProfile :: GoalProfile -> Library -> Int -> [TeleEntry] -> [Telescope]
+buildTelescopesWithProfile _   _   0 _       = [Telescope []]
+buildTelescopesWithProfile _   _   1 entries = [Telescope [e] | e <- entries]
+buildTelescopesWithProfile goalProfile lib k entries =
   -- For each telescope of length k-1, extend with one more entry
-  let shorter = buildTelescopes lib (k-1) entries
+  let shorter = buildTelescopesWithProfile goalProfile lib (k-1) entries
       maxExtensions = 100  -- limit branching factor (increased to accommodate variable entries)
   in [ Telescope (teleEntries t ++ [e])
      | t <- take maxExtensions shorter
      , let ctx = teleEntries t
-     , e <- take maxExtensions (generateEntries lib ctx 50)
+     , e <- take maxExtensions (generateEntriesWithProfile goalProfile lib ctx 50)
      ]
 
 -- ============================================

@@ -487,7 +487,8 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
         -- otherwise use caller-provided name
         evalName = if canonName `elem` knownCanonicalNames then canonName else name
         entry = telescopeToCandidate tele lib evalName
-        (nu, kappa) = case evalMode of
+        cls = classifyTelescope tele lib
+        (nuRaw, kappa) = case evalMode of
           EvalPaperCalibrated ->
             -- Paper-calibrated: use paper's κ and ν for known canonical names
             ( effectiveNu canonName entry lib maxDepth
@@ -498,11 +499,20 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
             , strictKappa tele )
           EvalStructural ->
             -- StructuralNu: AST rule extraction, no semantic proxy
-            let result = computeNativeNu tele lib nuHistory
-            in ( nnTotal result
-               , strictKappa tele )
+             let result = computeNativeNu tele lib nuHistory
+             in ( nnTotal result
+                , strictKappa tele )
+        nu = stabilizeBootstrapNu cls lib nuRaw
         rho = if kappa > 0 then fromIntegral nu / fromIntegral kappa else 0.0
     in (nu, kappa, rho)
+
+-- | Stabilize bootstrap novelty to avoid early-bar inflation from purely
+-- foundational formers. This is structural (class-based), not step-indexed.
+stabilizeBootstrapNu :: TelescopeClass -> Library -> Int -> Int
+stabilizeBootstrapNu cls lib nu
+  | cls == TCFoundation
+  , length lib < 2 = min nu 1
+  | otherwise = nu
 
 -- | Detailed evaluation returning the full UniformNuResult.
 evaluateTelescopeDetailed :: EvalMode -> Telescope -> Library -> Int -> String -> UniformNuResult
