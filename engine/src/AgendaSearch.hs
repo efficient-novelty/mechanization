@@ -772,6 +772,9 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         AId -> [Id typeAtom termAtom termAtom]
         ASusp -> [Susp typeAtom]
         ATrunc -> [Trunc typeAtom]
+        APi -> [Pi typeAtom binderAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        AApp -> [App libAtom termAtom]
         _ -> []
       Just (NeedLoopCoherence _) -> case act of
         ARefl -> [Refl termAtom]
@@ -845,6 +848,9 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         Id _ _ _ -> True
         Susp _ -> True
         Trunc _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        App _ _ -> True
         _ -> False
       NeedLoopCoherence _ -> case expr of
         Refl _ -> True

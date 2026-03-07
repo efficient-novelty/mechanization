@@ -558,6 +558,11 @@ abInitioLoop cfg = do
                                                Nothing -> False) lib
               libPathDims = concatMap lePathDims lib
               libMaxPathDim = if null libPathDims then 0 else maximum libPathDims
+              postTruncLiftPhase =
+                NeedHIT `elem` gpIntents goalProfile
+                && hasTruncInLibrary
+                && any leHasLoop lib
+                && libMaxPathDim >= 1
               hitProgressHedge = agendaActive
                                  && NeedHIT `elem` gpIntents goalProfile
                                  && any leHasLoop lib
@@ -581,6 +586,10 @@ abInitioLoop cfg = do
                          , TeleEntry "c3" (PathCon nextDim)
                          ]
                      ]
+                else []
+              postTruncSeeds =
+                if postTruncLiftPhase
+                then postTruncLiftSeedTelescopes lib
                 else []
               hedgeRelevant tele =
                 let cls = classifyTelescope tele lib
@@ -609,20 +618,30 @@ abInitioLoop cfg = do
               fallbackTelescopes = if cfgMBTTFirst cfg && (fallbackNeeded || hitProgressHedge)
                                    then map mcTelescope (enumerateMBTTTelescopes lib mbttCfg)
                                    else []
-              rawTelescopes = if cfgMBTTFirst cfg
-                              then if agendaActive
-                                   then if hitProgressHedge
-                                        then
-                                          let mergedRaw = filter hedgeRelevant (pathLiftSeeds ++ agendaTelescopes ++ fallbackTelescopes)
-                                              merged = prioritizeBridgeCandidates requiresTruncBridge lib goalProfile mergedRaw
-                                          in if null merged
-                                             then take stepMaxCandidates' agendaTelescopes
-                                             else take stepMaxCandidates' merged
-                                        else if null agendaTelescopes
-                                        then take stepMaxCandidates' fallbackTelescopes
-                                        else take stepMaxCandidates' agendaTelescopes
-                                   else take stepMaxCandidates' fallbackTelescopes
-                              else enumerateTelescopes lib enumKmax
+              rawTelescopesBase0 = if cfgMBTTFirst cfg
+                                   then if agendaActive
+                                        then if hitProgressHedge
+                                             then
+                                               let mergedRaw = filter hedgeRelevant (pathLiftSeeds ++ agendaTelescopes ++ fallbackTelescopes)
+                                                   merged = prioritizeBridgeCandidates requiresTruncBridge lib goalProfile mergedRaw
+                                               in if null merged
+                                                  then take stepMaxCandidates' agendaTelescopes
+                                                  else take stepMaxCandidates' merged
+                                             else if null agendaTelescopes
+                                             then take stepMaxCandidates' fallbackTelescopes
+                                             else take stepMaxCandidates' agendaTelescopes
+                                        else take stepMaxCandidates' fallbackTelescopes
+                                   else enumerateTelescopes lib enumKmax
+              rawTelescopesBase =
+                if postTruncLiftPhase
+                then take stepMaxCandidates' (postTruncSeeds ++ rawTelescopesBase0)
+                else rawTelescopesBase0
+              rawTelescopes =
+                if postTruncLiftPhase
+                then
+                  let filtered = filter (isPostTruncLiftCandidate lib) rawTelescopesBase
+                  in if null filtered then rawTelescopesBase else filtered
+                else rawTelescopesBase
               rawUniqueTelescopes = if cfgNoCanonicalQuotient cfg
                                     then rawTelescopes
                                     else if requiresTruncBridge
@@ -714,20 +733,20 @@ abInitioLoop cfg = do
                     }
                   agendaCfgWide = defaultAgendaConfig
                     { agMaxEntries = enumKmax
-                    , agMaxAgendaStates = 72
+                    , agMaxAgendaStates = if postTruncLiftPhaseWide then 96 else 72
                     , agEnableDiversity = step >= 7
                     , agBucketCap = if step <= 6 then max 64 stepMaxCandidatesWide else 6
-                    , agBranchPerState = 6
-                    , agCriticPerAction = if step >= 7 then 1 else if qualityBoost then 2 else 3
+                    , agBranchPerState = if postTruncLiftPhaseWide then 8 else 6
+                    , agCriticPerAction = if postTruncLiftPhaseWide then 2 else if step >= 7 then 1 else if qualityBoost then 2 else 3
                     , agMaxCandidates = max 12 (min 32 stepMaxCandidatesWide)
                     , agBitBudget = stepBitBudgetWide
                     , agRequireConnected = length lib >= 2
-                    , agSafeClosureSteps = if step >= 7 then 2 else if qualityBoost then 1 else 3
+                    , agSafeClosureSteps = if postTruncLiftPhaseWide then 3 else if step >= 7 then 2 else if qualityBoost then 1 else 3
                     , agPremiseTopK = if length lib < 6 then 3 else 4
                     , agBarFloor = bar
                     , agLeafExprBudget = min 14 stepBitBudgetWide
                     , agLeafExprDepth = 2
-                    , agLeafExprCap = 10
+                    , agLeafExprCap = if postTruncLiftPhaseWide then 14 else 10
                     }
                   agendaActiveWide = cfgMBTTFirst cfg && length lib >= 3
                   (agendaGeneratedWide, agendaDiagWide) = if agendaActiveWide
@@ -739,6 +758,11 @@ abInitioLoop cfg = do
                                                        Nothing -> False) lib
                   libPathDimsWide = concatMap lePathDims lib
                   libMaxPathDimWide = if null libPathDimsWide then 0 else maximum libPathDimsWide
+                  postTruncLiftPhaseWide =
+                    NeedHIT `elem` gpIntents goalProfile
+                    && hasTruncInLibraryWide
+                    && any leHasLoop lib
+                    && libMaxPathDimWide >= 1
                   hitProgressHedgeWide = agendaActiveWide
                                        && NeedHIT `elem` gpIntents goalProfile
                                        && any leHasLoop lib
@@ -759,6 +783,10 @@ abInitioLoop cfg = do
                              , TeleEntry "c3" (PathCon nextDim)
                              ]
                          ]
+                    else []
+                  postTruncSeedsWide =
+                    if postTruncLiftPhaseWide
+                    then postTruncLiftSeedTelescopes lib
                     else []
                   hedgeRelevantWide tele =
                     let cls = classifyTelescope tele lib
@@ -785,20 +813,30 @@ abInitioLoop cfg = do
                   fallbackTelescopesWide = if cfgMBTTFirst cfg && (fallbackNeededWide || hitProgressHedgeWide)
                                            then map mcTelescope (enumerateMBTTTelescopes lib mbttCfgWide)
                                            else []
-                  rawTelescopesWide = if cfgMBTTFirst cfg
-                                      then if agendaActiveWide
-                                           then if hitProgressHedgeWide
-                                                then
-                                                  let mergedRaw = filter hedgeRelevantWide (pathLiftSeedsWide ++ agendaTelescopesWide ++ fallbackTelescopesWide)
-                                                      merged = prioritizeBridgeCandidates requiresTruncBridgeWide lib goalProfile mergedRaw
-                                                  in if null merged
-                                                     then take stepMaxCandidatesWide agendaTelescopesWide
-                                                     else take stepMaxCandidatesWide merged
-                                                else if null agendaTelescopesWide
-                                                then take stepMaxCandidatesWide fallbackTelescopesWide
-                                                else take stepMaxCandidatesWide agendaTelescopesWide
-                                           else take stepMaxCandidatesWide fallbackTelescopesWide
-                                      else enumerateTelescopes lib enumKmax
+                  rawTelescopesWideBase0 = if cfgMBTTFirst cfg
+                                           then if agendaActiveWide
+                                                then if hitProgressHedgeWide
+                                                     then
+                                                       let mergedRaw = filter hedgeRelevantWide (pathLiftSeedsWide ++ agendaTelescopesWide ++ fallbackTelescopesWide)
+                                                           merged = prioritizeBridgeCandidates requiresTruncBridgeWide lib goalProfile mergedRaw
+                                                       in if null merged
+                                                          then take stepMaxCandidatesWide agendaTelescopesWide
+                                                          else take stepMaxCandidatesWide merged
+                                                     else if null agendaTelescopesWide
+                                                     then take stepMaxCandidatesWide fallbackTelescopesWide
+                                                     else take stepMaxCandidatesWide agendaTelescopesWide
+                                                else take stepMaxCandidatesWide fallbackTelescopesWide
+                                           else enumerateTelescopes lib enumKmax
+                  rawTelescopesWideBase =
+                    if postTruncLiftPhaseWide
+                    then take stepMaxCandidatesWide (postTruncSeedsWide ++ rawTelescopesWideBase0)
+                    else rawTelescopesWideBase0
+                  rawTelescopesWide =
+                    if postTruncLiftPhaseWide
+                    then
+                      let filtered = filter (isPostTruncLiftCandidate lib) rawTelescopesWideBase
+                      in if null filtered then rawTelescopesWideBase else filtered
+                    else rawTelescopesWideBase
                   rawUniqueTelescopesWide = if cfgNoCanonicalQuotient cfg
                                             then rawTelescopesWide
                                             else if requiresTruncBridgeWide
@@ -835,22 +873,35 @@ abInitioLoop cfg = do
                               | (tele, nu, kappa, rho) <- truncCands
                               , rho >= bar
                               ]
-                teleMaxPathDim tele =
+                localTeleMaxPathDim tele =
                   let ds = telePathDimensions tele
                   in if null ds then 0 else maximum ds
                 truncByK = histogramInt [k | (_, _, k, _) <- truncCands]
                 truncViableByK = histogramInt [k | (_, _, k, _) <- truncViable]
-                truncByMaxDim = histogramInt [teleMaxPathDim tele | (tele, _, _, _) <- truncCands]
-                truncViableByMaxDim = histogramInt [teleMaxPathDim tele | (tele, _, _, _) <- truncViable]
-                truncViableK3ByMaxDim = histogramInt [teleMaxPathDim tele | (tele, _, k, _) <- truncViable, k == 3]
+                truncByMaxDim = histogramInt [localTeleMaxPathDim tele | (tele, _, _, _) <- truncCands]
+                truncViableByMaxDim = histogramInt [localTeleMaxPathDim tele | (tele, _, _, _) <- truncViable]
+                truncViableK3ByMaxDim = histogramInt [localTeleMaxPathDim tele | (tele, _, k, _) <- truncViable, k == 3]
                 truncMaxRhoByK =
                   let stepMap m (_, _, k, rho) =
                         Map.insertWith max k rho m
                   in sortOn fst (Map.toList (foldl stepMap Map.empty truncCands))
                 truncMaxRhoByMaxDim =
                   let stepMap m (tele, _, _, rho) =
-                        Map.insertWith max (teleMaxPathDim tele) rho m
+                        Map.insertWith max (localTeleMaxPathDim tele) rho m
                   in sortOn fst (Map.toList (foldl stepMap Map.empty truncCands))
+                postTruncLiftNow = isPostTruncLiftPhase lib goalProfile
+                liftCands = [ (tele, nu, kappa, rho)
+                            | (tele, nu, kappa, rho, _) <- enumEvaluatedChosen
+                            , postTruncLiftHasEvidence lib tele
+                            ]
+                liftViable = [ (tele, nu, kappa, rho)
+                             | (tele, nu, kappa, rho) <- liftCands
+                             , rho >= bar
+                             ]
+                liftByK = histogramInt [k | (_, _, k, _) <- liftCands]
+                liftViableByK = histogramInt [k | (_, _, k, _) <- liftViable]
+                liftDeltaHist = histogramInt [max 0 (localTeleMaxPathDim tele - maxDim) | (tele, _, _, _) <- liftCands]
+                liftViableDeltaHist = histogramInt [max 0 (localTeleMaxPathDim tele - maxDim) | (tele, _, _, _) <- liftViable]
                 truncCount = length truncCands
                 truncViableCount = length truncViable
                 truncBestRho = if null truncCands
@@ -874,6 +925,15 @@ abInitioLoop cfg = do
               (show truncViableK3ByMaxDim)
               (show truncMaxRhoByK)
               (show truncMaxRhoByMaxDim)
+            when postTruncLiftNow $
+              printf "  [LIFT SEARCH step %d] candidates=%d viable=%d by_k=%s viable_by_k=%s delta_hist=%s viable_delta_hist=%s\n"
+                step
+                (length liftCands)
+                (length liftViable)
+                (show liftByK)
+                (show liftViableByK)
+                (show liftDeltaHist)
+                (show liftViableDeltaHist)
 
           -- Phase B: MCTS for larger telescopes (κ > 3)
           -- Use a state-derived estimate from discovered history rather than
@@ -962,12 +1022,20 @@ abInitioLoop cfg = do
                                  Just _ -> True
                                  Nothing -> False) lib
                   bridgePhaseForRank = isTruncBridgePhase lib goalProfile
+                  postTruncLiftPhaseForRank = isPostTruncLiftPhase lib goalProfile
                   richTruncViableExists =
                     bridgePhaseForRank
                     && any (\(tele, _, kappa, _, _) ->
                               teleHasTrunc tele
                               && kappa >= 3
                               && truncBridgeQualityScore lib tele >= truncBridgeRichThreshold
+                           ) viable
+                  richPostTruncLiftViableExists =
+                    postTruncLiftPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= 3
+                              && isPostTruncLiftCandidate lib tele
+                              && postTruncLiftQualityScore lib tele >= 3
                            ) viable
                   candidateRank (tele, _, kappa, rho, src) =
                     let CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
@@ -976,10 +1044,18 @@ abInitioLoop cfg = do
                           if richTruncViableExists
                           then truncBridgeShortcutPenalty lib tele kappa
                           else 0.0
-                        overshoot = baseOvershoot + bridgePenalty
+                        postTruncPenalty =
+                          if richPostTruncLiftViableExists
+                          then postTruncLiftPenalty lib tele kappa
+                          else 0.0
+                        overshoot = baseOvershoot + bridgePenalty + postTruncPenalty
+                        postTruncQuality =
+                          if postTruncLiftPhaseForRank
+                          then postTruncLiftQualityScore lib tele
+                          else 0
                         redundantTrunc = (if hasTruncInLibraryForRank && teleHasTrunc tele then 1 else 0) :: Int
                         surplus = structuralSurplusKey tele
-                    in (overshoot, kappa, redundantTrunc, surplus, ckey, sourceRank src)
+                    in (overshoot, Down postTruncQuality, kappa, redundantTrunc, surplus, ckey, sourceRank src)
                   sorted = sortOn candidateRank viable
                   (bestTele, bestNu, bestKappa, bestRho, bestSource) = case sorted of
                     (best:_) ->
@@ -1646,6 +1722,109 @@ isTruncBridgePhase lib profile =
       Just _ -> True
       Nothing -> False
 
+isPostTruncLiftPhase :: Library -> GoalProfile -> Bool
+isPostTruncLiftPhase lib profile =
+  NeedHIT `elem` gpIntents profile
+  && any leHasLoop lib
+  && hasTrunc
+  && libraryMaxPathDim lib >= 1
+  where
+    hasTrunc = any hasTruncEntry lib
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
+
+postTruncLiftSeedTelescopes :: Library -> [Telescope]
+postTruncLiftSeedTelescopes lib =
+  let nextDim = max 1 (libraryMaxPathDim lib + 1)
+      liftPath = PathCon nextDim
+      carrier = App Univ (Var 1)
+      point = Var 1
+      coherence = Id (Var 1) (Var 1) (Var 1)
+  in
+    [ Telescope
+        [ TeleEntry "c1" carrier
+        , TeleEntry "c2" point
+        , TeleEntry "c3" liftPath
+        ]
+    , Telescope
+        [ TeleEntry "c1" carrier
+        , TeleEntry "c2" coherence
+        , TeleEntry "c3" liftPath
+        ]
+    , Telescope
+        [ TeleEntry "c1" carrier
+        , TeleEntry "c2" (Pi (Var 1) (Var 1))
+        , TeleEntry "c3" liftPath
+        ]
+    , Telescope
+        [ TeleEntry "c1" carrier
+        , TeleEntry "c2" (Sigma (Var 1) (Var 1))
+        , TeleEntry "c3" liftPath
+        ]
+    , Telescope
+        [ TeleEntry "c1" carrier
+        , TeleEntry "c2" (App (Var 1) (Var 1))
+        , TeleEntry "c3" liftPath
+        ]
+    ]
+
+postTruncLiftQualityScore :: Library -> Telescope -> Int
+postTruncLiftQualityScore lib tele
+  | not (isPostTruncLiftCandidate lib tele) = 0
+  | otherwise =
+      liftScore + coherenceScore + interactionScore + incrementalScore
+  where
+    libMaxDim = libraryMaxPathDim lib
+    teleMaxDim = teleMaxPathDim tele
+    hasLiftDelta = teleMaxDim > libMaxDim
+    incremental = teleMaxDim == libMaxDim + 1
+    hasCoherence = teleHasLiftCoherenceWitness tele
+    hasInteraction = teleHasBridgeInteraction tele
+    liftScore = if hasLiftDelta then 2 else 0
+    coherenceScore = if hasCoherence then 1 else 0
+    interactionScore = if hasInteraction then 1 else 0
+    incrementalScore = if incremental then 1 else 0
+
+postTruncLiftPenalty :: Library -> Telescope -> Int -> Double
+postTruncLiftPenalty lib tele kappa
+  | not (isPostTruncLiftCandidate lib tele) = 1.0
+  | otherwise = residualPenalty + kappaPenalty + jumpPenalty + incrementalReward
+  where
+    libMaxDim = libraryMaxPathDim lib
+    teleMaxDim' = teleMaxPathDim tele
+    delta = max 0 (teleMaxDim' - libMaxDim)
+    residualPenalty = if isResidualPostTruncShortcut lib tele then 1.0 else 0.0
+    kappaPenalty = if kappa < 3 then 0.45 else 0.0
+    jumpPenalty = if delta > 1 then 0.35 * fromIntegral (delta - 1) else 0.0
+    incrementalReward = if delta == 1 then (-0.10) else 0.0
+
+isPostTruncLiftCandidate :: Library -> Telescope -> Bool
+isPostTruncLiftCandidate lib tele =
+  postTruncLiftHasEvidence lib tele
+  && not (isResidualPostTruncShortcut lib tele)
+
+postTruncLiftHasEvidence :: Library -> Telescope -> Bool
+postTruncLiftHasEvidence lib tele =
+  teleMaxPathDim tele > libraryMaxPathDim lib
+  || teleHasLiftCoherenceWitness tele
+
+isResidualPostTruncShortcut :: Library -> Telescope -> Bool
+isResidualPostTruncShortcut lib tele =
+  teleHasTrunc tele
+  && teleMaxPathDim tele <= libraryMaxPathDim lib
+  && not (teleHasLiftCoherenceWitness tele)
+
+libraryMaxPathDim :: Library -> Int
+libraryMaxPathDim lib =
+  let dims = concatMap lePathDims lib
+  in if null dims then 0 else maximum dims
+
+teleMaxPathDim :: Telescope -> Int
+teleMaxPathDim tele =
+  let dims = telePathDimensions tele
+  in if null dims then 0 else maximum dims
+
 truncBridgeQualityScore :: Library -> Telescope -> Int
 truncBridgeQualityScore lib tele
   | not (teleHasTrunc tele) = 0
@@ -1708,6 +1887,27 @@ teleHasBridgeInteraction (Telescope entries) = any (go . teType) entries
 
 teleHasCoherenceExpr :: Telescope -> Bool
 teleHasCoherenceExpr (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      PathCon _ -> True
+      Id _ _ _ -> True
+      Refl _ -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+teleHasLiftCoherenceWitness :: Telescope -> Bool
+teleHasLiftCoherenceWitness (Telescope entries) = any (go . teType) entries
   where
     go expr = case expr of
       PathCon _ -> True

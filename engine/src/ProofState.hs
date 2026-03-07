@@ -430,16 +430,21 @@ goalSatisfiedByCaps caps goal = case goal of
 actionDischargesGoal :: Action -> MBTTExpr -> Obligation -> Bool
 actionDischargesGoal act expr goal =
   let score = actionGoalGainFor goal act
-  in score >= 4
-     || (score >= 3 && exprSupportsGoal goal expr)
-     || (score >= 2 && exprSupportsGoal goal expr && goal == NeedCoherence)
+      supports = exprSupportsGoal goal expr
+  in case goal of
+      -- Higher-loop lift goals require explicit structural evidence.
+      NeedLoopLift _ -> score >= 3 && supports
+      _ ->
+        score >= 4
+        || (score >= 3 && supports)
+        || (score >= 2 && supports && goal == NeedCoherence)
 
 exprSupportsGoal :: Obligation -> MBTTExpr -> Bool
 exprSupportsGoal goal expr = case goal of
   NeedTypeFormer -> hasPiSigma expr || hasLam expr
   NeedWitness -> hasWitness expr
   NeedLoop d -> hasPathAtLeast d expr || hasLoopFormer expr
-  NeedLoopLift d -> hasPathAtLeast d expr || hasLoopFormer expr
+  NeedLoopLift d -> hasPathAtLeast d expr || hasLoopLiftSupport d expr
   NeedLoopCoherence d -> hasCoherenceExpr expr && hasPathAtLeast (max 1 (d - 1)) expr
   NeedTruncBridge -> hasTruncExpr expr || hasLoopFormer expr
   NeedModalBundle -> hasModal expr
@@ -603,10 +608,16 @@ actionGoalGainFor goal act = case goal of
     AId -> if d <= 1 then 2 else 3
     _ -> 0
   NeedLoopLift d -> case act of
-    APathCon _ -> if d <= 1 then 4 else 5
-    ASusp -> 4
-    ATrunc -> if d <= 1 then 3 else 0
-    AId -> 2
+    APathCon q
+      | q >= d -> 5
+      | q == max 1 (d - 1) -> 3
+      | otherwise -> 0
+    ASusp -> if d >= 2 then 2 else 3
+    ATrunc -> if d <= 1 then 2 else 0
+    AId -> if d >= 2 then 5 else 3
+    APi -> if d >= 2 then 3 else 2
+    ASigma -> if d >= 2 then 3 else 2
+    AApp -> if d >= 2 then 3 else 2
     _ -> 0
   NeedLoopCoherence d -> case act of
     AId -> if d >= 2 then 5 else 3
@@ -875,6 +886,13 @@ hasLoopFormer expr = case expr of
   Sigma a b -> hasLoopFormer a || hasLoopFormer b
   Refl a -> hasLoopFormer a
   _ -> False
+
+hasLoopLiftSupport :: Int -> MBTTExpr -> Bool
+hasLoopLiftSupport d expr
+  | d <= 1 = hasLoopFormer expr
+  | otherwise =
+      hasPathAtLeast d expr
+      || (hasCoherenceExpr expr && hasPathAtLeast (d - 1) expr)
 
 hasModal :: MBTTExpr -> Bool
 hasModal expr = case expr of

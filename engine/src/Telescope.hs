@@ -167,8 +167,50 @@ desugarTelescope (Telescope entries) = concatMap desugarEntry entries
 --
 -- For non-suspension telescopes, desugaredKappa == teleKappa (1:1 mapping).
 -- For suspension telescopes, desugaredKappa > teleKappa (Susp expands to 4).
+-- For HIT-like telescopes that carry path/suspension structure without an
+-- explicit type-formation clause, charge one additional formation clause.
+-- This enforces that type formation is always counted as its own clause.
 desugaredKappa :: Telescope -> Int
-desugaredKappa = length . desugarTelescope
+desugaredKappa tele = length (desugarTelescope tele) + missingFormationClause tele
+
+-- | Extra formation-clause charge for HIT-like telescopes that omit explicit
+-- type formation.
+--
+-- Examples:
+--   - [base, surf] (implicit S2) gets +1 for missing formation.
+--   - [S2-form, base, surf] gets +0 (formation already present).
+--   - Susp(X) gets +0 (macro desugars to include formation).
+missingFormationClause :: Telescope -> Int
+missingFormationClause (Telescope entries)
+  | requiresFormation && not hasExplicitFormation = 1
+  | otherwise = 0
+  where
+    exprs = map teType entries
+    pathDims = [d | TeleEntry _ (PathCon d) <- entries]
+    hasPathCon = not (null pathDims)
+    hasSusp = any isSuspExpr exprs
+    hasOnlyLowDimPaths = hasPathCon && all (<= 1) pathDims
+
+    requiresFormation = hasPathCon || hasSusp
+    -- Path-based HIT lifts require concrete type formation (U-level) unless
+    -- this is a low-dimensional truncation-style path schema.
+    hasExplicitFormation =
+      any isConcreteTypeFormationExpr exprs
+      || hasSusp
+      || (hasOnlyLowDimPaths && any isTruncFormationExpr exprs)
+
+isConcreteTypeFormationExpr :: MBTTExpr -> Bool
+isConcreteTypeFormationExpr Univ         = True
+isConcreteTypeFormationExpr (App Univ _) = True
+isConcreteTypeFormationExpr _            = False
+
+isTruncFormationExpr :: MBTTExpr -> Bool
+isTruncFormationExpr (Trunc _) = True
+isTruncFormationExpr _         = False
+
+isSuspExpr :: MBTTExpr -> Bool
+isSuspExpr (Susp _) = True
+isSuspExpr _        = False
 
 -- ============================================
 -- MBTT Expression Analysis
@@ -394,10 +436,13 @@ isBareVarTerm _       = False
 --   - Single bare variable [Var i]
 --   - All entries are bare Lib or Var references
 --   - Universe re-declaration when Universe already exists
+--   - Higher-path constructors carried only by truncation context
+--     (no independent geometric boundary data)
 isTriviallyDerivable :: Telescope -> Library -> Bool
-isTriviallyDerivable (Telescope entries) lib
+isTriviallyDerivable tele@(Telescope entries) lib
   | null entries = True
   | all (isBareRef lib) entries = True
+  | isTruncOnlyHigherPathHybrid tele = True
   | otherwise = False
 
 -- | Check if a telescope entry is a bare reference (no new structure).
@@ -406,6 +451,43 @@ isBareRef _   (TeleEntry _ (Lib _)) = True
 isBareRef _   (TeleEntry _ (Var _)) = True
 isBareRef lib (TeleEntry _ Univ)    = any ((== "Universe") . leName) lib
 isBareRef _   _                     = False
+
+-- | Reject higher-path schemas that are carried only by truncation context.
+--
+-- These do not introduce independent geometric structure: in HoTT, truncation
+-- collapses higher path data to mere-propositional coherence. Such candidates
+-- should contribute ν = 0.
+isTruncOnlyHigherPathHybrid :: Telescope -> Bool
+isTruncOnlyHigherPathHybrid (Telescope entries) =
+  hasHigherPath && not (null nonPathExprs) && all isTruncContextExpr nonPathExprs
+  where
+    hasHigherPath = any isHigherPath entries
+    nonPathExprs = [e | TeleEntry _ e <- entries, not (isPathExpr e)]
+
+    isPathExpr (PathCon _) = True
+    isPathExpr _           = False
+
+    isHigherPath (TeleEntry _ (PathCon d)) = d > 1
+    isHigherPath _                         = False
+
+-- | Expression is in truncation context iff all higher structure is routed
+-- through a truncation former/introduction chain (no independent carrier data).
+isTruncContextExpr :: MBTTExpr -> Bool
+isTruncContextExpr expr = case expr of
+  Trunc _        -> True
+  App f x        -> isTruncContextExpr f || isTruncContextExpr x
+  Lam a          -> isTruncContextExpr a
+  Pi a b         -> isTruncContextExpr a && isTruncContextExpr b
+  Sigma a b      -> isTruncContextExpr a && isTruncContextExpr b
+  Id a x y       -> isTruncContextExpr a || isTruncContextExpr x || isTruncContextExpr y
+  Refl a         -> isTruncContextExpr a
+  Flat a         -> isTruncContextExpr a
+  Sharp a        -> isTruncContextExpr a
+  Disc a         -> isTruncContextExpr a
+  Shape a        -> isTruncContextExpr a
+  Next a         -> isTruncContextExpr a
+  Eventually a   -> isTruncContextExpr a
+  _              -> False
 
 -- | Find truncation level in telescope entries.
 findTruncation :: [TeleEntry] -> Maybe Int

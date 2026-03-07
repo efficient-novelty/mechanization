@@ -2,6 +2,8 @@ step,status,bar,raw_candidates,viable_candidates,selected_name,selected_nu,selec
 1,selected,0.5000,12,11,Universe,1,2,0.5000,ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,Universe|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
 2,selected,0.5000,11,11,Unit,1,1,1.0000,ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
 3,selected,1.3333,7,3,Witness,2,1,2.0000,ENUM_MBTT,Witness|2|1|2.0000|ENUM_MBTT,candidate|5|1|5.0000|ENUM_MBTT,,0,0,0,0,0,0
-4,selected,1.5000,22,15,Pi,5,3,1.6667,AGENDA,candidate|7|3|2.3333|AGENDA,candidate|7|3|2.3333|AGENDA,candidate|7|3|2.3333|AGENDA,29,0,29,0,3,8
-5,selected,2.1429,11,9,S1,8,3,2.6667,AGENDA,candidate|6|2|3.0000|AGENDA,candidate|6|2|3.0000|AGENDA,candidate|10|3|3.3333|AGENDA,15,22,37,0,3,8
-6,selected,2.7200,48,21,Trunc,12,3,4.0000,AGENDA,Trunc|12|3|4.0000|AGENDA,Trunc|13|3|4.3333|AGENDA,Trunc|13|3|4.3333|AGENDA,124,0,0,0,9,8
+4,selected,1.5000,22,15,Pi,5,3,1.6667,AGENDA,HIT|7|4|1.7500|AGENDA,HIT|7|4|1.7500|AGENDA,candidate|7|4|1.7500|AGENDA,29,0,29,0,3,8
+5,selected,2.1429,11,9,S1,8,3,2.6667,AGENDA,candidate|6|2|3.0000|AGENDA,candidate|6|2|3.0000|AGENDA,HIT|12|4|3.0000|AGENDA,15,22,37,0,3,8
+6,selected,2.7200,48,22,Trunc,9,3,3.0000,AGENDA,Trunc|12|4|3.0000|AGENDA,Trunc|12|4|3.0000|AGENDA,Trunc|13|4|3.2500|AGENDA,124,0,0,0,9,8
+7,selected,3.2500,6,4,candidate,16,3,5.3333,AGENDA_WIDE,candidate|16|3|5.3333|AGENDA_WIDE,S2|18|3|6.0000|AGENDA_WIDE,candidate|18|3|6.0000|AGENDA_WIDE,9,36,4,0,6,8
+8,no_viable,4.2404,1,0,,,,,,,,,2,5,0,0,3,8

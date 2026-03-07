@@ -220,6 +220,7 @@ detectStructuralName tele lib =
 
     -- Axiomatic extensions need κ ≥ 3 AND reference to the correct prior structure
     TCAxiomatic
+      | any isTruncExpr exprs -> "Trunc"
       | kappa >= 3 -> detectAxiomName tele lib
       | otherwise  -> "candidate"
 
@@ -514,6 +515,7 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
             -- Strict: compute everything from telescope + library, no paper tables
             ( unrUniformNu (computeUniformNu entryStrict lib maxDepth)
               + strictBridgeBonus tele lib
+              + strictLiftBonus tele lib
             , strictKappa tele )
           EvalStructural ->
             -- StructuralNu: AST rule extraction, no semantic proxy
@@ -554,7 +556,32 @@ strictBridgeBonus tele lib
       (if teleHasBridgeInteraction tele then 1 else 0)
       + (if teleHasCoherenceExpr tele then 1 else 0)
       + (if referencesLoop then 1 else 0)
-    lowDimStability = if maxDim <= 1 then 2 else 0
+    lowDimStability = if maxDim <= 1 then 3 else 0
+
+-- | Structural lift bonus used in strict mode after truncation is already
+-- present in the library. Rewards explicit post-trunc geometric lift evidence
+-- and penalizes dimension leaps.
+strictLiftBonus :: Telescope -> Library -> Int
+strictLiftBonus tele lib
+  | not (libraryHasTrunc lib) = 0
+  | not (any leHasLoop lib) = 0
+  | kappa < 3 = 0
+  | otherwise = liftDeltaScore + coherenceScore + interactionScore + incrementalScore + leapPenalty
+  where
+    kappa = strictKappa tele
+    libMaxDim = libraryMaxPathDim lib
+    teleMaxDim = if null dims then 0 else maximum dims
+    dims = telePathDimensions tele
+    hasLiftDelta = teleMaxDim > libMaxDim
+    hasCoherence = teleHasCoherenceExpr tele
+    hasInteraction = teleHasBridgeInteraction tele
+    incremental = teleMaxDim == libMaxDim + 1
+    leap = teleMaxDim > libMaxDim + 1
+    liftDeltaScore = if hasLiftDelta then 4 else 0
+    coherenceScore = if hasCoherence then 2 else 0
+    interactionScore = if hasInteraction then 2 else 0
+    incrementalScore = if incremental then 2 else 0
+    leapPenalty = if leap then (-1) else 0
 
 libraryHasTrunc :: Library -> Bool
 libraryHasTrunc = any hasTruncEntry
@@ -562,6 +589,11 @@ libraryHasTrunc = any hasTruncEntry
     hasTruncEntry e = case leIsTruncated e of
       Just _ -> True
       Nothing -> False
+
+libraryMaxPathDim :: Library -> Int
+libraryMaxPathDim lib =
+  let dims = concatMap lePathDims lib
+  in if null dims then 0 else maximum dims
 
 teleHasTruncExpr :: Telescope -> Bool
 teleHasTruncExpr (Telescope entries) = any (go . teType) entries
@@ -654,7 +686,7 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
           ( effectiveNu canonName entryPaper lib maxDepth
           , effectiveKappa canonName tele )
         EvalStrictComputed ->
-          ( computedNu + strictBridgeBonus tele lib
+          ( computedNu + strictBridgeBonus tele lib + strictLiftBonus tele lib
           , strictKappa tele )
         EvalStructural ->
           ( nnTotal (computeNativeNu tele lib [])
