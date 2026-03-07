@@ -30,7 +30,7 @@ import Telescope (Telescope(..), TeleEntry(..), teleIsConnected,
                   desugaredKappa, isTriviallyDerivable)
 import TelescopeCheck (checkTelescope, CheckResult(..))
 import Types (Library, LibraryEntry(..))
-import Data.List (sortOn)
+import Data.List (foldl')
 
 -- ============================================
 -- Configuration
@@ -202,41 +202,55 @@ teleNodeCount (Telescope entries) = sum [nodeCount (teType e) | e <- entries]
 
 -- | Enumerate all valid MBTT telescopes for a given library state.
 -- Returns candidates ordered by ascending bit cost.
+--
+-- Memory discipline:
+--   * Stream telescopes depth-first (no full `allTeles` materialization)
+--   * Evaluate validity immediately
+--   * Keep only a bounded sorted frontier of top candidates
 enumerateMBTTTelescopes :: Library -> EnumConfig -> [MBTTCandidate]
 enumerateMBTTTelescopes lib cfg =
   let libSize = length lib
       maxK = ecMaxEntries cfg
       budget = ecMaxBitBudget cfg
       depth = ecMaxASTDepth cfg
-      maxCand = ecMaxCandidates cfg
+      maxCand = max 1 (ecMaxCandidates cfg)
 
-      -- Generate telescopes of each length
-      allTeles = concatMap (telescopesOfLength lib libSize budget depth) [1..maxK]
+      scanLengths :: Int -> [MBTTCandidate] -> [MBTTCandidate]
+      scanLengths !k !best
+        | k > maxK = best
+        | otherwise = scanLengths (k + 1) (scanLength k [] best)
 
-      -- Filter: well-formed, connected, not trivially derivable
-      valid = filter (isValidCandidate lib libSize) allTeles
+      scanLength :: Int -> [TeleEntry] -> [MBTTCandidate] -> [MBTTCandidate]
+      scanLength 0 !acc !best =
+        let tele = Telescope (reverse acc)
+        in if isValidCandidate lib libSize tele
+           then insertBestCandidate maxCand
+                  (MBTTCandidate tele (teleBitCost tele) (desugaredKappa tele) (teleNodeCount tele))
+                  best
+           else best
+      scanLength !n !acc !best =
+        let ctxDepth = length acc
+            entryName = "c" ++ show (ctxDepth + 1)
+            exprs = enumerateExprs libSize ctxDepth budget depth lib
+        in foldl'
+             (\bestAcc expr ->
+               let entry = TeleEntry entryName expr
+               in scanLength (n - 1) (entry : acc) bestAcc)
+             best
+             exprs
+  in scanLengths 1 []
 
-      -- Wrap in MBTTCandidate, sort by bit cost, take limit
-      candidates = [ MBTTCandidate tele (teleBitCost tele) (desugaredKappa tele) (teleNodeCount tele)
-                   | tele <- valid
-                   ]
-      sorted = sortOn mcBitKappa candidates
-  in take maxCand sorted
-
--- | Generate all telescopes of exactly length k.
-telescopesOfLength :: Library -> Int -> Int -> Int -> Int -> [Telescope]
-telescopesOfLength lib libSize budget depth k = go k []
+-- | Insert a candidate into an ascending-score frontier, trimming to max size.
+insertBestCandidate :: Int -> MBTTCandidate -> [MBTTCandidate] -> [MBTTCandidate]
+insertBestCandidate limit cand = go (max 0 limit)
   where
-    go 0 acc = [Telescope (reverse acc)]
-    go !n acc =
-      let ctxDepth = length acc
-          exprs = enumerateExprs libSize ctxDepth budget depth lib
-          entryName = "c" ++ show (ctxDepth + 1)
-      in [ tele
-         | expr <- exprs
-         , let entry = TeleEntry entryName expr
-         , tele <- go (n - 1) (entry : acc)
-         ]
+    score c = (mcBitKappa c, mcClauseCount c, mcNodeCount c)
+
+    go 0 _ = []
+    go _ [] = [cand]
+    go !n ys@(y:ys')
+      | score cand <= score y = cand : take (n - 1) ys
+      | otherwise = y : go (n - 1) ys'
 
 -- | Check if a telescope is a valid candidate.
 isValidCandidate :: Library -> Int -> Telescope -> Bool
