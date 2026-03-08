@@ -1,7 +1,0 @@
-pass
-duration_s=22
-timeout_s=90
-exit_code=0
-observed=1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2
-expected=1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2
-rows=7

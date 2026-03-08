@@ -1,8 +1,0 @@
-step,status,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,bar,raw_candidates,viable_candidates
-1,selected,Universe,1,2,0.5000,ENUM_MBTT,0.5000,12,11
-2,selected,Unit,1,1,1.0000,ENUM_MBTT,0.5000,11,11
-3,selected,Witness,2,1,2.0000,ENUM_MBTT,1.3333,7,3
-4,selected,Pi,5,3,1.6667,AGENDA,1.5000,22,15
-5,selected,S1,8,3,2.6667,AGENDA,2.1429,11,9
-6,selected,Trunc,9,3,3.0000,AGENDA,2.7200,48,22
-7,selected,S2,8,2,4.0000,AGENDA_WIDE,3.2500,6,4

@@ -1,7 +1,0 @@
-step,status,bar,raw_candidates,viable_candidates,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,runner_1,runner_2,runner_3,agenda_expanded,agenda_sigma_prunes,agenda_dominance_prunes,agenda_critic_transitions,agenda_action_failures,agenda_near_misses
-1,selected,0.5000,12,11,Universe,1,2,0.5000,ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,Universe|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
-2,selected,0.5000,11,11,Unit,1,1,1.0000,ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
-3,selected,1.3333,7,3,Witness,2,1,2.0000,ENUM_MBTT,Witness|2|1|2.0000|ENUM_MBTT,candidate|5|1|5.0000|ENUM_MBTT,,0,0,0,0,0,0
-4,selected,1.5000,6,4,candidate,7,2,3.5000,AGENDA,candidate|7|2|3.5000|AGENDA,candidate|7|2|3.5000|AGENDA,candidate|7|2|3.5000|AGENDA,13,0,0,0,9,8
-5,selected,3.0556,5,3,S1,6,1,6.0000,AGENDA,candidate|7|1|7.0000|AGENDA,candidate|8|1|8.0000|AGENDA,,4,0,3,0,0,4
-6,selected,3.8857,1,1,candidate,6,1,6.0000,AGENDA,,,,3,0,4,0,0,5

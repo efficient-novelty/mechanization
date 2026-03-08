@@ -1,7 +1,0 @@
-step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status
-1,Universe,1,2,0.5000,0.5000,1,ENUM_MBTT,11,12,11,0.9167,5a73c619,2,2,8,5a73c619,8,2,Universe U₀,1.0000,,exact_isomorphism
-2,Unit,1,1,1.0000,0.5000,1,ENUM_MBTT,11,11,11,1.0000,19b9c4d5,1,1,13,19b9c4d5,13,3,Unit type 1,0.9900,,exact_isomorphism
-3,Witness,2,1,2.0000,1.3333,2,ENUM_MBTT,3,7,3,0.4286,8eb2e27f,1,1,12,8eb2e27f,12,3,Unit witness ★,0.9800,,exact_isomorphism
-4,Pi,5,3,1.6667,1.5000,3,AGENDA,13,23,13,0.5652,0e9aa132,3,3,49,0e9aa132,49,13,Dependent function space,0.9000,Dependent product,ambiguous
-5,S1,8,3,2.6667,2.1429,5,AGENDA,4,7,4,0.5714,fc0f4087,3,3,21,fc0f4087,21,5,Circle HIT S¹,0.9600,,exact_isomorphism
-6,S2,13,3,4.3333,2.7200,8,AGENDA,1,1,1,1.0000,fd0f421a,3,3,23,fd0f421a,23,5,2-sphere HIT S²,0.9500,,exact_isomorphism
