@@ -70,6 +70,9 @@ data GoalIntent
   | NeedHIT
   | NeedModal
   | NeedDifferential
+  | NeedCurvature
+  | NeedMetric
+  | NeedHilbert
   | NeedTemporal
   | NeedBridge
   deriving (Show, Eq, Ord)
@@ -93,21 +96,39 @@ deriveGoalProfile lib =
       hasDim1 = any (elem 1 . lePathDims) lib
       hasDim2 = any (elem 2 . lePathDims) lib
       hasDim3 = any (elem 3 . lePathDims) lib
+      hasBridgeMap = any isBridgeMapEntry lib
       hitMature = hasTrunc && hasDim1 && hasDim2 && hasDim3
       hit = [NeedHIT | not hasLoop || not hitMature]
-      modalReady = hasLoop && hitMature
+      bridgeNeededFromHIT = hitMature && not hasBridgeMap
+      modalReady = hasLoop && hitMature && hasBridgeMap
       modal = [NeedModal | modalReady && not (any leHasModalOps lib)]
       differential = [NeedDifferential | any leHasModalOps lib && not (any leHasDifferentialOps lib)]
-      temporal = [NeedTemporal | any leHasHilbert lib && not (any leHasTemporalOps lib)]
-      bridge = [NeedBridge | any leHasDifferentialOps lib && not (any leHasHilbert lib)]
+      curvature = [NeedCurvature | any leHasDifferentialOps lib && not (any leHasCurvature lib)]
+      metric = [NeedMetric | any leHasCurvature lib && not (any leHasMetric lib)]
+      hilbert = [NeedHilbert | any leHasMetric lib && not (any leHasHilbert lib)]
+      temporal = [NeedTemporal | any leHasHilbert lib && any leHasModalOps lib && not (any leHasTemporalOps lib)]
+      bridgeNeededFromDifferential = False
+      bridge = [NeedBridge | bridgeNeededFromHIT || bridgeNeededFromDifferential]
   in GoalProfile
-    { gpIntents = bootstrap ++ former ++ hit ++ modal ++ differential ++ bridge ++ temporal
+    { gpIntents = bootstrap ++ former ++ hit ++ modal ++ differential ++ curvature ++ metric ++ hilbert ++ bridge ++ temporal
     , gpPreferReuse = not (null lib)
     }
   where
     hasTruncEntry e = case leIsTruncated e of
       Just _ -> True
       Nothing -> False
+    isBridgeMapEntry e =
+      leConstructors e == 0
+      && leHasLoop e
+      && (case leIsTruncated e of
+            Just _ -> False
+            Nothing -> True)
+      && not (leHasModalOps e)
+      && not (leHasDifferentialOps e)
+      && not (leHasCurvature e)
+      && not (leHasMetric e)
+      && not (leHasHilbert e)
+      && not (leHasTemporalOps e)
 
 -- | An action: a choice of MBTT node to fill a hole.
 -- Each action may create sub-holes that need to be filled.
@@ -242,7 +263,42 @@ actionSupportsIntent act intent = case intent of
     _ -> False
   NeedModal -> act `elem` [AFlat, ASharp, ADisc, AShape]
   NeedDifferential -> act `elem` [APi, ASigma, AApp, ALib 1]
-  NeedTemporal -> act `elem` [ANext, AEventually]
+  NeedCurvature -> case act of
+    APi -> True
+    ASigma -> True
+    AApp -> True
+    AId -> True
+    APathCon d -> d >= 2
+    ALib _ -> True
+    _ -> False
+  NeedMetric -> case act of
+    APi -> True
+    ASigma -> True
+    AApp -> True
+    AId -> True
+    ALam -> True
+    ALib _ -> True
+    _ -> False
+  NeedHilbert -> case act of
+    APi -> True
+    ASigma -> True
+    AApp -> True
+    AId -> True
+    ALam -> True
+    ALib _ -> True
+    _ -> False
+  NeedTemporal -> case act of
+    ANext -> True
+    AEventually -> True
+    APi -> True
+    ASigma -> True
+    AApp -> True
+    ALib _ -> True
+    AFlat -> True
+    AShape -> True
+    AId -> True
+    ALam -> True
+    _ -> False
   NeedBridge -> act `elem` [APi, ASigma, AApp, AFlat, ASharp]
 
 -- | Reuse-like actions that compose existing context/library structures.

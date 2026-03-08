@@ -107,8 +107,15 @@ enumerateExprsWithGoal goalProfile libSize ctxDepth budget maxDepth lib
     ambientVars = 2
 
     -- Modal/temporal gating flags (structural, not name-based)
-    hasModal   = any leHasModalOps lib
+    hasModalPrereqs =
+      any leHasDependentFunctions lib
+      && any hasTruncEntry lib
+      && maximum (0 : concatMap lePathDims lib) >= 3
+    hasModal   = any leHasModalOps lib || hasModalPrereqs
     hasTemporal = any leHasHilbert lib
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
 
     -- Terminal expressions
     terminals = concat
@@ -116,23 +123,23 @@ enumerateExprsWithGoal goalProfile libSize ctxDepth budget maxDepth lib
       , [Var i | i <- [1..ctxDepth + ambientVars], budget >= 3 + eliasGammaLength i]
       , [Lib i | i <- [1..libSize], budget >= 3 + eliasGammaLength i]
       , [PathCon d | d <- [1..3], budget >= 6 + eliasGammaLength d
-                   , goalAny [NeedHIT, NeedBootstrap]]
+                   , goalAny [NeedHIT, NeedBootstrap, NeedCurvature, NeedMetric, NeedHilbert]]
       ]
 
     -- Compound expressions with budget splits
     compounds = concat
-      [ if goalAny [NeedBootstrap, NeedFormer, NeedBridge, NeedDifferential]
+      [ if goalAny [NeedBootstrap, NeedFormer, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert]
           then enumBinaryNoExt App 2 else []
-      , if goalAny [NeedFormer, NeedBridge, NeedDifferential]
+      , if goalAny [NeedFormer, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert]
           then enumUnary Lam 2 True else []
       , enumUnary Refl 5 False
       , if goalAny [NeedHIT] then enumUnary Susp 5 False else []
       , if goalAny [NeedHIT] then enumUnary Trunc 6 False else []
-      , if goalAny [NeedFormer, NeedBridge, NeedDifferential] then enumBinary Pi 3 True else []
-      , if goalAny [NeedFormer, NeedBridge, NeedDifferential] then enumBinary Sigma 4 True else []
+      , if goalAny [NeedFormer, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert] then enumBinary Pi 3 True else []
+      , if goalAny [NeedFormer, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert] then enumBinary Sigma 4 True else []
       , if hasModal then concat
-          [ if goalAny [NeedModal, NeedBridge, NeedDifferential] then enumUnary Flat 7 False else []
-          , if goalAny [NeedModal, NeedBridge, NeedDifferential] then enumUnary Sharp 7 False else []
+          [ if goalAny [NeedModal, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert] then enumUnary Flat 7 False else []
+          , if goalAny [NeedModal, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert] then enumUnary Sharp 7 False else []
           , if goalAny [NeedModal, NeedBridge] then enumUnary Disc 7 False else []
           , if goalAny [NeedModal, NeedBridge] then enumUnary Shape 8 False else []
           ] else []
@@ -140,7 +147,7 @@ enumerateExprsWithGoal goalProfile libSize ctxDepth budget maxDepth lib
           [ if goalAny [NeedTemporal] then enumUnary Next 9 False else []
           , if goalAny [NeedTemporal] then enumUnary Eventually 9 False else []
           ] else []
-      , if goalAny [NeedHIT, NeedFormer] then enumTernary Id 5 else []
+      , if goalAny [NeedHIT, NeedFormer, NeedCurvature, NeedMetric, NeedHilbert] then enumTernary Id 5 else []
       ]
 
     -- Unary: constructor(child) with prefix cost, optionally extending context
@@ -559,6 +566,33 @@ teleSupportsIntent (Telescope entries) intent = any (exprSupportsIntent . teType
       NeedDifferential -> case expr of
         Pi _ _ -> True
         Sigma _ _ -> True
+        Id _ _ _ -> True
+        App _ _ -> True
+        PathCon _ -> True
+        _ -> False
+      NeedCurvature -> case expr of
+        PathCon d -> d >= 2
+        Id _ _ _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        App _ _ -> True
+        _ -> False
+      NeedMetric -> case expr of
+        Sigma (Pi _ _) (Pi _ _) -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        Id _ _ _ -> True
+        App _ _ -> True
+        Lam _ -> True
+        _ -> False
+      NeedHilbert -> case expr of
+        Sigma (Pi _ _) _ -> True
+        Pi _ (Sigma _ _) -> True
+        Pi (Lam _) (Sigma _ _) -> True
+        Pi (Lib _) _ -> True
+        Lam (Pi _ Univ) -> True
+        Id _ _ _ -> True
+        App _ _ -> True
         _ -> False
       NeedTemporal -> case expr of
         Next _ -> True

@@ -1,13 +1,50 @@
-# Haskell build artifacts
+# Build artifacts (Haskell/Agda)
+dist-newstyle/
 engine/dist-newstyle/
+agda/_build/
 *.hi
 *.o
 *.dyn_hi
 *.dyn_o
-
-# Agda build artifacts
-agda/_build/
 *.agdai
+*.exe
+
+# Runtime/profiling outputs
+*.prof
+*.eventlog
+*.tix
+*.mix
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.lof
+*.lot
+*.nav
+*.snm
+
+# Local run artifacts
+engine/*.csv
+engine/*.log
+engine/*.tsv
+runs/prefix_regression/
+runs/paper_alignment/
+runs/missing_schemas/
+runs/test_run/
+runs/baseline/
+runs/phase1_ci/
+runs/phase1_bundle/
+runs/phase1_shadow/*
+!runs/phase1_shadow/.gitkeep
+runs/phase1_shadow_ladder/*
+!runs/phase1_shadow_ladder/.gitkeep
 
 # Editor files
 *~
@@ -16,15 +53,6 @@ agda/_build/
 
 # OS files
 .DS_Store
-# Phase-1 generated evidence artifacts (kept in CI uploads, not committed)
-runs/phase1_ci/
-runs/phase1_bundle/
 
-# Local Phase-1 smoke outputs (generated, do not commit)
-runs/phase1_shadow/*
-!runs/phase1_shadow/.gitkeep
-runs/phase1_shadow_ladder/*
-!runs/phase1_shadow_ladder/.gitkeep
-
-# Zip files
-.zip
+# Release/package archives
+*.zip

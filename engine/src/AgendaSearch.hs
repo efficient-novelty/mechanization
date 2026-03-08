@@ -22,6 +22,7 @@ import TelescopeGen (Action(..), GoalProfile(..), GoalIntent(..), Hole(..), Hole
 import ProofState ( SearchState(..)
                   , DebtGraph(..)
                   , CapabilitySig(..)
+                  , PremiseBuckets(..)
                   , Obligation(..)
                   , CriticPlan(..)
                   , CriticPlanState(..)
@@ -37,11 +38,13 @@ import ProofState ( SearchState(..)
                   )
 import Types (Library, LibraryEntry(..))
 
-import Data.List (sortOn, nub, sort)
+import Data.List (sortOn, nub, sort, foldl')
 import Data.Ord (Down(..))
 import Data.Maybe (maybeToList)
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
+import Data.Bits (shiftL, xor)
+import Data.Word (Word64)
 
 data AgendaConfig = AgendaConfig
   { agMaxEntries      :: !Int
@@ -159,6 +162,15 @@ data FrontierPoint = FrontierPoint
 
 type DominanceCache = Map.Map DominanceKey [FrontierPoint]
 
+type StateSig = Word64
+type ExprSig = Word64
+type PriorityKey = (Down Double, Down Int, Int, Int, Down Int)
+
+data Frontier = Frontier
+  { frQueue :: !(Map.Map PriorityKey [AgendaNode])
+  , frSize  :: !Int
+  } deriving (Show, Eq)
+
 data MacroAtom
   = AtomTopPremise
   | AtomSecondPremise
@@ -190,7 +202,7 @@ agendaGenerateCandidatesWithDiagnostics :: Library -> GoalProfile -> AgendaConfi
 agendaGenerateCandidatesWithDiagnostics lib profile cfg =
   let start = AgendaNode (deriveSearchState lib profile []) []
       startDiag = addNearMiss "root" start emptyDiagnostics
-      (_, _, _, finals, diag) = searchLoop 0 [start] Set.empty Map.empty Map.empty [] startDiag
+      (_, _, _, finals, diag) = searchLoop 0 (frontierSingleton start) Set.empty Map.empty Map.empty [] startDiag
       cands = map finalize finals ++ seedCandidates
       valid = filter (\c -> case checkTelescope lib (acTelescope c) of
                        CheckOK -> not (isFloatingPathTele (acTelescope c))
@@ -215,10 +227,35 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       let needsFormer = NeedFormer `elem` gpIntents profile && not (any leHasDependentFunctions lib)
           needsHIT = NeedHIT `elem` gpIntents profile && any leHasDependentFunctions lib && not (any leHasLoop lib)
           needsHITProgress = NeedHIT `elem` gpIntents profile && any leHasLoop lib
+          needsBridge = NeedBridge `elem` gpIntents profile
+          needsModal = NeedModal `elem` gpIntents profile
+          needsDifferential = NeedDifferential `elem` gpIntents profile
+          needsCurvature = NeedCurvature `elem` gpIntents profile
+          needsMetric = NeedMetric `elem` gpIntents profile
+          needsHilbert = NeedHilbert `elem` gpIntents profile
           loopRefs = [i | (i, e) <- zip [1..] lib, leHasLoop e]
+          modalRefs = [i | (i, e) <- zip [1..] lib, leHasModalOps e]
+          differentialRefs = [i | (i, e) <- zip [1..] lib, leHasDifferentialOps e]
+          curvatureRefs = [i | (i, e) <- zip [1..] lib, leHasCurvature e]
+          metricRefs = [i | (i, e) <- zip [1..] lib, leHasMetric e]
           loopRef = case reverse loopRefs of
             (i:_) -> i
             [] -> max 1 (length lib)
+          modalRef = case reverse modalRefs of
+            (i:_) -> i
+            [] -> max 1 (length lib)
+          differentialRef = case reverse differentialRefs of
+            (i:_) -> i
+            [] -> max 1 (length lib)
+          curvatureRef = case reverse curvatureRefs of
+            (i:_) -> i
+            [] -> max 1 (length lib)
+          metricRef = case reverse metricRefs of
+            (i:_) -> i
+            [] -> max 1 (length lib)
+          bridgeRef = case reverse loopRefs of
+            (_:j:_) -> j
+            _ -> max 1 (loopRef - 1)
           formerSeeds =
             if needsFormer
             then
@@ -264,7 +301,134 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
                   ]
               ]
             else []
-      in formerSeeds ++ hitSeeds ++ hitProgressSeeds
+          bridgeSeeds =
+            if needsBridge
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Lib loopRef)
+                  , TeleEntry "c2" (Lib bridgeRef)
+                  , TeleEntry "c3" (Pi (Lib loopRef) (Lib bridgeRef))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (App (Lib loopRef) (Lib bridgeRef))
+                  , TeleEntry "c2" (App (Lib bridgeRef) (Lib loopRef))
+                  , TeleEntry "c3" (Pi (Lib loopRef) (Lib bridgeRef))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Lib loopRef)
+                  , TeleEntry "c2" (Lib bridgeRef)
+                  , TeleEntry "c3" (Id (Lib bridgeRef) (Var 1) (Var 1))
+                  , TeleEntry "c4" (Pi (Lib loopRef) (Lib bridgeRef))
+                  ]
+              ]
+            else []
+          modalSeeds =
+            if needsModal
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Flat (Lib loopRef))
+                  , TeleEntry "c2" (Sharp (Lib loopRef))
+                  , TeleEntry "c3" (Disc (Lib loopRef))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Flat (Lib loopRef))
+                  , TeleEntry "c2" (Sharp (Lib loopRef))
+                  , TeleEntry "c3" (Shape (Lib loopRef))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Flat (Lib loopRef))
+                  , TeleEntry "c2" (Sharp (Lib loopRef))
+                  , TeleEntry "c3" (Disc (Lib loopRef))
+                  , TeleEntry "c4" (Pi (Lib loopRef) (Lib loopRef))
+                  ]
+              ]
+            else []
+          differentialSeeds =
+            if needsDifferential
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Pi (Lib modalRef) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c2" (Lam (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c3" (Pi (Var 1) (Var 1))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Pi (Lib modalRef) (Sigma (Var 1) (Var 1)))
+                  , TeleEntry "c2" (Lam (Sigma (Var 1) (Var 1)))
+                  , TeleEntry "c3" (Sigma (Var 1) (Var 1))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (App (Lib modalRef) (Var 1))
+                  , TeleEntry "c2" (Lam (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c3" (Pi (Var 1) (Var 1))
+                  ]
+               ]
+            else []
+          curvatureSeeds =
+            if needsCurvature
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Pi (Lib differentialRef) (Id (Var 1) (Var 1) (Var 1)))
+                  , TeleEntry "c2" (Id (Lib differentialRef) (App (Lib differentialRef) (PathCon 2)) (App (Lib differentialRef) (PathCon 2)))
+                  , TeleEntry "c3" (App (Lib differentialRef) (PathCon 2))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Sigma (Lib differentialRef) (Id (Var 1) (Var 1) (Var 1)))
+                  , TeleEntry "c2" (App (Lib differentialRef) (PathCon 2))
+                  , TeleEntry "c3" (Id (Lib differentialRef) (App (Lib differentialRef) (PathCon 2)) (App (Lib differentialRef) (PathCon 2)))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Pi (Lib differentialRef) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c2" (App (Lib differentialRef) (Var 1))
+                  , TeleEntry "c3" (Id (Lib differentialRef) (App (Lib differentialRef) (PathCon 2)) (App (Lib differentialRef) (PathCon 2)))
+                  ]
+              ]
+            else []
+          metricSeeds =
+            if needsMetric
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c2" (Pi (Sigma (Var 1) (Var 1)) (Lib differentialRef))
+                  , TeleEntry "c3" (Pi (Var 1) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c4" (Lam (App (Var 1) (Var 1)))
+                  , TeleEntry "c5" (Pi (Lib curvatureRef) (Lib curvatureRef))
+                  , TeleEntry "c6" (Lam (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c7" (Pi (Lib curvatureRef) (Var 1))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c2" (Pi (Sigma (Var 1) (Var 1)) (Lib differentialRef))
+                  , TeleEntry "c3" (Pi (Lib curvatureRef) (Lib curvatureRef))
+                  , TeleEntry "c4" (Pi (Lib curvatureRef) (Var 1))
+                  ]
+              ]
+            else []
+          hilbertSeeds =
+            if needsHilbert
+            then
+              [ Telescope
+                  [ TeleEntry "c1" (Sigma (Pi (Var 1) (Pi (Var 1) Univ)) (Var 1))
+                  , TeleEntry "c2" (Pi (Var 1) (Var 1))
+                  , TeleEntry "c3" (Pi (Var 1) (Sigma (Var 1) (Var 1)))
+                  , TeleEntry "c4" (Pi (Lam (Var 1)) (Sigma (Var 1) (Var 2)))
+                  , TeleEntry "c5" (Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c6" (Pi (Lib metricRef) (Var 1))
+                  , TeleEntry "c7" (Pi (Lib curvatureRef) (Var 1))
+                  , TeleEntry "c8" (Pi (Lib differentialRef) (Var 1))
+                  , TeleEntry "c9" (Lam (Pi (Var 1) Univ))
+                  ]
+              , Telescope
+                  [ TeleEntry "c1" (Sigma (Pi (Var 1) (Pi (Var 1) Univ)) (Var 1))
+                  , TeleEntry "c2" (Pi (Var 1) (Sigma (Var 1) (Var 1)))
+                  , TeleEntry "c3" (Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1)))
+                  , TeleEntry "c4" (Pi (Lib metricRef) (Var 1))
+                  , TeleEntry "c5" (Pi (Lib curvatureRef) (Var 1))
+                  , TeleEntry "c6" (Pi (Lib differentialRef) (Var 1))
+                  , TeleEntry "c7" (Lam (Pi (Var 1) Univ))
+                  ]
+              ]
+            else []
+      in formerSeeds ++ hitSeeds ++ hitProgressSeeds ++ bridgeSeeds ++ modalSeeds ++ differentialSeeds ++ curvatureSeeds ++ metricSeeds ++ hilbertSeeds
 
     isFloatingPathTele :: Telescope -> Bool
     isFloatingPathTele tele@(Telescope entries) =
@@ -298,71 +462,113 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       App Univ _ -> True
       _ -> False
 
+    frontierSingleton :: AgendaNode -> Frontier
+    frontierSingleton node = frontierInsert node frontierEmpty
+
+    frontierEmpty :: Frontier
+    frontierEmpty = Frontier Map.empty 0
+
+    frontierInsert :: AgendaNode -> Frontier -> Frontier
+    frontierInsert node (Frontier q sz) =
+      let key = frontierPriorityKey (anState node)
+      in Frontier (Map.insertWith (++) key [node] q) (sz + 1)
+
+    frontierInsertMany :: [AgendaNode] -> Frontier -> Frontier
+    frontierInsertMany nodes fr = foldl' (flip frontierInsert) fr nodes
+
+    frontierPop :: Frontier -> (Maybe AgendaNode, Frontier)
+    frontierPop (Frontier q sz) =
+      case Map.minViewWithKey q of
+        Nothing -> (Nothing, frontierEmpty)
+        Just ((key, nodes), qTail) ->
+          case nodes of
+            [] -> frontierPop (Frontier qTail sz)
+            (n:rest) ->
+              let q' = if null rest then qTail else Map.insert key rest qTail
+                  sz' = max 0 (sz - 1)
+              in (Just n, Frontier q' sz')
+
+    frontierToList :: Frontier -> [AgendaNode]
+    frontierToList (Frontier q _) = concatMap snd (Map.toAscList q)
+
+    frontierFromList :: [AgendaNode] -> Frontier
+    frontierFromList = foldl' (flip frontierInsert) frontierEmpty
+
+    frontierTrim :: Frontier -> Frontier
+    frontierTrim fr
+      | frSize fr <= agMaxAgendaStates cfg = fr
+      | agEnableDiversity cfg =
+          let maxStates = agMaxAgendaStates cfg
+              bucketCap = max 1 (agBucketCap cfg)
+              nodes = frontierToList fr
+              step (!keptAcc, !spillAcc, !counts) node =
+                let key = frontierBucket (anState node)
+                    used = Map.findWithDefault 0 key counts
+                in if used < bucketCap
+                   then (node : keptAcc, spillAcc, Map.insert key (used + 1) counts)
+                   else (keptAcc, node : spillAcc, counts)
+              (keptRev, spillRev, _) = foldl' step ([], [], Map.empty) nodes
+              kept = reverse keptRev
+              spill = reverse spillRev
+              primary = take maxStates kept
+              chosen = if length primary >= maxStates
+                       then primary
+                       else primary ++ take (maxStates - length primary) spill
+          in frontierFromList chosen
+      | otherwise =
+          frontierFromList (take (agMaxAgendaStates cfg) (frontierToList fr))
+
+    frontierPriorityKey :: SearchState -> PriorityKey
+    frontierPriorityKey st =
+      ( Down (nodePriority st)
+      , Down (ssNuUpper st)
+      , ssKappa st
+      , stateGoalCount st
+      , Down (length (ssEntries st))
+      )
+
     searchLoop :: Int
-               -> [AgendaNode]
-               -> Set.Set String
+               -> Frontier
+               -> Set.Set StateSig
                -> DominanceCache
                -> MacroBank
                -> [AgendaNode]
                -> AgendaDiagnostics
-               -> (Set.Set String, DominanceCache, MacroBank, [AgendaNode], AgendaDiagnostics)
-    searchLoop !iter !agenda !seen !domCache !macroBank !finals !diag
+               -> (Set.Set StateSig, DominanceCache, MacroBank, [AgendaNode], AgendaDiagnostics)
+    searchLoop !iter !frontier !seen !domCache !macroBank !finals !diag
       | iter >= agMaxAgendaStates cfg =
-          let diag' = foldl (\d n -> addNearMiss "frontier_timeout" n d) diag agenda
-          in (seen, domCache, macroBank, finals ++ agenda, diag')
-      | null agenda = (seen, domCache, macroBank, finals, diag)
+          let diag' = foldl' (\d n -> addNearMiss "frontier_timeout" n d) diag (frontierToList frontier)
+          in (seen, domCache, macroBank, finals, diag')
+      | frSize frontier <= 0 = (seen, domCache, macroBank, finals, diag)
       | otherwise =
-          let frontier = if agEnableDiversity cfg
-                         then trimFrontier agenda
-                         else take (agMaxAgendaStates cfg) agenda
-              ordered = sortOn (Down . nodePriority . anState) frontier
-          in case ordered of
-               [] -> (seen, domCache, macroBank, finals, diag)
-               (node:rest) ->
+          let (mNodeRaw, frontierRest0) = frontierPop frontier
+              frontierRest = frontierTrim frontierRest0
+          in case mNodeRaw of
+               Nothing -> (seen, domCache, macroBank, finals, diag)
+               Just node ->
                  let (node', macroBank1) = closeSafe macroBank node
                      st = anState node'
-                     key = stateKey st
-                 in if Set.member key seen
-                    then searchLoop (iter + 1) rest seen domCache macroBank1 finals diag
+                     sig = stateSignature st
+                 in if Set.member sig seen
+                    then searchLoop (iter + 1) frontierRest seen domCache macroBank1 finals diag
                     else if not (passesSigmaUB st)
-                    then searchLoop (iter + 1) rest seen domCache macroBank1 finals (addSigmaPrune node' diag)
+                    then searchLoop (iter + 1) frontierRest seen domCache macroBank1 finals (addSigmaPrune node' diag)
                     else
-                      let seen' = Set.insert key seen
+                      let seen' = Set.insert sig seen
                           (dominated, domCache') = insertFrontier (dominanceKey st) (frontierPoint st) domCache
                       in if dominated
-                         then searchLoop (iter + 1) rest seen' domCache' macroBank1 finals (addDominancePrune node' diag)
+                         then searchLoop (iter + 1) frontierRest seen' domCache' macroBank1 finals (addDominancePrune node' diag)
                          else if isTerminal st
-                         then searchLoop (iter + 1) rest seen' domCache' macroBank1 (node' : finals) (diag { adExpandedStates = adExpandedStates diag + 1 })
+                         then searchLoop (iter + 1) frontierRest seen' domCache' macroBank1 (node' : finals) (diag { adExpandedStates = adExpandedStates diag + 1 })
                          else
                            let (domCache'', macroBank'', children, diagAfterExpand) =
                                  expandNode domCache' macroBank1 node' (diag { adExpandedStates = adExpandedStates diag + 1 })
-                               trimmed = if agEnableDiversity cfg
-                                         then trimFrontier (rest ++ children)
-                                         else take (agMaxAgendaStates cfg) (rest ++ children)
+                               frontierNext = frontierTrim (frontierInsertMany children frontierRest)
                                stalled = null children
                                closed = stateGoalCount st == 0
                                finals' = if stalled && closed then node' : finals else finals
                                diagStall = if stalled then addNearMiss "stalled" node' diagAfterExpand else diagAfterExpand
-                           in searchLoop (iter + 1) trimmed seen' domCache'' macroBank'' finals' diagStall
-
-    trimFrontier :: [AgendaNode] -> [AgendaNode]
-    trimFrontier nodes =
-      let maxStates = agMaxAgendaStates cfg
-          bucketCap = max 1 (agBucketCap cfg)
-          sorted = sortOn (Down . nodePriority . anState) nodes
-          step (!keptAcc, !spillAcc, !counts) node =
-            let key = frontierBucket (anState node)
-                used = Map.findWithDefault 0 key counts
-            in if used < bucketCap
-               then (node : keptAcc, spillAcc, Map.insert key (used + 1) counts)
-               else (keptAcc, node : spillAcc, counts)
-          (keptRev, spillRev, _) = foldl step ([], [], Map.empty) sorted
-          kept = reverse keptRev
-          spill = reverse spillRev
-          primary = take maxStates kept
-      in if length primary >= maxStates
-         then primary
-         else primary ++ take (maxStates - length primary) spill
+                           in searchLoop (iter + 1) frontierNext seen' domCache'' macroBank'' finals' diagStall
 
     frontierBucket :: SearchState -> (Maybe Obligation, [Obligation], Int, Int)
     frontierBucket st =
@@ -374,6 +580,9 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedLoop d -> NeedLoop (min 4 d)
       NeedLoopLift d -> NeedLoopLift (min 4 d)
       NeedLoopCoherence d -> NeedLoopCoherence (min 4 d)
+      NeedSourceReuse d loopReq -> NeedSourceReuse (min 4 (max 1 d)) loopReq
+      NeedTargetReuse d maxD -> NeedTargetReuse (min 4 (max 1 d)) (fmap (\u -> min 4 (max 1 u)) maxD)
+      NeedCompatibilityPath d -> NeedCompatibilityPath (min 4 (max 1 d))
       _ -> goal
 
     emptyDiagnostics :: AgendaDiagnostics
@@ -436,27 +645,22 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
     closeSafe :: MacroBank -> AgendaNode -> (AgendaNode, MacroBank)
     closeSafe startBank startNode = go 0 Set.empty startBank startNode
       where
-        go :: Int -> Set.Set String -> MacroBank -> AgendaNode -> (AgendaNode, MacroBank)
+        go :: Int -> Set.Set StateSig -> MacroBank -> AgendaNode -> (AgendaNode, MacroBank)
         go !k !seenSafe !bank !node
           | k >= agSafeClosureSteps cfg = (node, bank)
           | isTerminal (anState node) = (node, bank)
           | otherwise =
               let st = anState node
-                  key = stateKey st
-              in if Set.member key seenSafe
-                 then (node, bank)
+                  sig = stateSignature st
+              in if Set.member sig seenSafe
+                then (node, bank)
                  else
                    let entries = ssEntries st
                        hole = Hole entries AnyHole 0 (agBitBudget cfg)
-                       safeActions = [ a
-                                     | a <- validActionsWithProfile profile hole lib
-                                     , isSafeAction a
-                                     , premiseAllowed st a
-                                     ]
-                       ranked = sortOn (actionRank bank st) safeActions
+                       safeActions = deterministicSafeActions st hole
                        attempts =
                          [ child
-                         | act <- ranked
+                         | act <- safeActions
                          , let (mChild, _) = applyTransition bank node act
                          , child <- maybeToList mChild
                          , let after = anState child
@@ -466,8 +670,37 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
                    in case attempts of
                         (best:_) ->
                           let bank' = learnFromTransition (max 1 (length safeActions)) best bank
-                          in go (k + 1) (Set.insert key seenSafe) bank' best
+                          in go (k + 1) (Set.insert sig seenSafe) bank' best
                         [] -> (node, bank)
+
+        deterministicSafeActions :: SearchState -> Hole -> [Action]
+        deterministicSafeActions st hole =
+          let allActions = [ a
+                           | a <- validActionsWithProfile profile hole lib
+                           , premiseAllowed st a
+                           ]
+              shortlisted = take (agPremiseTopK cfg) (premisesForGoal st (stateCriticalGoal st))
+              uniquePremise = case shortlisted of
+                [p] -> Just p
+                _ -> Nothing
+              forcedRefl = case stateCriticalGoal st of
+                Just NeedCoherence -> True
+                Just (NeedLoopCoherence _) -> True
+                _ -> False
+              forcedWitness = stateCriticalGoal st == Just NeedWitness
+              isDeterministic act = case act of
+                AUniv -> True
+                ARefl -> forcedRefl
+                ALib i -> maybe False (== i) uniquePremise
+                AVar i -> forcedWitness && i == 1
+                _ -> False
+              rank act = case act of
+                ARefl -> 0 :: Int
+                ALib _ -> 1
+                AVar _ -> 2
+                AUniv -> 3
+                _ -> 9
+          in sortOn (\a -> (rank a, Down (actionPriority (length lib) a))) (filter isDeterministic allActions)
 
     safeImproves :: SearchState -> SearchState -> Bool
     safeImproves before after =
@@ -528,6 +761,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
     criticNodes :: AgendaNode -> Action -> [AgendaNode]
     criticNodes node act =
       let before = anState node
+          beforeSig = stateSignature before
           beforeSigma = sigmaUpperBound before
           beforeGoals = stateGoalCount before
           beforeCritical = stateCriticalGoal before
@@ -538,7 +772,8 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
           candidateNodes =
             [ mkNode i cps
             | (i, cps) <- zip [1..] planStates
-            , stateKey (cpsState cps) /= stateKey before
+            , let st' = cpsState cps
+            , stateSignature st' /= beforeSig || st' /= before
             ]
           criticRank child =
             let st = anState child
@@ -569,7 +804,32 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       ALib i -> null shortlist || i `elem` shortlist
       _ -> True
       where
-        shortlist = take (agPremiseTopK cfg) (ssPremises st)
+        shortlist = take (agPremiseTopK cfg) (premisesForGoal st (stateCriticalGoal st))
+
+    premisesForGoal :: SearchState -> Maybe Obligation -> [Int]
+    premisesForGoal st maybeGoal =
+      let buckets = ssPremiseBuckets st
+          source = pbSource buckets
+          target = pbTarget buckets
+          law = pbLaw buckets
+          aux = pbAux buckets
+          merged = ssPremises st
+      in case maybeGoal of
+          Just (NeedSourceReuse _ _) -> source ++ aux ++ merged
+          Just (NeedTargetReuse _ _) -> target ++ aux ++ merged
+          Just NeedMapHead -> source ++ target ++ law ++ merged
+          Just NeedFiberWitness -> source ++ aux ++ merged
+          Just NeedTransportLaw -> law ++ target ++ merged
+          Just (NeedCompatibilityPath _) -> target ++ law ++ merged
+          Just NeedSealBridge -> law ++ target ++ source ++ merged
+          Just NeedTruncBridge -> aux ++ law ++ merged
+          Just (NeedLoopLift _) -> target ++ law ++ source ++ merged
+          Just (NeedLoopCoherence _) -> law ++ target ++ merged
+          Just NeedDifferentialBridge -> law ++ source ++ target ++ aux ++ merged
+          Just NeedCurvatureBridge -> law ++ target ++ source ++ aux ++ merged
+          Just NeedMetricBundle -> law ++ target ++ source ++ aux ++ merged
+          Just NeedHilbertBundle -> law ++ target ++ source ++ aux ++ merged
+          _ -> merged
 
     actionRank :: MacroBank -> SearchState -> Action -> (Down Int, Down Int, Down Int, Down Int, Down Int, Int)
     actionRank bank st act =
@@ -721,7 +981,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
     dedupExprCandidates = reverse . snd . foldl step (Set.empty, [])
       where
         step (seen, acc) cand@(expr, _) =
-          let key = show expr
+          let key = exprSignature expr
           in if Set.member key seen
              then (seen, acc)
              else (Set.insert key seen, cand : acc)
@@ -785,12 +1045,60 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         ASigma -> [Sigma typeAtom binderAtom]
         _ -> []
       Just NeedTruncBridge -> case act of
-        ATrunc -> [Trunc typeAtom]
+        ATrunc -> [Trunc (PathCon loopTarget), Trunc typeAtom]
         ASusp -> [Susp typeAtom]
+        APathCon _ -> [PathCon loopTarget]
         AId -> [Id typeAtom termAtom termAtom]
         APi -> [Pi typeAtom binderAtom]
         ASigma -> [Sigma typeAtom binderAtom]
         AApp -> [App libAtom termAtom]
+        _ -> []
+      Just (NeedSourceReuse d loopReq) -> case act of
+        ALib _ -> [libAtom]
+        AVar _ -> [termAtom]
+        AApp -> [App libAtom termAtom]
+        APathCon _ -> [PathCon (max 1 d) | loopReq]
+        AId -> [Id typeAtom termAtom termAtom]
+        _ -> []
+      Just (NeedTargetReuse d _) -> case act of
+        APathCon _ -> [PathCon (max 1 d)]
+        AId -> [Id typeAtom termAtom termAtom]
+        APi -> [Pi typeAtom binderAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        AApp -> [App libAtom termAtom]
+        _ -> []
+      Just NeedMapHead -> case act of
+        APi -> [Pi typeAtom binderAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        ALam -> [Lam termAtom]
+        AApp -> [App libAtom termAtom]
+        _ -> []
+      Just NeedFiberWitness -> case act of
+        AVar _ -> [termAtom]
+        ALib _ -> [libAtom]
+        AApp -> [App libAtom termAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        _ -> []
+      Just NeedTransportLaw -> case act of
+        AId -> [Id typeAtom termAtom termAtom]
+        ARefl -> [Refl termAtom]
+        APi -> [Pi typeAtom binderAtom]
+        AApp -> [App libAtom termAtom]
+        ALam -> [Lam termAtom]
+        _ -> []
+      Just (NeedCompatibilityPath d) -> case act of
+        APathCon _ -> [PathCon (max 1 d)]
+        AId -> [Id typeAtom termAtom termAtom]
+        ARefl -> [Refl termAtom]
+        APi -> [Pi typeAtom binderAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        _ -> []
+      Just NeedSealBridge -> case act of
+        APi -> [Pi typeAtom binderAtom]
+        ASigma -> [Sigma typeAtom binderAtom]
+        AId -> [Id typeAtom termAtom termAtom]
+        AApp -> [App libAtom termAtom]
+        ALam -> [Lam termAtom]
         _ -> []
       Just NeedModalBundle -> case act of
         AFlat -> [Flat typeAtom]
@@ -801,11 +1109,54 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       Just NeedTemporalBridge -> case act of
         ANext -> [Next typeAtom]
         AEventually -> [Eventually typeAtom]
+        APi ->
+          [ Pi (Next typeAtom) (Eventually typeAtom)
+          , Pi typeAtom (Next typeAtom)
+          ]
+        ASigma ->
+          [ Sigma (Next typeAtom) (Eventually typeAtom)
+          ]
+        AApp ->
+          [ App libAtom (Next termAtom)
+          , App libAtom (Eventually termAtom)
+          ]
+        ALib _ -> [libAtom]
+        AFlat -> [Flat (Next typeAtom)]
+        AShape -> [Shape (Next typeAtom)]
+        AId -> [Id typeAtom (Next termAtom) (Eventually termAtom)]
+        ALam -> [Lam (Next termAtom)]
         _ -> []
       Just NeedDifferentialBridge -> case act of
         APi -> [Pi typeAtom binderAtom]
         ASigma -> [Sigma typeAtom binderAtom]
+        ALam -> [Lam (Pi termAtom termAtom)]
         AApp -> [App libAtom termAtom]
+        ALib _ -> [libAtom]
+        AId -> [Id typeAtom termAtom termAtom]
+        _ -> []
+      Just NeedCurvatureBridge -> case act of
+        APathCon _ -> []
+        AId -> [Id typeAtom (App libAtom (PathCon 2)) (App libAtom (PathCon 2))]
+        APi -> [Pi typeAtom (Id (App libAtom (PathCon 2)) (App libAtom (PathCon 2)) (App libAtom (PathCon 2)))]
+        ASigma -> [Sigma typeAtom (Id (App libAtom (PathCon 2)) (App libAtom (PathCon 2)) (App libAtom (PathCon 2)))]
+        AApp -> [App libAtom (PathCon 2)]
+        ALib _ -> [libAtom]
+        _ -> []
+      Just NeedMetricBundle -> case act of
+        APi -> [Pi (Sigma (Pi typeAtom typeAtom) (Pi typeAtom typeAtom)) (libAtomOr typeAtom)]
+        ASigma -> [Sigma (Pi typeAtom typeAtom) (Pi typeAtom typeAtom)]
+        AId -> [Id typeAtom (App libAtom termAtom) (App libAtom termAtom)]
+        AApp -> [App libAtom termAtom]
+        ALam -> [Lam (Pi termAtom termAtom)]
+        ALib _ -> [libAtom]
+        _ -> []
+      Just NeedHilbertBundle -> case act of
+        APi -> [Pi (Var 1) (Sigma (Var 1) (Var 1)), Pi (libAtomOr typeAtom) (Var 1), Pi (Lam termAtom) (Sigma termAtom termAtom)]
+        ASigma -> [Sigma (Pi typeAtom (Pi typeAtom Univ)) (Var 1), Sigma (Pi typeAtom typeAtom) (Pi typeAtom typeAtom)]
+        AId -> [Id typeAtom (App libAtom termAtom) (App libAtom termAtom)]
+        AApp -> [App libAtom termAtom]
+        ALam -> [Lam (Pi termAtom Univ), Lam (Pi termAtom termAtom)]
+        ALib _ -> [libAtom]
         _ -> []
       Just NeedCoherence -> case act of
         ARefl -> [Refl termAtom]
@@ -815,7 +1166,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         _ -> []
       where
         entries = ssEntries st
-        premises = take (agPremiseTopK cfg) (ssPremises st)
+        premises = take (agPremiseTopK cfg) (premisesForGoal st critical)
         typeAtom = case premises of
           (p:_) -> Lib p
           [] -> if null entries then Univ else Var 1
@@ -824,6 +1175,21 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         libAtom = case premises of
           (p:_) -> Lib p
           [] -> if null entries then Univ else Var 1
+        libAtomOr fallback = case premises of
+          (p:_) -> Lib p
+          [] -> fallback
+        loopTarget =
+          let dims =
+                [ d
+                | g <- ssGoals st
+                , d <- case g of
+                         NeedLoop q -> [q]
+                         NeedLoopLift q -> [q]
+                         NeedTargetReuse q _ -> [q]
+                         NeedCompatibilityPath q -> [q]
+                         _ -> []
+                ]
+          in max 1 (if null dims then 1 else maximum dims)
 
     exprSupportsCritical :: Obligation -> MBTTExpr -> Bool
     exprSupportsCritical goal expr = case goal of
@@ -838,13 +1204,13 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         App _ _ -> True
         _ -> False
       NeedLoop d -> case expr of
-        PathCon q -> q >= d
+        PathCon q -> q == d
         Id _ _ _ -> True
         Susp _ -> True
         Trunc _ -> True
         _ -> False
       NeedLoopLift d -> case expr of
-        PathCon q -> q >= d
+        PathCon q -> q == d
         Id _ _ _ -> True
         Susp _ -> True
         Trunc _ -> True
@@ -868,6 +1234,53 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
         Sigma _ _ -> True
         App _ _ -> True
         _ -> False
+      NeedSourceReuse d loopReq -> case expr of
+        Var _ -> True
+        Lib _ -> True
+        App _ _ -> True
+        PathCon q -> loopReq && q == d
+        Id _ _ _ -> True
+        _ -> False
+      NeedTargetReuse d _ -> case expr of
+        PathCon q -> q == d || q == d + 1
+        Id _ _ _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        App _ _ -> True
+        _ -> False
+      NeedMapHead -> case expr of
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        Lam _ -> True
+        App _ _ -> True
+        _ -> False
+      NeedFiberWitness -> case expr of
+        Var _ -> True
+        Lib _ -> True
+        App _ _ -> True
+        Sigma _ _ -> True
+        _ -> False
+      NeedTransportLaw -> case expr of
+        Id _ _ _ -> True
+        Refl _ -> True
+        Pi _ _ -> True
+        App _ _ -> True
+        Lam _ -> True
+        _ -> False
+      NeedCompatibilityPath d -> case expr of
+        PathCon q -> q == d || q == d + 1
+        Id _ _ _ -> True
+        Refl _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        _ -> False
+      NeedSealBridge -> case expr of
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        Id _ _ _ -> True
+        App _ _ -> True
+        Lam _ -> True
+        _ -> False
       NeedModalBundle -> case expr of
         Flat _ -> True
         Sharp _ -> True
@@ -877,11 +1290,48 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedDifferentialBridge -> case expr of
         Pi _ _ -> True
         Sigma _ _ -> True
+        Lam _ -> True
         App _ _ -> True
+        Lib _ -> True
+        Id _ _ _ -> True
+        _ -> False
+      NeedCurvatureBridge -> case expr of
+        PathCon d -> d >= 2
+        Id _ _ _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        App _ _ -> True
+        Lib _ -> True
+        _ -> False
+      NeedMetricBundle -> case expr of
+        Sigma (Pi _ _) (Pi _ _) -> True
+        Pi _ _ -> True
+        Id _ _ _ -> True
+        App _ _ -> True
+        Lam _ -> True
+        Lib _ -> True
+        _ -> False
+      NeedHilbertBundle -> case expr of
+        Sigma (Pi _ _) _ -> True
+        Pi _ (Sigma _ _) -> True
+        Pi (Lam _) (Sigma _ _) -> True
+        Pi (Lib _) _ -> True
+        Lam (Pi _ Univ) -> True
+        Id _ _ _ -> True
+        App _ _ -> True
+        Lib _ -> True
         _ -> False
       NeedTemporalBridge -> case expr of
         Next _ -> True
         Eventually _ -> True
+        Pi _ _ -> True
+        Sigma _ _ -> True
+        App _ _ -> True
+        Lib _ -> True
+        Flat _ -> True
+        Shape _ -> True
+        Id _ _ _ -> True
+        Lam _ -> True
         _ -> False
       NeedCoherence -> case expr of
         Refl _ -> True
@@ -939,7 +1389,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
 
     leafExprRank :: SearchState -> Action -> MBTTExpr -> (Down Int, Int, Int, Down Int)
     leafExprRank st act expr =
-      let shortlist = take (agPremiseTopK cfg) (ssPremises st)
+      let shortlist = take (agPremiseTopK cfg) (premisesForGoal st (stateCriticalGoal st))
           refs = exprLibRefs expr
           refHits = length [i | i <- refs, i `elem` shortlist]
           goalGain = actionGoalGain st act
@@ -1037,7 +1487,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
 
     instantiateAtom :: SearchState -> MacroAtom -> Maybe MBTTExpr
     instantiateAtom st atom =
-      let premises = take (agPremiseTopK cfg) (ssPremises st)
+      let premises = take (agPremiseTopK cfg) (premisesForGoal st (stateCriticalGoal st))
           entries = ssEntries st
       in case atom of
            AtomTopPremise -> case premises of
@@ -1117,7 +1567,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
     deterministicExpr :: SearchState -> Action -> MBTTExpr
     deterministicExpr st act =
       let entries = ssEntries st
-          premises = take (agPremiseTopK cfg) (ssPremises st)
+          premises = take (agPremiseTopK cfg) (premisesForGoal st (stateCriticalGoal st))
           typeAtom = case premises of
             (p:_) -> Lib p
             [] -> if null entries then Univ else Var 1
@@ -1170,14 +1620,87 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
            , acPriority = score
            }
 
-    stateKey :: SearchState -> String
-    stateKey st = show (map teType (ssEntries st), stateOpenGoals st)
+    stateSignature :: SearchState -> StateSig
+    stateSignature st =
+      hashFold
+        [ 0x53
+        , fromIntegral (ssKappa st)
+        , fromIntegral (ssNuLower st)
+        , fromIntegral (ssNuUpper st)
+        , hashList (map (exprSignature . teType) (ssEntries st))
+        , hashList (map obligationSignature (stateOpenGoals st))
+        , hashList (map fromIntegral (take (agPremiseTopK cfg + 2) (ssPremises st)))
+        ]
+
+    exprSignature :: MBTTExpr -> ExprSig
+    exprSignature expr = case expr of
+      Univ -> hashFold [0x01]
+      Var i -> hashFold [0x02, fromIntegral i]
+      Lib i -> hashFold [0x03, fromIntegral i]
+      App a b -> hashFold [0x04, exprSignature a, exprSignature b]
+      Lam a -> hashFold [0x05, exprSignature a]
+      Pi a b -> hashFold [0x06, exprSignature a, exprSignature b]
+      Sigma a b -> hashFold [0x07, exprSignature a, exprSignature b]
+      Id a x y -> hashFold [0x08, exprSignature a, exprSignature x, exprSignature y]
+      Refl a -> hashFold [0x09, exprSignature a]
+      Susp a -> hashFold [0x0A, exprSignature a]
+      Trunc a -> hashFold [0x0B, exprSignature a]
+      PathCon d -> hashFold [0x0C, fromIntegral d]
+      Flat a -> hashFold [0x0D, exprSignature a]
+      Sharp a -> hashFold [0x0E, exprSignature a]
+      Disc a -> hashFold [0x0F, exprSignature a]
+      Shape a -> hashFold [0x10, exprSignature a]
+      Next a -> hashFold [0x11, exprSignature a]
+      Eventually a -> hashFold [0x12, exprSignature a]
+
+    obligationSignature :: Obligation -> Word64
+    obligationSignature goal = case goal of
+      NeedTypeFormer -> hashFold [0x21]
+      NeedWitness -> hashFold [0x22]
+      NeedLoop d -> hashFold [0x23, fromIntegral d]
+      NeedLoopLift d -> hashFold [0x24, fromIntegral d]
+      NeedLoopCoherence d -> hashFold [0x25, fromIntegral d]
+      NeedTruncBridge -> hashFold [0x26]
+      NeedSourceReuse d loopReq -> hashFold [0x27, fromIntegral d, if loopReq then 1 else 0]
+      NeedTargetReuse d maxD -> hashFold [0x28, fromIntegral d, maybe 0 fromIntegral maxD]
+      NeedMapHead -> hashFold [0x29]
+      NeedFiberWitness -> hashFold [0x2A]
+      NeedTransportLaw -> hashFold [0x2B]
+      NeedCompatibilityPath d -> hashFold [0x2C, fromIntegral d]
+      NeedSealBridge -> hashFold [0x2D]
+      NeedModalBundle -> hashFold [0x2E]
+      NeedDifferentialBridge -> hashFold [0x2F]
+      NeedCurvatureBridge -> hashFold [0x30]
+      NeedMetricBundle -> hashFold [0x31]
+      NeedHilbertBundle -> hashFold [0x32]
+      NeedTemporalBridge -> hashFold [0x33]
+      NeedCoherence -> hashFold [0x34]
+
+    hashList :: [Word64] -> Word64
+    hashList = hashFold
+
+    hashFold :: [Word64] -> Word64
+    hashFold = foldl' hashStep hashSeed
+
+    hashStep :: Word64 -> Word64 -> Word64
+    hashStep h w =
+      let x = (w + 0x9e3779b97f4a7c15) `xor` (w `shiftL` 6) `xor` (w `shiftL` 16)
+      in (h `xor` x) * hashPrime
+
+    hashSeed :: Word64
+    hashSeed = 1469598103934665603
+
+    hashPrime :: Word64
+    hashPrime = 1099511628211
 
     normalizeObligationForKey :: Obligation -> Obligation
     normalizeObligationForKey goal = case goal of
       NeedLoop d -> NeedLoop (min 4 (max 1 d))
       NeedLoopLift d -> NeedLoopLift (min 4 (max 1 d))
       NeedLoopCoherence d -> NeedLoopCoherence (min 4 (max 1 d))
+      NeedSourceReuse d loopReq -> NeedSourceReuse (min 4 (max 1 d)) loopReq
+      NeedTargetReuse d maxD -> NeedTargetReuse (min 4 (max 1 d)) (fmap (\u -> min 4 (max 1 u)) maxD)
+      NeedCompatibilityPath d -> NeedCompatibilityPath (min 4 (max 1 d))
       _ -> goal
 
     normalizeClauseForKey :: [Obligation] -> [Obligation]
@@ -1244,8 +1767,18 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedLoopLift d -> 9 + 2 * max 1 d
       NeedLoopCoherence d -> 7 + max 1 d
       NeedTruncBridge -> 8
+      NeedSourceReuse d _ -> 8 + 2 * max 1 d
+      NeedTargetReuse d _ -> 8 + 2 * max 1 d
+      NeedMapHead -> 10
+      NeedFiberWitness -> 8
+      NeedTransportLaw -> 10
+      NeedCompatibilityPath d -> 9 + max 1 d
+      NeedSealBridge -> 10
       NeedModalBundle -> 8
       NeedDifferentialBridge -> 9
+      NeedCurvatureBridge -> 10
+      NeedMetricBundle -> 11
+      NeedHilbertBundle -> 12
       NeedTemporalBridge -> 8
       NeedCoherence -> 6
 
@@ -1264,8 +1797,18 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedLoopLift d -> 7 + 2 * max 1 d
       NeedLoopCoherence d -> 6 + max 1 d
       NeedTruncBridge -> 7
+      NeedSourceReuse d _ -> 7 + 2 * max 1 d
+      NeedTargetReuse d _ -> 7 + 2 * max 1 d
+      NeedMapHead -> 8
+      NeedFiberWitness -> 7
+      NeedTransportLaw -> 8
+      NeedCompatibilityPath d -> 7 + max 1 d
+      NeedSealBridge -> 9
       NeedModalBundle -> 7
       NeedDifferentialBridge -> 8
+      NeedCurvatureBridge -> 9
+      NeedMetricBundle -> 10
+      NeedHilbertBundle -> 11
       NeedTemporalBridge -> 7
       NeedCoherence -> 5
 
@@ -1304,11 +1847,13 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
           NeedLoop _ -> True
           NeedLoopLift _ -> True
           NeedLoopCoherence _ -> True
+          NeedCompatibilityPath _ -> True
           _ -> False
         isHighLoop g = case g of
           NeedLoop d -> d >= 2
           NeedLoopLift d -> d >= 2
           NeedLoopCoherence d -> d >= 2
+          NeedCompatibilityPath d -> d >= 2
           _ -> False
 
     goalChainWeight :: Obligation -> Int
@@ -1319,8 +1864,18 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedLoopLift d -> 2 + max 0 (d - 1)
       NeedLoopCoherence d -> 1 + max 0 (d - 1)
       NeedTruncBridge -> 2
+      NeedSourceReuse d _ -> 2 + max 0 (d - 1)
+      NeedTargetReuse d _ -> 2 + max 0 (d - 1)
+      NeedMapHead -> 2
+      NeedFiberWitness -> 1
+      NeedTransportLaw -> 2
+      NeedCompatibilityPath d -> 2 + max 0 (d - 1)
+      NeedSealBridge -> 2
       NeedModalBundle -> 2
       NeedDifferentialBridge -> 2
+      NeedCurvatureBridge -> 2
+      NeedMetricBundle -> 3
+      NeedHilbertBundle -> 3
       NeedTemporalBridge -> 2
       NeedCoherence -> 1
 
@@ -1332,8 +1887,18 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       NeedLoopLift d -> if d >= 2 then 3 else 2
       NeedLoopCoherence d -> if d >= 2 then 2 else 1
       NeedTruncBridge -> 3
+      NeedSourceReuse d _ -> if d >= 2 then 2 else 1
+      NeedTargetReuse d _ -> if d >= 2 then 2 else 1
+      NeedMapHead -> 2
+      NeedFiberWitness -> 1
+      NeedTransportLaw -> 2
+      NeedCompatibilityPath d -> if d >= 2 then 2 else 1
+      NeedSealBridge -> 2
       NeedModalBundle -> 2
       NeedDifferentialBridge -> 2
+      NeedCurvatureBridge -> 2
+      NeedMetricBundle -> 4
+      NeedHilbertBundle -> 4
       NeedTemporalBridge -> 2
       NeedCoherence -> 1
 
@@ -1418,6 +1983,7 @@ agendaGenerateCandidatesWithDiagnostics lib profile cfg =
       , ["PathDim>=" ++ show (capMaxPathDim after) | capMaxPathDim after > capMaxPathDim before]
       , ["ModalBundle" | capModalCount after > capModalCount before]
       , ["Differential" | not (capHasDifferential before) && capHasDifferential after]
+      , ["Curvature" | not (capHasCurvature before) && capHasCurvature after]
       , ["Hilbert" | not (capHasHilbert before) && capHasHilbert after]
       , ["Temporal" | not (capHasTemporal before) && capHasTemporal after]
       ]

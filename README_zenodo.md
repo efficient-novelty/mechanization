@@ -28,7 +28,7 @@ Contents:
 - `engine/` — Haskell synthesis/verification engine
 - `scripts/` — reproducibility scripts
 - `README.md`
-- `environment_requirements.md`
+- `environment_requirements.txt`
 
 ### 3) Runs/artifacts bundle
 - `pen_runs_v1.0.zip`
@@ -72,7 +72,7 @@ The benchmark report is written to:
 
 See:
 
-- `environment_requirements.md`
+- `environment_requirements.txt`
 
 Minimum tooling summary:
 

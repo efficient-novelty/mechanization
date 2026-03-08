@@ -1,0 +1,97 @@
+PEN Environment Requirements
+============================
+
+This file lists the toolchain and package requirements needed to build and run
+the PEN repository.
+
+Repository layout
+-----------------
+
+- agda/: Cubical Agda mechanization
+- engine/: Haskell engine and executables
+- scripts/: reproducibility and analysis scripts
+
+
+1) Core toolchain
+-----------------
+
+- Git (any recent version)
+- GHC with base 4.14-4.19 (roughly GHC 8.10-9.8)
+- Cabal 2.4+
+- Agda 2.6.4+ (project target: 2.8.0)
+- Optional: pdflatex (for paper builds)
+- Optional: Python 3 (for scripts/*.py tools)
+
+
+2) Agda requirements
+--------------------
+
+- Cubical library v0.9 from https://github.com/agda/cubical
+- Register cubical.agda-lib in ~/.agda/libraries
+
+Typical setup:
+
+  git clone https://github.com/agda/cubical.git ~/.agda/cubical
+  echo "$HOME/.agda/cubical/cubical.agda-lib" >> ~/.agda/libraries
+
+Version check:
+
+  agda --version
+
+Note:
+- Current Agda files avoid Cubical.Data.* imports due known import issues on
+  some Agda/Cubical combinations.
+
+
+3) Haskell/Cabal package requirements
+-------------------------------------
+
+The engine uses more than base. Current pen-engine.cabal requires:
+
+- aeson
+- bytestring
+- containers
+- directory
+- filepath
+- parallel
+- deepseq
+- random
+- time
+
+Cabal resolves these automatically during build.
+
+Version checks:
+
+  ghc --version
+  cabal --version
+
+
+4) Build and run commands
+-------------------------
+
+Build all engine executables:
+
+  cd engine
+  cabal build all
+
+Run core discovery:
+
+  cabal run ab-initio -- --strict --phase1-shadow --max-steps 7
+
+Run acceptance suite:
+
+  cabal run acceptance
+
+Type-check Agda core:
+
+  cd ../agda
+  agda PEN.agda
+
+
+5) Platform notes
+-----------------
+
+- scripts/*.sh are written for POSIX shells. On Windows, run them in WSL or
+  Git Bash.
+- Powershell-friendly workflows can use cabal commands directly.
+

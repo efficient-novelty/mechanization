@@ -444,19 +444,22 @@ macroReuseExprs profile lib ctx =
       atoms = if null libAtoms then ctxAtom else libAtoms ++ ctxAtom
       intents = gpIntents profile
       allow needs = null intents || any (`elem` intents) needs
-      former = if allow [NeedFormer, NeedBridge, NeedDifferential]
+      former = if allow [NeedFormer, NeedBridge, NeedDifferential, NeedCurvature, NeedMetric, NeedHilbert]
                then [Pi a a | a <- atoms] ++ [Sigma a a | a <- atoms]
                else []
       hit = if allow [NeedHIT]
             then [Susp a | a <- atoms] ++ [Trunc a | a <- atoms]
             else []
-      modal = if allow [NeedModal, NeedBridge]
+      curvature = if allow [NeedCurvature, NeedMetric, NeedHilbert]
+                  then [Id a a a | a <- atoms] ++ [PathCon 2]
+                  else []
+      modal = if allow [NeedModal, NeedBridge, NeedMetric, NeedHilbert]
               then [Flat a | a <- atoms] ++ [Sharp a | a <- atoms]
               else []
       temporal = if allow [NeedTemporal]
                  then [Next a | a <- atoms] ++ [Eventually a | a <- atoms]
                  else []
-  in former ++ hit ++ modal ++ temporal
+  in former ++ hit ++ curvature ++ modal ++ temporal
 
 -- | Generate a random MBTT expression from an action.
 randomExprFromAction :: MCTSConfig -> Action -> Library -> [TeleEntry] -> StdGen -> Int

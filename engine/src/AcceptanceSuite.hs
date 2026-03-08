@@ -56,14 +56,14 @@ data AcceptanceConfig = AcceptanceConfig
 
 defaultAcceptanceConfig :: AcceptanceConfig
 defaultAcceptanceConfig = AcceptanceConfig
-  { acMbttFast = False
+  { acMbttFast = True
   , acMbttSkip = False
   , acMbttMaxCandidates = Nothing
   }
 
 parseArgs :: [String] -> AcceptanceConfig
 parseArgs args =
-  let fast = "--mbtt-fast" `elem` args
+  let fast = "--mbtt-full" `notElem` args
       skip = "--skip-mbtt" `elem` args
       maxCandidates = case dropWhile (/= "--mbtt-max-candidates") args of
                         ("--mbtt-max-candidates" : n : _) -> readMaybe n
@@ -930,7 +930,7 @@ mbttTests cfg =
 runAcceptanceWithConfig :: AcceptanceConfig -> IO ()
 runAcceptanceWithConfig cfg = do
   when (acMbttFast cfg) $
-    putStrLn "[acceptance] --mbtt-fast enabled: using reduced MBTT enumerator budgets."
+    putStrLn "[acceptance] MBTT fast lane enabled (memory-safe default). Use --mbtt-full for exhaustive MBTT J-tests."
   when (acMbttSkip cfg) $
     putStrLn "[acceptance] --skip-mbtt enabled: skipping MBTT J-tests."
   when (acMbttFast cfg) $

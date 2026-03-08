@@ -4,6 +4,7 @@
 -- This module keeps search guidance structural and name-independent.
 module ProofState
   ( CapabilitySig(..)
+  , PremiseBuckets(..)
   , Obligation(..)
   , DebtGraph(..)
   , CriticPlan(..)
@@ -38,6 +39,8 @@ data CapabilitySig = CapabilitySig
   , capMaxPathDim      :: !Int
   , capModalCount      :: !Int
   , capHasDifferential :: !Bool
+  , capHasCurvature    :: !Bool
+  , capHasMetric       :: !Bool
   , capHasHilbert      :: !Bool
   , capHasTemporal     :: !Bool
   } deriving (Eq, Ord, Show)
@@ -49,11 +52,28 @@ data Obligation
   | NeedLoopLift !Int
   | NeedLoopCoherence !Int
   | NeedTruncBridge
+  | NeedSourceReuse !Int !Bool
+  | NeedTargetReuse !Int !(Maybe Int)
+  | NeedMapHead
+  | NeedFiberWitness
+  | NeedTransportLaw
+  | NeedCompatibilityPath !Int
+  | NeedSealBridge
   | NeedModalBundle
   | NeedDifferentialBridge
+  | NeedCurvatureBridge
+  | NeedMetricBundle
+  | NeedHilbertBundle
   | NeedTemporalBridge
   | NeedCoherence
   deriving (Eq, Ord, Show)
+
+data PremiseBuckets = PremiseBuckets
+  { pbSource :: ![Int]
+  , pbTarget :: ![Int]
+  , pbLaw    :: ![Int]
+  , pbAux    :: ![Int]
+  } deriving (Eq, Ord, Show)
 
 -- | Hypergraph-style debt model:
 -- - open atoms are unresolved obligations
@@ -84,6 +104,7 @@ data SearchState = SearchState
   , ssGoals     :: ![Obligation] -- compatibility mirror of open debt atoms
   , ssDebtGraph :: !DebtGraph
   , ssCaps      :: !CapabilitySig
+  , ssPremiseBuckets :: !PremiseBuckets
   , ssPremises  :: ![Int]
   , ssKappa     :: !Int
   , ssNuLower   :: !Int
@@ -96,7 +117,8 @@ deriveSearchState lib profile entries =
       caps = mergeCaps baselineCaps (capsFromEntries entries)
       goals = deriveObligations profile caps baselineCaps
       debt = reduceDebtByCaps caps (buildDebtGraph profile goals)
-      prem = topPremises lib (dgOpenAtoms debt) entries
+      buckets = topPremiseBuckets lib (dgOpenAtoms debt) entries
+      prem = flattenPremiseBuckets buckets
       kappaApprox = length entries
       nuLower = capabilityScore caps
       nuUpper = nuLower + 2 * debtGoalCount debt
@@ -105,6 +127,7 @@ deriveSearchState lib profile entries =
       , ssGoals = dgOpenAtoms debt
       , ssDebtGraph = debt
       , ssCaps = caps
+      , ssPremiseBuckets = buckets
       , ssPremises = prem
       , ssKappa = kappaApprox
       , ssNuLower = nuLower
@@ -119,7 +142,8 @@ advanceSearchState lib profile prev act expr entries =
       mergedDebt = mergeDebtGraphs (ssDebtGraph prev) profileDebt
       movedDebt = dischargeByMove caps act expr mergedDebt
       reducedDebt = reduceDebtByCaps caps movedDebt
-      prem = topPremises lib (dgOpenAtoms reducedDebt) entries
+      buckets = topPremiseBuckets lib (dgOpenAtoms reducedDebt) entries
+      prem = flattenPremiseBuckets buckets
       kappaApprox = length entries
       nuLower = capabilityScore caps
       nuUpper = nuLower + 2 * debtGoalCount reducedDebt
@@ -128,6 +152,7 @@ advanceSearchState lib profile prev act expr entries =
       , ssGoals = dgOpenAtoms reducedDebt
       , ssDebtGraph = reducedDebt
       , ssCaps = caps
+      , ssPremiseBuckets = buckets
       , ssPremises = prem
       , ssKappa = kappaApprox
       , ssNuLower = nuLower
@@ -181,12 +206,29 @@ criticRewriteStates act st = [cpsState cps | cps <- criticPlanStates act st]
 criticPlans :: Action -> Maybe Obligation -> [CriticPlan]
 criticPlans act focus = case act of
   APi ->
+    bridgePiPlans ++
     [ mk "former-from-witness" [NeedTypeFormer, NeedWitness] [[NeedTypeFormer, NeedWitness]] [[NeedTypeFormer, NeedCoherence]] [NeedTypeFormer]
     , mk "former-needs-coherence" [NeedTypeFormer, NeedCoherence] [[NeedTypeFormer, NeedCoherence]] [[NeedTypeFormer, NeedWitness]] [NeedTypeFormer]
     ]
+    where
+      bridgePiPlans = case focus of
+        Just NeedMapHead ->
+          [ mk "bridge-map-head" [NeedMapHead, NeedSourceReuse 1 True] [[NeedMapHead, NeedSourceReuse 1 True]] [[NeedMapHead, NeedTargetReuse 2 Nothing]] [NeedMapHead]
+          ]
+        Just NeedSealBridge ->
+          [ mk "bridge-seal-head" [NeedSealBridge, NeedTransportLaw] [[NeedSealBridge, NeedTransportLaw]] [[NeedSealBridge, NeedCompatibilityPath 2]] [NeedSealBridge]
+          ]
+        _ -> []
   ASigma ->
+    bridgeSigmaPlans ++
     [ mk "sigma-from-witness" [NeedTypeFormer, NeedWitness] [[NeedTypeFormer, NeedWitness]] [[NeedTypeFormer, NeedCoherence]] [NeedTypeFormer]
     ]
+    where
+      bridgeSigmaPlans = case focus of
+        Just NeedFiberWitness ->
+          [ mk "bridge-fiber-sigma" [NeedFiberWitness, NeedSourceReuse 1 True] [[NeedFiberWitness, NeedSourceReuse 1 True]] [[NeedFiberWitness, NeedTargetReuse 2 Nothing]] [NeedFiberWitness]
+          ]
+        _ -> []
   APathCon _ ->
     let d = loopDemand focus
         liftGoal = NeedLoopLift d
@@ -228,11 +270,21 @@ criticPlans act focus = case act of
   AId ->
     let d = loopDemand focus
         cohGoal = NeedLoopCoherence (max 1 d)
+        bridgeIdPlans = case focus of
+          Just NeedTransportLaw ->
+            [ mk "bridge-transport-law" [NeedTransportLaw, NeedMapHead] [[NeedTransportLaw, NeedMapHead]] [[NeedTransportLaw, NeedCompatibilityPath 2]] [NeedTransportLaw]
+            ]
+          Just (NeedCompatibilityPath dim) ->
+            [ mk "bridge-compatibility-path" [NeedCompatibilityPath dim, NeedTransportLaw] [[NeedCompatibilityPath dim, NeedTransportLaw]] [[NeedCompatibilityPath dim, NeedMapHead]] [NeedCompatibilityPath dim]
+            ]
+          _ -> []
     in
       if d <= 2
       then
+        bridgeIdPlans ++
         [ mk "id-coherence-chain" [NeedCoherence, NeedTypeFormer] [[NeedCoherence, NeedTypeFormer]] [[NeedCoherence, NeedLoop 1]] [NeedCoherence] ]
       else
+        bridgeIdPlans ++
         [ mk "id-loop-coherence-chain" [cohGoal, NeedTypeFormer] [[cohGoal, NeedTypeFormer]] [[cohGoal, NeedTruncBridge]] [cohGoal]
         , mk "id-coherence-chain" [NeedCoherence, NeedTypeFormer] [[NeedCoherence, NeedTypeFormer]] [[NeedCoherence, NeedLoop d]] [NeedCoherence]
         ]
@@ -249,11 +301,38 @@ criticPlans act focus = case act of
   AEventually ->
     [ mk "eventual-needs-modal" [NeedTemporalBridge, NeedModalBundle] [[NeedTemporalBridge, NeedModalBundle]] [[NeedTemporalBridge, NeedCoherence]] [NeedTemporalBridge] ]
   ALib _ ->
+    bridgeReusePlans ++
     [ mk "reuse-needs-witness" [NeedWitness, NeedTypeFormer] [[NeedWitness, NeedTypeFormer]] [[NeedWitness, NeedCoherence]] [NeedWitness] ]
+    where
+      bridgeReusePlans = case focus of
+        Just (NeedSourceReuse d loopReq) ->
+          [ mk "bridge-source-reuse" [NeedSourceReuse d loopReq, NeedMapHead] [[NeedSourceReuse d loopReq, NeedMapHead]] [[NeedSourceReuse d loopReq, NeedFiberWitness]] [NeedSourceReuse d loopReq]
+          ]
+        Just (NeedTargetReuse d maxD) ->
+          [ mk "bridge-target-reuse" [NeedTargetReuse d maxD, NeedMapHead] [[NeedTargetReuse d maxD, NeedMapHead]] [[NeedTargetReuse d maxD, NeedCompatibilityPath d]] [NeedTargetReuse d maxD]
+          ]
+        _ -> []
   AVar _ ->
+    bridgeVarPlans ++
     [ mk "var-needs-witness" [NeedWitness, NeedTypeFormer] [[NeedWitness, NeedTypeFormer]] [[NeedWitness, NeedCoherence]] [NeedWitness] ]
+    where
+      bridgeVarPlans = case focus of
+        Just NeedFiberWitness ->
+          [ mk "bridge-fiber-witness" [NeedFiberWitness, NeedSourceReuse 1 True] [[NeedFiberWitness, NeedSourceReuse 1 True]] [[NeedFiberWitness, NeedMapHead]] [NeedFiberWitness]
+          ]
+        _ -> []
   AApp ->
+    bridgeAppPlans ++
     [ mk "app-witness-chain" [NeedWitness, NeedTypeFormer] [[NeedWitness, NeedTypeFormer]] [[NeedWitness, NeedCoherence]] [NeedWitness] ]
+    where
+      bridgeAppPlans = case focus of
+        Just NeedMapHead ->
+          [ mk "bridge-map-apply" [NeedMapHead, NeedSourceReuse 1 True] [[NeedMapHead, NeedSourceReuse 1 True]] [[NeedMapHead, NeedTargetReuse 2 Nothing]] [NeedMapHead]
+          ]
+        Just NeedTransportLaw ->
+          [ mk "bridge-transport-apply" [NeedTransportLaw, NeedCompatibilityPath 2] [[NeedTransportLaw, NeedCompatibilityPath 2]] [[NeedTransportLaw, NeedMapHead]] [NeedTransportLaw]
+          ]
+        _ -> []
   ALam ->
     [ mk "lambda-coherence-chain" [NeedCoherence, NeedTypeFormer] [[NeedCoherence, NeedTypeFormer]] [[NeedCoherence, NeedWitness]] [NeedCoherence] ]
   ARefl ->
@@ -310,8 +389,14 @@ intentAnd intent = case intent of
   NeedHIT -> [[NeedLoop 1, NeedCoherence]]
   NeedModal -> [[NeedModalBundle]]
   NeedDifferential -> [[NeedModalBundle, NeedDifferentialBridge]]
+  NeedCurvature -> [[NeedDifferentialBridge, NeedCurvatureBridge]]
+  NeedMetric -> [[NeedMetricBundle, NeedCoherence]]
+  NeedHilbert -> [[NeedHilbertBundle, NeedCoherence]]
   NeedTemporal -> [[NeedModalBundle, NeedTemporalBridge]]
-  NeedBridge -> [[NeedTypeFormer, NeedModalBundle]]
+  NeedBridge ->
+    [ [NeedMapHead, NeedSourceReuse 1 True]
+    , [NeedTargetReuse 2 Nothing, NeedTransportLaw]
+    ]
 
 intentOr :: GoalIntent -> [[Obligation]]
 intentOr intent = case intent of
@@ -320,8 +405,14 @@ intentOr intent = case intent of
   NeedHIT -> [[NeedLoop 1, NeedCoherence]]
   NeedModal -> [[NeedModalBundle, NeedCoherence]]
   NeedDifferential -> [[NeedDifferentialBridge, NeedCoherence]]
+  NeedCurvature -> [[NeedCurvatureBridge, NeedCoherence]]
+  NeedMetric -> [[NeedMetricBundle, NeedTransportLaw], [NeedMetricBundle, NeedCurvatureBridge]]
+  NeedHilbert -> [[NeedHilbertBundle, NeedTransportLaw], [NeedHilbertBundle, NeedMetricBundle]]
   NeedTemporal -> [[NeedTemporalBridge, NeedCoherence]]
-  NeedBridge -> [[NeedModalBundle, NeedCoherence]]
+  NeedBridge ->
+    [ [NeedFiberWitness, NeedCompatibilityPath 2]
+    , [NeedSealBridge, NeedMapHead]
+    ]
 
 normalizeDebtGraph :: DebtGraph -> DebtGraph
 normalizeDebtGraph dg =
@@ -420,8 +511,29 @@ goalSatisfiedByCaps caps goal = case goal of
     && capMaxPathDim caps >= max 1 (d - 1)
     && (capHasWitness caps || capHasTruncation caps)
   NeedTruncBridge -> capHasTruncation caps
+  NeedSourceReuse d loopReq ->
+    capHasWitness caps
+    && capMaxPathDim caps >= max 1 d
+    && (not loopReq || capMaxPathDim caps >= max 1 d)
+  NeedTargetReuse d maxD ->
+    capMaxPathDim caps >= max 1 d
+    && case maxD of
+         Nothing -> True
+         Just u -> capMaxPathDim caps <= max 1 u
+  NeedMapHead -> capHasDepFns caps
+  NeedFiberWitness -> capHasWitness caps
+  NeedTransportLaw ->
+    capHasDifferential caps || (capHasDepFns caps && capHasWitness caps)
+  NeedCompatibilityPath d ->
+    capHasDepFns caps && capMaxPathDim caps >= max 1 d
+  NeedSealBridge ->
+    capHasHilbert caps
+    || (capHasDepFns caps && capHasDifferential caps && capHasWitness caps)
   NeedModalBundle -> capModalCount caps >= 3
   NeedDifferentialBridge -> capHasDifferential caps
+  NeedCurvatureBridge -> capHasCurvature caps
+  NeedMetricBundle -> capHasMetric caps
+  NeedHilbertBundle -> capHasHilbert caps
   NeedTemporalBridge -> capHasTemporal caps
   NeedCoherence ->
     capHasDepFns caps
@@ -434,6 +546,8 @@ actionDischargesGoal act expr goal =
   in case goal of
       -- Higher-loop lift goals require explicit structural evidence.
       NeedLoopLift _ -> score >= 3 && supports
+      NeedMetricBundle -> score >= 3 && supports
+      NeedHilbertBundle -> score >= 3 && supports
       _ ->
         score >= 4
         || (score >= 3 && supports)
@@ -447,8 +561,20 @@ exprSupportsGoal goal expr = case goal of
   NeedLoopLift d -> hasPathAtLeast d expr || hasLoopLiftSupport d expr
   NeedLoopCoherence d -> hasCoherenceExpr expr && hasPathAtLeast (max 1 (d - 1)) expr
   NeedTruncBridge -> hasTruncExpr expr || hasLoopFormer expr
+  NeedSourceReuse d loopReq ->
+    hasWitness expr || (loopReq && (hasPathAtLeast d expr || hasLoopFormer expr))
+  NeedTargetReuse d _ ->
+    hasPathAtLeast d expr || hasPiSigma expr || hasCoherenceExpr expr
+  NeedMapHead -> hasPiSigma expr || hasLam expr
+  NeedFiberWitness -> hasWitness expr || hasPiSigma expr
+  NeedTransportLaw -> hasCoherenceExpr expr || hasDifferentialBridge expr
+  NeedCompatibilityPath d -> hasPathAtLeast d expr || hasCoherenceExpr expr
+  NeedSealBridge -> hasPiSigma expr && hasCoherenceExpr expr
   NeedModalBundle -> hasModal expr
-  NeedDifferentialBridge -> hasDifferentialBridge expr
+  NeedDifferentialBridge -> hasDifferentialBridge expr || hasCoherenceExpr expr
+  NeedCurvatureBridge -> hasCurvatureBridge expr
+  NeedMetricBundle -> hasMetricBridge expr
+  NeedHilbertBundle -> hasHilbertBridge expr
   NeedTemporalBridge -> hasTemporalBridge expr
   NeedCoherence -> hasCoherenceExpr expr
 
@@ -467,11 +593,16 @@ deriveObligations profile caps baselineCaps =
         [NeedModalBundle | capModalCount caps < 3]
       NeedDifferential ->
         [NeedDifferentialBridge | not (capHasDifferential caps)]
+      NeedCurvature ->
+        [NeedCurvatureBridge | not (capHasCurvature caps)]
+      NeedMetric ->
+        [NeedMetricBundle | not (capHasMetric caps)]
+      NeedHilbert ->
+        [NeedHilbertBundle | not (capHasHilbert caps)]
       NeedTemporal ->
         [NeedTemporalBridge | not (capHasTemporal caps)]
       NeedBridge ->
-        [NeedTypeFormer | not (capHasDepFns caps)]
-        ++ [NeedModalBundle | capModalCount caps < 2]
+        bridgeObligations caps baselineCaps
     coherence =
       [NeedCoherence | capHasDepFns caps && (capHasWitness caps || capMaxPathDim caps > 0)]
 
@@ -496,22 +627,47 @@ hitObligations caps baselineCaps =
        [NeedLoopLift target | needsLift]
        ++ [NeedLoopCoherence baselineDim | needsLift || not (capHasDepFns caps)]
 
-topPremises :: Library -> [Obligation] -> [TeleEntry] -> [Int]
-topPremises lib goals entries =
+bridgeObligations :: CapabilitySig -> CapabilitySig -> [Obligation]
+bridgeObligations caps baselineCaps =
+  let baseDim = max 1 (capMaxPathDim baselineCaps)
+      targetDim = max 2 baseDim
+      sourceGoal = NeedSourceReuse (max 1 (baseDim - 1)) True
+      targetGoal = NeedTargetReuse targetDim Nothing
+      compatGoal = NeedCompatibilityPath targetDim
+      goals =
+        [sourceGoal, targetGoal, NeedMapHead, NeedFiberWitness, NeedTransportLaw, compatGoal, NeedSealBridge]
+  in [g | g <- goals, not (goalSatisfiedByCaps caps g)]
+
+topPremiseBuckets :: Library -> [Obligation] -> [TeleEntry] -> PremiseBuckets
+topPremiseBuckets lib goals entries =
   let n = length lib
       idxs = [1..n]
-      ranked = sortOn scoreKey idxs
-      merged = refs ++ [i | i <- ranked, i `notElem` refs]
-  in take 4 merged
-  where
-    scoreKey i =
-      let e = lib !! (i - 1)
-          total = premiseScore goals i (length lib) refs e
-      in (Down total, Down i)
-    refs = nub [i | e <- entries, i <- exprRefs (teType e), i >= 1, i <= length lib]
+      refs = nub [i | e <- entries, i <- exprRefs (teType e), i >= 1, i <= n]
+      rankBy scoreFn =
+        let ranked = sortOn (\i ->
+                      let e = lib !! (i - 1)
+                          total = scoreFn i e
+                      in (Down total, Down i)
+                    ) idxs
+            merged = refs ++ [i | i <- ranked, i `notElem` refs]
+        in take 4 merged
+      sourceScore i e = roleBaseScore goals i n refs e + sourceRoleGain goals e
+      targetScore i e = roleBaseScore goals i n refs e + targetRoleGain goals e
+      lawScore i e = roleBaseScore goals i n refs e + lawRoleGain goals e
+      auxScore i e = roleBaseScore goals i n refs e + auxRoleGain goals e
+  in PremiseBuckets
+      { pbSource = rankBy sourceScore
+      , pbTarget = rankBy targetScore
+      , pbLaw = rankBy lawScore
+      , pbAux = rankBy auxScore
+      }
 
-premiseScore :: [Obligation] -> Int -> Int -> [Int] -> LibraryEntry -> Int
-premiseScore goals idx libSize refs e =
+flattenPremiseBuckets :: PremiseBuckets -> [Int]
+flattenPremiseBuckets buckets =
+  take 8 (nub (pbSource buckets ++ pbTarget buckets ++ pbLaw buckets ++ pbAux buckets))
+
+roleBaseScore :: [Obligation] -> Int -> Int -> [Int] -> LibraryEntry -> Int
+roleBaseScore goals idx libSize refs e =
   let recency =
         if idx == libSize then 6
         else if idx == libSize - 1 then 4
@@ -522,6 +678,69 @@ premiseScore goals idx libSize refs e =
       loopBoost = if leHasLoop e then 2 else 0
       goalBoost = sum [obligationPremiseGain g e | g <- goals]
   in recency + refBoost + witnessBoost + loopBoost + goalBoost
+
+sourceRoleGain :: [Obligation] -> LibraryEntry -> Int
+sourceRoleGain goals e =
+  let dim = maximum0 (lePathDims e)
+      loopGain = if leHasLoop e then 6 else 0
+      dimGain = min 6 dim
+      bridgeGoalGain = length [() | g <- goals, isSourceGoal g] * 2
+  in loopGain + dimGain + bridgeGoalGain
+
+targetRoleGain :: [Obligation] -> LibraryEntry -> Int
+targetRoleGain goals e =
+  let dim = maximum0 (lePathDims e)
+      depGain = if leHasDependentFunctions e then 6 else 0
+      targetDimGain = min 5 dim
+      bridgeGoalGain = length [() | g <- goals, isTargetGoal g] * 2
+  in depGain + targetDimGain + bridgeGoalGain
+
+lawRoleGain :: [Obligation] -> LibraryEntry -> Int
+lawRoleGain goals e =
+  let depGain = if leHasDependentFunctions e then 4 else 0
+      diffGain = if leHasDifferentialOps e then 5 else 0
+      curvGain = if leHasCurvature e then 5 else 0
+      modalGain = if leHasModalOps e then 2 else 0
+      temporalGain = if leHasTemporalOps e then 2 else 0
+      bridgeGoalGain = length [() | g <- goals, isLawGoal g] * 2
+  in depGain + diffGain + curvGain + modalGain + temporalGain + bridgeGoalGain
+
+auxRoleGain :: [Obligation] -> LibraryEntry -> Int
+auxRoleGain goals e =
+  let constructorGain = min 4 (leConstructors e)
+      truncGain = case leIsTruncated e of
+        Just _ -> 3
+        Nothing -> 0
+      bridgeGoalGain = length [() | g <- goals, isAuxGoal g]
+  in constructorGain + truncGain + bridgeGoalGain
+
+isSourceGoal :: Obligation -> Bool
+isSourceGoal goal = case goal of
+  NeedSourceReuse _ _ -> True
+  NeedFiberWitness -> True
+  _ -> False
+
+isTargetGoal :: Obligation -> Bool
+isTargetGoal goal = case goal of
+  NeedTargetReuse _ _ -> True
+  NeedCompatibilityPath _ -> True
+  _ -> False
+
+isLawGoal :: Obligation -> Bool
+isLawGoal goal = case goal of
+  NeedMapHead -> True
+  NeedTransportLaw -> True
+  NeedSealBridge -> True
+  NeedCurvatureBridge -> True
+  NeedMetricBundle -> True
+  NeedHilbertBundle -> True
+  _ -> False
+
+isAuxGoal :: Obligation -> Bool
+isAuxGoal goal = case goal of
+  NeedTruncBridge -> True
+  NeedCoherence -> True
+  _ -> False
 
 obligationPremiseGain :: Obligation -> LibraryEntry -> Int
 obligationPremiseGain goal e = case goal of
@@ -548,15 +767,66 @@ obligationPremiseGain goal e = case goal of
     case leIsTruncated e of
       Just _ -> 8
       Nothing -> if leHasLoop e then 3 else 0
+  NeedSourceReuse d loopReq ->
+    if leHasLoop e && any (>= d) (lePathDims e) then 8
+    else if loopReq && leHasLoop e then 5
+    else if leConstructors e > 0 then 4
+    else 0
+  NeedTargetReuse d _ ->
+    if leHasDependentFunctions e && any (>= d) (lePathDims e) then 8
+    else if leHasDependentFunctions e then 5
+    else if any (>= d) (lePathDims e) then 4
+    else 0
+  NeedMapHead ->
+    if leHasDependentFunctions e then 8
+    else if leHasModalOps e then 3
+    else 0
+  NeedFiberWitness ->
+    if leConstructors e > 0 then 7
+    else if leHasLoop e then 3
+    else 0
+  NeedTransportLaw ->
+    if leHasDifferentialOps e then 8
+    else if leHasDependentFunctions e then 4
+    else 0
+  NeedCompatibilityPath d ->
+    if any (>= d) (lePathDims e) then 8
+    else if leHasDependentFunctions e then 3
+    else 0
+  NeedSealBridge ->
+    if leHasHilbert e then 8
+    else if leHasDifferentialOps e then 5
+    else if leHasDependentFunctions e then 3
+    else 0
   NeedModalBundle ->
     if leHasModalOps e then 8 else 0
   NeedDifferentialBridge ->
     if leHasDifferentialOps e then 8
-    else if leHasModalOps e then 3
+    else if leHasModalOps e then 5
+    else 0
+  NeedCurvatureBridge ->
+    if leHasCurvature e then 8
+    else if leHasDifferentialOps e && any (>= 2) (lePathDims e) then 6
+    else if leHasDifferentialOps e then 4
+    else 0
+  NeedMetricBundle ->
+    if leHasMetric e then 8
+    else if leHasCurvature e && leHasDependentFunctions e then 7
+    else if leHasCurvature e then 5
+    else if leHasDifferentialOps e then 3
+    else 0
+  NeedHilbertBundle ->
+    if leHasHilbert e then 8
+    else if leHasMetric e && leHasCurvature e then 7
+    else if leHasMetric e then 5
+    else if leHasCurvature e then 4
+    else if leHasDifferentialOps e then 3
     else 0
   NeedTemporalBridge ->
     if leHasTemporalOps e then 8
+    else if leHasHilbert e && leHasModalOps e then 6
     else if leHasHilbert e then 4
+    else if leHasModalOps e then 3
     else 0
   NeedCoherence ->
     if leHasDependentFunctions e && (leHasLoop e || not (null (lePathDims e))) then 6
@@ -572,6 +842,8 @@ capabilityScore caps =
   + capMaxPathDim caps
   + capModalCount caps
   + (if capHasDifferential caps then 2 else 0)
+  + (if capHasCurvature caps then 2 else 0)
+  + (if capHasMetric caps then 2 else 0)
   + (if capHasHilbert caps then 2 else 0)
   + (if capHasTemporal caps then 2 else 0)
 
@@ -602,14 +874,19 @@ actionGoalGainFor goal act = case goal of
     AApp -> 2
     _ -> 0
   NeedLoop d -> case act of
-    APathCon _ -> if d <= 1 then 4 else 2
+    APathCon q
+      | q == d -> if d <= 1 then 4 else 4
+      | q > d -> 1
+      | q == max 1 (d - 1) -> 2
+      | otherwise -> 0
     ASusp -> if d <= 1 then 3 else 4
     ATrunc -> if d <= 1 then 3 else 0
     AId -> if d <= 1 then 2 else 3
     _ -> 0
   NeedLoopLift d -> case act of
     APathCon q
-      | q >= d -> 5
+      | q == d -> 5
+      | q == d + 1 -> 2
       | q == max 1 (d - 1) -> 3
       | otherwise -> 0
     ASusp -> if d >= 2 then 2 else 3
@@ -639,6 +916,63 @@ actionGoalGainFor goal act = case goal of
     AApp -> 2
     APathCon _ -> 1
     _ -> 0
+  NeedSourceReuse d loopReq -> case act of
+    ALib _ -> 5
+    AVar _ -> 4
+    AApp -> 3
+    APathCon q -> if loopReq && q >= d then 4 else 0
+    AId -> if loopReq then 3 else 2
+    _ -> 0
+  NeedTargetReuse d _ -> case act of
+    APathCon q
+      | q == d -> 5
+      | q == d + 1 -> 2
+      | q < d -> 2
+      | otherwise -> 0
+    AId -> 4
+    APi -> 3
+    ASigma -> 3
+    ALib _ -> 2
+    AApp -> 2
+    _ -> 0
+  NeedMapHead -> case act of
+    APi -> 5
+    ASigma -> 4
+    ALam -> 3
+    AApp -> 3
+    ALib _ -> 2
+    _ -> 0
+  NeedFiberWitness -> case act of
+    AVar _ -> 4
+    ALib _ -> 4
+    AApp -> 3
+    ASigma -> 2
+    _ -> 0
+  NeedTransportLaw -> case act of
+    AId -> 5
+    ARefl -> 4
+    APi -> 3
+    AApp -> 3
+    ALam -> 2
+    _ -> 0
+  NeedCompatibilityPath d -> case act of
+    APathCon q
+      | q == d -> 5
+      | q == d + 1 -> 2
+      | q < d -> 2
+      | otherwise -> 0
+    AId -> 4
+    ARefl -> 3
+    APi -> 2
+    ASigma -> 2
+    _ -> 0
+  NeedSealBridge -> case act of
+    APi -> 4
+    ASigma -> 4
+    AId -> 3
+    AApp -> 2
+    ALam -> 2
+    _ -> 0
   NeedModalBundle -> case act of
     AFlat -> 3
     ASharp -> 3
@@ -649,10 +983,46 @@ actionGoalGainFor goal act = case goal of
     APi -> 2
     ASigma -> 2
     AApp -> 2
+    ALam -> 3
+    ALib _ -> 3
+    AId -> 2
+    _ -> 0
+  NeedCurvatureBridge -> case act of
+    APathCon q | q >= 2 -> 1
+    AId -> 4
+    APi -> 3
+    ASigma -> 3
+    AApp -> 3
+    ALam -> 2
+    ALib _ -> 2
+    _ -> 0
+  NeedMetricBundle -> case act of
+    APi -> 5
+    ASigma -> 5
+    AId -> 4
+    AApp -> 4
+    ALam -> 3
+    ALib _ -> 3
+    _ -> 0
+  NeedHilbertBundle -> case act of
+    APi -> 5
+    ASigma -> 5
+    AId -> 4
+    AApp -> 4
+    ALam -> 4
+    ALib _ -> 4
     _ -> 0
   NeedTemporalBridge -> case act of
     ANext -> 4
     AEventually -> 4
+    APi -> 3
+    ASigma -> 2
+    AApp -> 3
+    ALib _ -> 2
+    AFlat -> 2
+    AShape -> 2
+    AId -> 2
+    ALam -> 2
     _ -> 0
   NeedCoherence -> case act of
     ARefl -> 2
@@ -669,18 +1039,25 @@ obligationPriority goal = case goal of
   NeedLoopLift d -> 10 + d
   NeedLoopCoherence d -> 9 + d
   NeedTruncBridge -> 12
+  NeedSourceReuse d _ -> 12 + d
+  NeedTargetReuse d _ -> 12 + d
+  NeedMapHead -> 13
+  NeedFiberWitness -> 11
+  NeedTransportLaw -> 13
+  NeedCompatibilityPath d -> 12 + d
+  NeedSealBridge -> 14
   NeedModalBundle -> 8
   NeedDifferentialBridge -> 10
+  NeedCurvatureBridge -> 11
+  NeedMetricBundle -> 12
+  NeedHilbertBundle -> 13
   NeedTemporalBridge -> 9
   NeedCoherence -> 6
 
 isSafeAction :: Action -> Bool
 isSafeAction a = case a of
   AUniv -> True
-  AVar _ -> True
-  ALib _ -> True
   ARefl -> True
-  AApp -> True
   _ -> False
 
 capsFromLibrary :: Library -> CapabilitySig
@@ -691,12 +1068,10 @@ capsFromLibrary lib =
     , capHasDepFns = any leHasDependentFunctions lib
     , capHasTruncation = any hasTruncEntry lib
     , capMaxPathDim = maximum0 (concatMap lePathDims lib)
-    , capModalCount = length (filter id
-        [ any leHasModalOps lib
-        , any (\e -> leHasModalOps e && leConstructors e > 0) lib
-        , any (\e -> leHasModalOps e && leHasLoop e) lib
-        ])
+    , capModalCount = if any leHasModalOps lib then 3 else 0
     , capHasDifferential = any leHasDifferentialOps lib
+    , capHasCurvature = any leHasCurvature lib
+    , capHasMetric = any leHasMetric lib
     , capHasHilbert = any leHasHilbert lib
     , capHasTemporal = any leHasTemporalOps lib
     }
@@ -717,7 +1092,9 @@ capsFromEntries entries =
       , capMaxPathDim = maximum0 (concatMap pathDims exprs)
       , capModalCount = min 4 (length mods)
       , capHasDifferential = any hasDifferentialExpr exprs
-      , capHasHilbert = any hasHilbertExpr exprs
+      , capHasCurvature = any hasCurvatureExpr exprs
+      , capHasMetric = any hasMetricExpr exprs
+      , capHasHilbert = hasHilbertBundleEvidence entries exprs
       , capHasTemporal = any hasTemporalExpr exprs
       }
 
@@ -731,6 +1108,8 @@ mergeCaps a b =
     , capMaxPathDim = max (capMaxPathDim a) (capMaxPathDim b)
     , capModalCount = max (capModalCount a) (capModalCount b)
     , capHasDifferential = capHasDifferential a || capHasDifferential b
+    , capHasCurvature = capHasCurvature a || capHasCurvature b
+    , capHasMetric = capHasMetric a || capHasMetric b
     , capHasHilbert = capHasHilbert a || capHasHilbert b
     , capHasTemporal = capHasTemporal a || capHasTemporal b
     }
@@ -816,18 +1195,140 @@ hasModalExpr (Shape _) = True
 hasModalExpr _ = False
 
 hasTemporalExpr :: MBTTExpr -> Bool
-hasTemporalExpr (Next _) = True
-hasTemporalExpr (Eventually _) = True
-hasTemporalExpr _ = False
+hasTemporalExpr expr = case expr of
+  Next _ -> True
+  Eventually _ -> True
+  Lam a -> hasTemporalExpr a
+  App a b -> hasTemporalExpr a || hasTemporalExpr b
+  Pi a b -> hasTemporalExpr a || hasTemporalExpr b
+  Sigma a b -> hasTemporalExpr a || hasTemporalExpr b
+  Id a x y -> hasTemporalExpr a || hasTemporalExpr x || hasTemporalExpr y
+  Refl a -> hasTemporalExpr a
+  Susp a -> hasTemporalExpr a
+  Trunc a -> hasTemporalExpr a
+  Flat a -> hasTemporalExpr a
+  Sharp a -> hasTemporalExpr a
+  Disc a -> hasTemporalExpr a
+  Shape a -> hasTemporalExpr a
+  _ -> False
 
 hasDifferentialExpr :: MBTTExpr -> Bool
 hasDifferentialExpr (Pi _ _) = True
 hasDifferentialExpr (Sigma _ _) = True
 hasDifferentialExpr _ = False
 
+hasCurvatureExpr :: MBTTExpr -> Bool
+hasCurvatureExpr expr =
+  any (>= 2) (pathDims expr)
+  && (hasDifferentialBridge expr || hasCoherenceExpr expr)
+
+hasMetricExpr :: MBTTExpr -> Bool
+hasMetricExpr expr = case expr of
+  Sigma (Pi _ _) (Pi _ _) -> True
+  Pi (Lib _) (Lib _) -> True
+  Pi (Lib _) (Var _) -> True
+  Lam a -> hasMetricExpr a
+  App a b -> hasMetricExpr a || hasMetricExpr b
+  Id a x y -> hasMetricExpr a || hasMetricExpr x || hasMetricExpr y
+  Refl a -> hasMetricExpr a
+  _ -> hasPiSigma expr && hasCurvatureBridge expr
+
 hasHilbertExpr :: MBTTExpr -> Bool
-hasHilbertExpr (Sigma (Pi _ _) (Pi _ _)) = True
-hasHilbertExpr _ = False
+hasHilbertExpr expr = case expr of
+  Sigma (Pi _ _) (Pi _ _) -> True
+  Sigma (Pi _ _) _ -> True
+  Pi (Lam _) (Sigma _ _) -> True
+  Lam (Pi _ Univ) -> True
+  Pi (Lib _) _ -> True
+  Lam a -> hasHilbertExpr a
+  App a b -> hasHilbertExpr a || hasHilbertExpr b
+  Id a x y -> hasHilbertExpr a || hasHilbertExpr x || hasHilbertExpr y
+  Refl a -> hasHilbertExpr a
+  _ -> False
+
+hasHilbertBundleEvidence :: [TeleEntry] -> [MBTTExpr] -> Bool
+hasHilbertBundleEvidence entries exprs =
+  length entries >= 9
+  && clauseScore >= 7
+  && libRefCount >= 2
+  where
+    clauseScore =
+      sum
+        [ if any isInnerProduct exprs then 1 else 0
+        , if any isCompleteness exprs then 1 else 0
+        , if any isOrthDecomp exprs then 1 else 0
+        , if any isSpectral exprs then 1 else 0
+        , if any isCStar exprs then 1 else 0
+        , if any isMetricCompat exprs then 1 else 0
+        , if any isCurvatureOrConnectionOp exprs then 1 else 0
+        , if any isFunctionalDerivative exprs then 1 else 0
+        ]
+    refs = sortNub (concatMap exprRefs exprs)
+    libRefCount = length refs
+
+    isInnerProduct expr = case expr of
+      Sigma (Pi _ _) _ -> True
+      Lam a -> isInnerProduct a
+      App a b -> isInnerProduct a || isInnerProduct b
+      Id a x y -> isInnerProduct a || isInnerProduct x || isInnerProduct y
+      Refl a -> isInnerProduct a
+      _ -> False
+
+    isCompleteness expr = case expr of
+      Pi _ _ -> True
+      Lam a -> isCompleteness a
+      App a b -> isCompleteness a || isCompleteness b
+      Id a x y -> isCompleteness a || isCompleteness x || isCompleteness y
+      Refl a -> isCompleteness a
+      _ -> False
+
+    isOrthDecomp expr = case expr of
+      Pi _ (Sigma _ _) -> True
+      Lam a -> isOrthDecomp a
+      App a b -> isOrthDecomp a || isOrthDecomp b
+      Id a x y -> isOrthDecomp a || isOrthDecomp x || isOrthDecomp y
+      Refl a -> isOrthDecomp a
+      _ -> False
+
+    isSpectral expr = case expr of
+      Pi (Lam _) (Sigma _ _) -> True
+      Lam a -> isSpectral a
+      App a b -> isSpectral a || isSpectral b
+      Id a x y -> isSpectral a || isSpectral x || isSpectral y
+      Refl a -> isSpectral a
+      _ -> False
+
+    isCStar expr = case expr of
+      Sigma (Pi _ _) (Pi _ _) -> True
+      Lam a -> isCStar a
+      App a b -> isCStar a || isCStar b
+      Id a x y -> isCStar a || isCStar x || isCStar y
+      Refl a -> isCStar a
+      _ -> False
+
+    isMetricCompat expr = case expr of
+      Pi (Lib _) _ -> True
+      Lam a -> isMetricCompat a
+      App a b -> isMetricCompat a || isMetricCompat b
+      Id a x y -> isMetricCompat a || isMetricCompat x || isMetricCompat y
+      Refl a -> isMetricCompat a
+      _ -> False
+
+    isCurvatureOrConnectionOp expr = case expr of
+      Pi (Lib _) (Var _) -> True
+      Lam a -> isCurvatureOrConnectionOp a
+      App a b -> isCurvatureOrConnectionOp a || isCurvatureOrConnectionOp b
+      Id a x y -> isCurvatureOrConnectionOp a || isCurvatureOrConnectionOp x || isCurvatureOrConnectionOp y
+      Refl a -> isCurvatureOrConnectionOp a
+      _ -> False
+
+    isFunctionalDerivative expr = case expr of
+      Lam (Pi _ Univ) -> True
+      Lam a -> isFunctionalDerivative a
+      App a b -> isFunctionalDerivative a || isFunctionalDerivative b
+      Id a x y -> isFunctionalDerivative a || isFunctionalDerivative x || isFunctionalDerivative y
+      Refl a -> isFunctionalDerivative a
+      _ -> False
 
 hasPiSigma :: MBTTExpr -> Bool
 hasPiSigma (Pi _ _) = True
@@ -917,12 +1418,57 @@ hasDifferentialBridge expr = case expr of
   Refl a -> hasDifferentialBridge a
   _ -> False
 
+hasCurvatureBridge :: MBTTExpr -> Bool
+hasCurvatureBridge expr = case expr of
+  PathCon d -> d >= 2
+  Id _ _ _ -> True
+  Pi _ _ -> True
+  Sigma _ _ -> True
+  App _ _ -> True
+  Lam a -> hasCurvatureBridge a
+  Refl a -> hasCurvatureBridge a
+  _ -> False
+
+hasMetricBridge :: MBTTExpr -> Bool
+hasMetricBridge expr = case expr of
+  Sigma (Pi _ _) (Pi _ _) -> True
+  Pi (Lib _) (Lib _) -> True
+  Pi (Lib _) (Var _) -> True
+  Lam a -> hasMetricBridge a
+  App a b -> hasMetricBridge a || hasMetricBridge b
+  Id a x y -> hasMetricBridge a || hasMetricBridge x || hasMetricBridge y
+  Refl a -> hasMetricBridge a
+  _ -> hasPiSigma expr && hasCurvatureBridge expr
+
+hasHilbertBridge :: MBTTExpr -> Bool
+hasHilbertBridge expr = case expr of
+  Sigma (Pi _ _) (Pi _ _) -> True
+  Sigma (Pi _ _) _ -> True
+  Pi (Lam _) (Sigma _ _) -> True
+  Pi (Lib _) _ -> True
+  Lam (Pi _ Univ) -> True
+  Lam a -> hasHilbertBridge a
+  App a b -> hasHilbertBridge a || hasHilbertBridge b
+  Id a x y -> hasHilbertBridge a || hasHilbertBridge x || hasHilbertBridge y
+  Refl a -> hasHilbertBridge a
+  _ -> hasMetricBridge expr || hasCurvatureBridge expr
+
 hasTemporalBridge :: MBTTExpr -> Bool
 hasTemporalBridge expr = case expr of
   Next _ -> True
   Eventually _ -> True
+  Pi _ _ -> True
+  Sigma _ _ -> True
+  Id _ _ _ -> True
+  Refl _ -> True
+  Flat _ -> True
+  Shape _ -> True
   App a b -> hasTemporalBridge a || hasTemporalBridge b
   Lam a -> hasTemporalBridge a
+  Susp a -> hasTemporalBridge a
+  Trunc a -> hasTemporalBridge a
+  Sharp a -> hasTemporalBridge a
+  Disc a -> hasTemporalBridge a
   _ -> False
 
 hasCoherenceExpr :: MBTTExpr -> Bool

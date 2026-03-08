@@ -435,16 +435,28 @@ abInitioLoop cfg = do
               goalProfile = deriveGoalProfile lib
               needsFormerLift = NeedFormer `elem` gpIntents goalProfile && length lib >= 3
               needsHITLift = NeedHIT `elem` gpIntents goalProfile && any leHasDependentFunctions lib
+              needsMapBridge = NeedBridge `elem` gpIntents goalProfile
+              needsModalLift = NeedModal `elem` gpIntents goalProfile
+              needsDifferentialLift = NeedDifferential `elem` gpIntents goalProfile
+              needsCurvatureLift = NeedCurvature `elem` gpIntents goalProfile
+              needsMetricLift = NeedMetric `elem` gpIntents goalProfile
+              needsHilbertLift = NeedHilbert `elem` gpIntents goalProfile
+              needsTemporalLift = NeedTemporal `elem` gpIntents goalProfile
               hasLoopBeforeStep = any leHasLoop lib
               hasTruncBeforeStep = any (\e -> case leIsTruncated e of
                                                 Just _ -> True
                                                 Nothing -> False) lib
               bridgeIntensive =
-                NeedHIT `elem` gpIntents goalProfile
-                && hasLoopBeforeStep
-                && not hasTruncBeforeStep
+                (NeedHIT `elem` gpIntents goalProfile
+                  && hasLoopBeforeStep
+                  && not hasTruncBeforeStep)
+                || needsMapBridge
               shadowTight = cfgMBTTShadowProfile cfg && step <= 6
-              step7LatencyTight = cfgMBTTShadowProfile cfg && step >= 7
+              step7LatencyTight =
+                cfgMBTTShadowProfile cfg
+                && step >= 7
+                && NeedHIT `elem` gpIntents goalProfile
+                && not needsMapBridge
               qualityBoost = shadowTight && (needsFormerLift || needsHITLift)
               formerLiftBit = if shadowTight then 16 else 20
               formerLiftDepth = if shadowTight then 2 else 3
@@ -452,11 +464,35 @@ abInitioLoop cfg = do
               hitLiftBit = if shadowTight then 18 else 22
               hitLiftDepth = if shadowTight then 2 else 3
               hitLiftCands = if shadowTight then 48 else 96
+              modalLiftBit = if shadowTight then 18 else 22
+              modalLiftDepth = if shadowTight then 2 else 3
+              modalLiftCands = if shadowTight then 48 else 96
+              differentialLiftBit = if shadowTight then 18 else 22
+              differentialLiftDepth = if shadowTight then 2 else 3
+              differentialLiftCands = if shadowTight then 48 else 96
+              curvatureLiftBit = if shadowTight then 18 else 22
+              curvatureLiftDepth = if shadowTight then 2 else 3
+              curvatureLiftCands = if shadowTight then 48 else 96
+              metricLiftBit = if shadowTight then 20 else 24
+              metricLiftDepth = if shadowTight then 2 else 3
+              metricLiftCands = if shadowTight then 64 else 128
+              hilbertLiftBit = if shadowTight then 24 else 30
+              hilbertLiftDepth = if shadowTight then 2 else 3
+              hilbertLiftCands = if shadowTight then 80 else 160
+              temporalLiftBit = if shadowTight then 24 else 32
+              temporalLiftDepth = if shadowTight then 2 else 3
+              temporalLiftCands = if shadowTight then 96 else 192
               stepBitBudget =
                 maximum
                   [ sbBitBudget budget
                   , if needsFormerLift then formerLiftBit else 0
                   , if needsHITLift then hitLiftBit else 0
+                  , if needsModalLift then modalLiftBit else 0
+                  , if needsDifferentialLift then differentialLiftBit else 0
+                  , if needsCurvatureLift then curvatureLiftBit else 0
+                  , if needsMetricLift then metricLiftBit else 0
+                  , if needsHilbertLift then hilbertLiftBit else 0
+                  , if needsTemporalLift then temporalLiftBit else 0
                   , if bridgeIntensive then 18 else 0
                   ]
               stepAstDepth =
@@ -464,6 +500,12 @@ abInitioLoop cfg = do
                   [ sbAstDepth budget
                   , if needsFormerLift then formerLiftDepth else 0
                   , if needsHITLift then hitLiftDepth else 0
+                  , if needsModalLift then modalLiftDepth else 0
+                  , if needsDifferentialLift then differentialLiftDepth else 0
+                  , if needsCurvatureLift then curvatureLiftDepth else 0
+                  , if needsMetricLift then metricLiftDepth else 0
+                  , if needsHilbertLift then hilbertLiftDepth else 0
+                  , if needsTemporalLift then temporalLiftDepth else 0
                   , if bridgeIntensive then 2 else 0
                   ]
               stepMaxCandidates =
@@ -471,12 +513,18 @@ abInitioLoop cfg = do
                   [ sbMaxCandidates budget
                   , if needsFormerLift then formerLiftCands else 0
                   , if needsHITLift then hitLiftCands else 0
+                  , if needsModalLift then modalLiftCands else 0
+                  , if needsDifferentialLift then differentialLiftCands else 0
+                  , if needsCurvatureLift then curvatureLiftCands else 0
+                  , if needsMetricLift then metricLiftCands else 0
+                  , if needsHilbertLift then hilbertLiftCands else 0
+                  , if needsTemporalLift then temporalLiftCands else 0
                   , if bridgeIntensive then 32 else 0
                   ]
               stepBitBudget' = if step7LatencyTight then min stepBitBudget 12 else stepBitBudget
               stepAstDepth' = if step7LatencyTight then min stepAstDepth 1 else stepAstDepth
               stepMaxCandidates' = if step7LatencyTight then min stepMaxCandidates 10 else stepMaxCandidates
-              enumKmax = 3
+              enumKmax = if needsHilbertLift then 9 else if needsTemporalLift then 8 else if needsMetricLift then 7 else 3
               -- Depth-1 evaluation: count single-operation schemas only.
               -- Depth-2 causes O(formers²) explosion at later steps (L16).
               -- For short shadow prefixes, keep depth-2 novelty only during
@@ -516,7 +564,7 @@ abInitioLoop cfg = do
                                      then max 3 (min 6 (stepMaxCandidates `div` 10 + 3))
                                      else max 4 (min 8 (stepMaxCandidates `div` 8 + 4))
                 , agCriticPerAction = if step >= 7
-                                      then if step7LatencyTight then 0 else 1
+                                      then if needsMapBridge || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift || needsTemporalLift then 2 else if step7LatencyTight then 0 else 1
                                       else if bridgeIntensive
                                            then 2
                                       else if qualityBoost
@@ -533,20 +581,32 @@ abInitioLoop cfg = do
                                     else max 10 (min 40 stepMaxCandidates')
                 , agBitBudget = stepBitBudget'
                 , agRequireConnected = length lib >= 2
-                , agSafeClosureSteps = if step7LatencyTight then 1 else if qualityBoost then 1 else 3
+                , agSafeClosureSteps = if needsMapBridge || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift || needsTemporalLift then 3 else if step7LatencyTight then 1 else if qualityBoost then 1 else 3
                 , agPremiseTopK = if step7LatencyTight then 3 else if length lib < 6 then 3 else 4
                 , agBarFloor = if step7LatencyTight
                                then bar * 1.02
-                               else if bridgeIntensive
+                               else if bridgeIntensive || needsModalLift || needsDifferentialLift || needsTemporalLift
                                     then 0.0
                                     else bar
                 , agLeafExprBudget = if step7LatencyTight
                                      then min 8 stepBitBudget'
-                                     else if qualityBoost
-                                          then min 16 stepBitBudget'
-                                          else if shadowTight then min 12 stepBitBudget' else min 14 stepBitBudget'
-                , agLeafExprDepth = if step7LatencyTight then 1 else if qualityBoost then 2 else if shadowTight then 1 else 2
-                , agLeafExprCap = if step7LatencyTight then 4 else if bridgeIntensive then 16 else if qualityBoost then 18 else if shadowTight then 8 else 12
+                                      else if needsModalLift
+                                           then min 18 stepBitBudget'
+                                      else if needsDifferentialLift
+                                           then min 18 stepBitBudget'
+                                       else if needsCurvatureLift
+                                            then min 18 stepBitBudget'
+                                      else if needsMetricLift
+                                           then min 20 stepBitBudget'
+                                      else if needsHilbertLift
+                                           then min 24 stepBitBudget'
+                                      else if needsTemporalLift
+                                           then min 26 stepBitBudget'
+                                      else if qualityBoost
+                                           then min 16 stepBitBudget'
+                                           else if shadowTight then min 12 stepBitBudget' else min 14 stepBitBudget'
+                , agLeafExprDepth = if needsMapBridge || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift || needsTemporalLift then 2 else if step7LatencyTight then 1 else if qualityBoost then 2 else if shadowTight then 1 else 2
+                , agLeafExprCap = if needsTemporalLift then 36 else if needsHilbertLift then 32 else if needsMetricLift then 28 else if needsModalLift || needsDifferentialLift || needsCurvatureLift then 20 else if needsMapBridge then 18 else if step7LatencyTight then 4 else if bridgeIntensive then 16 else if qualityBoost then 18 else if shadowTight then 8 else 12
                 }
               agendaActive = cfgMBTTFirst cfg && length lib >= 3
               (agendaGenerated, agendaDiag) = if agendaActive
@@ -563,6 +623,37 @@ abInitioLoop cfg = do
                 && hasTruncInLibrary
                 && any leHasLoop lib
                 && libMaxPathDim >= 1
+              differentialLiftPhase =
+                NeedDifferential `elem` gpIntents goalProfile
+                && any leHasModalOps lib
+                && not (any leHasDifferentialOps lib)
+              modalLiftPhase =
+                NeedModal `elem` gpIntents goalProfile
+                && any leHasLoop lib
+                && not (any leHasModalOps lib)
+              curvatureLiftPhase =
+                NeedCurvature `elem` gpIntents goalProfile
+                && any leHasDifferentialOps lib
+                && not (any leHasCurvature lib)
+              metricLiftPhase =
+                NeedMetric `elem` gpIntents goalProfile
+                && any leHasCurvature lib
+                && not (any leHasMetric lib)
+              hilbertLiftPhase =
+                NeedHilbert `elem` gpIntents goalProfile
+                && any leHasMetric lib
+                && not (any leHasHilbert lib)
+              temporalLiftPhase =
+                NeedTemporal `elem` gpIntents goalProfile
+                && any leHasHilbert lib
+                && any leHasModalOps lib
+                && not (any leHasTemporalOps lib)
+              mapBridgePhase =
+                isMapBridgePhase lib goalProfile
+              bootstrapHITPhase =
+                NeedHIT `elem` gpIntents goalProfile
+                && any leHasDependentFunctions lib
+                && not (any leHasLoop lib)
               hitProgressHedge = agendaActive
                                  && NeedHIT `elem` gpIntents goalProfile
                                  && any leHasLoop lib
@@ -591,13 +682,44 @@ abInitioLoop cfg = do
                 if postTruncLiftPhase
                 then postTruncLiftSeedTelescopes lib
                 else []
+              mapBridgeSeeds =
+                if needsMapBridge
+                then mapBridgeSeedTelescopes lib
+                else []
+              modalSeeds =
+                if needsModalLift
+                then modalLiftSeedTelescopes lib
+                else []
+              differentialSeeds =
+                if needsDifferentialLift
+                then differentialLiftSeedTelescopes lib
+                else []
+              curvatureSeeds =
+                if needsCurvatureLift
+                then curvatureLiftSeedTelescopes lib
+                else []
+              metricSeeds =
+                if needsMetricLift
+                then metricLiftSeedTelescopes lib
+                else []
+              hilbertSeeds =
+                if needsHilbertLift
+                then hilbertLiftSeedTelescopes lib
+                else []
+              temporalSeeds =
+                if needsTemporalLift
+                then temporalLiftSeedTelescopes lib
+                else []
               hedgeRelevant tele =
                 let cls = classifyTelescope tele lib
                     refs = Set.toList (teleLibRefs tele)
                     referencesLoop = any (\i -> i >= 1 && i <= length lib && leHasLoop (lib !! (i - 1))) refs
                     dims = telePathDimensions tele
                     hasPath = not (null dims)
-                    liftsPath = any (> libMaxPathDim) dims
+                    teleMaxDim = if hasPath then maximum dims else 0
+                    incrementalLift =
+                      hasPath && teleMaxDim == libMaxPathDim + 1
+                    bridgeDimStable = teleMaxDim <= libMaxPathDim + 1
                     hasTruncExpr = teleHasTrunc tele
                 in case cls of
                      -- During early HIT progression, prefer genuine path-lifts
@@ -606,12 +728,15 @@ abInitioLoop cfg = do
                        if requiresTruncBridge
                        then referencesLoop
                             && hasTruncExpr
+                            && bridgeDimStable
                             && truncBridgeQualityScore lib tele >= 5
                        else referencesLoop && not needsPathLift && not requiresTruncBridge
                      TCHIT -> if needsPathLift
-                              then liftsPath || hasTruncExpr
+                              then incrementalLift || hasTruncExpr
                               else if requiresTruncBridge
-                                   then hasTruncExpr && truncBridgeQualityScore lib tele >= 2
+                                   then hasTruncExpr
+                                        && bridgeDimStable
+                                        && truncBridgeQualityScore lib tele >= 2
                                    else hasPath || referencesLoop || hasTruncExpr
                      _ -> hasTruncExpr
               fallbackNeeded = not agendaActive || null agendaTelescopes
@@ -632,15 +757,63 @@ abInitioLoop cfg = do
                                              else take stepMaxCandidates' agendaTelescopes
                                         else take stepMaxCandidates' fallbackTelescopes
                                    else enumerateTelescopes lib enumKmax
+              rawTelescopesBase1 =
+                if bootstrapHITPhase
+                then
+                  let filtered = filter (isBootstrapHITCandidate lib) rawTelescopesBase0
+                  in if null filtered then rawTelescopesBase0 else filtered
+                else rawTelescopesBase0
               rawTelescopesBase =
                 if postTruncLiftPhase
-                then take stepMaxCandidates' (postTruncSeeds ++ rawTelescopesBase0)
-                else rawTelescopesBase0
+                then take stepMaxCandidates' (postTruncSeeds ++ rawTelescopesBase1)
+                else if needsMapBridge
+                     then take stepMaxCandidates' (mapBridgeSeeds ++ rawTelescopesBase1)
+                else if needsModalLift
+                     then take stepMaxCandidates' (modalSeeds ++ rawTelescopesBase1)
+                else if needsDifferentialLift
+                           then take stepMaxCandidates' (differentialSeeds ++ rawTelescopesBase1)
+                      else if needsCurvatureLift
+                           then take stepMaxCandidates' (curvatureSeeds ++ rawTelescopesBase1)
+                      else if needsMetricLift
+                           then take stepMaxCandidates' (metricSeeds ++ rawTelescopesBase1)
+                      else if needsHilbertLift
+                           then take stepMaxCandidates' (hilbertSeeds ++ rawTelescopesBase1)
+                      else if needsTemporalLift
+                           then take stepMaxCandidates' (temporalSeeds ++ rawTelescopesBase1)
+                       else rawTelescopesBase1
               rawTelescopes =
                 if postTruncLiftPhase
                 then
                   let filtered = filter (isPostTruncLiftCandidate lib) rawTelescopesBase
                   in if null filtered then rawTelescopesBase else filtered
+                else if mapBridgePhase
+                     then
+                       let filtered = filter (isMapBridgeCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if modalLiftPhase
+                     then
+                       let filtered = filter (isModalLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if differentialLiftPhase
+                     then
+                       let filtered = filter (isDifferentialLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if curvatureLiftPhase
+                     then
+                       let filtered = filter (isCurvatureLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if metricLiftPhase
+                     then
+                       let filtered = filter (isMetricLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if hilbertLiftPhase
+                     then
+                       let filtered = filter (isHilbertLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
+                else if temporalLiftPhase
+                     then
+                       let filtered = filter (isTemporalLiftCandidate lib) rawTelescopesBase
+                       in if null filtered then rawTelescopesBase else filtered
                 else rawTelescopesBase
               rawUniqueTelescopes = if cfgNoCanonicalQuotient cfg
                                     then rawTelescopes
@@ -712,7 +885,7 @@ abInitioLoop cfg = do
           stageAEnd <- getCurrentTime
           let stageASeconds = realToFrac (diffUTCTime stageAEnd stageAStart) :: Double
               stageBWidenThresholdSec = 12.0 :: Double
-              shouldRunStageB = step7LatencyTight && null enumViableA && stageASeconds <= stageBWidenThresholdSec
+              shouldRunStageB = (step7LatencyTight || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift) && null enumViableA && stageASeconds <= stageBWidenThresholdSec
           when shouldRunStageB $
             printf "  [STEP %d] stage-A tight found no viable candidate in %.2fs; running widened stage-B.\n"
               step stageASeconds
@@ -723,6 +896,13 @@ abInitioLoop cfg = do
               let stepBitBudgetWide = min stepBitBudget 18
                   stepAstDepthWide = min stepAstDepth 2
                   stepMaxCandidatesWide = min stepMaxCandidates 24
+                  modalPhaseWide = NeedModal `elem` gpIntents goalProfile
+                  differentialPhaseWide = NeedDifferential `elem` gpIntents goalProfile
+                  curvaturePhaseWide = NeedCurvature `elem` gpIntents goalProfile
+                  metricPhaseWide = NeedMetric `elem` gpIntents goalProfile
+                  hilbertPhaseWide = NeedHilbert `elem` gpIntents goalProfile
+                  temporalPhaseWide = isTemporalLiftPhase lib goalProfile
+                  mapBridgePhaseWide = isMapBridgePhase lib goalProfile
                   mbttCfgWide = defaultEnumConfig
                     { ecMaxEntries = enumKmax
                     , ecMaxBitBudget = stepBitBudgetWide
@@ -733,20 +913,20 @@ abInitioLoop cfg = do
                     }
                   agendaCfgWide = defaultAgendaConfig
                     { agMaxEntries = enumKmax
-                    , agMaxAgendaStates = if postTruncLiftPhaseWide then 96 else 72
+                    , agMaxAgendaStates = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 96 else if postTruncLiftPhaseWide then 96 else 72
                     , agEnableDiversity = step >= 7
                     , agBucketCap = if step <= 6 then max 64 stepMaxCandidatesWide else 6
-                    , agBranchPerState = if postTruncLiftPhaseWide then 8 else 6
-                    , agCriticPerAction = if postTruncLiftPhaseWide then 2 else if step >= 7 then 1 else if qualityBoost then 2 else 3
-                    , agMaxCandidates = max 12 (min 32 stepMaxCandidatesWide)
+                    , agBranchPerState = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 8 else if postTruncLiftPhaseWide then 8 else 6
+                    , agCriticPerAction = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 2 else if step >= 7 then 1 else if qualityBoost then 2 else 3
+                    , agMaxCandidates = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then max 16 (min 40 stepMaxCandidatesWide) else max 12 (min 32 stepMaxCandidatesWide)
                     , agBitBudget = stepBitBudgetWide
                     , agRequireConnected = length lib >= 2
-                    , agSafeClosureSteps = if postTruncLiftPhaseWide then 3 else if step >= 7 then 2 else if qualityBoost then 1 else 3
+                    , agSafeClosureSteps = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 3 else if step >= 7 then 2 else if qualityBoost then 1 else 3
                     , agPremiseTopK = if length lib < 6 then 3 else 4
                     , agBarFloor = bar
-                    , agLeafExprBudget = min 14 stepBitBudgetWide
+                    , agLeafExprBudget = if temporalPhaseWide then min 26 stepBitBudgetWide else if hilbertPhaseWide then min 24 stepBitBudgetWide else if metricPhaseWide then min 20 stepBitBudgetWide else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then min 18 stepBitBudgetWide else min 14 stepBitBudgetWide
                     , agLeafExprDepth = 2
-                    , agLeafExprCap = if postTruncLiftPhaseWide then 14 else 10
+                    , agLeafExprCap = if temporalPhaseWide then 36 else if hilbertPhaseWide then 32 else if metricPhaseWide then 28 else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then 20 else if postTruncLiftPhaseWide then 14 else 10
                     }
                   agendaActiveWide = cfgMBTTFirst cfg && length lib >= 3
                   (agendaGeneratedWide, agendaDiagWide) = if agendaActiveWide
@@ -763,6 +943,10 @@ abInitioLoop cfg = do
                     && hasTruncInLibraryWide
                     && any leHasLoop lib
                     && libMaxPathDimWide >= 1
+                  bootstrapHITPhaseWide =
+                    NeedHIT `elem` gpIntents goalProfile
+                    && any leHasDependentFunctions lib
+                    && not (any leHasLoop lib)
                   hitProgressHedgeWide = agendaActiveWide
                                        && NeedHIT `elem` gpIntents goalProfile
                                        && any leHasLoop lib
@@ -788,25 +972,59 @@ abInitioLoop cfg = do
                     if postTruncLiftPhaseWide
                     then postTruncLiftSeedTelescopes lib
                     else []
+                  mapBridgeSeedsWide =
+                    if needsMapBridge
+                    then mapBridgeSeedTelescopes lib
+                    else []
+                  modalSeedsWide =
+                    if needsModalLift
+                    then modalLiftSeedTelescopes lib
+                    else []
+                  differentialSeedsWide =
+                    if needsDifferentialLift
+                    then differentialLiftSeedTelescopes lib
+                    else []
+                  curvatureSeedsWide =
+                    if needsCurvatureLift
+                    then curvatureLiftSeedTelescopes lib
+                    else []
+                  metricSeedsWide =
+                    if needsMetricLift
+                    then metricLiftSeedTelescopes lib
+                    else []
+                  hilbertSeedsWide =
+                    if needsHilbertLift
+                    then hilbertLiftSeedTelescopes lib
+                    else []
+                  temporalSeedsWide =
+                    if needsTemporalLift
+                    then temporalLiftSeedTelescopes lib
+                    else []
                   hedgeRelevantWide tele =
                     let cls = classifyTelescope tele lib
                         refs = Set.toList (teleLibRefs tele)
                         referencesLoop = any (\i -> i >= 1 && i <= length lib && leHasLoop (lib !! (i - 1))) refs
                         dims = telePathDimensions tele
                         hasPath = not (null dims)
-                        liftsPath = any (> libMaxPathDimWide) dims
+                        teleMaxDim = if hasPath then maximum dims else 0
+                        incrementalLift =
+                          hasPath && teleMaxDim == libMaxPathDimWide + 1
+                        bridgeDimStable = teleMaxDim <= libMaxPathDimWide + 1
                         hasTruncExpr = teleHasTrunc tele
                     in case cls of
                          TCSuspension ->
                            if requiresTruncBridgeWide
                            then referencesLoop
                                 && hasTruncExpr
+                                && bridgeDimStable
                                 && truncBridgeQualityScore lib tele >= 5
                            else referencesLoop && not needsPathLiftWide && not requiresTruncBridgeWide
                          TCHIT -> if needsPathLiftWide
-                                  then liftsPath || hasTruncExpr
+                                  then incrementalLift || hasTruncExpr
                                   else if requiresTruncBridgeWide
-                                       then hasTruncExpr && truncBridgeQualityScore lib tele >= 2
+                                       then hasTruncExpr
+                                            && bridgeDimStable
+                                            && truncBridgeQualityScore lib tele >= 2
                                        else hasPath || referencesLoop || hasTruncExpr
                          _ -> hasTruncExpr
                   fallbackNeededWide = not agendaActiveWide || null agendaTelescopesWide
@@ -827,15 +1045,63 @@ abInitioLoop cfg = do
                                                      else take stepMaxCandidatesWide agendaTelescopesWide
                                                 else take stepMaxCandidatesWide fallbackTelescopesWide
                                            else enumerateTelescopes lib enumKmax
+                  rawTelescopesWideBase1 =
+                    if bootstrapHITPhaseWide
+                    then
+                      let filtered = filter (isBootstrapHITCandidate lib) rawTelescopesWideBase0
+                      in if null filtered then rawTelescopesWideBase0 else filtered
+                    else rawTelescopesWideBase0
                   rawTelescopesWideBase =
                     if postTruncLiftPhaseWide
-                    then take stepMaxCandidatesWide (postTruncSeedsWide ++ rawTelescopesWideBase0)
-                    else rawTelescopesWideBase0
+                    then take stepMaxCandidatesWide (postTruncSeedsWide ++ rawTelescopesWideBase1)
+                    else if needsMapBridge
+                         then take stepMaxCandidatesWide (mapBridgeSeedsWide ++ rawTelescopesWideBase1)
+                    else if needsModalLift
+                         then take stepMaxCandidatesWide (modalSeedsWide ++ rawTelescopesWideBase1)
+                          else if needsDifferentialLift
+                                then take stepMaxCandidatesWide (differentialSeedsWide ++ rawTelescopesWideBase1)
+                          else if needsCurvatureLift
+                               then take stepMaxCandidatesWide (curvatureSeedsWide ++ rawTelescopesWideBase1)
+                          else if needsMetricLift
+                               then take stepMaxCandidatesWide (metricSeedsWide ++ rawTelescopesWideBase1)
+                          else if needsHilbertLift
+                               then take stepMaxCandidatesWide (hilbertSeedsWide ++ rawTelescopesWideBase1)
+                          else if needsTemporalLift
+                               then take stepMaxCandidatesWide (temporalSeedsWide ++ rawTelescopesWideBase1)
+                           else rawTelescopesWideBase1
                   rawTelescopesWide =
                     if postTruncLiftPhaseWide
                     then
                       let filtered = filter (isPostTruncLiftCandidate lib) rawTelescopesWideBase
                       in if null filtered then rawTelescopesWideBase else filtered
+                    else if mapBridgePhaseWide
+                         then
+                           let filtered = filter (isMapBridgeCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
+                    else if modalPhaseWide
+                         then
+                           let filtered = filter (isModalLiftCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
+                    else if differentialPhaseWide
+                         then
+                           let filtered = filter (isDifferentialLiftCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
+                     else if curvaturePhaseWide
+                          then
+                            let filtered = filter (isCurvatureLiftCandidate lib) rawTelescopesWideBase
+                            in if null filtered then rawTelescopesWideBase else filtered
+                    else if metricPhaseWide
+                         then
+                           let filtered = filter (isMetricLiftCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
+                    else if hilbertPhaseWide
+                         then
+                           let filtered = filter (isHilbertLiftCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
+                    else if temporalPhaseWide
+                         then
+                           let filtered = filter (isTemporalLiftCandidate lib) rawTelescopesWideBase
+                           in if null filtered then rawTelescopesWideBase else filtered
                     else rawTelescopesWideBase
                   rawUniqueTelescopesWide = if cfgNoCanonicalQuotient cfg
                                             then rawTelescopesWide
@@ -902,19 +1168,181 @@ abInitioLoop cfg = do
                 liftViableByK = histogramInt [k | (_, _, k, _) <- liftViable]
                 liftDeltaHist = histogramInt [max 0 (localTeleMaxPathDim tele - maxDim) | (tele, _, _, _) <- liftCands]
                 liftViableDeltaHist = histogramInt [max 0 (localTeleMaxPathDim tele - maxDim) | (tele, _, _, _) <- liftViable]
+                liftBestRho = if null liftCands then 0.0 else maximum [rho | (_, _, _, rho) <- liftCands]
+                liftBestNu = if null liftCands then 0 else maximum [nu | (_, nu, _, _) <- liftCands]
+                liftBestK = if null liftCands then 0 else maximum [kappa | (_, _, kappa, _) <- liftCands]
+                mapBridgeNow = isMapBridgePhase lib goalProfile
+                mapBridgeCands =
+                  [ (detectCanonicalName tele lib, classifyTelescope tele lib, kappa, rho, mapBridgeQualityScore lib tele, mapBridgeCoverageScore lib tele)
+                  | (tele, _, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                mapBridgeViable =
+                  [ x
+                  | x@(_, _, _, rho, _, _) <- mapBridgeCands
+                  , rho >= bar
+                  ]
+                mapBridgeByName = histogramString [name | (name, _, _, _, _, _) <- mapBridgeCands]
+                mapBridgeViableByName = histogramString [name | (name, _, _, _, _, _) <- mapBridgeViable]
+                mapBridgeByClass = histogramString [show cls | (_, cls, _, _, _, _) <- mapBridgeCands]
+                mapBridgeViableByClass = histogramString [show cls | (_, cls, _, _, _, _) <- mapBridgeViable]
+                mapBridgeBestRho = if null mapBridgeCands then 0.0 else maximum [rho | (_, _, _, rho, _, _) <- mapBridgeCands]
+                mapBridgeBestQuality = if null mapBridgeCands then 0 else maximum [q | (_, _, _, _, q, _) <- mapBridgeCands]
+                mapBridgeCoverage = length [() | (_, _, _, _, _, cov) <- mapBridgeCands, cov >= 3]
+                modalLiftNow = isModalLiftPhase lib goalProfile
+                modalCands =
+                  [ (detectCanonicalName tele lib, classifyTelescope tele lib, kappa, rho, modalLiftQualityScore lib tele, teleModalCount tele)
+                  | (tele, _, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                modalViable =
+                  [ x
+                  | x@(_, _, _, rho, _, _) <- modalCands
+                  , rho >= bar
+                  ]
+                modalByName = histogramString [name | (name, _, _, _, _, _) <- modalCands]
+                modalViableByName = histogramString [name | (name, _, _, _, _, _) <- modalViable]
+                modalByClass = histogramString [show cls | (_, cls, _, _, _, _) <- modalCands]
+                modalViableByClass = histogramString [show cls | (_, cls, _, _, _, _) <- modalViable]
+                modalBestRho = if null modalCands then 0.0 else maximum [rho | (_, _, _, rho, _, _) <- modalCands]
+                modalBestQuality = if null modalCands then 0 else maximum [q | (_, _, _, _, q, _) <- modalCands]
+                modalRichCount = length [() | (_, _, _, _, _, modalCount) <- modalCands, modalCount >= 3]
+                differentialLiftNow = isDifferentialLiftPhase lib goalProfile
+                differentialCands =
+                  [ (detectCanonicalName tele lib, classifyTelescope tele lib, nu, kappa, rho, differentialLiftQualityScore lib tele, teleReferencesModalCarrier lib tele)
+                  | (tele, nu, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                differentialViable =
+                  [ x
+                  | x@(_, _, _, _, rho, _, _) <- differentialCands
+                  , rho >= bar
+                  ]
+                diffByName = histogramString [name | (name, _, _, _, _, _, _) <- differentialCands]
+                diffViableByName = histogramString [name | (name, _, _, _, _, _, _) <- differentialViable]
+                diffByClass = histogramString [show cls | (_, cls, _, _, _, _, _) <- differentialCands]
+                diffViableByClass = histogramString [show cls | (_, cls, _, _, _, _, _) <- differentialViable]
+                diffBestRho = if null differentialCands then 0.0 else maximum [rho | (_, _, _, _, rho, _, _) <- differentialCands]
+                diffBestNu = if null differentialCands then 0 else maximum [nu | (_, _, nu, _, _, _, _) <- differentialCands]
+                diffBestK = if null differentialCands then 0 else maximum [kappa | (_, _, _, kappa, _, _, _) <- differentialCands]
+                diffBestQuality = if null differentialCands then 0 else maximum [q | (_, _, _, _, _, q, _) <- differentialCands]
+                diffRefs = length [() | (_, _, _, _, _, _, hasRef) <- differentialCands, hasRef]
+                curvatureLiftNow = isCurvatureLiftPhase lib goalProfile
+                curvatureCands =
+                  [ (detectCanonicalName tele lib, classifyTelescope tele lib, nu, kappa, rho, curvatureLiftQualityScore lib tele, teleReferencesDifferentialCarrier lib tele, teleHasSurfaceEvidence tele)
+                  | (tele, nu, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                curvatureViable =
+                  [ x
+                  | x@(_, _, _, _, rho, _, _, _) <- curvatureCands
+                  , rho >= bar
+                  ]
+                curvByName = histogramString [name | (name, _, _, _, _, _, _, _) <- curvatureCands]
+                curvViableByName = histogramString [name | (name, _, _, _, _, _, _, _) <- curvatureViable]
+                curvByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _) <- curvatureCands]
+                curvViableByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _) <- curvatureViable]
+                curvBestRho = if null curvatureCands then 0.0 else maximum [rho | (_, _, _, _, rho, _, _, _) <- curvatureCands]
+                curvBestNu = if null curvatureCands then 0 else maximum [nu | (_, _, nu, _, _, _, _, _) <- curvatureCands]
+                curvBestK = if null curvatureCands then 0 else maximum [kappa | (_, _, _, kappa, _, _, _, _) <- curvatureCands]
+                curvBestQuality = if null curvatureCands then 0 else maximum [q | (_, _, _, _, _, q, _, _) <- curvatureCands]
+                curvRefs = length [() | (_, _, _, _, _, _, hasRef, _) <- curvatureCands, hasRef]
+                curvSurface = length [() | (_, _, _, _, _, _, _, hasSurf) <- curvatureCands, hasSurf]
+                metricLiftNow = isMetricLiftPhase lib goalProfile
+                metricCands =
+                  [ (detectCanonicalName tele lib, classifyTelescope tele lib, kappa, rho, metricLiftQualityScore lib tele, teleReferencesCurvatureCarrier lib tele, teleHasMetricBundleEvidence tele)
+                  | (tele, _, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                metricViable =
+                  [ x
+                  | x@(_, _, _, rho, _, _, _) <- metricCands
+                  , rho >= bar
+                  ]
+                metricByName = histogramString [name | (name, _, _, _, _, _, _) <- metricCands]
+                metricViableByName = histogramString [name | (name, _, _, _, _, _, _) <- metricViable]
+                metricByClass = histogramString [show cls | (_, cls, _, _, _, _, _) <- metricCands]
+                metricViableByClass = histogramString [show cls | (_, cls, _, _, _, _, _) <- metricViable]
+                metricBestRho = if null metricCands then 0.0 else maximum [rho | (_, _, _, rho, _, _, _) <- metricCands]
+                metricBestQuality = if null metricCands then 0 else maximum [q | (_, _, _, _, q, _, _) <- metricCands]
+                metricRefs = length [() | (_, _, _, _, _, hasRef, _) <- metricCands, hasRef]
+                metricBundle = length [() | (_, _, _, _, _, _, hasBundle) <- metricCands, hasBundle]
+                hilbertLiftNow = isHilbertLiftPhase lib goalProfile
+                hilbertCands =
+                  [ ( detectCanonicalName tele lib
+                    , classifyTelescope tele lib
+                    , kappa
+                    , rho
+                    , hilbertLiftQualityScore lib tele
+                    , teleReferencesMetricCarrier lib tele
+                    , teleReferencesCurvatureCarrier lib tele
+                    , teleReferencesDifferentialCarrier lib tele
+                    , teleHasHilbertBundleEvidence tele
+                    , teleHasFunctionalDerivativeEvidence tele
+                    )
+                  | (tele, _, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                hilbertViable =
+                  [ x
+                  | x@(_, _, _, rho, _, _, _, _, _, _) <- hilbertCands
+                  , rho >= bar
+                  ]
+                hilbertByName = histogramString [name | (name, _, _, _, _, _, _, _, _, _) <- hilbertCands]
+                hilbertViableByName = histogramString [name | (name, _, _, _, _, _, _, _, _, _) <- hilbertViable]
+                hilbertByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _, _, _) <- hilbertCands]
+                hilbertViableByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _, _, _) <- hilbertViable]
+                hilbertBestRho = if null hilbertCands then 0.0 else maximum [rho | (_, _, _, rho, _, _, _, _, _, _) <- hilbertCands]
+                hilbertBestQuality = if null hilbertCands then 0 else maximum [q | (_, _, _, _, q, _, _, _, _, _) <- hilbertCands]
+                hilbertMetricRefs = length [() | (_, _, _, _, _, hasMetricRef, _, _, _, _) <- hilbertCands, hasMetricRef]
+                hilbertCurvatureRefs = length [() | (_, _, _, _, _, _, hasCurvRef, _, _, _) <- hilbertCands, hasCurvRef]
+                hilbertDifferentialRefs = length [() | (_, _, _, _, _, _, _, hasDiffRef, _, _) <- hilbertCands, hasDiffRef]
+                hilbertBundle = length [() | (_, _, _, _, _, _, _, _, hasBundle, _) <- hilbertCands, hasBundle]
+                hilbertFunctional = length [() | (_, _, _, _, _, _, _, _, _, hasFunctional) <- hilbertCands, hasFunctional]
+                temporalLiftNow = isTemporalLiftPhase lib goalProfile
+                temporalCands =
+                  [ ( detectCanonicalName tele lib
+                    , classifyTelescope tele lib
+                    , nu
+                    , kappa
+                    , rho
+                    , temporalLiftQualityScore lib tele
+                    , teleReferencesHilbertCarrier lib tele
+                    , teleReferencesModalCarrier lib tele
+                    , teleHasTemporalOpsPair tele
+                    , teleTemporalCompatibilityScore tele
+                    , teleHasInfinitesimalShiftEvidence tele
+                    )
+                  | (tele, nu, kappa, rho, _) <- enumEvaluatedChosen
+                  ]
+                temporalViable =
+                  [ x
+                  | x@(_, _, _, _, rho, _, _, _, _, _, _) <- temporalCands
+                  , rho >= bar
+                  ]
+                temporalByName = histogramString [name | (name, _, _, _, _, _, _, _, _, _, _) <- temporalCands]
+                temporalViableByName = histogramString [name | (name, _, _, _, _, _, _, _, _, _, _) <- temporalViable]
+                temporalByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _, _, _, _) <- temporalCands]
+                temporalViableByClass = histogramString [show cls | (_, cls, _, _, _, _, _, _, _, _, _) <- temporalViable]
+                temporalBestRho = if null temporalCands then 0.0 else maximum [rho | (_, _, _, _, rho, _, _, _, _, _, _) <- temporalCands]
+                temporalBestNu = if null temporalCands then 0 else maximum [nu | (_, _, nu, _, _, _, _, _, _, _, _) <- temporalCands]
+                temporalBestK = if null temporalCands then 0 else maximum [kappa | (_, _, _, kappa, _, _, _, _, _, _, _) <- temporalCands]
+                temporalBestQuality = if null temporalCands then 0 else maximum [q | (_, _, _, _, _, q, _, _, _, _, _) <- temporalCands]
+                temporalHilbertRefs = length [() | (_, _, _, _, _, _, hasHilbertRef, _, _, _, _) <- temporalCands, hasHilbertRef]
+                temporalModalRefs = length [() | (_, _, _, _, _, _, _, hasModalRef, _, _, _) <- temporalCands, hasModalRef]
+                temporalPairedOps = length [() | (_, _, _, _, _, _, _, _, hasPair, _, _) <- temporalCands, hasPair]
+                temporalCompatTriad = length [() | (_, _, _, _, _, _, _, _, _, compatScore, _) <- temporalCands, compatScore >= 3]
+                temporalInfShift = length [() | (_, _, _, _, _, _, _, _, _, _, hasShift) <- temporalCands, hasShift]
                 truncCount = length truncCands
                 truncViableCount = length truncViable
                 truncBestRho = if null truncCands
                                then 0.0
                                else maximum [r | (_, _, _, r) <- truncCands]
-            printf "  [GOAL step %d] intents=%s loop=%s trunc=%s modal=%s diff=%s hilbert=%s maxDim=%d\n"
+            printf "  [GOAL step %d] intents=%s loop=%s trunc=%s modal=%s diff=%s curv=%s metric=%s hilbert=%s temporal=%s maxDim=%d\n"
               step
               (show (gpIntents goalProfile))
               (show (any leHasLoop lib))
               (show hasTrunc)
               (show (any leHasModalOps lib))
               (show (any leHasDifferentialOps lib))
+              (show (any leHasCurvature lib))
+              (show (any leHasMetric lib))
               (show (any leHasHilbert lib))
+              (show (any leHasTemporalOps lib))
               maxDim
             printf "  [HIT step %d] trunc_candidates=%d trunc_viable=%d trunc_best_rho=%.2f by_k=%s viable_by_k=%s by_max_dim=%s viable_by_max_dim=%s viable_k3_by_max_dim=%s max_rho_by_k=%s max_rho_by_max_dim=%s\n"
               step truncCount truncViableCount truncBestRho
@@ -926,14 +1354,117 @@ abInitioLoop cfg = do
               (show truncMaxRhoByK)
               (show truncMaxRhoByMaxDim)
             when postTruncLiftNow $
-              printf "  [LIFT SEARCH step %d] candidates=%d viable=%d by_k=%s viable_by_k=%s delta_hist=%s viable_delta_hist=%s\n"
+              printf "  [LIFT SEARCH step %d] candidates=%d viable=%d best_nu=%d best_k=%d best_rho=%.2f by_k=%s viable_by_k=%s delta_hist=%s viable_delta_hist=%s\n"
                 step
                 (length liftCands)
                 (length liftViable)
+                liftBestNu
+                liftBestK
+                liftBestRho
                 (show liftByK)
                 (show liftViableByK)
                 (show liftDeltaHist)
                 (show liftViableDeltaHist)
+            when mapBridgeNow $
+              printf "  [BRIDGE SEARCH step %d] candidates=%d viable=%d coverage=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length mapBridgeCands)
+                (length mapBridgeViable)
+                mapBridgeCoverage
+                mapBridgeBestRho
+                mapBridgeBestQuality
+                (show mapBridgeByName)
+                (show mapBridgeViableByName)
+                (show mapBridgeByClass)
+                (show mapBridgeViableByClass)
+            when modalLiftNow $
+              printf "  [MODAL SEARCH step %d] candidates=%d viable=%d modal_rich=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length modalCands)
+                (length modalViable)
+                modalRichCount
+                modalBestRho
+                modalBestQuality
+                (show modalByName)
+                (show modalViableByName)
+                (show modalByClass)
+                (show modalViableByClass)
+            when differentialLiftNow $
+              printf "  [DIFF SEARCH step %d] candidates=%d viable=%d refs_modal=%d best_nu=%d best_k=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length differentialCands)
+                (length differentialViable)
+                diffRefs
+                diffBestNu
+                diffBestK
+                diffBestRho
+                diffBestQuality
+                (show diffByName)
+                (show diffViableByName)
+                (show diffByClass)
+                (show diffViableByClass)
+            when curvatureLiftNow $
+              printf "  [CURV SEARCH step %d] candidates=%d viable=%d refs_diff=%d surface=%d best_nu=%d best_k=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length curvatureCands)
+                (length curvatureViable)
+                curvRefs
+                curvSurface
+                curvBestNu
+                curvBestK
+                curvBestRho
+                curvBestQuality
+                (show curvByName)
+                (show curvViableByName)
+                (show curvByClass)
+                (show curvViableByClass)
+            when metricLiftNow $
+              printf "  [METRIC SEARCH step %d] candidates=%d viable=%d refs_curv=%d bundle=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length metricCands)
+                (length metricViable)
+                metricRefs
+                metricBundle
+                metricBestRho
+                metricBestQuality
+                (show metricByName)
+                (show metricViableByName)
+                (show metricByClass)
+                (show metricViableByClass)
+            when hilbertLiftNow $
+              printf "  [HILBERT SEARCH step %d] candidates=%d viable=%d refs_metric=%d refs_curv=%d refs_diff=%d bundle=%d functional=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length hilbertCands)
+                (length hilbertViable)
+                hilbertMetricRefs
+                hilbertCurvatureRefs
+                hilbertDifferentialRefs
+                hilbertBundle
+                hilbertFunctional
+                hilbertBestRho
+                hilbertBestQuality
+                (show hilbertByName)
+                (show hilbertViableByName)
+                (show hilbertByClass)
+                (show hilbertViableByClass)
+            when temporalLiftNow $
+              printf "  [TEMP SEARCH step %d] candidates=%d viable=%d refs_hilbert=%d refs_modal=%d paired_ops=%d compat_triad=%d inf_shift=%d best_nu=%d best_k=%d best_rho=%.2f best_quality=%d by_name=%s viable_by_name=%s by_class=%s viable_by_class=%s\n"
+                step
+                (length temporalCands)
+                (length temporalViable)
+                temporalHilbertRefs
+                temporalModalRefs
+                temporalPairedOps
+                temporalCompatTriad
+                temporalInfShift
+                temporalBestNu
+                temporalBestK
+                temporalBestRho
+                temporalBestQuality
+                (show temporalByName)
+                (show temporalViableByName)
+                (show temporalByClass)
+                (show temporalViableByClass)
 
           -- Phase B: MCTS for larger telescopes (κ > 3)
           -- Use a state-derived estimate from discovered history rather than
@@ -1023,6 +1554,13 @@ abInitioLoop cfg = do
                                  Nothing -> False) lib
                   bridgePhaseForRank = isTruncBridgePhase lib goalProfile
                   postTruncLiftPhaseForRank = isPostTruncLiftPhase lib goalProfile
+                  mapBridgePhaseForRank = isMapBridgePhase lib goalProfile
+                  modalPhaseForRank = isModalLiftPhase lib goalProfile
+                  differentialPhaseForRank = isDifferentialLiftPhase lib goalProfile
+                  curvaturePhaseForRank = isCurvatureLiftPhase lib goalProfile
+                  metricPhaseForRank = isMetricLiftPhase lib goalProfile
+                  hilbertPhaseForRank = isHilbertLiftPhase lib goalProfile
+                  temporalPhaseForRank = isTemporalLiftPhase lib goalProfile
                   richTruncViableExists =
                     bridgePhaseForRank
                     && any (\(tele, _, kappa, _, _) ->
@@ -1033,12 +1571,96 @@ abInitioLoop cfg = do
                   richPostTruncLiftViableExists =
                     postTruncLiftPhaseForRank
                     && any (\(tele, _, kappa, _, _) ->
-                              kappa >= 3
+                              kappa >= requiredPostTruncLiftKappa lib tele
                               && isPostTruncLiftCandidate lib tele
                               && postTruncLiftQualityScore lib tele >= 3
                            ) viable
+                  richMapBridgeViableExists =
+                    mapBridgePhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= 4
+                              && isMapBridgeCandidate lib tele
+                              && mapBridgeQualityScore lib tele >= 6
+                           ) viable
+                  richModalViableExists =
+                    modalPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= requiredModalLiftKappa tele
+                              && isModalLiftCandidate lib tele
+                              && modalLiftQualityScore lib tele >= 6
+                           ) viable
+                  richDifferentialViableExists =
+                    differentialPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= requiredDifferentialLiftKappa tele
+                              && isDifferentialLiftCandidate lib tele
+                              && differentialLiftQualityScore lib tele >= 6
+                           ) viable
+                  richCurvatureViableExists =
+                    curvaturePhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= requiredCurvatureLiftKappa tele
+                              && isCurvatureLiftCandidate lib tele
+                              && curvatureLiftQualityScore lib tele >= 7
+                           ) viable
+                  richMetricViableExists =
+                    metricPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= 7
+                              && isMetricLiftCandidate lib tele
+                              && metricLiftQualityScore lib tele >= 7
+                           ) viable
+                  richHilbertViableExists =
+                    hilbertPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= 9
+                              && isHilbertLiftCandidate lib tele
+                              && hilbertLiftQualityScore lib tele >= 10
+                           ) viable
+                  richTemporalViableExists =
+                    temporalPhaseForRank
+                    && any (\(tele, _, kappa, _, _) ->
+                              kappa >= requiredTemporalLiftKappa tele
+                              && isTemporalLiftCandidate lib tele
+                              && temporalLiftQualityScore lib tele >= 11
+                           ) viable
+                  maxTemporalQualityViable =
+                    if temporalPhaseForRank
+                    then maximum (0 : [temporalLiftQualityScore lib tele | (tele, _, _, _, _) <- viable])
+                    else 0
+                  viableConnectionsExists =
+                    differentialPhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Connections") viable
+                  viableHopfExists =
+                    mapBridgePhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Hopf") viable
+                  viableCohesionExists =
+                    modalPhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Cohesion") viable
+                  viableCurvatureExists =
+                    curvaturePhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Curvature") viable
+                  viableMetricExists =
+                    metricPhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Metric") viable
+                  viableHilbertExists =
+                    hilbertPhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "Hilbert") viable
+                  viableDCTExists =
+                    temporalPhaseForRank
+                    && any (\(tele, _, _, _, _) -> detectCanonicalName tele lib == "DCT") viable
+                  -- In the first differential step, strongly prefer canonical
+                  -- Connections if one is already viable.
+                  nonConnectionPenalty = 6.0 :: Double
+                  nonHopfPenalty = 7.0 :: Double
+                  nonCohesionPenalty = 6.0 :: Double
+                  nonCurvaturePenalty = 6.0 :: Double
+                  nonMetricPenalty = 6.0 :: Double
+                  nonHilbertPenalty = 7.0 :: Double
+                  nonDCTPenalty = 8.0 :: Double
                   candidateRank (tele, _, kappa, rho, src) =
                     let CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
+                        name = detectCanonicalName tele lib
                         baseOvershoot = max 0.0 (rho - bar)
                         bridgePenalty =
                           if richTruncViableExists
@@ -1048,14 +1670,121 @@ abInitioLoop cfg = do
                           if richPostTruncLiftViableExists
                           then postTruncLiftPenalty lib tele kappa
                           else 0.0
-                        overshoot = baseOvershoot + bridgePenalty + postTruncPenalty
+                        mapBridgePenalty' =
+                          if richMapBridgeViableExists
+                          then mapBridgePenalty lib tele kappa
+                               + if viableHopfExists && name /= "Hopf" then nonHopfPenalty else 0.0
+                          else 0.0
+                        modalPenalty =
+                          if richModalViableExists
+                          then modalLiftPenalty lib tele kappa
+                               + if viableCohesionExists && name /= "Cohesion" then nonCohesionPenalty else 0.0
+                          else 0.0
+                        differentialPenalty =
+                          if richDifferentialViableExists
+                          then differentialLiftPenalty lib tele kappa
+                               + if viableConnectionsExists && name /= "Connections" then nonConnectionPenalty else 0.0
+                          else 0.0
+                        curvaturePenalty =
+                          if richCurvatureViableExists
+                          then curvatureLiftPenalty lib tele kappa
+                               + if viableCurvatureExists && name /= "Curvature" then nonCurvaturePenalty else 0.0
+                          else 0.0
+                        metricPenalty =
+                          if richMetricViableExists
+                          then metricLiftPenalty lib tele kappa
+                               + if viableMetricExists && name /= "Metric" then nonMetricPenalty else 0.0
+                          else 0.0
+                        hilbertPenalty =
+                          if richHilbertViableExists
+                          then hilbertLiftPenalty lib tele kappa
+                               + if viableHilbertExists && name /= "Hilbert" then nonHilbertPenalty else 0.0
+                          else 0.0
+                        temporalPenalty =
+                          if richTemporalViableExists
+                          then temporalLiftPenalty lib tele kappa
+                               + if viableDCTExists && name /= "DCT" then nonDCTPenalty else 0.0
+                          else 0.0
+                        temporalQualityForPenalty =
+                          if temporalPhaseForRank
+                          then temporalLiftQualityScore lib tele
+                          else 0
+                        temporalQualityGapPenalty =
+                          if richTemporalViableExists
+                          then 0.90 * fromIntegral (max 0 (maxTemporalQualityViable - temporalQualityForPenalty))
+                          else 0.0
+                        overshoot = baseOvershoot + bridgePenalty + postTruncPenalty + mapBridgePenalty' + modalPenalty + differentialPenalty + curvaturePenalty + metricPenalty + hilbertPenalty + temporalPenalty + temporalQualityGapPenalty
                         postTruncQuality =
                           if postTruncLiftPhaseForRank
                           then postTruncLiftQualityScore lib tele
                           else 0
+                        mapBridgeQuality =
+                          if mapBridgePhaseForRank
+                          then mapBridgeQualityScore lib tele
+                          else 0
+                        modalQuality =
+                          if modalPhaseForRank
+                          then modalLiftQualityScore lib tele
+                          else 0
+                        differentialQuality =
+                          if differentialPhaseForRank
+                          then differentialLiftQualityScore lib tele
+                          else 0
+                        curvatureQuality =
+                          if curvaturePhaseForRank
+                          then curvatureLiftQualityScore lib tele
+                          else 0
+                        metricQuality =
+                          if metricPhaseForRank
+                          then metricLiftQualityScore lib tele
+                          else 0
+                        hilbertQuality =
+                          if hilbertPhaseForRank
+                          then hilbertLiftQualityScore lib tele
+                          else 0
+                        temporalQuality =
+                          temporalQualityForPenalty
+                        differentialNameRank =
+                          if differentialPhaseForRank
+                          then if name == "Connections" then (0 :: Int) else 1
+                          else 0
+                        modalNameRank =
+                          if modalPhaseForRank
+                          then if name == "Cohesion" then (0 :: Int) else 1
+                          else 0
+                        mapNameRank =
+                          if mapBridgePhaseForRank
+                          then if name == "Hopf" then (0 :: Int) else 1
+                          else 0
+                        curvatureNameRank =
+                          if curvaturePhaseForRank
+                          then if name == "Curvature" then (0 :: Int) else 1
+                          else 0
+                        metricNameRank =
+                          if metricPhaseForRank
+                          then if name == "Metric" then (0 :: Int) else 1
+                          else 0
+                        hilbertNameRank =
+                          if hilbertPhaseForRank
+                          then if name == "Hilbert" then (0 :: Int) else 1
+                          else 0
+                        temporalNameRank =
+                          if temporalPhaseForRank
+                          then if name == "DCT" then (0 :: Int) else 1
+                          else 0
+                        bridgeNameRank = mapNameRank
                         redundantTrunc = (if hasTruncInLibraryForRank && teleHasTrunc tele then 1 else 0) :: Int
                         surplus = structuralSurplusKey tele
-                    in (overshoot, Down postTruncQuality, kappa, redundantTrunc, surplus, ckey, sourceRank src)
+                    in ( overshoot
+                       , (temporalNameRank, hilbertNameRank, metricNameRank, curvatureNameRank, differentialNameRank, modalNameRank, mapNameRank)
+                       , (Down temporalQuality, Down hilbertQuality, Down metricQuality, Down curvatureQuality, Down differentialQuality, Down modalQuality, Down mapBridgeQuality, Down postTruncQuality)
+                       , bridgeNameRank
+                       , kappa
+                       , redundantTrunc
+                       , surplus
+                       , ckey
+                       , sourceRank src
+                       )
                   sorted = sortOn candidateRank viable
                   (bestTele, bestNu, bestKappa, bestRho, bestSource) = case sorted of
                     (best:_) ->
@@ -1368,6 +2097,9 @@ classSupportsIntent cls intent = case intent of
   NeedHIT -> cls == TCHIT || cls == TCSuspension
   NeedModal -> cls == TCModal
   NeedDifferential -> cls == TCAxiomatic || cls == TCMap
+  NeedCurvature -> cls == TCAxiomatic || cls == TCMap
+  NeedMetric -> cls == TCAxiomatic || cls == TCMap
+  NeedHilbert -> cls == TCAxiomatic || cls == TCMap
   NeedTemporal -> cls == TCSynthesis
   NeedBridge -> cls == TCMap || cls == TCAxiomatic || cls == TCFormer
 
@@ -1595,6 +2327,12 @@ histogramInt xs =
   where
     bump m k = Map.insertWith (+) k 1 m
 
+histogramString :: [String] -> [(String, Int)]
+histogramString xs =
+  Map.toAscList (foldl bump Map.empty xs)
+  where
+    bump m k = Map.insertWith (+) k 1 m
+
 -- | Phase-9 first-pass runtime guard for claim-grade discovery modes.
 -- Strict/structural runs must never admit paper/reference-origin candidates.
 assertClaimGradeSources :: Int -> [Candidate] -> IO ()
@@ -1642,8 +2380,11 @@ betterBridgeRepresentative :: Library -> Telescope -> Telescope -> Bool
 betterBridgeRepresentative lib cand prev =
   bridgeRepresentativeKey cand < bridgeRepresentativeKey prev
   where
+    libMaxDim = libraryMaxPathDim lib
+    bridgeDelta tele = max 0 (teleMaxPathDim tele - libMaxDim)
     bridgeRepresentativeKey tele =
-      ( Down (truncBridgeQualityScore lib tele)
+      ( bridgeDelta tele
+      , Down (truncBridgeQualityScore lib tele)
       , Down (desugaredKappa tele)
       , structuralSurplusKey tele
       )
@@ -1704,9 +2445,12 @@ prioritizeBridgeCandidates requiresTruncBridge lib profile teles
   | not (isTruncBridgePhase lib profile) = teles
   | otherwise = sortOn rank teles
   where
+    libMaxDim = libraryMaxPathDim lib
+    bridgeDelta tele = max 0 (teleMaxPathDim tele - libMaxDim)
     rank tele =
       let CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
-      in ( Down (truncBridgeQualityScore lib tele)
+      in ( bridgeDelta tele
+         , Down (truncBridgeQualityScore lib tele)
          , Down (desugaredKappa tele)
          , structuralSurplusKey tele
          , ckey
@@ -1734,6 +2478,64 @@ isPostTruncLiftPhase lib profile =
       Just _ -> True
       Nothing -> False
 
+isModalLiftPhase :: Library -> GoalProfile -> Bool
+isModalLiftPhase lib profile =
+  NeedModal `elem` gpIntents profile
+  && any leHasLoop lib
+  && not (any leHasModalOps lib)
+
+isMapBridgePhase :: Library -> GoalProfile -> Bool
+isMapBridgePhase lib profile =
+  NeedBridge `elem` gpIntents profile
+  && any leHasLoop lib
+  && any hasTruncEntry lib
+  && not (any leHasModalOps lib)
+  where
+    hasTruncEntry e = case leIsTruncated e of
+      Just _ -> True
+      Nothing -> False
+
+isDifferentialLiftPhase :: Library -> GoalProfile -> Bool
+isDifferentialLiftPhase lib profile =
+  NeedDifferential `elem` gpIntents profile
+  && any leHasModalOps lib
+  && not (any leHasDifferentialOps lib)
+
+isCurvatureLiftPhase :: Library -> GoalProfile -> Bool
+isCurvatureLiftPhase lib profile =
+  NeedCurvature `elem` gpIntents profile
+  && any leHasDifferentialOps lib
+  && not (any leHasCurvature lib)
+
+isMetricLiftPhase :: Library -> GoalProfile -> Bool
+isMetricLiftPhase lib profile =
+  NeedMetric `elem` gpIntents profile
+  && any leHasCurvature lib
+  && not (any leHasMetric lib)
+
+isHilbertLiftPhase :: Library -> GoalProfile -> Bool
+isHilbertLiftPhase lib profile =
+  NeedHilbert `elem` gpIntents profile
+  && any leHasMetric lib
+  && not (any leHasHilbert lib)
+
+isTemporalLiftPhase :: Library -> GoalProfile -> Bool
+isTemporalLiftPhase lib profile =
+  NeedTemporal `elem` gpIntents profile
+  && any leHasHilbert lib
+  && any leHasModalOps lib
+  && not (any leHasTemporalOps lib)
+
+isBootstrapHITCandidate :: Library -> Telescope -> Bool
+isBootstrapHITCandidate lib tele =
+  case classifyTelescope tele lib of
+    TCHIT ->
+      let dims = telePathDimensions tele
+      in not (null dims)
+         && maximum dims <= 1
+         && not (teleHasTrunc tele)
+    _ -> False
+
 postTruncLiftSeedTelescopes :: Library -> [Telescope]
 postTruncLiftSeedTelescopes lib =
   let nextDim = max 1 (libraryMaxPathDim lib + 1)
@@ -1741,33 +2543,788 @@ postTruncLiftSeedTelescopes lib =
       carrier = App Univ (Var 1)
       point = Var 1
       coherence = Id (Var 1) (Var 1) (Var 1)
+      richer =
+        [ Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" point
+            , TeleEntry "c3" liftPath
+            , TeleEntry "c4" coherence
+            , TeleEntry "c5" (Pi (Var 1) (Var 1))
+            ]
+        , Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" point
+            , TeleEntry "c3" liftPath
+            , TeleEntry "c4" coherence
+            , TeleEntry "c5" (Sigma (Var 1) (Var 1))
+            ]
+        ]
+      minimal =
+        [ Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" point
+            , TeleEntry "c3" liftPath
+            ]
+        , Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" coherence
+            , TeleEntry "c3" liftPath
+            ]
+        , Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" (Pi (Var 1) (Var 1))
+            , TeleEntry "c3" liftPath
+            ]
+        , Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" (Sigma (Var 1) (Var 1))
+            , TeleEntry "c3" liftPath
+            ]
+        , Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" (App (Var 1) (Var 1))
+            , TeleEntry "c3" liftPath
+            ]
+        ]
+  in
+    if nextDim >= 3
+    then richer ++ minimal
+    else minimal
+
+mapBridgeSeedTelescopes :: Library -> [Telescope]
+mapBridgeSeedTelescopes lib =
+  let refsByDim d = [i | (i, e) <- zip [1..] lib, d `elem` lePathDims e]
+      srcRef = case reverse (refsByDim 3) of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      tgtRef = case reverse (refsByDim 2) of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      fiberRef = case reverse (refsByDim 1) of
+        (i:_) -> i
+        [] -> max 1 (length lib)
   in
     [ Telescope
-        [ TeleEntry "c1" carrier
-        , TeleEntry "c2" point
-        , TeleEntry "c3" liftPath
+        [ TeleEntry "hopf-map" (Pi (Lib srcRef) (Lib tgtRef))
+        , TeleEntry "hopf-fiber" (App (Lib fiberRef) (Var 1))
+        , TeleEntry "hopf-total" (Lam (App (Lib srcRef) (Lib tgtRef)))
+        , TeleEntry "hopf-class" (Pi (Lib tgtRef) (Lib srcRef))
         ]
     , Telescope
-        [ TeleEntry "c1" carrier
-        , TeleEntry "c2" coherence
-        , TeleEntry "c3" liftPath
-        ]
-    , Telescope
-        [ TeleEntry "c1" carrier
-        , TeleEntry "c2" (Pi (Var 1) (Var 1))
-        , TeleEntry "c3" liftPath
-        ]
-    , Telescope
-        [ TeleEntry "c1" carrier
-        , TeleEntry "c2" (Sigma (Var 1) (Var 1))
-        , TeleEntry "c3" liftPath
-        ]
-    , Telescope
-        [ TeleEntry "c1" carrier
-        , TeleEntry "c2" (App (Var 1) (Var 1))
-        , TeleEntry "c3" liftPath
+        [ TeleEntry "hopf-map" (Pi (Lib srcRef) (Lib tgtRef))
+        , TeleEntry "hopf-fiber" (Sigma (Lib tgtRef) (Lib fiberRef))
+        , TeleEntry "hopf-total" (Lam (App (Lib srcRef) (Lib tgtRef)))
+        , TeleEntry "hopf-coh" (Id (Lib tgtRef) (Lib tgtRef) (Lib tgtRef))
         ]
     ]
+
+modalLiftSeedTelescopes :: Library -> [Telescope]
+modalLiftSeedTelescopes lib =
+  let loopRefs = [i | (i, e) <- zip [1..] lib, leHasLoop e]
+      loopRef = case reverse loopRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      carrier = Lib loopRef
+  in
+    [ Telescope
+        [ TeleEntry "c1" (Flat carrier)
+        , TeleEntry "c2" (Sharp carrier)
+        , TeleEntry "c3" (Disc carrier)
+        ]
+    , Telescope
+        [ TeleEntry "c1" (Flat carrier)
+        , TeleEntry "c2" (Sharp carrier)
+        , TeleEntry "c3" (Shape carrier)
+        ]
+    , Telescope
+        [ TeleEntry "c1" (Flat carrier)
+        , TeleEntry "c2" (Sharp carrier)
+        , TeleEntry "c3" (Disc carrier)
+        , TeleEntry "c4" (Pi carrier carrier)
+        ]
+    ]
+
+differentialLiftSeedTelescopes :: Library -> [Telescope]
+differentialLiftSeedTelescopes lib =
+  let modalRefs = [i | (i, e) <- zip [1..] lib, leHasModalOps e]
+      modalRef = case reverse modalRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      carrier = Lib modalRef
+  in
+    [ Telescope
+        [ TeleEntry "conn-form"  (Pi carrier carrier)
+        , TeleEntry "transport"  (Pi (Flat carrier) carrier)
+        , TeleEntry "cov-deriv"  (Pi (Sigma carrier carrier) carrier)
+        , TeleEntry "horiz-coh"  (Id carrier carrier carrier)
+        , TeleEntry "leibniz"    (App carrier carrier)
+        ]
+    , Telescope
+        [ TeleEntry "conn-form"  (Pi carrier carrier)
+        , TeleEntry "transport"  (Pi (Sharp carrier) carrier)
+        , TeleEntry "cov-deriv"  (Pi (Sigma carrier carrier) carrier)
+        , TeleEntry "horiz-coh"  (Refl carrier)
+        , TeleEntry "leibniz"    (App carrier (Flat carrier))
+        ]
+    ]
+
+curvatureLiftSeedTelescopes :: Library -> [Telescope]
+curvatureLiftSeedTelescopes lib =
+  let differentialRefs = [i | (i, e) <- zip [1..] lib, leHasDifferentialOps e]
+      differentialRef = case reverse differentialRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      carrier = Lib differentialRef
+  in
+    [ Telescope
+        [ TeleEntry "surface-form" (App Univ carrier)
+        , TeleEntry "R-form"       (Pi carrier carrier)
+        , TeleEntry "bianchi"      (Id carrier carrier carrier)
+        , TeleEntry "holonomy"     (Pi (Sigma carrier carrier) carrier)
+        , TeleEntry "surface"      (PathCon 2)
+        , TeleEntry "chern-weil"   (App carrier carrier)
+        ]
+    , Telescope
+        [ TeleEntry "surface-form" (App Univ carrier)
+        , TeleEntry "R-form"       (Pi carrier carrier)
+        , TeleEntry "bianchi"      (Refl carrier)
+        , TeleEntry "holonomy"     (Pi carrier (Pi carrier carrier))
+        , TeleEntry "surface"      (PathCon 2)
+        , TeleEntry "chern-weil"   (App carrier (Flat carrier))
+        ]
+    ]
+
+metricLiftSeedTelescopes :: Library -> [Telescope]
+metricLiftSeedTelescopes lib =
+  let differentialRefs = [i | (i, e) <- zip [1..] lib, leHasDifferentialOps e]
+      curvatureRefs = [i | (i, e) <- zip [1..] lib, leHasCurvature e]
+      differentialRef = case reverse differentialRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      curvatureRef = case reverse curvatureRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      gForm = Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1))
+      connLaw = Pi (Sigma (Var 1) (Var 1)) (Lib differentialRef)
+      geodesic = Pi (Var 1) (Pi (Var 1) (Var 1))
+      volForm = Lam (App (Var 1) (Var 1))
+      hodge = Pi (Lib curvatureRef) (Lib curvatureRef)
+      laplace = Lam (Pi (Var 1) (Var 1))
+      ricci = Pi (Lib curvatureRef) (Var 1)
+  in
+    [ Telescope
+        [ TeleEntry "c1" gForm
+        , TeleEntry "c2" connLaw
+        , TeleEntry "c3" geodesic
+        , TeleEntry "c4" volForm
+        , TeleEntry "c5" hodge
+        , TeleEntry "c6" laplace
+        , TeleEntry "c7" ricci
+        ]
+    , Telescope
+        [ TeleEntry "c1" gForm
+        , TeleEntry "c2" connLaw
+        , TeleEntry "c3" hodge
+        , TeleEntry "c4" ricci
+        ]
+    ]
+
+hilbertLiftSeedTelescopes :: Library -> [Telescope]
+hilbertLiftSeedTelescopes lib =
+  let differentialRefs = [i | (i, e) <- zip [1..] lib, leHasDifferentialOps e]
+      curvatureRefs = [i | (i, e) <- zip [1..] lib, leHasCurvature e]
+      metricRefs = [i | (i, e) <- zip [1..] lib, leHasMetric e]
+      differentialRef = case reverse differentialRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      curvatureRef = case reverse curvatureRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      metricRef = case reverse metricRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      innerProduct = Sigma (Pi (Lib metricRef) (Pi (Lib metricRef) Univ)) (Lib metricRef)
+      cauchyComplete = Pi (Lib metricRef) (Lib metricRef)
+      orthogonalDecomp = Pi (Lib metricRef) (Sigma (Lib metricRef) (Lib metricRef))
+      spectralDecomp = Pi (Pi (Lib metricRef) (Lib metricRef)) (Sigma (Lib metricRef) (Lib metricRef))
+      cStarAlg = Sigma (Pi (Lib metricRef) (Lib metricRef)) (Pi (Lib metricRef) (Lib metricRef))
+      metricCompat = Pi (Lib metricRef) (Lib curvatureRef)
+      curvatureOp = Pi (Lib curvatureRef) (Lib differentialRef)
+      connectionOp = Pi (Lib differentialRef) (Lib metricRef)
+      functionalDeriv = Lam (Pi (Lib metricRef) Univ)
+  in
+    [ Telescope
+        [ TeleEntry "c1" innerProduct
+        , TeleEntry "c2" cauchyComplete
+        , TeleEntry "c3" orthogonalDecomp
+        , TeleEntry "c4" spectralDecomp
+        , TeleEntry "c5" cStarAlg
+        , TeleEntry "c6" metricCompat
+        , TeleEntry "c7" curvatureOp
+        , TeleEntry "c8" connectionOp
+        , TeleEntry "c9" functionalDeriv
+        ]
+    , Telescope
+        [ TeleEntry "c1" innerProduct
+        , TeleEntry "c2" cauchyComplete
+        , TeleEntry "c3" orthogonalDecomp
+        , TeleEntry "c4" cStarAlg
+        , TeleEntry "c5" metricCompat
+        , TeleEntry "c6" curvatureOp
+        , TeleEntry "c7" connectionOp
+        , TeleEntry "c8" functionalDeriv
+        , TeleEntry "c9" (Id (Lib metricRef) (Lib metricRef) (Lib metricRef))
+        ]
+    ]
+
+temporalLiftSeedTelescopes :: Library -> [Telescope]
+temporalLiftSeedTelescopes lib =
+  let modalRefs = [i | (i, e) <- zip [1..] lib, leHasModalOps e]
+      hilbertRefs = [i | (i, e) <- zip [1..] lib, leHasHilbert e]
+      modalRef = case reverse modalRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      hilbertRef = case reverse hilbertRefs of
+        (i:_) -> i
+        [] -> max 1 (length lib)
+      spatial = Lib modalRef
+      dynamic = Lib hilbertRef
+      nextSpatial = Next spatial
+      eventuallySpatial = Eventually spatial
+      compatFlat = Id (Flat nextSpatial) (Next (Flat spatial)) (Next (Flat spatial))
+      compatShape = Id (Shape nextSpatial) (Next (Shape spatial)) (Next (Shape spatial))
+      compatLinear = Id (Next (Pi spatial dynamic))
+                       (Pi nextSpatial (Next dynamic))
+                       (Pi nextSpatial (Next dynamic))
+      infinitesimal = Sigma nextSpatial eventuallySpatial
+      distFlat = Pi (Flat (Next (Var 1))) (Next (Flat (Var 1)))
+      distShape = Pi (Shape (Eventually (Var 1))) (Eventually (Shape (Var 1)))
+      polyTemporal = Pi (Next (Var 1)) (Eventually (Var 1))
+      spatialTemporalLam = Lam (App spatial (Next (Var 1)))
+      spatialTemporalLamEv = Lam (App spatial (Eventually (Var 1)))
+  in
+    [ Telescope
+        [ TeleEntry "c1" (Pi spatial spatial)
+        , TeleEntry "c2" (Pi dynamic dynamic)
+        , TeleEntry "c3" nextSpatial
+        , TeleEntry "c4" eventuallySpatial
+        , TeleEntry "c5" infinitesimal
+        , TeleEntry "c6" compatFlat
+        , TeleEntry "c7" compatShape
+        , TeleEntry "c8" compatLinear
+        ]
+    , Telescope
+        [ TeleEntry "c1" (Pi spatial spatial)
+        , TeleEntry "c2" (Pi dynamic dynamic)
+        , TeleEntry "c3" nextSpatial
+        , TeleEntry "c4" eventuallySpatial
+        , TeleEntry "c5" (App dynamic nextSpatial)
+        , TeleEntry "c6" compatFlat
+        , TeleEntry "c7" compatShape
+        , TeleEntry "c8" (Pi nextSpatial eventuallySpatial)
+        ]
+    , Telescope
+        [ TeleEntry "c1" (Pi spatial spatial)
+        , TeleEntry "c2" (Pi dynamic dynamic)
+        , TeleEntry "c3" distFlat
+        , TeleEntry "c4" distShape
+        , TeleEntry "c5" polyTemporal
+        , TeleEntry "c6" spatialTemporalLam
+        , TeleEntry "c7" nextSpatial
+        , TeleEntry "c8" eventuallySpatial
+        ]
+    , Telescope
+        [ TeleEntry "c1" (Pi spatial spatial)
+        , TeleEntry "c2" (Pi dynamic dynamic)
+        , TeleEntry "c3" compatFlat
+        , TeleEntry "c4" compatShape
+        , TeleEntry "c5" compatLinear
+        , TeleEntry "c6" spatialTemporalLamEv
+        , TeleEntry "c7" polyTemporal
+        , TeleEntry "c8" infinitesimal
+        ]
+    ]
+
+requiredPostTruncLiftKappa :: Library -> Telescope -> Int
+requiredPostTruncLiftKappa lib tele
+  | teleMaxPathDim tele >= 3 = 5
+  | libraryMaxPathDim lib >= 2 = 5
+  | otherwise = 3
+
+requiredModalLiftKappa :: Telescope -> Int
+requiredModalLiftKappa _ = 4
+
+requiredDifferentialLiftKappa :: Telescope -> Int
+requiredDifferentialLiftKappa _ = 5
+
+requiredCurvatureLiftKappa :: Telescope -> Int
+requiredCurvatureLiftKappa _ = 6
+
+requiredTemporalLiftKappa :: Telescope -> Int
+requiredTemporalLiftKappa _ = 8
+
+isMapBridgeCandidate :: Library -> Telescope -> Bool
+isMapBridgeCandidate lib tele =
+  classifyTelescope tele lib == TCMap
+  && desugaredKappa tele >= 4
+  && desugaredKappa tele <= 4
+  && teleReferencesLoopCarrier lib tele
+  && mapBridgeCoverageScore lib tele >= 3
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+
+mapBridgeQualityScore :: Library -> Telescope -> Int
+mapBridgeQualityScore lib tele
+  | not (isMapBridgeCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + coverageScore + coherenceScore + interactionScore + kappaScore
+  where
+    isHopf = detectCanonicalName tele lib == "Hopf"
+    coverageScore = mapBridgeCoverageScore lib tele
+    canonicalScore = if isHopf then 3 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    kappaScore = if desugaredKappa tele == 4 then 2 else 0
+
+mapBridgePenalty :: Library -> Telescope -> Int -> Double
+mapBridgePenalty lib tele kappa
+  | not (isMapBridgeCandidate lib tele) = 1.0
+  | otherwise = kappaPenalty + coveragePenalty + coherencePenalty + hopfReward
+  where
+    isHopf = detectCanonicalName tele lib == "Hopf"
+    coverage = mapBridgeCoverageScore lib tele
+    kappaPenalty = if kappa /= 4 then 1.0 else 0.0
+    coveragePenalty = if coverage >= 3 then 0.0 else 0.9
+    coherencePenalty = if teleHasCoherenceExpr tele then 0.0 else 0.3
+    hopfReward = if isHopf then (-0.30) else 0.0
+
+mapBridgeCoverageScore :: Library -> Telescope -> Int
+mapBridgeCoverageScore lib tele =
+  sourceScore + targetScore + fiberScore
+  where
+    refs = Set.toList (teleLibRefs tele)
+    hasDim d =
+      any (\i -> i >= 1 && i <= length lib && d `elem` lePathDims (lib !! (i - 1))) refs
+    sourceScore = if hasDim 3 then 1 else 0
+    targetScore = if hasDim 2 then 1 else 0
+    fiberScore = if hasDim 1 then 1 else 0
+
+isModalLiftCandidate :: Library -> Telescope -> Bool
+isModalLiftCandidate lib tele =
+  desugaredKappa tele >= requiredModalLiftKappa tele
+  && teleModalCount tele >= 3
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+  && (teleReferencesLoopCarrier lib tele || teleReferencesModalCarrier lib tele || detectCanonicalName tele lib == "Cohesion")
+
+modalLiftQualityScore :: Library -> Telescope -> Int
+modalLiftQualityScore lib tele
+  | not (isModalLiftCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + modalRichScore + loopRefScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isCohesion = detectCanonicalName tele lib == "Cohesion"
+    modalRich = teleModalCount tele
+    referencesLoop = teleReferencesLoopCarrier lib tele
+    canonicalScore = if isCohesion then 3 else 0
+    modalRichScore = max 0 (modalRich - 2)
+    loopRefScore = if referencesLoop then 2 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCModal then 1 else 0
+    kappaScore = if desugaredKappa tele >= requiredModalLiftKappa tele then 2 else 0
+
+modalLiftPenalty :: Library -> Telescope -> Int -> Double
+modalLiftPenalty lib tele kappa
+  | not (isModalLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + kappaPenalty + noLoopPenalty + noRichPenalty + cohesionReward
+  where
+    cls = classifyTelescope tele lib
+    isCohesion = detectCanonicalName tele lib == "Cohesion"
+    referencesLoop = teleReferencesLoopCarrier lib tele
+    modalRich = teleModalCount tele
+    mapPenalty = if cls == TCMap then 0.35 else 0.0
+    kappaPenalty = if kappa < requiredModalLiftKappa tele then 0.70 else 0.0
+    noLoopPenalty = if referencesLoop then 0.0 else 0.40
+    noRichPenalty = if modalRich >= 3 then 0.0 else 0.80
+    cohesionReward = if isCohesion then (-0.25) else 0.0
+
+isDifferentialLiftCandidate :: Library -> Telescope -> Bool
+isDifferentialLiftCandidate lib tele =
+  teleReferencesModalCarrier lib tele
+  && desugaredKappa tele >= requiredDifferentialLiftKappa tele
+  && teleHasCoherenceExpr tele
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele)
+
+differentialLiftQualityScore :: Library -> Telescope -> Int
+differentialLiftQualityScore lib tele
+  | not (isDifferentialLiftCandidate lib tele) = 0
+  | otherwise =
+      connectionScore + modalRefScore + formerScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isConnections = detectCanonicalName tele lib == "Connections"
+    hasModalRef = teleReferencesModalCarrier lib tele
+    connectionScore = if isConnections then 2 else 0
+    modalRefScore = if hasModalRef then 2 else 0
+    formerScore = if teleHasPiSigma tele then 1 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCAxiomatic then 1 else 0
+    kappaScore = if desugaredKappa tele >= requiredDifferentialLiftKappa tele then 2 else 0
+
+differentialLiftPenalty :: Library -> Telescope -> Int -> Double
+differentialLiftPenalty lib tele kappa
+  | not (isDifferentialLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + modalPenalty + kappaPenalty + connectionReward
+  where
+    cls = classifyTelescope tele lib
+    isConnections = detectCanonicalName tele lib == "Connections"
+    mapPenalty = if cls == TCMap then 0.35 else 0.0
+    modalPenalty = if cls == TCModal then 0.80 else 0.0
+    kappaPenalty = if kappa < requiredDifferentialLiftKappa tele then 0.95 else 0.0
+    connectionReward = if isConnections then (-0.20) else 0.0
+
+isCurvatureLiftCandidate :: Library -> Telescope -> Bool
+isCurvatureLiftCandidate lib tele =
+  teleReferencesDifferentialCarrier lib tele
+  && desugaredKappa tele >= requiredCurvatureLiftKappa tele
+  && teleHasSurfaceEvidence tele
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+
+curvatureLiftQualityScore :: Library -> Telescope -> Int
+curvatureLiftQualityScore lib tele
+  | not (isCurvatureLiftCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + diffRefScore + surfaceScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isCurvature = detectCanonicalName tele lib == "Curvature"
+    hasDiffRef = teleReferencesDifferentialCarrier lib tele
+    hasSurface = teleHasSurfaceEvidence tele
+    canonicalScore = if isCurvature then 2 else 0
+    diffRefScore = if hasDiffRef then 2 else 0
+    surfaceScore = if hasSurface then 2 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCAxiomatic then 1 else 0
+    kappaScore = if desugaredKappa tele >= requiredCurvatureLiftKappa tele then 2 else 0
+
+curvatureLiftPenalty :: Library -> Telescope -> Int -> Double
+curvatureLiftPenalty lib tele kappa
+  | not (isCurvatureLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + modalPenalty + kappaPenalty + noSurfacePenalty + curvatureReward
+  where
+    cls = classifyTelescope tele lib
+    isCurvature = detectCanonicalName tele lib == "Curvature"
+    hasSurface = teleHasSurfaceEvidence tele
+    mapPenalty = if cls == TCMap then 0.35 else 0.0
+    modalPenalty = if cls == TCModal then 0.80 else 0.0
+    kappaPenalty = if kappa < requiredCurvatureLiftKappa tele then 1.10 else 0.0
+    noSurfacePenalty = if hasSurface then 0.0 else 0.60
+    curvatureReward = if isCurvature then (-0.20) else 0.0
+
+isMetricLiftCandidate :: Library -> Telescope -> Bool
+isMetricLiftCandidate lib tele =
+  teleReferencesCurvatureCarrier lib tele
+  && desugaredKappa tele >= 7
+  && teleHasMetricBundleEvidence tele
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+
+metricLiftQualityScore :: Library -> Telescope -> Int
+metricLiftQualityScore lib tele
+  | not (isMetricLiftCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + curvRefScore + bundleScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isMetric = detectCanonicalName tele lib == "Metric"
+    hasCurvRef = teleReferencesCurvatureCarrier lib tele
+    hasBundle = teleHasMetricBundleEvidence tele
+    canonicalScore = if isMetric then 3 else 0
+    curvRefScore = if hasCurvRef then 2 else 0
+    bundleScore = if hasBundle then 3 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCAxiomatic then 1 else 0
+    kappaScore = if desugaredKappa tele >= 7 then 2 else 0
+
+metricLiftPenalty :: Library -> Telescope -> Int -> Double
+metricLiftPenalty lib tele kappa
+  | not (isMetricLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + modalPenalty + kappaPenalty + noBundlePenalty + metricReward
+  where
+    cls = classifyTelescope tele lib
+    isMetric = detectCanonicalName tele lib == "Metric"
+    hasBundle = teleHasMetricBundleEvidence tele
+    mapPenalty = if cls == TCMap then 0.35 else 0.0
+    modalPenalty = if cls == TCModal then 0.80 else 0.0
+    kappaPenalty = if kappa < 7 then 0.85 else 0.0
+    noBundlePenalty = if hasBundle then 0.0 else 0.90
+    metricReward = if isMetric then (-0.25) else 0.0
+
+isHilbertLiftCandidate :: Library -> Telescope -> Bool
+isHilbertLiftCandidate lib tele =
+  teleReferencesMetricCarrier lib tele
+  && teleReferencesCurvatureCarrier lib tele
+  && teleReferencesDifferentialCarrier lib tele
+  && desugaredKappa tele >= 9
+  && teleHasHilbertBundleEvidence tele
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+
+hilbertLiftQualityScore :: Library -> Telescope -> Int
+hilbertLiftQualityScore lib tele
+  | not (isHilbertLiftCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + metricRefScore + curvatureRefScore + differentialRefScore
+      + bundleScore + functionalScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isHilbert = detectCanonicalName tele lib == "Hilbert"
+    hasMetricRef = teleReferencesMetricCarrier lib tele
+    hasCurvatureRef = teleReferencesCurvatureCarrier lib tele
+    hasDifferentialRef = teleReferencesDifferentialCarrier lib tele
+    hasBundle = teleHasHilbertBundleEvidence tele
+    hasFunctional = teleHasFunctionalDerivativeEvidence tele
+    canonicalScore = if isHilbert then 4 else 0
+    metricRefScore = if hasMetricRef then 3 else 0
+    curvatureRefScore = if hasCurvatureRef then 2 else 0
+    differentialRefScore = if hasDifferentialRef then 2 else 0
+    bundleScore = if hasBundle then 6 else 0
+    functionalScore = if hasFunctional then 2 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCAxiomatic then 1 else 0
+    kappaScore = if desugaredKappa tele >= 9 then 2 else 0
+
+hilbertLiftPenalty :: Library -> Telescope -> Int -> Double
+hilbertLiftPenalty lib tele kappa
+  | not (isHilbertLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + modalPenalty + kappaPenalty + noBundlePenalty + noFunctionalPenalty + noCrossPenalty + hilbertReward
+  where
+    cls = classifyTelescope tele lib
+    isHilbert = detectCanonicalName tele lib == "Hilbert"
+    hasBundle = teleHasHilbertBundleEvidence tele
+    hasFunctional = teleHasFunctionalDerivativeEvidence tele
+    crossRefs =
+      length
+        [ ()
+        | ok <- [ teleReferencesMetricCarrier lib tele
+                , teleReferencesCurvatureCarrier lib tele
+                , teleReferencesDifferentialCarrier lib tele
+                ]
+        , ok
+        ]
+    mapPenalty = if cls == TCMap then 0.35 else 0.0
+    modalPenalty = if cls == TCModal then 0.80 else 0.0
+    kappaPenalty = if kappa < 9 then 0.95 else 0.0
+    noBundlePenalty = if hasBundle then 0.0 else 1.10
+    noFunctionalPenalty = if hasFunctional then 0.0 else 0.70
+    noCrossPenalty = if crossRefs >= 3 then 0.0 else 0.75
+    hilbertReward = if isHilbert then (-0.35) else 0.0
+
+isTemporalLiftCandidate :: Library -> Telescope -> Bool
+isTemporalLiftCandidate lib tele =
+  teleReferencesHilbertCarrier lib tele
+  && teleReferencesModalCarrier lib tele
+  && desugaredKappa tele >= requiredTemporalLiftKappa tele
+  && teleHasTemporalOpsPair tele
+  && teleTemporalCompatibilityScore tele >= 2
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+
+temporalLiftQualityScore :: Library -> Telescope -> Int
+temporalLiftQualityScore lib tele
+  | not (isTemporalLiftCandidate lib tele) = 0
+  | otherwise =
+      canonicalScore + hilbertRefScore + modalRefScore + pairScore + compatScore
+      + infShiftScore + distLawScore + polyScore + coherenceScore + interactionScore + classScore + kappaScore
+  where
+    cls = classifyTelescope tele lib
+    isDCT = detectCanonicalName tele lib == "DCT"
+    hasHilbertRef = teleReferencesHilbertCarrier lib tele
+    hasModalRef = teleReferencesModalCarrier lib tele
+    hasPair = teleHasTemporalOpsPair tele
+    compat = teleTemporalCompatibilityScore tele
+    hasInfShift = teleHasInfinitesimalShiftEvidence tele
+    hasDistLaw = teleHasDistributiveTemporalLaw tele
+    hasPoly = teleHasTemporalPolymorphism tele
+    canonicalScore = if isDCT then 5 else 0
+    hilbertRefScore = if hasHilbertRef then 3 else 0
+    modalRefScore = if hasModalRef then 2 else 0
+    pairScore = if hasPair then 3 else 0
+    compatScore = 2 * compat
+    infShiftScore = if hasInfShift then 2 else 0
+    distLawScore = if hasDistLaw then 3 else 0
+    polyScore = if hasPoly then 2 else 0
+    coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
+    interactionScore = if teleHasBridgeInteraction tele then 1 else 0
+    classScore = if cls == TCSynthesis then 1 else 0
+    kappaScore = if desugaredKappa tele >= requiredTemporalLiftKappa tele then 2 else 0
+
+temporalLiftPenalty :: Library -> Telescope -> Int -> Double
+temporalLiftPenalty lib tele kappa
+  | not (isTemporalLiftCandidate lib tele) = 1.0
+  | otherwise = mapPenalty + modalPenalty + kappaPenalty + noPairPenalty + noCompatPenalty + noInfShiftPenalty + noDistLawPenalty + noPolyPenalty + noCrossPenalty + dctReward
+  where
+    cls = classifyTelescope tele lib
+    isDCT = detectCanonicalName tele lib == "DCT"
+    hasPair = teleHasTemporalOpsPair tele
+    compat = teleTemporalCompatibilityScore tele
+    hasInfShift = teleHasInfinitesimalShiftEvidence tele
+    hasDistLaw = teleHasDistributiveTemporalLaw tele
+    hasPoly = teleHasTemporalPolymorphism tele
+    crossRefs =
+      length
+        [ ()
+        | ok <- [ teleReferencesHilbertCarrier lib tele
+                , teleReferencesModalCarrier lib tele
+                ]
+        , ok
+        ]
+    mapPenalty = if cls == TCMap then 0.40 else 0.0
+    modalPenalty = if cls == TCModal then 0.80 else 0.0
+    kappaPenalty = if kappa < requiredTemporalLiftKappa tele then 1.0 else 0.0
+    noPairPenalty = if hasPair then 0.0 else 1.0
+    noCompatPenalty = if compat >= 2 then 0.0 else 1.2
+    noInfShiftPenalty = if hasInfShift then 0.0 else 0.45
+    noDistLawPenalty = if hasDistLaw then 0.0 else 1.8
+    noPolyPenalty = if hasPoly then 0.0 else 1.2
+    noCrossPenalty = if crossRefs >= 2 then 0.0 else 0.80
+    dctReward = if isDCT then (-0.35) else 0.0
+
+teleReferencesHilbertCarrier :: Library -> Telescope -> Bool
+teleReferencesHilbertCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasHilbert (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleReferencesModalCarrier :: Library -> Telescope -> Bool
+teleReferencesModalCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasModalOps (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleReferencesLoopCarrier :: Library -> Telescope -> Bool
+teleReferencesLoopCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasLoop (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleReferencesDifferentialCarrier :: Library -> Telescope -> Bool
+teleReferencesDifferentialCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasDifferentialOps (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleReferencesCurvatureCarrier :: Library -> Telescope -> Bool
+teleReferencesCurvatureCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasCurvature (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleReferencesMetricCarrier :: Library -> Telescope -> Bool
+teleReferencesMetricCarrier lib tele =
+  any (\i -> i >= 1 && i <= length lib && leHasMetric (lib !! (i - 1))) refs
+  where
+    refs = Set.toList (teleLibRefs tele)
+
+teleHasSurfaceEvidence :: Telescope -> Bool
+teleHasSurfaceEvidence (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      PathCon d -> d >= 2
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+teleModalCount :: Telescope -> Int
+teleModalCount (Telescope entries) =
+  length (filter id [hasFlat, hasSharp, hasDisc, hasShape])
+  where
+    exprs = map teType entries
+    hasFlat = any hasFlatExpr exprs
+    hasSharp = any hasSharpExpr exprs
+    hasDisc = any hasDiscExpr exprs
+    hasShape = any hasShapeExpr exprs
+
+    hasFlatExpr expr = case expr of
+      Flat _ -> True
+      Lam a -> hasFlatExpr a
+      App a b -> hasFlatExpr a || hasFlatExpr b
+      Pi a b -> hasFlatExpr a || hasFlatExpr b
+      Sigma a b -> hasFlatExpr a || hasFlatExpr b
+      Id a x y -> hasFlatExpr a || hasFlatExpr x || hasFlatExpr y
+      Refl a -> hasFlatExpr a
+      Susp a -> hasFlatExpr a
+      Trunc a -> hasFlatExpr a
+      Sharp a -> hasFlatExpr a
+      Disc a -> hasFlatExpr a
+      Shape a -> hasFlatExpr a
+      Next a -> hasFlatExpr a
+      Eventually a -> hasFlatExpr a
+      _ -> False
+
+    hasSharpExpr expr = case expr of
+      Sharp _ -> True
+      Lam a -> hasSharpExpr a
+      App a b -> hasSharpExpr a || hasSharpExpr b
+      Pi a b -> hasSharpExpr a || hasSharpExpr b
+      Sigma a b -> hasSharpExpr a || hasSharpExpr b
+      Id a x y -> hasSharpExpr a || hasSharpExpr x || hasSharpExpr y
+      Refl a -> hasSharpExpr a
+      Susp a -> hasSharpExpr a
+      Trunc a -> hasSharpExpr a
+      Flat a -> hasSharpExpr a
+      Disc a -> hasSharpExpr a
+      Shape a -> hasSharpExpr a
+      Next a -> hasSharpExpr a
+      Eventually a -> hasSharpExpr a
+      _ -> False
+
+    hasDiscExpr expr = case expr of
+      Disc _ -> True
+      Lam a -> hasDiscExpr a
+      App a b -> hasDiscExpr a || hasDiscExpr b
+      Pi a b -> hasDiscExpr a || hasDiscExpr b
+      Sigma a b -> hasDiscExpr a || hasDiscExpr b
+      Id a x y -> hasDiscExpr a || hasDiscExpr x || hasDiscExpr y
+      Refl a -> hasDiscExpr a
+      Susp a -> hasDiscExpr a
+      Trunc a -> hasDiscExpr a
+      Flat a -> hasDiscExpr a
+      Sharp a -> hasDiscExpr a
+      Shape a -> hasDiscExpr a
+      Next a -> hasDiscExpr a
+      Eventually a -> hasDiscExpr a
+      _ -> False
+
+    hasShapeExpr expr = case expr of
+      Shape _ -> True
+      Lam a -> hasShapeExpr a
+      App a b -> hasShapeExpr a || hasShapeExpr b
+      Pi a b -> hasShapeExpr a || hasShapeExpr b
+      Sigma a b -> hasShapeExpr a || hasShapeExpr b
+      Id a x y -> hasShapeExpr a || hasShapeExpr x || hasShapeExpr y
+      Refl a -> hasShapeExpr a
+      Susp a -> hasShapeExpr a
+      Trunc a -> hasShapeExpr a
+      Flat a -> hasShapeExpr a
+      Sharp a -> hasShapeExpr a
+      Disc a -> hasShapeExpr a
+      Next a -> hasShapeExpr a
+      Eventually a -> hasShapeExpr a
+      _ -> False
 
 postTruncLiftQualityScore :: Library -> Telescope -> Int
 postTruncLiftQualityScore lib tele
@@ -1794,14 +3351,17 @@ postTruncLiftPenalty lib tele kappa
     libMaxDim = libraryMaxPathDim lib
     teleMaxDim' = teleMaxPathDim tele
     delta = max 0 (teleMaxDim' - libMaxDim)
+    requiredK = requiredPostTruncLiftKappa lib tele
     residualPenalty = if isResidualPostTruncShortcut lib tele then 1.0 else 0.0
-    kappaPenalty = if kappa < 3 then 0.45 else 0.0
+    kappaPenalty = if kappa < requiredK then 0.95 else 0.0
     jumpPenalty = if delta > 1 then 0.35 * fromIntegral (delta - 1) else 0.0
     incrementalReward = if delta == 1 then (-0.10) else 0.0
 
 isPostTruncLiftCandidate :: Library -> Telescope -> Bool
 isPostTruncLiftCandidate lib tele =
   postTruncLiftHasEvidence lib tele
+  && desugaredKappa tele >= requiredPostTruncLiftKappa lib tele
+  && teleHasConcreteTypeFormation tele
   && not (isResidualPostTruncShortcut lib tele)
 
 postTruncLiftHasEvidence :: Library -> Telescope -> Bool
@@ -1814,6 +3374,29 @@ isResidualPostTruncShortcut lib tele =
   teleHasTrunc tele
   && teleMaxPathDim tele <= libraryMaxPathDim lib
   && not (teleHasLiftCoherenceWitness tele)
+
+teleHasConcreteTypeFormation :: Telescope -> Bool
+teleHasConcreteTypeFormation (Telescope entries) =
+  any (go . teType) entries
+  where
+    go expr = case expr of
+      Univ -> True
+      App Univ _ -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
 
 libraryMaxPathDim :: Library -> Int
 libraryMaxPathDim lib =
@@ -1831,13 +3414,15 @@ truncBridgeQualityScore lib tele
   | otherwise =
       kappaBand + loopRefScore + interactionScore + coherenceScore + pathScore + formerScore
   where
+    libMaxDim = libraryMaxPathDim lib
     kappa = desugaredKappa tele
     refs = Set.toList (teleLibRefs tele)
     referencesLoop =
       any (\i -> i >= 1 && i <= length lib && leHasLoop (lib !! (i - 1))) refs
     dims = telePathDimensions tele
     hasPath = not (null dims)
-    hasHighPath = any (>= 2) dims
+    teleMaxDim = if hasPath then maximum dims else 0
+    dimDelta = teleMaxDim - libMaxDim
     hasInteraction = teleHasBridgeInteraction tele
     hasCoherence = teleHasCoherenceExpr tele
     hasFormer = teleHasPiSigma tele
@@ -1849,21 +3434,27 @@ truncBridgeQualityScore lib tele
     interactionScore = if hasInteraction then 2 else 0
     coherenceScore = if hasCoherence then 1 else 0
     pathScore
-      | hasHighPath = 2
-      | hasPath = 1
-      | otherwise = 0
+      | not hasPath = 1
+      | dimDelta <= 0 = 2
+      | dimDelta == 1 = 0
+      | otherwise = -2 * dimDelta
     formerScore = if hasFormer then 1 else 0
 
 truncBridgeShortcutPenalty :: Library -> Telescope -> Int -> Double
 truncBridgeShortcutPenalty lib tele kappa
   | not (teleHasTrunc tele) = 0.0
-  | kappa >= 3 && score >= truncBridgeRichThreshold = 0.0
-  | score >= truncBridgeRichThreshold = 0.0
+  | kappa >= 3 && score >= truncBridgeRichThreshold = dimPenalty
+  | score >= truncBridgeRichThreshold = dimPenalty
   | otherwise =
       let gap = truncBridgeRichThreshold - score
-      in 0.35 + 0.15 * fromIntegral (max 0 gap)
+      in 0.35 + 0.15 * fromIntegral (max 0 gap) + dimPenalty
   where
     score = truncBridgeQualityScore lib tele
+    delta = max 0 (teleMaxPathDim tele - libraryMaxPathDim lib)
+    dimPenalty
+      | delta <= 0 = 0.0
+      | delta == 1 = 0.45
+      | otherwise = 0.45 + 0.55 * fromIntegral (delta - 1)
 
 teleHasBridgeInteraction :: Telescope -> Bool
 teleHasBridgeInteraction (Telescope entries) = any (go . teType) entries
@@ -1926,6 +3517,375 @@ teleHasLiftCoherenceWitness (Telescope entries) = any (go . teType) entries
       Next a -> go a
       Eventually a -> go a
       _ -> False
+
+teleHasMetricBundleEvidence :: Telescope -> Bool
+teleHasMetricBundleEvidence (Telescope entries) =
+  hasGForm && hasConnLike && hasCurvLike
+  where
+    exprs = map teType entries
+    hasGForm = any hasSymmetricBilinear exprs
+    hasConnLike = any hasConnectionLink exprs
+    hasCurvLike = any hasCurvatureLink exprs
+
+    hasSymmetricBilinear expr = case expr of
+      Sigma (Pi _ _) (Pi _ _) -> True
+      Lam a -> hasSymmetricBilinear a
+      App a b -> hasSymmetricBilinear a || hasSymmetricBilinear b
+      Pi a b -> hasSymmetricBilinear a || hasSymmetricBilinear b
+      Id a x y -> hasSymmetricBilinear a || hasSymmetricBilinear x || hasSymmetricBilinear y
+      Refl a -> hasSymmetricBilinear a
+      _ -> False
+
+    hasConnectionLink expr = case expr of
+      Pi (Sigma _ _) (Lib _) -> True
+      Pi _ (Pi _ _) -> True
+      Lam (Pi _ _) -> True
+      App (Lib _) _ -> True
+      Lam a -> hasConnectionLink a
+      App a b -> hasConnectionLink a || hasConnectionLink b
+      Id a x y -> hasConnectionLink a || hasConnectionLink x || hasConnectionLink y
+      Refl a -> hasConnectionLink a
+      _ -> False
+
+    hasCurvatureLink expr = case expr of
+      Pi (Lib _) (Lib _) -> True
+      Pi (Lib _) (Var _) -> True
+      Lam a -> hasCurvatureLink a
+      App a b -> hasCurvatureLink a || hasCurvatureLink b
+      Id a x y -> hasCurvatureLink a || hasCurvatureLink x || hasCurvatureLink y
+      Refl a -> hasCurvatureLink a
+      _ -> False
+
+teleHasHilbertBundleEvidence :: Telescope -> Bool
+teleHasHilbertBundleEvidence (Telescope entries) =
+  length entries >= 9
+  && clauseScore >= 7
+  && libRefCount >= 3
+  where
+    exprs = map teType entries
+    clauseScore :: Int
+    clauseScore =
+      sum
+        [ if any isInnerProduct exprs then 1 else 0
+        , if any isCompleteness exprs then 1 else 0
+        , if any isOrthDecomp exprs then 1 else 0
+        , if any isSpectral exprs then 1 else 0
+        , if any isCStar exprs then 1 else 0
+        , if any isMetricCompat exprs then 1 else 0
+        , if any isCurvatureOp exprs then 1 else 0
+        , if any isConnectionOp exprs then 1 else 0
+        , if any isFunctionalDerivative exprs then 1 else 0
+        ]
+    refs = nub (concatMap exprRefs exprs)
+    libRefCount = length refs
+
+    isInnerProduct expr = case expr of
+      Sigma (Pi _ (Pi _ _)) _ -> True
+      Sigma (Pi _ _) _ -> True
+      Lam a -> isInnerProduct a
+      App a b -> isInnerProduct a || isInnerProduct b
+      Id a x y -> isInnerProduct a || isInnerProduct x || isInnerProduct y
+      Refl a -> isInnerProduct a
+      _ -> False
+
+    isCompleteness expr = case expr of
+      Pi _ _ -> True
+      Lam a -> isCompleteness a
+      App a b -> isCompleteness a || isCompleteness b
+      Id a x y -> isCompleteness a || isCompleteness x || isCompleteness y
+      Refl a -> isCompleteness a
+      _ -> False
+
+    isOrthDecomp expr = case expr of
+      Pi _ (Sigma _ _) -> True
+      Lam a -> isOrthDecomp a
+      App a b -> isOrthDecomp a || isOrthDecomp b
+      Id a x y -> isOrthDecomp a || isOrthDecomp x || isOrthDecomp y
+      Refl a -> isOrthDecomp a
+      _ -> False
+
+    isSpectral expr = case expr of
+      Pi (Pi _ _) (Sigma _ _) -> True
+      Pi (Lam _) (Sigma _ _) -> True
+      Lam a -> isSpectral a
+      App a b -> isSpectral a || isSpectral b
+      Id a x y -> isSpectral a || isSpectral x || isSpectral y
+      Refl a -> isSpectral a
+      _ -> False
+
+    isCStar expr = case expr of
+      Sigma (Pi _ _) (Pi _ _) -> True
+      Lam a -> isCStar a
+      App a b -> isCStar a || isCStar b
+      Id a x y -> isCStar a || isCStar x || isCStar y
+      Refl a -> isCStar a
+      _ -> False
+
+    isMetricCompat expr = case expr of
+      Pi (Lib _) _ -> True
+      Lam a -> isMetricCompat a
+      App a b -> isMetricCompat a || isMetricCompat b
+      Id a x y -> isMetricCompat a || isMetricCompat x || isMetricCompat y
+      Refl a -> isMetricCompat a
+      _ -> False
+
+    isCurvatureOp expr = case expr of
+      Pi (Lib _) (Lib _) -> True
+      Pi (Lib _) (Var _) -> True
+      Lam a -> isCurvatureOp a
+      App a b -> isCurvatureOp a || isCurvatureOp b
+      Id a x y -> isCurvatureOp a || isCurvatureOp x || isCurvatureOp y
+      Refl a -> isCurvatureOp a
+      _ -> False
+
+    isConnectionOp expr = case expr of
+      Pi (Lib _) (Lib _) -> True
+      Pi (Lib _) (Var _) -> True
+      Lam a -> isConnectionOp a
+      App a b -> isConnectionOp a || isConnectionOp b
+      Id a x y -> isConnectionOp a || isConnectionOp x || isConnectionOp y
+      Refl a -> isConnectionOp a
+      _ -> False
+
+    isFunctionalDerivative expr = case expr of
+      Lam (Pi _ Univ) -> True
+      Lam a -> isFunctionalDerivative a
+      App a b -> isFunctionalDerivative a || isFunctionalDerivative b
+      Id a x y -> isFunctionalDerivative a || isFunctionalDerivative x || isFunctionalDerivative y
+      Refl a -> isFunctionalDerivative a
+      _ -> False
+
+teleHasTemporalOpsPair :: Telescope -> Bool
+teleHasTemporalOpsPair (Telescope entries) =
+  hasNext && hasEventually
+  where
+    exprs = map teType entries
+    hasNext = any exprHasNext exprs
+    hasEventually = any exprHasEventually exprs
+
+teleTemporalCompatibilityScore :: Telescope -> Int
+teleTemporalCompatibilityScore (Telescope entries) =
+  sum
+    [ if hasOrthogonality then 1 else 0
+    , if hasShapeStability then 1 else 0
+    , if hasLinearity then 1 else 0
+    ]
+  where
+    exprs = map teType entries
+    hasOrthogonality = any (\e -> exprHasNext e && exprHasFlat e) exprs
+    hasShapeStability = any (\e -> exprHasNext e && exprHasShape e) exprs
+    hasLinearity = any (\e -> exprHasNext e && exprHasPiSigmaApp e) exprs
+
+teleHasInfinitesimalShiftEvidence :: Telescope -> Bool
+teleHasInfinitesimalShiftEvidence (Telescope entries) =
+  any hasInfinitesimalPattern exprs
+  || any (\e -> exprHasNext e && exprHasEventually e && exprHasPiSigmaApp e) exprs
+  where
+    exprs = map teType entries
+    hasInfinitesimalPattern expr = case expr of
+      Sigma (Next _) (Eventually _) -> True
+      Sigma (Eventually _) (Next _) -> True
+      Pi (Next _) (Eventually _) -> True
+      Pi (Eventually _) (Next _) -> True
+      Lam a -> hasInfinitesimalPattern a
+      App a b -> hasInfinitesimalPattern a || hasInfinitesimalPattern b
+      Id a x y -> hasInfinitesimalPattern a || hasInfinitesimalPattern x || hasInfinitesimalPattern y
+      Refl a -> hasInfinitesimalPattern a
+      Susp a -> hasInfinitesimalPattern a
+      Trunc a -> hasInfinitesimalPattern a
+      Flat a -> hasInfinitesimalPattern a
+      Sharp a -> hasInfinitesimalPattern a
+      Disc a -> hasInfinitesimalPattern a
+      Shape a -> hasInfinitesimalPattern a
+      Next a -> hasInfinitesimalPattern a
+      Eventually a -> hasInfinitesimalPattern a
+      _ -> False
+
+teleHasDistributiveTemporalLaw :: Telescope -> Bool
+teleHasDistributiveTemporalLaw (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      Pi lhs rhs -> isModalTemporal lhs && isTemporalModal rhs
+                 || isTemporalModal lhs && isModalTemporal rhs
+                 || go lhs || go rhs
+      Lam a -> go a
+      App a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+    isModalTemporal e = case e of
+      Flat (Next _) -> True
+      Flat (Eventually _) -> True
+      Sharp (Next _) -> True
+      Sharp (Eventually _) -> True
+      Disc (Next _) -> True
+      Disc (Eventually _) -> True
+      Shape (Next _) -> True
+      Shape (Eventually _) -> True
+      _ -> False
+
+    isTemporalModal e = case e of
+      Next (Flat _) -> True
+      Next (Sharp _) -> True
+      Next (Disc _) -> True
+      Next (Shape _) -> True
+      Eventually (Flat _) -> True
+      Eventually (Sharp _) -> True
+      Eventually (Disc _) -> True
+      Eventually (Shape _) -> True
+      _ -> False
+
+teleHasTemporalPolymorphism :: Telescope -> Bool
+teleHasTemporalPolymorphism (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      Lam (App (Eventually (Var _)) _) -> True
+      Pi (Next (Next (Var _))) (Next (Var _)) -> True
+      Pi (Next (Var _)) (Eventually (Var _)) -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
+exprHasNext :: MBTTExpr -> Bool
+exprHasNext expr = case expr of
+  Next _ -> True
+  Lam a -> exprHasNext a
+  App a b -> exprHasNext a || exprHasNext b
+  Pi a b -> exprHasNext a || exprHasNext b
+  Sigma a b -> exprHasNext a || exprHasNext b
+  Id a x y -> exprHasNext a || exprHasNext x || exprHasNext y
+  Refl a -> exprHasNext a
+  Susp a -> exprHasNext a
+  Trunc a -> exprHasNext a
+  Flat a -> exprHasNext a
+  Sharp a -> exprHasNext a
+  Disc a -> exprHasNext a
+  Shape a -> exprHasNext a
+  Eventually a -> exprHasNext a
+  _ -> False
+
+exprHasEventually :: MBTTExpr -> Bool
+exprHasEventually expr = case expr of
+  Eventually _ -> True
+  Lam a -> exprHasEventually a
+  App a b -> exprHasEventually a || exprHasEventually b
+  Pi a b -> exprHasEventually a || exprHasEventually b
+  Sigma a b -> exprHasEventually a || exprHasEventually b
+  Id a x y -> exprHasEventually a || exprHasEventually x || exprHasEventually y
+  Refl a -> exprHasEventually a
+  Susp a -> exprHasEventually a
+  Trunc a -> exprHasEventually a
+  Flat a -> exprHasEventually a
+  Sharp a -> exprHasEventually a
+  Disc a -> exprHasEventually a
+  Shape a -> exprHasEventually a
+  Next a -> exprHasEventually a
+  _ -> False
+
+exprHasFlat :: MBTTExpr -> Bool
+exprHasFlat expr = case expr of
+  Flat _ -> True
+  Lam a -> exprHasFlat a
+  App a b -> exprHasFlat a || exprHasFlat b
+  Pi a b -> exprHasFlat a || exprHasFlat b
+  Sigma a b -> exprHasFlat a || exprHasFlat b
+  Id a x y -> exprHasFlat a || exprHasFlat x || exprHasFlat y
+  Refl a -> exprHasFlat a
+  Susp a -> exprHasFlat a
+  Trunc a -> exprHasFlat a
+  Sharp a -> exprHasFlat a
+  Disc a -> exprHasFlat a
+  Shape a -> exprHasFlat a
+  Next a -> exprHasFlat a
+  Eventually a -> exprHasFlat a
+  _ -> False
+
+exprHasShape :: MBTTExpr -> Bool
+exprHasShape expr = case expr of
+  Shape _ -> True
+  Lam a -> exprHasShape a
+  App a b -> exprHasShape a || exprHasShape b
+  Pi a b -> exprHasShape a || exprHasShape b
+  Sigma a b -> exprHasShape a || exprHasShape b
+  Id a x y -> exprHasShape a || exprHasShape x || exprHasShape y
+  Refl a -> exprHasShape a
+  Susp a -> exprHasShape a
+  Trunc a -> exprHasShape a
+  Flat a -> exprHasShape a
+  Sharp a -> exprHasShape a
+  Disc a -> exprHasShape a
+  Next a -> exprHasShape a
+  Eventually a -> exprHasShape a
+  _ -> False
+
+exprHasPiSigmaApp :: MBTTExpr -> Bool
+exprHasPiSigmaApp expr = case expr of
+  Pi _ _ -> True
+  Sigma _ _ -> True
+  App _ _ -> True
+  Lam a -> exprHasPiSigmaApp a
+  Id a x y -> exprHasPiSigmaApp a || exprHasPiSigmaApp x || exprHasPiSigmaApp y
+  Refl a -> exprHasPiSigmaApp a
+  Susp a -> exprHasPiSigmaApp a
+  Trunc a -> exprHasPiSigmaApp a
+  Flat a -> exprHasPiSigmaApp a
+  Sharp a -> exprHasPiSigmaApp a
+  Disc a -> exprHasPiSigmaApp a
+  Shape a -> exprHasPiSigmaApp a
+  Next a -> exprHasPiSigmaApp a
+  Eventually a -> exprHasPiSigmaApp a
+  _ -> False
+
+teleHasFunctionalDerivativeEvidence :: Telescope -> Bool
+teleHasFunctionalDerivativeEvidence (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      Lam (Pi _ Univ) -> True
+      Lam a -> go a
+      App a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      _ -> False
+
+exprRefs :: MBTTExpr -> [Int]
+exprRefs (Lib i) = [i]
+exprRefs (Lam a) = exprRefs a
+exprRefs (Refl a) = exprRefs a
+exprRefs (Susp a) = exprRefs a
+exprRefs (Trunc a) = exprRefs a
+exprRefs (Flat a) = exprRefs a
+exprRefs (Sharp a) = exprRefs a
+exprRefs (Disc a) = exprRefs a
+exprRefs (Shape a) = exprRefs a
+exprRefs (Next a) = exprRefs a
+exprRefs (Eventually a) = exprRefs a
+exprRefs (Pi a b) = exprRefs a ++ exprRefs b
+exprRefs (Sigma a b) = exprRefs a ++ exprRefs b
+exprRefs (App a b) = exprRefs a ++ exprRefs b
+exprRefs (Id a x y) = exprRefs a ++ exprRefs x ++ exprRefs y
+exprRefs _ = []
 
 teleHasPiSigma :: Telescope -> Bool
 teleHasPiSigma (Telescope entries) = any (go . teType) entries

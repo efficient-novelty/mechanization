@@ -253,7 +253,7 @@ executable acceptance
                     , containers
     hs-source-dirs:   src
     default-language: Haskell2010
-    ghc-options:      -Wall -O2
+    ghc-options:      -Wall -O2 -threaded -rtsopts "-with-rtsopts=-N2 -A16m -M1536m"
 
 executable acceptance-core
     main-is:          RunAcceptanceCore.hs
@@ -280,7 +280,7 @@ executable acceptance-core
                     , containers
     hs-source-dirs:   src
     default-language: Haskell2010
-    ghc-options:      -Wall -O2
+    ghc-options:      -Wall -O2 -threaded -rtsopts "-with-rtsopts=-N2 -A16m -M1536m"
 
 executable acceptance-mbtt
     main-is:          RunAcceptanceMBTT.hs
@@ -307,7 +307,7 @@ executable acceptance-mbtt
                     , containers
     hs-source-dirs:   src
     default-language: Haskell2010
-    ghc-options:      -Wall -O2
+    ghc-options:      -Wall -O2 -threaded -rtsopts "-with-rtsopts=-N2 -A16m -M1536m"
 
 
 executable agda-bridge

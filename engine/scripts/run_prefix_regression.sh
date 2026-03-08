@@ -16,6 +16,8 @@ MAX_STEPS="${MAX_STEPS:-7}"
 RTS_CORES="${RTS_CORES:--N}"
 REQUIRE_SUCCESS_THROUGH="${REQUIRE_SUCCESS_THROUGH:-7}"
 EXPECTED_NAMES="${EXPECTED_NAMES:-1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2}"
+USE_CABAL_RUN="${USE_CABAL_RUN:-0}"
+ABINITIO_BIN="${ABINITIO_BIN:-}"
 
 TIMEOUT_CMD="timeout"
 if ! command -v "$TIMEOUT_CMD" >/dev/null 2>&1; then
@@ -30,24 +32,54 @@ fi
 mkdir -p "$OUT_DIR"
 
 RUN_LOG="$OUT_DIR/prefix_run.log"
+BUILD_LOG="$OUT_DIR/prefix_build.log"
 REPORT_TMP="strict_prefix_report.csv"
 REPORT_CSV="$OUT_DIR/prefix_report.csv"
 SUMMARY_CSV="$OUT_DIR/prefix_summary.csv"
-rm -f "$RUN_LOG" "$REPORT_CSV" "$SUMMARY_CSV"
+rm -f "$RUN_LOG" "$BUILD_LOG" "$REPORT_CSV" "$SUMMARY_CSV"
 
 pushd "$ENGINE_DIR" >/dev/null
 rm -f "$REPORT_TMP"
 
+RUN_DESC=""
+if [[ "$USE_CABAL_RUN" != "1" ]]; then
+  if [[ -z "$ABINITIO_BIN" ]]; then
+    set +e
+    cabal build exe:ab-initio > "$BUILD_LOG" 2>&1
+    build_ec=$?
+    set -e
+    if [[ "$build_ec" -ne 0 ]]; then
+      echo "Failed to build exe:ab-initio (see $BUILD_LOG)." >&2
+      exit "$build_ec"
+    fi
+    ABINITIO_BIN="$(cabal list-bin exe:ab-initio)"
+  fi
+  RUN_DESC="$ABINITIO_BIN --strict --phase1-shadow --max-steps $MAX_STEPS --prefix-report $REPORT_TMP +RTS $RTS_CORES -RTS"
+else
+  RUN_DESC="cabal run exe:ab-initio -- --strict --phase1-shadow --max-steps $MAX_STEPS --prefix-report $REPORT_TMP +RTS $RTS_CORES -RTS"
+fi
+
 start_epoch="$(date +%s)"
 set +e
-"$TIMEOUT_CMD" "$TIMEOUT_S" \
-  cabal run exe:ab-initio -- \
-    --strict \
-    --phase1-shadow \
-    --max-steps "$MAX_STEPS" \
-    --prefix-report "$REPORT_TMP" \
-    +RTS "$RTS_CORES" -RTS \
-    > "$RUN_LOG" 2>&1
+if [[ "$USE_CABAL_RUN" = "1" ]]; then
+  "$TIMEOUT_CMD" "$TIMEOUT_S" \
+    cabal run exe:ab-initio -- \
+      --strict \
+      --phase1-shadow \
+      --max-steps "$MAX_STEPS" \
+      --prefix-report "$REPORT_TMP" \
+      +RTS "$RTS_CORES" -RTS \
+      > "$RUN_LOG" 2>&1
+else
+  "$TIMEOUT_CMD" "$TIMEOUT_S" \
+    "$ABINITIO_BIN" \
+      --strict \
+      --phase1-shadow \
+      --max-steps "$MAX_STEPS" \
+      --prefix-report "$REPORT_TMP" \
+      +RTS "$RTS_CORES" -RTS \
+      > "$RUN_LOG" 2>&1
+fi
 ec=$?
 set -e
 end_epoch="$(date +%s)"
@@ -206,13 +238,14 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "rts_cores": "$RTS_CORES",
   "require_success_through": $REQUIRE_SUCCESS_THROUGH,
   "expected_names": "$EXPECTED_NAMES",
-  "command": "cabal run exe:ab-initio -- --strict --phase1-shadow --max-steps $MAX_STEPS --prefix-report strict_prefix_report.csv +RTS $RTS_CORES -RTS",
+  "command": "$RUN_DESC",
   "artifacts": {
     "report_csv": "$(basename "$REPORT_CSV")",
     "summary_csv": "$(basename "$SUMMARY_CSV")",
     "gate_txt": "prefix_gate.txt",
     "runtime_txt": "runtime.txt",
-    "log_txt": "$(basename "$RUN_LOG")"
+    "log_txt": "$(basename "$RUN_LOG")",
+    "build_log_txt": "$(basename "$BUILD_LOG")"
   }
 }
 JSON
