@@ -180,9 +180,13 @@ library
                     , MBTTEnum
                     , MBTTCanonical
                     , MBTTNu
-                    , MBTTDecode
-                    , ProofState
-                    , AgendaSearch
+                     , MBTTDecode
+                     , AbInitioPolicy
+                    , StrictCritic
+                    , StrictMinimality
+                    , StrictMolecules
+                     , ProofState
+                     , AgendaSearch
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , aeson
                     , bytestring
@@ -214,9 +218,13 @@ executable ab-initio
                     , MBTTEnum
                     , MBTTCanonical
                     , MBTTNu
-                    , MBTTDecode
-                    , ProofState
-                    , AgendaSearch
+                     , MBTTDecode
+                     , AbInitioPolicy
+                     , StrictCritic
+                     , StrictMinimality
+                     , StrictMolecules
+                     , ProofState
+                     , AgendaSearch
                     , Parallel
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
@@ -248,7 +256,10 @@ executable acceptance
                     , MBTTEnum
                     , MBTTCanonical
                     , MBTTNu
-                    , MBTTDecode
+                     , MBTTDecode
+                     , AbInitioPolicy
+                     , StrictCritic
+                     , StrictMinimality
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src
@@ -275,7 +286,10 @@ executable acceptance-core
                     , MBTTEnum
                     , MBTTCanonical
                     , MBTTNu
-                    , MBTTDecode
+                     , MBTTDecode
+                     , AbInitioPolicy
+                     , StrictCritic
+                     , StrictMinimality
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src
@@ -302,7 +316,10 @@ executable acceptance-mbtt
                     , MBTTEnum
                     , MBTTCanonical
                     , MBTTNu
-                    , MBTTDecode
+                     , MBTTDecode
+                     , AbInitioPolicy
+                     , StrictCritic
+                     , StrictMinimality
     build-depends:    base ^>=4.14 || ^>=4.15 || ^>=4.16 || ^>=4.17 || ^>=4.18 || ^>=4.19
                     , containers
     hs-source-dirs:   src

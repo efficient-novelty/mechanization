@@ -23,7 +23,7 @@ module AcceptanceSuite
   ) where
 
 import Telescope
-import TelescopeEval (telescopeToCandidate, detectCanonicalName)
+import TelescopeEval (telescopeToCandidate, detectCanonicalName, evaluateTelescope, EvalMode(..))
 import StructuralNu (structuralNu, StructuralNuResult(..))
 import CoherenceWindow (dBonacciDelta)
 import TelescopeCheck (checkTelescope, CheckResult(..))
@@ -32,6 +32,13 @@ import MBTTCanonical (canonicalizeExpr, canonicalKeyExpr)
 import MBTTNu (computeNativeNu, NativeNuResult(..))
 import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
+import AbInitioPolicy ( strictAdmissibility
+                      , strictStepBudgetSeconds
+                      , StrictAdmissibility(..)
+                      , strictInterfaceDebt
+                      , capFromInterfaceDebt
+                      , bandsFromInterfaceDebt
+                      )
 
 import System.Exit (exitFailure, exitSuccess)
 import System.Environment (getArgs)
@@ -864,6 +871,75 @@ testJ13NativeNuNegativeControl =
       else return $ Fail "negative control unexpectedly matched")
 
 -- ============================================
+-- Test K: Honest Strict Policy
+-- ============================================
+
+testK1StrictBudgetSchedule :: Test
+testK1StrictBudgetSchedule =
+  ("K1. Honest strict step budgets match the monotone schedule", do
+    let expected = [10, 15, 20, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195]
+        actual = map strictStepBudgetSeconds [1..15]
+    if actual == expected
+      then return Pass
+      else return $ Fail $ "Expected " ++ show expected ++ ", got " ++ show actual)
+
+testK2StrictAdmissibilityCaps :: Test
+testK2StrictAdmissibilityCaps =
+  ("K2. Honest strict admissibility is debt-derived and keeps narrow bands", do
+    let bootstrapCases =
+          [ (1, canonicalLibAt 0, StrictAdmissibility 2 [2])
+          , (2, canonicalLibAt 1, StrictAdmissibility 1 [1])
+          , (3, canonicalLibAt 2, StrictAdmissibility 1 [1])
+          ]
+        bootstrapMismatches =
+          [ (step, expected, actual)
+          | (step, lib, expected) <- bootstrapCases
+          , let actual = strictAdmissibility step lib
+          , actual /= expected
+          ]
+        debtCases = [(step, canonicalLibAt (step - 1)) | step <- [4..15]]
+        debtMismatches =
+          [ (step, actual, expected)
+          | (step, lib) <- debtCases
+          , let debt = strictInterfaceDebt 2 lib
+          , let expected = StrictAdmissibility (capFromInterfaceDebt debt) (bandsFromInterfaceDebt debt)
+          , let actual = strictAdmissibility step lib
+          , actual /= expected
+          ]
+        widthViolations =
+          [ (step, actual)
+          | (step, lib) <- debtCases
+          , let actual = strictAdmissibility step lib
+          , length (saBands actual) > 2
+             || null (saBands actual)
+             || any (\band -> band < 3 || band > saCap actual) (saBands actual)
+          ]
+        earlyCapViolations =
+          [ (step, saCap actual)
+          | (step, lib) <- take 4 debtCases
+          , let actual = strictAdmissibility step lib
+          , saCap actual > 5
+          ]
+    if null bootstrapMismatches && null debtMismatches && null widthViolations && null earlyCapViolations
+      then return Pass
+      else return $ Fail $
+        "bootstrap=" ++ show bootstrapMismatches
+        ++ " debt=" ++ show debtMismatches
+        ++ " width=" ++ show widthViolations
+        ++ " early=" ++ show earlyCapViolations)
+
+testK3StrictEvalNameInvariant :: Test
+testK3StrictEvalNameInvariant =
+  ("K3. Honest strict evaluation is invariant under external candidate names", do
+    let lib = canonicalLibAt 9
+        tele = referenceTelescope 10
+        scoreA = evaluateTelescope EvalStrictComputed tele lib 1 "candidate"
+        scoreB = evaluateTelescope EvalStrictComputed tele lib 1 "totally-different-name"
+    if scoreA == scoreB
+      then return Pass
+      else return $ Fail $ "Strict score changed under rename: " ++ show (scoreA, scoreB))
+
+-- ============================================
 -- Entry points
 -- ============================================
 
@@ -905,6 +981,9 @@ coreTests =
      , testC3KappaMonotonicity
      , testC4DecodingNonInterference
      , testC4bBarNameFree
+     , testK1StrictBudgetSchedule
+     , testK2StrictAdmissibilityCaps
+     , testK3StrictEvalNameInvariant
      ]
 
 mbttTests :: AcceptanceConfig -> [Test]

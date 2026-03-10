@@ -212,6 +212,7 @@ data LibraryEntry = LibraryEntry
   , lePathDims :: [Int]        -- ^ Path constructor dimensions
   , leHasLoop :: Bool          -- ^ Does this type have a non-trivial loop?
   , leIsTruncated :: Maybe Int -- ^ Is this type n-truncated?
+  , leAxiomaticExports :: Int  -- ^ Number of top-level axiomatic clauses exported by this layer
   -- Structural capability flags (used by availableFormers)
   , leHasDependentFunctions :: Bool  -- ^ Provides Pi/Sigma type formers
   , leHasModalOps :: Bool            -- ^ Provides cohesive modalities (Flat, Sharp, Disc, Shape)
@@ -232,6 +233,7 @@ mkLibraryEntry name ctors dims loop trunc = LibraryEntry
   , lePathDims = dims
   , leHasLoop = loop
   , leIsTruncated = trunc
+  , leAxiomaticExports = max 1 (ctors + length dims + boolWeight loop + truncWeight trunc)
   , leHasDependentFunctions = False
   , leHasModalOps = False
   , leHasDifferentialOps = False
@@ -240,6 +242,14 @@ mkLibraryEntry name ctors dims loop trunc = LibraryEntry
   , leHasHilbert = False
   , leHasTemporalOps = False
   }
+
+boolWeight :: Bool -> Int
+boolWeight True = 1
+boolWeight False = 0
+
+truncWeight :: Maybe Int -> Int
+truncWeight (Just _) = 1
+truncWeight Nothing = 0
 
 -- | A library is a list of type entries
 type Library = [LibraryEntry]

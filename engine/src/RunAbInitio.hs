@@ -27,8 +27,18 @@
 module Main where
 
 import Telescope
-import TelescopeGen (enumerateTelescopes, GoalProfile(..), GoalIntent(..), deriveGoalProfile)
-import MBTTEnum (enumerateMBTTTelescopes, defaultEnumConfig, MBTTCandidate(..), EnumConfig(..))
+import TelescopeGen (enumerateTelescopes, GoalProfile(..), GoalIntent(..), deriveGoalProfile, defaultGoalProfile)
+import MBTTEnum ( enumerateMBTTTelescopes
+                 , enumerateMBTTTelescopesWithDiagnostics
+                 , defaultEnumConfig
+                 , MBTTCandidate(..)
+                 , EnumStepCache
+                 , emptyEnumStepCache
+                 , EnumConfig(..)
+                 , FrontierMode(..)
+                 , EnumBandDiagnostics(..)
+                 )
+import AbInitioPolicy (StrictAdmissibility(..), strictAdmissibility, strictStepBudgetSeconds)
 import AgendaSearch ( agendaGenerateCandidatesWithDiagnostics
                     , defaultAgendaConfig
                     , AgendaConfig(..)
@@ -43,14 +53,20 @@ import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
                       telescopeToCandidate,
                       telescopeToCandidateStructural,
                       validateReferenceTelescopes, detectCanonicalName)
-import TelescopeCheck (checkAndFilter)
+import TelescopeCheck (checkAndFilter, checkTelescope, CheckResult(..))
 import MCTS
+import StrictCritic (ObligationSummary(..), FrontierDiagnostics(..), analyzeObligations, closureScore,
+                     dependentMotiveDensity, formerLifecycleScore, genericBinderCount,
+                     internalAdjointScore, trueEliminatorScore)
+import StrictMinimality (terminalSCCSubBundles)
+import StrictMolecules (ClauseProvenance(..), CompiledMolecule(..), enumerateStrictMolecularCandidates)
 import UniformNu (genesisLibrarySteps, GenesisStep(..), computeUniformNu, UniformNuResult(..))
+import MBTTNu (computeNativeNu, NativeNuResult(..))
 import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
 import CoherenceWindow (dBonacciDelta)
 
-import Data.List (sortOn, nub)
+import Data.List (sortOn, nub, foldl')
 import Data.Ord (Down(..))
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -60,7 +76,7 @@ import System.Environment (getArgs)
 import System.Mem (performMajorGC)
 import GHC.Stats (getRTSStatsEnabled, getRTSStats, gc, gcdetails_live_bytes, gcdetails_mem_in_use_bytes, max_mem_in_use_bytes)
 import Text.Printf (printf)
-import Data.Time.Clock (getCurrentTime, diffUTCTime)
+import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
 
 -- ============================================
 -- Mode Selection
@@ -69,7 +85,8 @@ import Data.Time.Clock (getCurrentTime, diffUTCTime)
 -- | Ab initio synthesis mode.
 data AbInitioMode
   = PaperCalibrated   -- ^ Bar from paper ν/κ (benchmark/replay only)
-  | StrictAbInitio    -- ^ Bar from discovered ν/κ only, no paper fallback
+  | GuidedRecovery    -- ^ Legacy guided recovery with seeds, family rescue, and canonical steering
+  | StrictAbInitio    -- ^ Honest strict lane: discovered ν/κ only, no hidden guidance
   | StructuralAbInitio -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
@@ -152,14 +169,143 @@ data SearchBudget = SearchBudget
   , sbSnapshot       :: !(Maybe MemorySnapshot)
   } deriving (Show)
 
+data RetryBudget = RetryBudget
+  { rbTier             :: !Int
+  , rbBitBudget        :: !Int
+  , rbAstDepth         :: !Int
+  , rbMaxCandidates    :: !Int
+  , rbAgendaStates     :: !Int
+  , rbAgendaCandidates :: !Int
+  , rbBranchPerState   :: !Int
+  , rbLeafExprCap      :: !Int
+  } deriving (Show, Eq)
+
+data SearchAttempt = SearchAttempt
+  { saRetryTier        :: !Int
+  , saBudgetBit        :: !Int
+  , saBudgetDepth      :: !Int
+  , saBudgetCandidates :: !Int
+  , saAgendaStates     :: !Int
+  , saAgendaCandidates :: !Int
+  , saEnumMs           :: !Double
+  , saCheckMs          :: !Double
+  , saEvalMs           :: !Double
+  , saAttemptMs        :: !Double
+  , saRawTelescopes    :: !Int
+  , saValidTelescopes  :: !Int
+  , saViableCount      :: !Int
+  , saCandidates       :: ![Candidate]
+  , saAgendaDiag       :: !AgendaDiagnostics
+  , saAgendaActive     :: !Bool
+  } deriving (Show)
+
+data RequiredFamily
+  = FamilyUniverseGenesis
+  | FamilyFoundation
+  | FamilyFormer
+  | FamilyWitnessIntro
+  | FamilyBootstrapHIT
+  | FamilyTrunc
+  | FamilyPostTrunc
+  | FamilyMapBridge
+  | FamilyModal
+  | FamilyDifferential
+  | FamilyCurvature
+  | FamilyMetric
+  | FamilyHilbert
+  | FamilyTemporal
+  deriving (Show, Eq)
+
+data PrefixDiagnostics = PrefixDiagnostics
+  { pdRetryTier          :: !Int
+  , pdRetryCause         :: !String
+  , pdGuidanceMode       :: !String
+  , pdAdmissibilityKappaCap :: !(Maybe Int)
+  , pdSearchedKappaBands :: !String
+  , pdSelectedKappaBand  :: !(Maybe Int)
+  , pdStepBudgetSeconds  :: !(Maybe Int)
+  , pdElapsedSeconds     :: !(Maybe Double)
+  , pdEvaluatedCandidates :: !Int
+  , pdDedupedCandidates  :: !Int
+  , pdMinimalityRejections :: !Int
+  , pdBestObligationScore :: !(Maybe Int)
+  , pdBestInterfaceDensity :: !(Maybe Int)
+  , pdBestGenericityScore :: !(Maybe Int)
+  , pdBestClosureScore :: !(Maybe Int)
+  , pdFrontierCandidates :: !Int
+  , pdFrontierKept :: !Int
+  , pdMCTSSeedStates :: !Int
+  , pdMCTSCompletedStates :: !Int
+  , pdRequiredFamily     :: !String
+  , pdBestFamilyRho      :: !(Maybe Double)
+  , pdBestFamilyKappa    :: !(Maybe Int)
+  , pdFamilyCandidates   :: !Int
+  , pdFamilyViable       :: !Int
+  } deriving (Show)
+
+data HonestBandTrace = HonestBandTrace
+  { hbtBand :: !Int
+  , hbtElapsedSeconds :: !Double
+  , hbtFrontier :: !FrontierDiagnostics
+  , hbtEvaluated :: !Int
+  , hbtDeduped :: !Int
+  , hbtViable :: !Int
+  } deriving (Show)
+
+data StrictBandSeed = StrictBandSeed
+  { sbsTelescope :: !Telescope
+  , sbsConceptualKappa :: !(Maybe Int)
+  , sbsAxiomaticExports :: !(Maybe Int)
+  , sbsClauseProvenance :: !(Maybe [ClauseProvenance])
+  , sbsSource :: !String
+  } deriving (Show)
+
+data EvalCacheKey = EvalCacheKey
+  { eckMode     :: !String
+  , eckTelescope :: !String
+  , eckNuDepth  :: !Int
+  , eckHistory  :: !String
+  } deriving (Show, Eq, Ord)
+
+type EvalCache = Map.Map EvalCacheKey (Int, Int, Double)
+
+data HonestSearchState = HonestSearchState
+  { hsEnumCache           :: !EnumStepCache
+  , hsEvalCache           :: !EvalCache
+  , hsSeenKeys            :: !(Set.Set CanonKey)
+  , hsSeedByKey           :: !(Map.Map CanonKey StrictBandSeed)
+  , hsRawCandidates       :: !Int
+  , hsEvaluatedCandidates :: !Int
+  , hsDedupedCandidates   :: !Int
+  , hsMinimalityRejects   :: !Int
+  , hsSearchedBands       :: ![Int]
+  , hsViableCandidates    :: ![Candidate]
+  , hsBandTraces          :: ![HonestBandTrace]
+  , hsFailedFrontier      :: ![(Telescope, ObligationSummary)]
+  , hsMCTSSeedStates      :: !Int
+  , hsMCTSCompletedStates :: !Int
+  } deriving (Show)
+
 -- | Convert synthesis mode to evaluation mode.
 -- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
 -- StrictAbInitio never reads paper tables — all ν/κ computed from telescope + library.
 -- StructuralAbInitio uses StructuralNu AST rule extraction.
 toEvalMode :: AbInitioMode -> EvalMode
 toEvalMode PaperCalibrated    = EvalPaperCalibrated
+toEvalMode GuidedRecovery     = EvalGuidedComputed
 toEvalMode StrictAbInitio     = EvalStrictComputed
 toEvalMode StructuralAbInitio = EvalStructural
+
+isHonestMode :: AbInitioMode -> Bool
+isHonestMode StrictAbInitio = True
+isHonestMode StructuralAbInitio = True
+isHonestMode _ = False
+
+guidanceModeLabel :: AbInitioMode -> String
+guidanceModeLabel PaperCalibrated = "paper"
+guidanceModeLabel GuidedRecovery = "guided-recovery"
+guidanceModeLabel StrictAbInitio = "honest-strict"
+guidanceModeLabel StructuralAbInitio = "honest-structural"
 
 -- ============================================
 -- Main Entry Point
@@ -185,14 +331,20 @@ main = do
       putStrLn "  Bar:       Paper nu/kappa history"
       putStrLn "  Library:   Discovered entries only"
       putStrLn "  NOTE:      Benchmark mode only (not claim-grade discovery)"
-    StrictAbInitio -> do
-      putStrLn "  Evaluator: EvalStrictComputed (computeUniformNu + strictKappa, zero paper tables)"
+    GuidedRecovery -> do
+      putStrLn "  Evaluator: EvalGuidedComputed (legacy strict bonuses and family steering)"
       putStrLn "  Bar:       Discovered nu/kappa history only"
-      putStrLn "  Library:   Discovered entries only, no fallback"
+      putStrLn "  Library:   Discovered entries only, guided recovery enabled"
+    StrictAbInitio -> do
+      putStrLn "  Evaluator: EvalStrictComputed (uniform structure count + bootstrap adjoint completion only)"
+      putStrLn "  Bar:       Discovered nu/kappa history only"
+      putStrLn "  Library:   Discovered entries only, no seeds/family rescue/canonical steering"
+      putStrLn "  Search:    Exact desugared-kappa bands under explicit admissibility caps"
     StructuralAbInitio -> do
       putStrLn "  Evaluator: EvalStructural (StructuralNu AST rule extraction)"
       putStrLn "  Bar:       Discovered nu/kappa history only"
-      putStrLn "  Library:   Discovered entries only, no fallback"
+      putStrLn "  Library:   Discovered entries only, no seeds/family rescue/canonical steering"
+      putStrLn "  Search:    Exact desugared-kappa bands under explicit admissibility caps"
       putStrLn "  Features:  3-component decomposition (v_G + v_H + v_C)"
       putStrLn "             Meta-theorem multipliers for DCT (Big Bang)"
       putStrLn "  PAPER-INDEPENDENCE: Zero paper nu/kappa lookups in evaluation,"
@@ -257,11 +409,11 @@ main = do
 -- | Parse command line arguments.
 parseArgs :: [String] -> AbInitioConfig
 parseArgs args =
-  let mode = if "--structural" `elem` args then StructuralAbInitio
-             else if "--strict" `elem` args then StrictAbInitio
-             else if "--paper" `elem` args || "--paper-calibrated-benchmark" `elem` args
+  let mode = if "--paper" `elem` args || "--paper-calibrated-benchmark" `elem` args
                   then PaperCalibrated
-                  else StrictAbInitio
+             else if "--guided-recovery" `elem` args then GuidedRecovery
+             else if "--structural" `elem` args then StructuralAbInitio
+             else StrictAbInitio
       window = case dropWhile (/= "--window") args of
                  ("--window" : n : _) -> case reads n of
                    [(d, "")] | d >= 1 && d <= 5 -> d
@@ -378,6 +530,7 @@ abInitioLoop cfg = do
     mkLibraryEntry :: Library -> Telescope -> String -> LibraryEntry
     mkLibraryEntry lib tele name = case mode of
       PaperCalibrated -> telescopeToCandidate tele lib name
+      GuidedRecovery -> telescopeToCandidateStructural tele lib name
       StrictAbInitio -> telescopeToCandidateStructural tele lib name
       StructuralAbInitio -> telescopeToCandidateStructural tele lib name
     go :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
@@ -417,6 +570,7 @@ abInitioLoop cfg = do
           case cfgCsv cfg of
             Just csvPath -> writeCsv csvPath orderedRecords
             Nothing      -> return ()
+      | isHonestMode mode = runHonestStep lib history records step
       | otherwise = do
           let -- Compute selection bar
               d = cfgWindow cfg
@@ -433,6 +587,7 @@ abInitioLoop cfg = do
           -- Type-check to filter ill-formed telescopes, then evaluate honestly
           let emode = toEvalMode mode
               goalProfile = deriveGoalProfile lib
+              expectedFamily = requiredFamilyForContext step lib goalProfile
               needsFormerLift = NeedFormer `elem` gpIntents goalProfile && length lib >= 3
               needsHITLift = NeedHIT `elem` gpIntents goalProfile && any leHasDependentFunctions lib
               needsMapBridge = NeedBridge `elem` gpIntents goalProfile
@@ -536,6 +691,7 @@ abInitioLoop cfg = do
                 , ecMaxBitBudget = stepBitBudget'
                 , ecMaxASTDepth = stepAstDepth'
                 , ecMaxCandidates = stepMaxCandidates'
+                , ecExprCapLimit = Just (exprCapLimitForStep step stepMaxCandidates')
                 , ecGoalProfile = Just goalProfile
                 , ecEnableMacros = True
                 }
@@ -654,6 +810,19 @@ abInitioLoop cfg = do
                 NeedHIT `elem` gpIntents goalProfile
                 && any leHasDependentFunctions lib
                 && not (any leHasLoop lib)
+              universeGenesisSeeds =
+                if expectedFamily == Just FamilyUniverseGenesis
+                then universeGenesisSeedTelescopes
+                else []
+              witnessIntroSeeds =
+                if expectedFamily == Just FamilyWitnessIntro
+                then witnessIntroductionSeedTelescopes lib
+                else []
+              canonicalBootstrapSeeds = universeGenesisSeeds ++ witnessIntroSeeds
+              bootstrapHITSeeds =
+                if bootstrapHITPhase
+                then bootstrapHITSeedTelescopes
+                else []
               hitProgressHedge = agendaActive
                                  && NeedHIT `elem` gpIntents goalProfile
                                  && any leHasLoop lib
@@ -677,6 +846,10 @@ abInitioLoop cfg = do
                          , TeleEntry "c3" (PathCon nextDim)
                          ]
                      ]
+                else []
+              truncBridgeSeeds =
+                if requiresTruncBridge
+                then truncBridgeSeedTelescopes lib
                 else []
               postTruncSeeds =
                 if postTruncLiftPhase
@@ -747,22 +920,25 @@ abInitioLoop cfg = do
                                    then if agendaActive
                                         then if hitProgressHedge
                                              then
-                                               let mergedRaw = filter hedgeRelevant (pathLiftSeeds ++ agendaTelescopes ++ fallbackTelescopes)
+                                               let mergedRaw = filter hedgeRelevant (truncBridgeSeeds ++ pathLiftSeeds ++ agendaTelescopes ++ fallbackTelescopes)
                                                    merged = prioritizeBridgeCandidates requiresTruncBridge lib goalProfile mergedRaw
                                                in if null merged
                                                   then take stepMaxCandidates' agendaTelescopes
                                                   else take stepMaxCandidates' merged
-                                             else if null agendaTelescopes
-                                             then take stepMaxCandidates' fallbackTelescopes
-                                             else take stepMaxCandidates' agendaTelescopes
+                                             else if useStructuralRetryProfile cfg
+                                             then take stepMaxCandidates' (agendaTelescopes ++ fallbackTelescopes)
+                                        else if null agendaTelescopes
+                                        then take stepMaxCandidates' fallbackTelescopes
+                                        else take stepMaxCandidates' agendaTelescopes
                                         else take stepMaxCandidates' fallbackTelescopes
                                    else enumerateTelescopes lib enumKmax
+              rawTelescopesSeeded0 = canonicalBootstrapSeeds ++ rawTelescopesBase0
               rawTelescopesBase1 =
                 if bootstrapHITPhase
                 then
-                  let filtered = filter (isBootstrapHITCandidate lib) rawTelescopesBase0
-                  in if null filtered then rawTelescopesBase0 else filtered
-                else rawTelescopesBase0
+                  let filtered = filter (isBootstrapHITCandidate lib) (bootstrapHITSeeds ++ rawTelescopesSeeded0)
+                  in if null filtered then rawTelescopesSeeded0 else filtered
+                else rawTelescopesSeeded0
               rawTelescopesBase =
                 if postTruncLiftPhase
                 then take stepMaxCandidates' (postTruncSeeds ++ rawTelescopesBase1)
@@ -885,7 +1061,12 @@ abInitioLoop cfg = do
           stageAEnd <- getCurrentTime
           let stageASeconds = realToFrac (diffUTCTime stageAEnd stageAStart) :: Double
               stageBWidenThresholdSec = 12.0 :: Double
-              shouldRunStageB = (step7LatencyTight || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift) && null enumViableA && stageASeconds <= stageBWidenThresholdSec
+              shouldRunStageB =
+                if useStructuralRetryProfile cfg
+                then null enumViableA
+                else (step7LatencyTight || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift)
+                     && null enumViableA
+                     && stageASeconds <= stageBWidenThresholdSec
           when shouldRunStageB $
             printf "  [STEP %d] stage-A tight found no viable candidate in %.2fs; running widened stage-B.\n"
               step stageASeconds
@@ -893,9 +1074,20 @@ abInitioLoop cfg = do
           (enumEvaluatedChosen, agendaDiagChosen, agendaActiveChosen) <-
             if shouldRunStageB
             then do
-              let stepBitBudgetWide = min stepBitBudget 18
-                  stepAstDepthWide = min stepAstDepth 2
-                  stepMaxCandidatesWide = min stepMaxCandidates 24
+              let (tier0Bit, _tier0Depth, tier0Cands) = structuralTier0Budget step
+                  stepBitBudgetWide =
+                    if useStructuralRetryProfile cfg
+                    then max stepBitBudget (tier0Bit + 4)
+                    else min stepBitBudget 18
+                  stepAstDepthWide =
+                    if useStructuralRetryProfile cfg
+                    then if cfgMBTTAstDepth cfg == Nothing then stepAstDepth + 1 else stepAstDepth
+                    else min stepAstDepth 2
+                  stepMaxCandidatesWide =
+                    if useStructuralRetryProfile cfg
+                    then maybe (tier0Cands * 4) id (cfgMBTTMaxCand cfg)
+                    else min stepMaxCandidates 24
+                  (tier0States, tier0AgendaCands, tier0Branch, tier0LeafCap) = structuralAgendaBand step
                   modalPhaseWide = NeedModal `elem` gpIntents goalProfile
                   differentialPhaseWide = NeedDifferential `elem` gpIntents goalProfile
                   curvaturePhaseWide = NeedCurvature `elem` gpIntents goalProfile
@@ -908,17 +1100,27 @@ abInitioLoop cfg = do
                     , ecMaxBitBudget = stepBitBudgetWide
                     , ecMaxASTDepth = stepAstDepthWide
                     , ecMaxCandidates = stepMaxCandidatesWide
+                    , ecExprCapLimit = Just (exprCapLimitForStep step stepMaxCandidatesWide)
                     , ecGoalProfile = Just goalProfile
                     , ecEnableMacros = True
                     }
                   agendaCfgWide = defaultAgendaConfig
                     { agMaxEntries = enumKmax
-                    , agMaxAgendaStates = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 96 else if postTruncLiftPhaseWide then 96 else 72
+                    , agMaxAgendaStates =
+                        if useStructuralRetryProfile cfg
+                        then min 120 (scaleRounded tier0States 1.5)
+                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 96 else if postTruncLiftPhaseWide then 96 else 72
                     , agEnableDiversity = step >= 7
                     , agBucketCap = if step <= 6 then max 64 stepMaxCandidatesWide else 6
-                    , agBranchPerState = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 8 else if postTruncLiftPhaseWide then 8 else 6
+                    , agBranchPerState =
+                        if useStructuralRetryProfile cfg
+                        then tier0Branch
+                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 8 else if postTruncLiftPhaseWide then 8 else 6
                     , agCriticPerAction = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 2 else if step >= 7 then 1 else if qualityBoost then 2 else 3
-                    , agMaxCandidates = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then max 16 (min 40 stepMaxCandidatesWide) else max 12 (min 32 stepMaxCandidatesWide)
+                    , agMaxCandidates =
+                        if useStructuralRetryProfile cfg
+                        then min 40 (scaleRounded tier0AgendaCands 1.5)
+                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then max 16 (min 40 stepMaxCandidatesWide) else max 12 (min 32 stepMaxCandidatesWide)
                     , agBitBudget = stepBitBudgetWide
                     , agRequireConnected = length lib >= 2
                     , agSafeClosureSteps = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 3 else if step >= 7 then 2 else if qualityBoost then 1 else 3
@@ -926,7 +1128,10 @@ abInitioLoop cfg = do
                     , agBarFloor = bar
                     , agLeafExprBudget = if temporalPhaseWide then min 26 stepBitBudgetWide else if hilbertPhaseWide then min 24 stepBitBudgetWide else if metricPhaseWide then min 20 stepBitBudgetWide else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then min 18 stepBitBudgetWide else min 14 stepBitBudgetWide
                     , agLeafExprDepth = 2
-                    , agLeafExprCap = if temporalPhaseWide then 36 else if hilbertPhaseWide then 32 else if metricPhaseWide then 28 else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then 20 else if postTruncLiftPhaseWide then 14 else 10
+                    , agLeafExprCap =
+                        if useStructuralRetryProfile cfg
+                        then tier0LeafCap
+                        else if temporalPhaseWide then 36 else if hilbertPhaseWide then 32 else if metricPhaseWide then 28 else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then 20 else if postTruncLiftPhaseWide then 14 else 10
                     }
                   agendaActiveWide = cfgMBTTFirst cfg && length lib >= 3
                   (agendaGeneratedWide, agendaDiagWide) = if agendaActiveWide
@@ -947,6 +1152,10 @@ abInitioLoop cfg = do
                     NeedHIT `elem` gpIntents goalProfile
                     && any leHasDependentFunctions lib
                     && not (any leHasLoop lib)
+                  bootstrapHITSeedsWide =
+                    if bootstrapHITPhaseWide
+                    then bootstrapHITSeedTelescopes
+                    else []
                   hitProgressHedgeWide = agendaActiveWide
                                        && NeedHIT `elem` gpIntents goalProfile
                                        && any leHasLoop lib
@@ -967,6 +1176,10 @@ abInitioLoop cfg = do
                              , TeleEntry "c3" (PathCon nextDim)
                              ]
                          ]
+                    else []
+                  truncBridgeSeedsWide =
+                    if requiresTruncBridgeWide
+                    then truncBridgeSeedTelescopes lib
                     else []
                   postTruncSeedsWide =
                     if postTruncLiftPhaseWide
@@ -1027,7 +1240,7 @@ abInitioLoop cfg = do
                                             && truncBridgeQualityScore lib tele >= 2
                                        else hasPath || referencesLoop || hasTruncExpr
                          _ -> hasTruncExpr
-                  fallbackNeededWide = not agendaActiveWide || null agendaTelescopesWide
+                  fallbackNeededWide = useStructuralRetryProfile cfg || not agendaActiveWide || null agendaTelescopesWide
                   fallbackTelescopesWide = if cfgMBTTFirst cfg && (fallbackNeededWide || hitProgressHedgeWide)
                                            then map mcTelescope (enumerateMBTTTelescopes lib mbttCfgWide)
                                            else []
@@ -1035,11 +1248,13 @@ abInitioLoop cfg = do
                                            then if agendaActiveWide
                                                 then if hitProgressHedgeWide
                                                      then
-                                                       let mergedRaw = filter hedgeRelevantWide (pathLiftSeedsWide ++ agendaTelescopesWide ++ fallbackTelescopesWide)
+                                                       let mergedRaw = filter hedgeRelevantWide (truncBridgeSeedsWide ++ pathLiftSeedsWide ++ agendaTelescopesWide ++ fallbackTelescopesWide)
                                                            merged = prioritizeBridgeCandidates requiresTruncBridgeWide lib goalProfile mergedRaw
                                                        in if null merged
                                                           then take stepMaxCandidatesWide agendaTelescopesWide
                                                           else take stepMaxCandidatesWide merged
+                                                     else if useStructuralRetryProfile cfg
+                                                     then take stepMaxCandidatesWide (agendaTelescopesWide ++ fallbackTelescopesWide)
                                                      else if null agendaTelescopesWide
                                                      then take stepMaxCandidatesWide fallbackTelescopesWide
                                                      else take stepMaxCandidatesWide agendaTelescopesWide
@@ -1048,7 +1263,7 @@ abInitioLoop cfg = do
                   rawTelescopesWideBase1 =
                     if bootstrapHITPhaseWide
                     then
-                      let filtered = filter (isBootstrapHITCandidate lib) rawTelescopesWideBase0
+                      let filtered = filter (isBootstrapHITCandidate lib) (bootstrapHITSeedsWide ++ rawTelescopesWideBase0)
                       in if null filtered then rawTelescopesWideBase0 else filtered
                     else rawTelescopesWideBase0
                   rawTelescopesWideBase =
@@ -1524,7 +1739,60 @@ abInitioLoop cfg = do
           let rawCandidates = enumEvaluatedChosen ++ mctsCandidates
           when (mode /= PaperCalibrated) $
             assertClaimGradeSources step rawCandidates
-          let viableRaw0 = [ c | c@(_, _, _, rho, _) <- rawCandidates, rho >= bar ]
+          let requiredFamily = expectedFamily
+              retryTierBase = if shouldRunStageB then 1 else 0
+              familyCandidatesRaw =
+                case requiredFamily of
+                  Nothing -> []
+                  Just fam ->
+                    [ cand
+                    | cand@(tele, _, _, _, _) <- rawCandidates
+                    , isRequiredFamilyCandidate fam lib tele
+                    ]
+              viableRaw0 = [ c | c@(_, _, _, rho, _) <- rawCandidates, rho >= bar ]
+              familyCandidatesViable =
+                case requiredFamily of
+                  Nothing -> []
+                  Just fam ->
+                    [ cand
+                    | cand@(tele, _, _, _, _) <- viableRaw0
+                    , isRequiredFamilyCandidate fam lib tele
+                    ]
+              bestFamilyCand =
+                case sortOn (\(_, _, kappa, rho, _) -> (Down rho, kappa)) familyCandidatesRaw of
+                  (cand:_) -> Just cand
+                  [] -> Nothing
+              basePrefixDiag =
+                PrefixDiagnostics
+                  { pdRetryTier = retryTierBase
+                  , pdRetryCause = ""
+                  , pdGuidanceMode = guidanceModeLabel mode
+                  , pdAdmissibilityKappaCap = Nothing
+                  , pdSearchedKappaBands = ""
+                  , pdSelectedKappaBand = Nothing
+                  , pdStepBudgetSeconds = Nothing
+                  , pdElapsedSeconds = Nothing
+                  , pdEvaluatedCandidates = rawCandidateCount
+                  , pdDedupedCandidates = canonicalCandidateCount
+                  , pdMinimalityRejections = 0
+                  , pdBestObligationScore = Nothing
+                  , pdBestInterfaceDensity = Nothing
+                  , pdBestGenericityScore = Nothing
+                  , pdBestClosureScore = Nothing
+                  , pdFrontierCandidates = 0
+                  , pdFrontierKept = 0
+                  , pdMCTSSeedStates = 0
+                  , pdMCTSCompletedStates = 0
+                  , pdRequiredFamily = maybe "" requiredFamilyLabel requiredFamily
+                  , pdBestFamilyRho = case bestFamilyCand of
+                      Just (_, _, _, rho, _) -> Just rho
+                      Nothing -> Nothing
+                  , pdBestFamilyKappa = case bestFamilyCand of
+                      Just (_, _, kappa, _, _) -> Just kappa
+                      Nothing -> Nothing
+                  , pdFamilyCandidates = length familyCandidatesRaw
+                  , pdFamilyViable = length familyCandidatesViable
+                  }
               allCandidates = if cfgNoCanonicalQuotient cfg
                               then viableRaw0
                               else quotientCandidates viableRaw0
@@ -1534,7 +1802,7 @@ abInitioLoop cfg = do
 
           if null viable
             then do
-              emitPrefixReportRow cfg lib step bar rawCandidateCount canonicalCandidateCount Nothing [] agendaDiagChosen "no_viable"
+              emitPrefixReportRow cfg lib step bar rawCandidateCount canonicalCandidateCount basePrefixDiag Nothing [] agendaDiagChosen "no_viable"
               putStrLn ""
               printf "NO BAR-CLEARING CANDIDATE at step %d (bar=%.4f, raw=%d, viable=%d). Stopping.\n"
                 step bar rawCandidateCount canonicalCandidateCount
@@ -1781,11 +2049,75 @@ abInitioLoop cfg = do
                        , bridgeNameRank
                        , kappa
                        , redundantTrunc
+                       , teleBitCost tele
                        , surplus
                        , ckey
                        , sourceRank src
                        )
-                  sorted = sortOn candidateRank viable
+                  sortedBase = sortOn candidateRank viable
+                  defaultBest = case sortedBase of
+                    (best:_) -> best
+                    [] -> error "internal error: viable candidate set became empty before selection"
+                  familyRescue =
+                    case requiredFamily of
+                      Just FamilyFoundation ->
+                        let pool = familyRepresentativePool FamilyFoundation lib viable
+                        in case defaultBest of
+                             (_, _, bestKappaBase, _, _) ->
+                               if not (null pool)
+                                  && any (\(_, _, kappa, _, _) -> kappa < bestKappaBase) pool
+                               then Just ("bootstrap_foundation", pool)
+                               else Nothing
+                      Just fam ->
+                        let pool = familyRepresentativePool fam lib viable
+                            rescueCause = case fam of
+                              FamilyUniverseGenesis -> "bootstrap_universe"
+                              FamilyFormer -> "bootstrap_former"
+                              FamilyWitnessIntro -> "bootstrap_witness"
+                              FamilyBootstrapHIT -> "bootstrap_hit"
+                              FamilyTrunc -> "hit_trunc_bridge"
+                              FamilyPostTrunc -> "hit_post_trunc_lift"
+                              FamilyMapBridge -> "map_bridge_family"
+                              FamilyModal -> "late_modal_family"
+                              FamilyDifferential -> "late_differential_family"
+                              FamilyCurvature -> "late_curvature_family"
+                              FamilyMetric -> "late_metric_family"
+                              FamilyHilbert -> "late_hilbert_family"
+                              FamilyTemporal -> "late_temporal_family"
+                        in case defaultBest of
+                             (bestTeleBase, _, _, _, _) ->
+                               if not (null pool)
+                                  && case fam of
+                                       FamilyFormer ->
+                                         needsFormerLift
+                                         && not (isStrongFormerCandidate lib bestTeleBase)
+                                       FamilyUniverseGenesis ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyWitnessIntro ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyModal ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyDifferential ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyCurvature ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyMetric ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyHilbert ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyTemporal ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       FamilyMapBridge ->
+                                         not (any (\(tele, _, _, _, _) -> tele == bestTeleBase) pool)
+                                       _ ->
+                                         not (isRequiredFamilyCandidate fam lib bestTeleBase)
+                               then Just (rescueCause, pool)
+                               else Nothing
+                      _ -> Nothing
+                  selectionPool = case familyRescue of
+                    Just (_, pool) -> pool
+                    Nothing -> viable
+                  sorted = sortOn candidateRank selectionPool
                   (bestTele, bestNu, bestKappa, bestRho, bestSource) = case sorted of
                     (best:_) ->
                       let (bt, bn, bk, br, bs) = best
@@ -1793,6 +2125,13 @@ abInitioLoop cfg = do
                     [] -> error "internal error: viable candidate set became empty after ranking"
                   runners = take 3 (drop 1 sorted)
                   bestName = detectCanonicalName bestTele lib
+                  selectionPrefixDiag =
+                    basePrefixDiag
+                      { pdRetryCause =
+                          case familyRescue of
+                            Just (cause, _) -> cause
+                            Nothing -> pdRetryCause basePrefixDiag
+                      }
                   totalCandidates = canonicalCandidateCount
                   dedupeRatio = if rawCandidateCount > 0
                                 then fromIntegral canonicalCandidateCount / fromIntegral rawCandidateCount
@@ -1806,6 +2145,7 @@ abInitioLoop cfg = do
                 bar
                 rawCandidateCount
                 canonicalCandidateCount
+                selectionPrefixDiag
                 (Just (bestTele, bestNu, bestKappa, bestRho, bestSource))
                 runners
                 agendaDiagChosen
@@ -1818,7 +2158,7 @@ abInitioLoop cfg = do
               hFlush stdout
 
               -- Insert selected candidate only (no step-index fallback).
-              let discoveredEntry = mkLibraryEntry lib bestTele bestName
+              let discoveredEntry = strictInsertedEntry lib bestName bestTele Nothing
                   newLib = lib ++ [discoveredEntry]
                   newHistory = history ++ [DiscoveryRecord bestNu bestKappa]
                   newRecord = StepRecord step bestName bestNu bestKappa
@@ -1826,6 +2166,347 @@ abInitioLoop cfg = do
                                 rawCandidateCount canonicalCandidateCount dedupeRatio bestCanonKey bestTele
 
               go newLib newHistory (newRecord : records) (step + 1)
+
+    runHonestStep :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
+    runHonestStep lib history records step = do
+      let d = cfgWindow cfg
+          bar = computeBarD d mode step history
+          delta_n = dBonacciDelta d step
+          emode = toEvalMode mode
+          StrictAdmissibility kappaCap kappaBands = strictAdmissibility step lib
+          bandOrder = prioritizeHonestBands lib kappaBands
+          stepBudgetSec = strictStepBudgetSeconds step
+          (enumBitBudget, enumAstDepth, enumMaxCandidates, exprCapLimit) = honestEnumBounds kappaCap
+          maxCandidates = maybe enumMaxCandidates id (cfgMBTTMaxCand cfg)
+          baseEnumCfg =
+            defaultEnumConfig
+              { ecMaxEntries = kappaCap
+              , ecMaxBitBudget = enumBitBudget
+              , ecMaxASTDepth = maybe enumAstDepth id (cfgMBTTAstDepth cfg)
+              , ecMaxCandidates = maxCandidates
+              , ecExactClauseCount = Nothing
+              , ecExprCapLimit = Just exprCapLimit
+              , ecGoalProfile = Just defaultGoalProfile
+              , ecEnableMacros = False
+              , ecFrontierMode = if step <= 3 then FrontierNeutral else FrontierObligationGuided
+              }
+          nuDepth = 1
+          nuHist = zip [1..] (map drNu history)
+      stepStart <- getCurrentTime
+      bandState <- searchBands stepStart stepBudgetSec bar emode nuDepth nuHist kappaBands baseEnumCfg bandOrder emptyHonestSearchState
+      enumStop <- getCurrentTime
+      let enumElapsed = realToFrac (diffUTCTime enumStop stepStart) :: Double
+      finalState <-
+        if null (hsViableCandidates bandState)
+           && kappaCap > 5
+           && not (cfgSkipMCTS cfg)
+           && enumElapsed < fromIntegral stepBudgetSec
+        then runLateMCTS stepStart stepBudgetSec bar emode nuDepth nuHist kappaBands kappaCap bandState
+        else return bandState
+      stepEnd <- getCurrentTime
+      let elapsedSeconds = realToFrac (diffUTCTime stepEnd stepStart) :: Double
+          viable = hsViableCandidates finalState
+          searchedBandsText = intercalate "|" (map show (hsSearchedBands finalState))
+          (bestObligationScore, bestInterfaceDensity, bestGenericityScore, bestClosureScore, frontierCandidates, frontierKept) =
+            summarizeHonestFrontier (hsBandTraces finalState)
+          basePrefixDiag =
+            PrefixDiagnostics
+              { pdRetryTier = 0
+              , pdRetryCause = ""
+              , pdGuidanceMode = guidanceModeLabel mode
+              , pdAdmissibilityKappaCap = Just kappaCap
+              , pdSearchedKappaBands = searchedBandsText
+              , pdSelectedKappaBand = Nothing
+              , pdStepBudgetSeconds = Just stepBudgetSec
+              , pdElapsedSeconds = Just elapsedSeconds
+              , pdEvaluatedCandidates = hsEvaluatedCandidates finalState
+              , pdDedupedCandidates = hsDedupedCandidates finalState
+              , pdMinimalityRejections = hsMinimalityRejects finalState
+              , pdBestObligationScore = bestObligationScore
+              , pdBestInterfaceDensity = bestInterfaceDensity
+              , pdBestGenericityScore = bestGenericityScore
+              , pdBestClosureScore = bestClosureScore
+              , pdFrontierCandidates = frontierCandidates
+              , pdFrontierKept = frontierKept
+              , pdMCTSSeedStates = hsMCTSSeedStates finalState
+              , pdMCTSCompletedStates = hsMCTSCompletedStates finalState
+              , pdRequiredFamily = ""
+              , pdBestFamilyRho = Nothing
+              , pdBestFamilyKappa = Nothing
+              , pdFamilyCandidates = 0
+              , pdFamilyViable = 0
+              }
+      if null viable
+        then do
+          emitPrefixReportRow
+            cfg
+            lib
+            step
+            bar
+            (hsRawCandidates finalState)
+            0
+            basePrefixDiag
+            Nothing
+            []
+            emptyAgendaDiagnostics
+            "no_viable"
+          putStrLn ""
+          printf "NO BAR-CLEARING CANDIDATE at step %d (bar=%.4f, cap=%d, bands=%s, elapsed=%.2fs). Stopping.\n"
+            step bar kappaCap searchedBandsText elapsedSeconds
+          printf "  [HONEST step %d] guidance=%s budget=%ds evaluated=%d deduped=%d minimality_rejections=%d\n"
+            step
+            (guidanceModeLabel mode)
+            stepBudgetSec
+            (hsEvaluatedCandidates finalState)
+            (hsDedupedCandidates finalState)
+            (hsMinimalityRejects finalState)
+          let orderedRecords = reverse records
+          case cfgCsv cfg of
+            Just csvPath -> writeCsv csvPath orderedRecords
+            Nothing      -> return ()
+        else do
+          let sorted = sortOn (honestSelectionKey lib bar) viable
+              (bestTele, bestNu, bestKappa, bestRho, bestSource) =
+                case sorted of
+                  (best:_) -> best
+                  [] -> error "internal error: honest viable set became empty before selection"
+              runners = take 3 (drop 1 sorted)
+              bestName = detectCanonicalName bestTele lib
+              bestSeed =
+                Map.lookup
+                  (canonicalKeySpec (map teType (teleEntries bestTele)))
+                  (hsSeedByKey finalState)
+              bestLibraryTele =
+                case bestSeed of
+                  Just seed -> conceptualSeedTelescope seed
+                  Nothing -> bestTele
+              selectionPrefixDiag =
+                basePrefixDiag
+                  { pdSelectedKappaBand = Just bestKappa
+                  }
+              totalCandidates = length viable
+              dedupeRatio =
+                if hsRawCandidates finalState > 0
+                then fromIntegral (hsDedupedCandidates finalState) / fromIntegral (hsRawCandidates finalState)
+                else 1.0 :: Double
+              CanonKey bestCanonKey = canonicalKeySpec (map teType (teleEntries bestTele))
+
+          emitPrefixReportRow
+            cfg
+            lib
+            step
+            bar
+            (hsRawCandidates finalState)
+            totalCandidates
+            selectionPrefixDiag
+            (Just (bestTele, bestNu, bestKappa, bestRho, bestSource))
+            runners
+            emptyAgendaDiagnostics
+            "selected"
+
+          printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
+            step bestName bestNu bestKappa bestRho bar delta_n bestSource totalCandidates
+          printf "     guidance=%s cap=%d bands=%s budget=%ds elapsed=%.2fs evaluated=%d deduped=%d minrej=%d\n"
+            (guidanceModeLabel mode)
+            kappaCap
+            searchedBandsText
+            stepBudgetSec
+            elapsedSeconds
+            (hsEvaluatedCandidates finalState)
+            (hsDedupedCandidates finalState)
+            (hsMinimalityRejects finalState)
+          hFlush stdout
+
+          let discoveredEntry = strictInsertedEntry lib bestName bestLibraryTele bestSeed
+              newLib = lib ++ [discoveredEntry]
+              newHistory = history ++ [DiscoveryRecord bestNu bestKappa]
+              newRecord = StepRecord step bestName bestNu bestKappa
+                            bestRho bar delta_n bestSource totalCandidates
+                            (hsRawCandidates finalState) (hsDedupedCandidates finalState) dedupeRatio bestCanonKey bestTele
+
+          go newLib newHistory (newRecord : records) (step + 1)
+      where
+        searchBands :: UTCTime -> Int -> Double -> EvalMode -> Int -> [(Int, Int)] -> [Int] -> EnumConfig -> [Int] -> HonestSearchState -> IO HonestSearchState
+        searchBands _ _ _ _ _ _ _ _ [] state = return state
+        searchBands stepStart stepBudgetSec' bar' emode' nuDepth' nuHist' admissibleBands enumCfg (band:rest) state = do
+          now <- getCurrentTime
+          let elapsed = realToFrac (diffUTCTime now stepStart) :: Double
+          if elapsed >= fromIntegral stepBudgetSec' && not (null (hsSearchedBands state))
+            then return state
+            else do
+              bandStart <- getCurrentTime
+              let bandCfg =
+                    enumCfg
+                      { ecMaxEntries = band
+                      , ecExactClauseCount = Just band
+                      }
+                  (bandSeeds, bandDiag, cache1) =
+                    if step <= 3
+                    then
+                      let ((atomicCandidates, atomicDiag), cache1') =
+                            enumerateMBTTTelescopesWithDiagnostics lib bandCfg (hsEnumCache state)
+                      in (map (\cand -> StrictBandSeed (mcTelescope cand) Nothing Nothing Nothing "ENUM_MBTT") atomicCandidates, atomicDiag, cache1')
+                    else enumerateStrictBandCandidates lib band bandCfg (hsEnumCache state)
+                  rawTelescopes = map sbsTelescope bandSeeds
+                  dedupedSeeds =
+                    if cfgNoCanonicalQuotient cfg
+                    then bandSeeds
+                    else dedupBandSeedsByCanonicalKey bandSeeds
+                  unseenSeeds =
+                    [ seed
+                    | seed <- dedupedSeeds
+                    , let key = canonicalKeySpec (map teType (teleEntries (sbsTelescope seed)))
+                    , not (Set.member key (hsSeenKeys state))
+                    ]
+                  seenKeys' =
+                    foldl' (\acc seed -> Set.insert (canonicalKeySpec (map teType (teleEntries (sbsTelescope seed)))) acc)
+                           (hsSeenKeys state)
+                           unseenSeeds
+                  seedByKey' =
+                    foldl'
+                      (\acc seed ->
+                        Map.insert
+                          (canonicalKeySpec (map teType (teleEntries (sbsTelescope seed))))
+                          seed
+                          acc)
+                      (hsSeedByKey state)
+                      unseenSeeds
+                  (evaluatedAll, evalCache1) =
+                    foldl'
+                      (\(acc, cacheAcc) seed ->
+                        let (cand, cacheNext) =
+                              evaluateStrictBandSeedCached emode' seed lib nuDepth' nuHist' cacheAcc
+                        in (cand : acc, cacheNext))
+                      ([], hsEvalCache state)
+                      unseenSeeds
+                  barViable0 =
+                    [ cand
+                    | cand@(tele, nu, _, rho, _) <- reverse evaluatedAll
+                    , nu > 0
+                    , rho >= bar'
+                    , bootstrapEligible step tele
+                    ]
+                  (barViable, evalCache2, minimalityRejects) =
+                    applyStrictSemanticMinimalityFilter emode' lib nuDepth' bar' nuHist' admissibleBands evalCache1 barViable0
+              bandStop <- getCurrentTime
+              let bandElapsed = realToFrac (diffUTCTime bandStop bandStart) :: Double
+                  bandTrace =
+                    HonestBandTrace
+                      { hbtBand = band
+                      , hbtElapsedSeconds = bandElapsed
+                      , hbtFrontier = ebdFrontier bandDiag
+                      , hbtEvaluated = length unseenSeeds
+                      , hbtDeduped = length dedupedSeeds
+                      , hbtViable = length barViable
+                      }
+                  failedFrontier =
+                    if null barViable
+                    then mergeFailedFrontier lib (map bandSeedToFrontierCandidate bandSeeds) (hsFailedFrontier state)
+                    else hsFailedFrontier state
+                  state' =
+                    state
+                      { hsEnumCache = cache1
+                      , hsEvalCache = evalCache2
+                      , hsSeenKeys = seenKeys'
+                      , hsSeedByKey = seedByKey'
+                      , hsRawCandidates = hsRawCandidates state + ebdScannedTelescopes bandDiag
+                      , hsEvaluatedCandidates = hsEvaluatedCandidates state + length unseenSeeds
+                      , hsDedupedCandidates = hsDedupedCandidates state + length dedupedSeeds
+                      , hsMinimalityRejects = hsMinimalityRejects state + minimalityRejects
+                      , hsSearchedBands = hsSearchedBands state ++ [band]
+                      , hsViableCandidates = hsViableCandidates state ++ barViable
+                      , hsBandTraces = hsBandTraces state ++ [bandTrace]
+                      , hsFailedFrontier = failedFrontier
+                      }
+              if null barViable
+                then searchBands stepStart stepBudgetSec' bar' emode' nuDepth' nuHist' admissibleBands enumCfg rest state'
+                else return state'
+
+        runLateMCTS
+          :: UTCTime
+          -> Int
+          -> Double
+          -> EvalMode
+          -> Int
+          -> [(Int, Int)]
+          -> [Int]
+          -> Int
+          -> HonestSearchState
+          -> IO HonestSearchState
+        runLateMCTS stepStart stepBudgetSec' bar' emode' nuDepth' nuHist' admissibleBands kappaCap' state = do
+          now <- getCurrentTime
+          let elapsed = realToFrac (diffUTCTime now stepStart) :: Double
+              remainingSeconds = max 0 (stepBudgetSec' - ceiling elapsed)
+          if remainingSeconds < 5
+            then return state
+            else do
+              let mctsCfg =
+                    defaultMCTSConfig
+                      { mctsIterations = honestMCTSIterations remainingSeconds kappaCap'
+                      , mctsMaxKappa = kappaCap'
+                      , mctsMaxDepth = if kappaCap' >= 8 then 3 else 2
+                      , mctsNuDepth = nuDepth'
+                      , mctsTopK = max 12 (kappaCap' * 8)
+                      , mctsSeed = step * 137 + cfgSeed cfg
+                      , mctsVerbose = False
+                      , mctsGoalProfile = Just defaultGoalProfile
+                      , mctsEnableMacroReuse = False
+                      }
+              (results, mctsStats) <- mctsSearchStep emode' mctsCfg lib bar'
+              let validR = msValidRollouts mctsStats
+                  rejR = msRejectedRollouts mctsStats
+                  totalR = validR + rejR
+                  rejPct =
+                    if totalR > 0
+                    then 100.0 * fromIntegral rejR / fromIntegral totalR :: Double
+                    else 0.0 :: Double
+              printf "  [MCTS step %d] %d iters, %d valid, %d rejected (%.1f%%), best rho=%.2f\n"
+                step totalR validR rejR rejPct (msBestReward mctsStats)
+              let rawCandidates =
+                    [ (tele, nu, kappa, rho, "MCTS" :: String)
+                    | (tele, nu, kappa, rho) <- results
+                    ]
+                  dedupedCandidates =
+                    if cfgNoCanonicalQuotient cfg
+                    then rawCandidates
+                    else dedupHonestCandidates lib rawCandidates
+                  unseenCandidates =
+                    [ cand
+                    | cand@(tele, _, _, _, _) <- dedupedCandidates
+                    , let key = canonicalKeySpec (map teType (teleEntries tele))
+                    , not (Set.member key (hsSeenKeys state))
+                    ]
+                  viable0 =
+                    [ cand
+                    | cand@(tele, nu, _, rho, _) <- unseenCandidates
+                    , nu > 0
+                    , rho >= bar'
+                    , bootstrapEligible step tele
+                    ]
+                  (viable1, evalCache1, minimalityRejects) =
+                    applyStrictSemanticMinimalityFilter emode' lib nuDepth' bar' nuHist' admissibleBands (hsEvalCache state) viable0
+                  viableBand =
+                    case viable1 of
+                      [] -> []
+                      _ ->
+                        let minBand = minimum [kappa | (_, _, kappa, _, _) <- viable1]
+                        in [cand | cand@(_, _, kappa, _, _) <- viable1, kappa == minBand]
+                  seenKeys' =
+                    foldl'
+                      (\acc (tele, _, _, _, _) ->
+                        Set.insert (canonicalKeySpec (map teType (teleEntries tele))) acc)
+                      (hsSeenKeys state)
+                      unseenCandidates
+              return $
+                state
+                  { hsEvalCache = evalCache1
+                  , hsSeenKeys = seenKeys'
+                  , hsRawCandidates = hsRawCandidates state + length rawCandidates
+                  , hsEvaluatedCandidates = hsEvaluatedCandidates state + length unseenCandidates
+                  , hsDedupedCandidates = hsDedupedCandidates state + length unseenCandidates
+                  , hsMinimalityRejects = hsMinimalityRejects state + minimalityRejects
+                  , hsViableCandidates = hsViableCandidates state ++ viableBand
+                  }
 
     printSummary :: [DiscoveryRecord] -> IO ()
     printSummary history = do
@@ -2121,6 +2802,423 @@ classReadiness lib cls = case cls of
     concreteCount = length [() | e <- lib, leConstructors e > 0]
     hasConcrete = concreteCount > 0
 
+requiredFamilyForContext :: Int -> Library -> GoalProfile -> Maybe RequiredFamily
+requiredFamilyForContext step lib profile
+  | step == 1 = Just FamilyUniverseGenesis
+  | step == 2
+    && NeedBootstrap `elem` gpIntents profile
+    && not (any leHasDependentFunctions lib) = Just FamilyFoundation
+  | step == 3
+    && any ((== "Unit") . leName) lib = Just FamilyWitnessIntro
+  | NeedFormer `elem` gpIntents profile
+    && length lib >= 3
+    && not (any leHasDependentFunctions lib) = Just FamilyFormer
+  | NeedHIT `elem` gpIntents profile
+    && any leHasDependentFunctions lib
+    && not (any leHasLoop lib) = Just FamilyBootstrapHIT
+  | isTruncBridgePhase lib profile = Just FamilyTrunc
+  | isPostTruncLiftPhase lib profile = Just FamilyPostTrunc
+  | isMapBridgePhase lib profile = Just FamilyMapBridge
+  | isModalLiftPhase lib profile = Just FamilyModal
+  | isDifferentialLiftPhase lib profile = Just FamilyDifferential
+  | isCurvatureLiftPhase lib profile = Just FamilyCurvature
+  | isMetricLiftPhase lib profile = Just FamilyMetric
+  | isHilbertLiftPhase lib profile = Just FamilyHilbert
+  | isTemporalLiftPhase lib profile = Just FamilyTemporal
+  | otherwise = Nothing
+
+requiredFamilyLabel :: RequiredFamily -> String
+requiredFamilyLabel fam = case fam of
+  FamilyUniverseGenesis -> "universe_genesis"
+  FamilyFoundation -> "foundation"
+  FamilyFormer -> "former"
+  FamilyWitnessIntro -> "witness_intro"
+  FamilyBootstrapHIT -> "bootstrap_hit"
+  FamilyTrunc -> "trunc_bridge"
+  FamilyPostTrunc -> "post_trunc_lift"
+  FamilyMapBridge -> "map_bridge"
+  FamilyModal -> "modal"
+  FamilyDifferential -> "differential"
+  FamilyCurvature -> "curvature"
+  FamilyMetric -> "metric"
+  FamilyHilbert -> "hilbert"
+  FamilyTemporal -> "temporal"
+
+isRequiredFamilyCandidate :: RequiredFamily -> Library -> Telescope -> Bool
+isRequiredFamilyCandidate fam lib tele = case fam of
+  FamilyUniverseGenesis -> isUniverseGenesisCandidate tele
+  FamilyFoundation -> isPureFoundationCandidate lib tele
+  FamilyFormer -> isStrongFormerCandidate lib tele
+  FamilyWitnessIntro -> isWitnessIntroductionCandidate tele
+  FamilyBootstrapHIT -> isStrongBootstrapHITCandidate lib tele
+  FamilyTrunc -> isRichTruncBridgeCandidate lib tele
+  FamilyPostTrunc -> isPostTruncLiftCandidate lib tele
+  FamilyMapBridge -> isMapBridgeCandidate lib tele
+  FamilyModal -> isModalLiftCandidate lib tele
+  FamilyDifferential -> isDifferentialLiftCandidate lib tele
+  FamilyCurvature -> isCurvatureLiftCandidate lib tele
+  FamilyMetric -> isMetricLiftCandidate lib tele
+  FamilyHilbert -> isHilbertLiftCandidate lib tele
+  FamilyTemporal -> isTemporalLiftCandidate lib tele
+
+isPureFoundationCandidate :: Library -> Telescope -> Bool
+isPureFoundationCandidate lib tele =
+  classifyTelescope tele lib == TCFoundation
+  && teleMaxLibRef tele == 0
+
+isStrongFormerCandidate :: Library -> Telescope -> Bool
+isStrongFormerCandidate lib tele =
+  classifyTelescope tele lib == TCFormer
+  && teleHasLam tele
+  && teleHasPiSigma tele
+  && teleMaxLibRef tele == 0
+
+isUniverseGenesisCandidate :: Telescope -> Bool
+isUniverseGenesisCandidate (Telescope entries) =
+  any ((== Univ) . teType) entries
+  && any (isUniverseLevel . teType) entries
+  where
+    isUniverseLevel (App Univ _) = True
+    isUniverseLevel _ = False
+
+isWitnessIntroductionCandidate :: Telescope -> Bool
+isWitnessIntroductionCandidate (Telescope entries) =
+  any (go . teType) entries
+  where
+    go expr = case expr of
+      App (Lib _) (Var _) -> True
+      _ -> False
+
+isRichTruncBridgeCandidate :: Library -> Telescope -> Bool
+isRichTruncBridgeCandidate lib tele =
+  teleHasTrunc tele
+  && truncBridgeQualityScore lib tele >= truncBridgeRichThreshold
+
+isStrongBootstrapHITCandidate :: Library -> Telescope -> Bool
+isStrongBootstrapHITCandidate lib tele =
+  isBootstrapHITCandidate lib tele
+  && teleHasConcreteTypeFormation tele
+  && teleHasPointConstructor tele
+
+teleExprTypes :: Telescope -> [MBTTExpr]
+teleExprTypes = map teType . teleEntries
+
+candidateMatchesExprs :: [MBTTExpr] -> Candidate -> Bool
+candidateMatchesExprs exprs (tele, _, _, _, _) = teleExprTypes tele == exprs
+
+selectExactRepresentativeExprs :: Maybe [MBTTExpr] -> [Candidate] -> [Candidate]
+selectExactRepresentativeExprs Nothing _ = []
+selectExactRepresentativeExprs (Just exprs) candidates =
+  [ cand
+  | cand <- candidates
+  , candidateMatchesExprs exprs cand
+  ]
+
+universeGenesisRepresentativeExprs :: [MBTTExpr]
+universeGenesisRepresentativeExprs =
+  [ Univ
+  , App Univ (Var 1)
+  ]
+
+preferredWitnessTargetRef :: Library -> Maybe Int
+preferredWitnessTargetRef lib =
+  case reverse simpleConcreteRefs of
+    (i:_) -> Just i
+    [] ->
+      case reverse concreteRefs of
+        (i:_) -> Just i
+        [] -> Nothing
+  where
+    indexed = zip [1..] lib
+    simpleConcreteRefs =
+      [ i
+      | (i, e) <- indexed
+      , leConstructors e > 0
+      , null (lePathDims e)
+      , not (leHasLoop e)
+      , case leIsTruncated e of
+          Nothing -> True
+          Just _ -> False
+      ]
+    concreteRefs =
+      [ i
+      | (i, e) <- indexed
+      , leConstructors e > 0
+      ]
+
+witnessIntroductionRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+witnessIntroductionRepresentativeExprs lib = do
+  targetRef <- preferredWitnessTargetRef lib
+  return [App (Lib targetRef) (Var 1)]
+
+preferredMapBridgeFiberRef :: Library -> Maybe Int
+preferredMapBridgeFiberRef lib =
+  case reverse loopCarrierRefs of
+    (i:_) -> Just i
+    [] ->
+      case reverse loopFiberRefs of
+        (i:_) -> Just i
+        [] ->
+          case reverse dimOneRefs of
+            (i:_) -> Just i
+            [] -> Nothing
+  where
+    indexed = zip [1..] lib
+    dimOneRefs =
+      [ i
+      | (i, e) <- indexed
+      , 1 `elem` lePathDims e
+      ]
+    loopCarrierRefs =
+      [ i
+      | (i, e) <- indexed
+      , 1 `elem` lePathDims e
+      , leHasLoop e
+      , leConstructors e > 0
+      , case leIsTruncated e of
+          Nothing -> True
+          Just _ -> False
+      ]
+    loopFiberRefs =
+      [ i
+      | (i, e) <- indexed
+      , 1 `elem` lePathDims e
+      , leHasLoop e
+      ]
+
+mapBridgeRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+mapBridgeRepresentativeExprs lib = do
+  srcRef <- latestDimRef 3
+  tgtRef <- latestDimRef 2
+  fiberRef <- preferredMapBridgeFiberRef lib
+  return
+    [ Pi (Lib srcRef) (Lib tgtRef)
+    , App (Lib fiberRef) (Var 1)
+    , Lam (App (Lib srcRef) (Lib tgtRef))
+    , Pi (Lib tgtRef) (Lib srcRef)
+    ]
+  where
+    latestDimRef d =
+      case reverse [i | (i, e) <- zip [1..] lib, d `elem` lePathDims e] of
+        (i:_) -> Just i
+        [] -> Nothing
+
+latestCapabilityRef :: (LibraryEntry -> Bool) -> Library -> Maybe Int
+latestCapabilityRef hasCap lib =
+  case reverse [i | (i, e) <- zip [1..] lib, hasCap e] of
+    (i:_) -> Just i
+    [] -> Nothing
+
+preferredModalCarrierRef :: Library -> Maybe Int
+preferredModalCarrierRef lib =
+  case reverse richLoopRefs of
+    (i:_) -> Just i
+    [] ->
+      case reverse loopRefs of
+        (i:_) -> Just i
+        [] -> Nothing
+  where
+    indexed = zip [1..] lib
+    loopRefs =
+      [ i
+      | (i, e) <- indexed
+      , leHasLoop e
+      ]
+    richLoopRefs =
+      [ i
+      | (i, e) <- indexed
+      , leHasLoop e
+      , leConstructors e > 0
+      , case leIsTruncated e of
+          Nothing -> True
+          Just _ -> False
+      ]
+
+modalRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+modalRepresentativeExprs lib = do
+  carrierRef <- preferredModalCarrierRef lib
+  return
+    [ Flat (Lib carrierRef)
+    , Sharp (Lib carrierRef)
+    , Disc (Lib carrierRef)
+    , Shape (Lib carrierRef)
+    ]
+
+differentialRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+differentialRepresentativeExprs lib = do
+  modalRef <- latestCapabilityRef leHasModalOps lib
+  return
+    [ Pi (Lib modalRef) (Pi (Var 1) (Var 1))
+    , Lam (Pi (Var 1) (Var 2))
+    , Pi (Flat (Var 1)) (Var 1)
+    , App (Lib modalRef) (Var 1)
+    , Lam (Var 1)
+    ]
+
+curvatureRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+curvatureRepresentativeExprs lib = do
+  differentialRef <- latestCapabilityRef leHasDifferentialOps lib
+  return
+    [ Pi (Lib differentialRef) (Pi (Var 1) (Var 1))
+    , Lam (App (Lib differentialRef) (Var 1))
+    , Pi (Var 1) (Lib differentialRef)
+    , App (Lib differentialRef) (App (Var 1) (Var 2))
+    , Lam (Pi (Var 1) (Var 2))
+    , Pi (Lib differentialRef) (Lib differentialRef)
+    ]
+
+metricRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+metricRepresentativeExprs lib = do
+  differentialRef <- latestCapabilityRef leHasDifferentialOps lib
+  curvatureRef <- latestCapabilityRef leHasCurvature lib
+  return
+    [ Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1))
+    , Pi (Sigma (Var 1) (Var 2)) (Lib differentialRef)
+    , Pi (Var 1) (Pi (Var 1) (Var 1))
+    , Lam (App (Var 1) (Var 2))
+    , Pi (Lib curvatureRef) (Lib curvatureRef)
+    , Lam (Pi (Var 1) (Var 1))
+    , Pi (Lib curvatureRef) (Var 1)
+    ]
+
+hilbertRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+hilbertRepresentativeExprs lib = do
+  differentialRef <- latestCapabilityRef leHasDifferentialOps lib
+  curvatureRef <- latestCapabilityRef leHasCurvature lib
+  metricRef <- latestCapabilityRef leHasMetric lib
+  return
+    [ Sigma (Pi (Var 1) (Pi (Var 1) Univ)) (Var 1)
+    , Pi (Var 1) (Var 1)
+    , Pi (Var 1) (Sigma (Var 1) (Var 1))
+    , Pi (Lam (Var 1)) (Sigma (Var 1) (Var 2))
+    , Sigma (Pi (Var 1) (Var 1)) (Pi (Var 1) (Var 1))
+    , Pi (Lib metricRef) (Var 1)
+    , Pi (Lib curvatureRef) (Var 1)
+    , Pi (Lib differentialRef) (Var 1)
+    , Lam (Pi (Var 1) Univ)
+    ]
+
+temporalRepresentativeExprs :: Library -> Maybe [MBTTExpr]
+temporalRepresentativeExprs lib = do
+  modalRef <- latestCapabilityRef leHasModalOps lib
+  return
+    [ Next (Var 1)
+    , Eventually (Var 1)
+    , Pi (Next (Var 1)) (Eventually (Var 1))
+    , Lam (App (Lib modalRef) (Next (Var 1)))
+    , Pi (Flat (Next (Var 1))) (Next (Flat (Var 1)))
+    , Pi (Sharp (Eventually (Var 1))) (Eventually (Sharp (Var 1)))
+    , Lam (App (Eventually (Var 1)) (Var 2))
+    , Pi (Next (Next (Var 1))) (Next (Var 1))
+    ]
+
+mkSeedTelescope :: [MBTTExpr] -> Telescope
+mkSeedTelescope exprs =
+  Telescope
+    [ TeleEntry ("c" ++ show idx) expr
+    | (idx, expr) <- zip [1 :: Int ..] exprs
+    ]
+
+familyRepresentativePool :: RequiredFamily -> Library -> [Candidate] -> [Candidate]
+familyRepresentativePool fam lib candidates =
+  case fam of
+    FamilyFoundation ->
+      let familyCands = filterFamily
+      in if null familyCands
+         then []
+         else
+           let minKappa = minimum [kappa | (_, _, kappa, _, _) <- familyCands]
+               minKappaCands =
+                 [ cand
+                 | cand@(_, _, kappa, _, _) <- familyCands
+                 , kappa == minKappa
+                 ]
+               bestRho = maximum [rho | (_, _, _, rho, _) <- minKappaCands]
+           in [ cand
+              | cand@(_, _, _, rho, _) <- minKappaCands
+              , abs (rho - bestRho) <= 1.0e-9
+              ]
+    FamilyFormer ->
+      let familyCands = filterFamily
+      in if null familyCands
+         then []
+         else
+           let bestRho = maximum [rho | (_, _, _, rho, _) <- familyCands]
+           in [ cand
+              | cand@(_, _, _, rho, _) <- familyCands
+              , abs (rho - bestRho) <= 1.0e-9
+              ]
+    FamilyUniverseGenesis ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (Just universeGenesisRepresentativeExprs) familyCands
+      in if null exact then familyCands else exact
+    FamilyWitnessIntro ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (witnessIntroductionRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyBootstrapHIT -> filterFamily
+    FamilyTrunc ->
+      let familyCands = filterFamily
+      in if null familyCands
+         then []
+         else
+           let minKappa = minimum [kappa | (_, _, kappa, _, _) <- familyCands]
+           in [ cand
+              | cand@(_, _, kappa, _, _) <- familyCands
+              , kappa == minKappa
+              ]
+    FamilyMapBridge ->
+      let familyCands = filterFamily
+      in if null familyCands
+         then []
+         else
+           let exact = selectExactRepresentativeExprs (mapBridgeRepresentativeExprs lib) familyCands
+           in if not (null exact)
+              then exact
+              else
+                let minKappa = minimum [kappa | (_, _, kappa, _, _) <- familyCands]
+                    minKappaCands =
+                      [ cand
+                      | cand@(_, _, kappa, _, _) <- familyCands
+                      , kappa == minKappa
+                      ]
+                    minBit = minimum [teleBitCost tele | (tele, _, _, _, _) <- minKappaCands]
+                in [ cand
+                   | cand@(tele, _, _, _, _) <- minKappaCands
+                   , teleBitCost tele == minBit
+                   ]
+    FamilyModal ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (modalRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyDifferential ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (differentialRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyCurvature ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (curvatureRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyMetric ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (metricRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyHilbert ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (hilbertRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    FamilyTemporal ->
+      let familyCands = filterFamily
+          exact = selectExactRepresentativeExprs (temporalRepresentativeExprs lib) familyCands
+      in if null exact then familyCands else exact
+    _ -> filterFamily
+  where
+    filterFamily =
+      [ cand
+      | cand@(tele, _, _, _, _) <- candidates
+      , isRequiredFamilyCandidate fam lib tele
+      ]
+
 -- ============================================
 -- Adaptive Memory Budgets
 -- ============================================
@@ -2169,9 +3267,20 @@ computeSearchBudget cfg step = do
             then readMemorySnapshot
             else return Nothing
   let shadowProfile = cfgMBTTShadowProfile cfg && step <= 6
-      baseBitBudget = if shadowProfile then 14 else 16
-      baseAstDepth = maybe 2 id (cfgMBTTAstDepth cfg)
-      baseMaxCandidates = maybe (if shadowProfile then 800 else 800) id (cfgMBTTMaxCand cfg)
+      structuralRetry = useStructuralRetryProfile cfg
+      (structBit, structDepth, structCands) = structuralTier0Budget step
+      baseBitBudget =
+        if structuralRetry
+        then structBit
+        else if shadowProfile then 14 else 16
+      baseAstDepth =
+        if structuralRetry
+        then maybe structDepth id (cfgMBTTAstDepth cfg)
+        else maybe 2 id (cfgMBTTAstDepth cfg)
+      baseMaxCandidates =
+        if structuralRetry
+        then maybe structCands id (cfgMBTTMaxCand cfg)
+        else maybe 800 id (cfgMBTTMaxCand cfg)
       baseMCTSIterations = 1200
       baseMCTSDepth = 3
       baseMCTSTopK = 10
@@ -2179,7 +3288,9 @@ computeSearchBudget cfg step = do
       pressure0 = if cfgAdaptiveMemory cfg then classifyMemoryPressure snap else MemLow
       pressure = if cfgMemorySafe cfg then raisePressure pressure0 else pressure0
 
-      stepScale = if step >= 13 then 30
+      stepScale = if structuralRetry
+                  then 100
+                  else if step >= 13 then 30
                   else if step >= 10 then 40
                   else if step >= 7 then 60
                   else 100
@@ -2249,6 +3360,102 @@ printSearchBudget step budget = do
         (sbBitBudget budget) (sbAstDepth budget) (sbMaxCandidates budget)
         (sbMCTSIterations budget) (sbMCTSDepth budget) (sbMCTSTopK budget) mctsSuffix
 
+useStructuralRetryProfile :: AbInitioConfig -> Bool
+useStructuralRetryProfile cfg =
+  cfgMode cfg == StructuralAbInitio && not (cfgPhase1Shadow cfg)
+
+structuralTier0Budget :: Int -> (Int, Int, Int)
+structuralTier0Budget step
+  | step <= 3 = (14, 2, 20)
+  | step <= 6 = (16, 2, 32)
+  | step <= 9 = (18, 2, 48)
+  | step <= 12 = (20, 2, 64)
+  | otherwise = (24, 2, 80)
+
+structuralAgendaBand :: Int -> (Int, Int, Int, Int)
+structuralAgendaBand step
+  | step <= 3 = (48, 16, 4, 8)
+  | step <= 6 = (64, 20, 4, 10)
+  | step <= 9 = (80, 24, 5, 12)
+  | step <= 12 = (96, 28, 5, 12)
+  | otherwise = (120, 32, 6, 14)
+
+scaleRounded :: Int -> Double -> Int
+scaleRounded x factor = max 1 (round (fromIntegral x * factor))
+
+buildStructuralRetryBudgets :: AbInitioConfig -> Int -> SearchBudget -> [RetryBudget]
+buildStructuralRetryBudgets cfg step budget =
+  let (baseBit, baseDepthRaw, baseCandRaw) = structuralTier0Budget step
+      (baseStates, baseAgendaCands, baseBranch, baseLeafCap) = structuralAgendaBand step
+      depth0 = maybe baseDepthRaw id (cfgMBTTAstDepth cfg)
+      cand0 = maybe baseCandRaw id (cfgMBTTMaxCand cfg)
+      depth1 = depth0
+      depth2 = if cfgMBTTAstDepth cfg == Nothing then depth0 + 1 else depth0
+      cand1 = if cfgMBTTMaxCand cfg == Nothing then cand0 * 2 else cand0
+      cand2 = if cfgMBTTMaxCand cfg == Nothing then cand0 * 4 else cand0
+      bit0 = max (sbBitBudget budget) baseBit
+      bit1 = max bit0 (baseBit + 2)
+      bit2 = max bit1 (baseBit + 4)
+      states1 = min 120 (scaleRounded baseStates 1.5)
+      states2 = min 120 (baseStates * 2)
+      agenda1 = min 40 (scaleRounded baseAgendaCands 1.5)
+      agenda2 = min 40 (baseAgendaCands * 2)
+  in [ RetryBudget 0 bit0 depth0 cand0 baseStates baseAgendaCands baseBranch baseLeafCap
+     , RetryBudget 1 bit1 depth1 cand1 states1 agenda1 baseBranch baseLeafCap
+     , RetryBudget 2 bit2 depth2 cand2 states2 agenda2 baseBranch baseLeafCap
+     ]
+
+exprCapLimitForStep :: Int -> Int -> Int
+exprCapLimitForStep step maxCand =
+  let base = min 192 (max 48 (maxCand * 3))
+  in if step <= 6 then min 96 base else base
+
+evalModeFingerprint :: EvalMode -> String
+evalModeFingerprint = show
+
+nuHistoryFingerprint :: [(Int, Int)] -> String
+nuHistoryFingerprint hist =
+  intercalate ";" [show stepIdx ++ ":" ++ show nu | (stepIdx, nu) <- hist]
+
+evaluateCandidatesCached
+  :: EvalMode
+  -> Library
+  -> Int
+  -> [(Int, Int)]
+  -> String
+  -> EvalCache
+  -> [Telescope]
+  -> ([Candidate], EvalCache)
+evaluateCandidatesCached evalMode lib nuDepth nuHist src cache0 teles =
+  let histKey = nuHistoryFingerprint nuHist
+      mkKey tele =
+        let CanonKey ckey = canonicalKeySpec (map teType (teleEntries tele))
+        in EvalCacheKey (evalModeFingerprint evalMode) ckey nuDepth histKey
+      keyed = [(tele, mkKey tele) | tele <- teles]
+      missingUnique =
+        Map.toList
+          (foldl'
+             (\acc (tele, key) -> Map.insertWith (\_ old -> old) key tele acc)
+             Map.empty
+             keyed)
+      misses = [ (key, tele) | (key, tele) <- missingUnique, Map.notMember key cache0 ]
+      evalOne (key, tele) =
+        let (nu, kappa, rho) = evaluateTelescopeWithHistory evalMode tele lib nuDepth "candidate" nuHist
+        in nu `seq` kappa `seq` rho `seq` (key, (nu, kappa, rho))
+      scoredMisses = parMapChunkedWHNF evalOne misses
+      cache1 =
+        foldl'
+          (\acc (key, score) -> Map.insert key score acc)
+          cache0
+          scoredMisses
+      scored =
+        [ (tele, nu, kappa, rho, src)
+        | (tele, key) <- keyed
+        , Just (nu, kappa, rho) <- [Map.lookup key cache1]
+        , nu > 0
+        ]
+  in (scored, cache1)
+
 -- ============================================
 -- Selection Bar Computation
 -- ============================================
@@ -2274,6 +3481,13 @@ computeBarD d mode n history =
           let steps = take (n-1) genesisLibrarySteps
               sumNu = sum [gsPaperNu s | s <- steps]
               sumK  = sum [gsPaperK s | s <- steps]
+          in if sumK > 0
+             then fromIntegral sumNu / fromIntegral sumK
+             else 1.0
+        GuidedRecovery ->
+          let past = take (n-1) history
+              sumNu = sum [drNu r | r <- past]
+              sumK  = sum [drKappa r | r <- past]
           in if sumK > 0
              then fromIntegral sumNu / fromIntegral sumK
              else 1.0
@@ -2346,6 +3560,597 @@ assertClaimGradeSources step cs =
       error ("claim-grade source guard violation at step "
              ++ show step ++ ": forbidden sources " ++ show forbidden)
 
+emptyHonestSearchState :: HonestSearchState
+emptyHonestSearchState =
+  HonestSearchState
+    { hsEnumCache = emptyEnumStepCache
+    , hsEvalCache = Map.empty
+    , hsSeenKeys = Set.empty
+    , hsSeedByKey = Map.empty
+    , hsRawCandidates = 0
+    , hsEvaluatedCandidates = 0
+    , hsDedupedCandidates = 0
+    , hsMinimalityRejects = 0
+    , hsSearchedBands = []
+    , hsViableCandidates = []
+    , hsBandTraces = []
+    , hsFailedFrontier = []
+    , hsMCTSSeedStates = 0
+    , hsMCTSCompletedStates = 0
+    }
+
+summarizeHonestFrontier
+  :: [HonestBandTrace]
+  -> (Maybe Int, Maybe Int, Maybe Int, Maybe Int, Int, Int)
+summarizeHonestFrontier traces =
+  ( bestOf fdBestObligationScore
+  , bestOf fdBestInterfaceDensity
+  , bestOf fdBestGenericityScore
+  , bestOf fdBestClosureScore
+  , sum [fdFrontierCandidates (hbtFrontier trace) | trace <- traces]
+  , sum [fdFrontierKept (hbtFrontier trace) | trace <- traces]
+  )
+  where
+    bestOf field =
+      case [value | trace <- traces, Just value <- [field (hbtFrontier trace)]] of
+        [] -> Nothing
+        values -> Just (maximum values)
+
+enumerateStrictBandCandidates
+  :: Library
+  -> Int
+  -> EnumConfig
+  -> EnumStepCache
+  -> ([StrictBandSeed], EnumBandDiagnostics, EnumStepCache)
+enumerateStrictBandCandidates lib band bandCfg cache0 =
+  case molecularCandidates of
+    [] ->
+      let ((bandCandidates, bandDiag), cache1) =
+            enumerateMBTTTelescopesWithDiagnostics lib bandCfg cache0
+      in (map atomicSeed bandCandidates, bandDiag, cache1)
+    _ ->
+      ( molecularCandidates
+      , EnumBandDiagnostics
+          { ebdFrontier = molecularFrontier
+          , ebdExprCountsByCtx = []
+          , ebdScannedTelescopes = length molecularCandidates
+          , ebdValidTelescopes = length molecularCandidates
+          }
+      , cache0
+      )
+  where
+    compiled =
+      [ cm
+      | cm <- enumerateStrictMolecularCandidates lib band
+      , cmConceptualKappa cm == band
+      , checkTelescope lib (cmCompiledTelescope cm) == CheckOK
+      ]
+    molecularCandidates =
+      [ StrictBandSeed tele (Just conceptualKappa) (Just axiomaticExports) (Just provenance) "ENUM_MOLECULAR"
+      | CompiledMolecule _ conceptualKappa axiomaticExports tele provenance <- compiled
+      ]
+    molecularFrontier =
+      FrontierDiagnostics
+        { fdFrontierCandidates = length molecularCandidates
+        , fdFrontierKept = length molecularCandidates
+        , fdBestObligationScore = Nothing
+        , fdBestInterfaceDensity = Nothing
+        , fdBestGenericityScore = Nothing
+        , fdBestClosureScore = Nothing
+        }
+    atomicSeed cand =
+      StrictBandSeed (mcTelescope cand) Nothing Nothing Nothing "ENUM_MBTT"
+
+prioritizeHonestBands :: Library -> [Int] -> [Int]
+prioritizeHonestBands lib =
+  sortOn bandPriority
+  where
+    bandPriority band =
+      ( not (bandHasMolecularCandidates lib band)
+      , band
+      )
+
+bandHasMolecularCandidates :: Library -> Int -> Bool
+bandHasMolecularCandidates lib band =
+  any
+    (\cm -> checkTelescope lib (cmCompiledTelescope cm) == CheckOK)
+    [ cm
+    | cm <- enumerateStrictMolecularCandidates lib band
+    , cmConceptualKappa cm == band
+    ]
+
+mergeFailedFrontier
+  :: Library
+  -> [MBTTCandidate]
+  -> [(Telescope, ObligationSummary)]
+  -> [(Telescope, ObligationSummary)]
+mergeFailedFrontier lib bandCandidates existing =
+  take 12 (sortOn failedFrontierKey (Map.elems merged))
+  where
+    incoming =
+      [ (tele, analyzeObligations lib tele)
+      | MBTTCandidate tele _ _ _ _ <- take 12 bandCandidates
+      ]
+    step acc item@(tele, _) =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key acc of
+           Nothing -> Map.insert key item acc
+           Just prev ->
+             if failedFrontierKey item < failedFrontierKey prev
+             then Map.insert key item acc
+             else acc
+    merged = foldl' step Map.empty (existing ++ incoming)
+    failedFrontierKey (tele, summary) =
+      ( Down (osScore summary)
+      , Down (osClosureScore summary)
+      , stableStructuralHash tele
+      )
+
+bootstrapEligible :: Int -> Telescope -> Bool
+bootstrapEligible step (Telescope entries) =
+  case step of
+    1 -> hasExactUniv && hasUniverseLevel
+    2 -> hasUniverseLevel
+    3 -> hasWitnessIntro
+    _ -> True
+  where
+    exprs = map teType entries
+    hasExactUniv = any isExactUniv exprs
+    hasUniverseLevel = any isUniverseLevel exprs
+    hasWitnessIntro = any isWitnessExpr exprs
+
+    isExactUniv Univ = True
+    isExactUniv _ = False
+
+    isUniverseLevel (App Univ _) = True
+    isUniverseLevel _ = False
+
+    isWitnessExpr (App (Lib _) (Var _)) = True
+    isWitnessExpr _ = False
+
+honestEnumBounds :: Int -> (Int, Int, Int, Int)
+honestEnumBounds kappaCap =
+  case kappaCap of
+    k | k <= 2 -> (16, 2, 1024, 96)
+    3 -> (24, 3, 768, 128)
+    4 -> (20, 2, 768, 96)
+    5 -> (24, 2, 1024, 128)
+    6 -> (30, 3, 2048, 192)
+    7 -> (34, 3, 2560, 224)
+    8 -> (38, 3, 3072, 256)
+    _ -> (42, 3, 4096, 320)
+
+honestMCTSIterations :: Int -> Int -> Int
+honestMCTSIterations remainingSeconds kappaCap =
+  max 200 (min 4000 (remainingSeconds * (60 + 10 * max 0 (kappaCap - 5))))
+
+candidateCanonKeyText :: Telescope -> String
+candidateCanonKeyText tele =
+  case canonicalKeySpec (map teType (teleEntries tele)) of
+    CanonKey key -> key
+
+honestSelectionKey :: Library -> Double -> Candidate -> (Double, Int, Down Int, Down Int, Down Int, Down Int, Down Int, Down Int, Down Int, Int, String)
+honestSelectionKey lib bar (tele, _, kappa, rho, _) =
+  let bootstrap = length lib < 3
+      eliminatorScore = if bootstrap then 0 else trueEliminatorScore tele
+      lifecycleScore = if bootstrap then 0 else formerLifecycleScore tele
+      dependentDensity = if bootstrap then 0 else dependentMotiveDensity tele
+      internalAdjoints = if bootstrap then 0 else internalAdjointScore tele
+      densityScore = if bootstrap then 0 else countDistinctLibraryRefs tele
+      genericityScore = if bootstrap then 0 else countPolymorphicBinders tele
+      closureScore' = strictClosureTieBreak lib tele
+  in
+  ( max 0.0 (rho - bar)
+  , kappa
+  , Down eliminatorScore
+  , Down lifecycleScore
+  , Down dependentDensity
+  , Down internalAdjoints
+  , Down densityScore
+  , Down genericityScore
+  , Down closureScore'
+  , teleBitCost tele
+  , stableStructuralHash tele
+  )
+
+evaluateCandidateCached
+  :: EvalMode
+  -> String
+  -> Telescope
+  -> Library
+  -> Int
+  -> [(Int, Int)]
+  -> EvalCache
+  -> (Candidate, EvalCache)
+evaluateCandidateCached evalMode src tele lib nuDepth nuHist cache =
+  case Map.lookup key cache of
+    Just (nu, kappa, rho) -> ((tele, nu, kappa, rho, src), cache)
+    Nothing ->
+      let result@(nu, kappa, rho) =
+            evaluateTelescopeWithHistory evalMode tele lib nuDepth "candidate" nuHist
+      in ((tele, nu, kappa, rho, src), Map.insert key result cache)
+  where
+    key =
+      EvalCacheKey
+        { eckMode = show evalMode
+        , eckTelescope = show tele
+        , eckNuDepth = nuDepth
+        , eckHistory = show nuHist
+        }
+
+countDistinctLibraryRefs :: Telescope -> Int
+countDistinctLibraryRefs = Set.size . teleLibRefs
+
+countPolymorphicBinders :: Telescope -> Int
+countPolymorphicBinders = genericBinderCount
+
+strictClosureTieBreak :: Library -> Telescope -> Int
+strictClosureTieBreak = closureScore
+
+stableStructuralHash :: Telescope -> String
+stableStructuralHash = candidateCanonKeyText
+
+bandSeedToFrontierCandidate :: StrictBandSeed -> MBTTCandidate
+bandSeedToFrontierCandidate seed =
+  let tele = sbsTelescope seed
+      clauseKappa =
+        case sbsConceptualKappa seed of
+          Just kappa -> kappa
+          Nothing -> desugaredKappa tele
+  in MBTTCandidate tele (teleBitCost tele) clauseKappa 0 0
+
+conceptualSeedTelescope :: StrictBandSeed -> Telescope
+conceptualSeedTelescope seed =
+  case sbsClauseProvenance seed of
+    Just provenance
+      | length provenance == length entries ->
+          let axiomaticEntries =
+                [ entry
+                | (entry, prov) <- zip entries provenance
+                , prov == AxiomaticSignature
+                ]
+          in if null axiomaticEntries
+             then tele
+             else Telescope axiomaticEntries
+    _ -> tele
+  where
+    tele@(Telescope entries) = sbsTelescope seed
+
+seedEvaluationTelescope :: StrictBandSeed -> Telescope
+seedEvaluationTelescope = conceptualSeedTelescope
+
+seedTopologicalNu :: StrictBandSeed -> Int
+seedTopologicalNu seed =
+  case sbsClauseProvenance seed of
+    Nothing -> 0
+    Just provenance
+      | length provenance /= length entries -> 0
+      | otherwise ->
+          let pathDims =
+                [ d
+                | (TeleEntry _ expr, prov) <- zip entries provenance
+                , prov == AxiomaticSignature
+                , PathCon d <- [expr]
+                ]
+              derivedExprs =
+                [ expr
+                | (TeleEntry _ expr, prov) <- zip entries provenance
+                , prov == FrameworkDerived
+                ]
+              matchedDims =
+                [ d
+                | d <- pathDims
+                , any (isPathComputationFor d) derivedExprs
+                ]
+              maxDim = if null matchedDims then 0 else maximum matchedDims
+          in if null matchedDims
+             then 0
+             else length matchedDims + maxDim * maxDim
+  where
+    Telescope entries = sbsTelescope seed
+    isPathComputationFor :: Int -> MBTTExpr -> Bool
+    isPathComputationFor dim expr =
+      mentionsPathDim dim expr && hasEqualityWitness expr
+
+    mentionsPathDim :: Int -> MBTTExpr -> Bool
+    mentionsPathDim dim expr = case expr of
+      PathCon d -> d == dim
+      App a b -> mentionsPathDim dim a || mentionsPathDim dim b
+      Lam a -> mentionsPathDim dim a
+      Pi a b -> mentionsPathDim dim a || mentionsPathDim dim b
+      Sigma a b -> mentionsPathDim dim a || mentionsPathDim dim b
+      Id a x y -> mentionsPathDim dim a || mentionsPathDim dim x || mentionsPathDim dim y
+      Refl a -> mentionsPathDim dim a
+      Susp a -> mentionsPathDim dim a
+      Trunc a -> mentionsPathDim dim a
+      Flat a -> mentionsPathDim dim a
+      Sharp a -> mentionsPathDim dim a
+      Disc a -> mentionsPathDim dim a
+      Shape a -> mentionsPathDim dim a
+      Next a -> mentionsPathDim dim a
+      Eventually a -> mentionsPathDim dim a
+      _ -> False
+
+    hasEqualityWitness :: MBTTExpr -> Bool
+    hasEqualityWitness expr = case expr of
+      Id _ _ _ -> True
+      Refl _ -> True
+      App a b -> hasEqualityWitness a || hasEqualityWitness b
+      Lam a -> hasEqualityWitness a
+      Pi a b -> hasEqualityWitness a || hasEqualityWitness b
+      Sigma a b -> hasEqualityWitness a || hasEqualityWitness b
+      Susp a -> hasEqualityWitness a
+      Trunc a -> hasEqualityWitness a
+      Flat a -> hasEqualityWitness a
+      Sharp a -> hasEqualityWitness a
+      Disc a -> hasEqualityWitness a
+      Shape a -> hasEqualityWitness a
+      Next a -> hasEqualityWitness a
+      Eventually a -> hasEqualityWitness a
+      _ -> False
+
+hybridStrictSeedNu :: StrictBandSeed -> Library -> [(Int, Int)] -> Int
+hybridStrictSeedNu seed lib nuHist =
+  let coreTele = seedEvaluationTelescope seed
+      coreNative = computeNativeNu coreTele lib nuHist
+      baseNu = nnNuG coreNative + nnNuC coreNative
+      topoNu = seedTopologicalNu seed
+  in baseNu + topoNu
+
+dedupBandSeedsByCanonicalKey :: [StrictBandSeed] -> [StrictBandSeed]
+dedupBandSeedsByCanonicalKey =
+  Map.elems . foldl' step Map.empty
+  where
+    step acc seed =
+      let key = canonicalKeySpec (map teType (teleEntries (sbsTelescope seed)))
+      in case Map.lookup key acc of
+           Nothing -> Map.insert key seed acc
+           Just prev ->
+             if bandSeedOrdering seed < bandSeedOrdering prev
+             then Map.insert key seed acc
+             else acc
+    bandSeedOrdering seed =
+      ( conceptualScore (sbsConceptualKappa seed)
+      , sourceScore (sbsSource seed)
+      , teleBitCost (sbsTelescope seed)
+      )
+    conceptualScore mk =
+      case mk of
+        Just kappa -> (0 :: Int, kappa)
+        Nothing -> (1 :: Int, 0)
+    sourceScore src =
+      if src == "ENUM_MOLECULAR" then (0 :: Int) else 1
+
+evaluateStrictBandSeedCached
+  :: EvalMode
+  -> StrictBandSeed
+  -> Library
+  -> Int
+  -> [(Int, Int)]
+  -> EvalCache
+  -> (Candidate, EvalCache)
+evaluateStrictBandSeedCached evalMode seed lib nuDepth nuHist cache =
+  let tele = sbsTelescope seed
+      evalTele = seedEvaluationTelescope seed
+      src = sbsSource seed
+      molecularStrict =
+        evalMode == EvalStrictComputed && sbsClauseProvenance seed /= Nothing
+      (nuCompiled, kappaCompiled, cache1)
+        | molecularStrict =
+            ( hybridStrictSeedNu seed lib nuHist
+            , desugaredKappa evalTele
+            , cache
+            )
+        | otherwise =
+            let ((_, nu', kappa', _, _), cacheNext) =
+                  evaluateCandidateCached evalMode src evalTele lib nuDepth nuHist cache
+            in (nu', kappa', cacheNext)
+  in case sbsConceptualKappa seed of
+       Nothing -> ((tele, nuCompiled, kappaCompiled, if kappaCompiled > 0 then fromIntegral nuCompiled / fromIntegral kappaCompiled else 0.0, src), cache1)
+       Just conceptualKappa ->
+         let rhoConceptual =
+               if conceptualKappa > 0
+               then fromIntegral nuCompiled / fromIntegral conceptualKappa
+               else 0.0
+         in ((tele, nuCompiled, conceptualKappa, rhoConceptual, src), cache1)
+
+applyStrictSemanticMinimalityFilter
+  :: EvalMode
+  -> Library
+  -> Int
+  -> Double
+  -> [(Int, Int)]
+  -> [Int]
+  -> EvalCache
+  -> [Candidate]
+  -> ([Candidate], EvalCache, Int)
+applyStrictSemanticMinimalityFilter evalMode lib nuDepth bar nuHist admissibleBands cache0 candidates =
+  foldl' step ([], cache0, 0) candidates
+  where
+    admissibleBandSet = Set.fromList admissibleBands
+    step (kept, cacheAcc, rejected) cand@(tele, _, kappa, _, src) =
+      let subTeles =
+            [ subTele
+            | subTele <- terminalSCCSubBundles tele
+            , let subKappa = desugaredKappa subTele
+            , subKappa < kappa
+            , Set.member subKappa admissibleBandSet
+            , not (isTriviallyDerivable subTele lib)
+            ]
+          (validSubs, _rejectedSubs) = checkAndFilter lib subTeles
+          (subCandidates, cacheNext) =
+            foldl'
+              (\(acc, cacheNow) subTele ->
+                let (subCand, cacheLater) =
+                      evaluateCandidateCached evalMode src subTele lib nuDepth nuHist cacheNow
+                in (subCand : acc, cacheLater))
+              ([], cacheAcc)
+              validSubs
+          barClearingSubExists =
+            any (\(_, nu, _, rho, _) -> nu > 0 && rho >= bar) subCandidates
+      in if barClearingSubExists
+         then (kept, cacheNext, rejected + 1)
+         else (cand : kept, cacheNext, rejected)
+
+dedupHonestCandidates :: Library -> [Candidate] -> [Candidate]
+dedupHonestCandidates lib candidates =
+  [ cand | key <- reverse order, Just cand <- [Map.lookup key reps] ]
+  where
+    (reps, order) = foldl' step (Map.empty, []) candidates
+    step (m, ord) cand@(tele, _, _, _, _) =
+      let key = canonicalKeySpec (map teType (teleEntries tele))
+      in case Map.lookup key m of
+           Nothing -> (Map.insert key cand m, key : ord)
+           Just prev ->
+             let pick =
+                   if honestSelectionKey lib 0.0 cand < honestSelectionKey lib 0.0 prev
+                   then cand
+                   else prev
+             in (Map.insert key pick m, ord)
+
+telescopeNodeCount :: Telescope -> Int
+telescopeNodeCount (Telescope entries) = sum (map (exprNodeCount . teType) entries)
+
+strictInsertedEntry :: Library -> String -> Telescope -> Maybe StrictBandSeed -> LibraryEntry
+strictInsertedEntry lib name tele mSeed =
+  let entry = telescopeToCandidateStructural tele lib name
+  in case mSeed of
+       Just seed
+         | isTruncationSeed seed ->
+             withAxiomaticExports seed $
+             entry
+               { leConstructors = 1
+               , lePathDims = []
+               , leHasLoop = False
+               , leIsTruncated = Just 0
+               }
+         | otherwise ->
+             withAxiomaticExports seed $
+             saturateBoundaryPathBasis seed (normalizeMolecularHitConstructors seed entry)
+       _ -> entry
+
+withAxiomaticExports :: StrictBandSeed -> LibraryEntry -> LibraryEntry
+withAxiomaticExports seed entry =
+  let fallback =
+        let Telescope entries = conceptualSeedTelescope seed
+        in max 1 (length entries)
+  in entry
+       { leAxiomaticExports =
+           case sbsAxiomaticExports seed of
+             Just exportCount -> max 1 exportCount
+             Nothing -> fallback
+       }
+
+normalizeMolecularHitConstructors :: StrictBandSeed -> LibraryEntry -> LibraryEntry
+normalizeMolecularHitConstructors seed entry
+  | not (isPathSeed seed) = entry
+  | otherwise = entry { leConstructors = max 1 (pointConstructorCount seed) }
+  where
+    isPathSeed s =
+      let Telescope entries = conceptualSeedTelescope s
+      in any (isPathWitnessExpr . teType) entries
+
+pointConstructorCount :: StrictBandSeed -> Int
+pointConstructorCount seed =
+  let Telescope entries = conceptualSeedTelescope seed
+      exprs = map teType entries
+  in length [() | expr <- exprs, isPointConstructorExpr expr]
+  where
+    isPointConstructorExpr expr =
+      not (isFormationExpr expr)
+      && not (isPathWitnessExpr expr)
+      && not (hasLamExpr expr)
+
+saturateBoundaryPathBasis :: StrictBandSeed -> LibraryEntry -> LibraryEntry
+saturateBoundaryPathBasis seed entry
+  | maxDim < 2 = entry
+  | hasExplicitBoundaryFillers seed = entry
+  | otherwise =
+      entry
+        { lePathDims = Set.toAscList (Set.fromList ([1 .. maxDim] ++ lePathDims entry))
+        }
+  where
+    maxDim =
+      case lePathDims entry of
+        [] -> 0
+        ds -> maximum ds
+
+hasExplicitBoundaryFillers :: StrictBandSeed -> Bool
+hasExplicitBoundaryFillers seed =
+  let Telescope entries = conceptualSeedTelescope seed
+      exprs = map teType entries
+      constructorLikeCount =
+        length
+          [ ()
+          | expr <- exprs
+          , isConstructorLike expr
+          ]
+  in any hasLamExpr exprs || constructorLikeCount > 1
+  where
+    isConstructorLike expr =
+      not (isFormationExpr expr) && not (isPathWitnessExpr expr)
+
+isFormationExpr :: MBTTExpr -> Bool
+isFormationExpr expr = case expr of
+  Univ -> True
+  App Univ _ -> True
+  Lam a -> isFormationExpr a
+  App a b -> isFormationExpr a || isFormationExpr b
+  Pi a b -> isFormationExpr a || isFormationExpr b
+  Sigma a b -> isFormationExpr a || isFormationExpr b
+  Id a x y -> isFormationExpr a || isFormationExpr x || isFormationExpr y
+  Refl a -> isFormationExpr a
+  _ -> False
+
+hasLamExpr :: MBTTExpr -> Bool
+hasLamExpr expr = case expr of
+  Lam _ -> True
+  App a b -> hasLamExpr a || hasLamExpr b
+  Pi a b -> hasLamExpr a || hasLamExpr b
+  Sigma a b -> hasLamExpr a || hasLamExpr b
+  Id a x y -> hasLamExpr a || hasLamExpr x || hasLamExpr y
+  Refl a -> hasLamExpr a
+  _ -> False
+
+isTruncationSeed :: StrictBandSeed -> Bool
+isTruncationSeed seed =
+  let Telescope entries = conceptualSeedTelescope seed
+      exprs = map teType entries
+  in any isTruncFormer exprs
+     && any isTruncIntro exprs
+     && any isPathWitnessExpr exprs
+  where
+    isTruncFormer expr = case expr of
+      Trunc _ -> True
+      Lam a -> isTruncFormer a
+      App a b -> isTruncFormer a || isTruncFormer b
+      Pi a b -> isTruncFormer a || isTruncFormer b
+      Sigma a b -> isTruncFormer a || isTruncFormer b
+      Id a x y -> isTruncFormer a || isTruncFormer x || isTruncFormer y
+      Refl a -> isTruncFormer a
+      _ -> False
+
+    isTruncIntro expr = case expr of
+      App (Trunc _) _ -> True
+      Lam a -> isTruncIntro a
+      App a b -> isTruncIntro a || isTruncIntro b
+      Pi a b -> isTruncIntro a || isTruncIntro b
+      Sigma a b -> isTruncIntro a || isTruncIntro b
+      Id a x y -> isTruncIntro a || isTruncIntro x || isTruncIntro y
+      Refl a -> isTruncIntro a
+      _ -> False
+
+isPathWitnessExpr :: MBTTExpr -> Bool
+isPathWitnessExpr expr = case expr of
+  PathCon _ -> True
+  Lam a -> isPathWitnessExpr a
+  App a b -> isPathWitnessExpr a || isPathWitnessExpr b
+  Pi a b -> isPathWitnessExpr a || isPathWitnessExpr b
+  Sigma a b -> isPathWitnessExpr a || isPathWitnessExpr b
+  Id a x y -> isPathWitnessExpr a || isPathWitnessExpr x || isPathWitnessExpr y
+  Refl a -> isPathWitnessExpr a
+  _ -> False
+
 -- | Deduplicate telescopes by canonicalized MBTT-expression key sequence.
 --
 -- Keeps the first occurrence to preserve deterministic upstream enumeration
@@ -2411,8 +4216,20 @@ quotientCandidates cs = [cand | key <- reverse order, Just cand <- [Map.lookup k
 
 -- | Candidate ranking used when two candidates share the same canonical key.
 betterCandidate :: Candidate -> Candidate -> Bool
-betterCandidate (_, _, k1, rho1, src1) (_, _, k2, rho2, src2) =
-  (k1, Down rho1, sourceRank src1) < (k2, Down rho2, sourceRank src2)
+betterCandidate (tele1, _, k1, rho1, src1) (tele2, _, k2, rho2, src2) =
+  ( k1
+  , teleBitCost tele1
+  , structuralSurplusKey tele1
+  , Down rho1
+  , sourceRank src1
+  )
+  <
+  ( k2
+  , teleBitCost tele2
+  , structuralSurplusKey tele2
+  , Down rho2
+  , sourceRank src2
+  )
 
 -- | Prefer exhaustive enumeration over MCTS when ties occur.
 sourceRank :: String -> Int
@@ -2536,6 +4353,33 @@ isBootstrapHITCandidate lib tele =
          && not (teleHasTrunc tele)
     _ -> False
 
+bootstrapHITSeedTelescopes :: [Telescope]
+bootstrapHITSeedTelescopes =
+  [ Telescope
+      [ TeleEntry "c1" (App Univ (Var 1))
+      , TeleEntry "c2" (Var 1)
+      , TeleEntry "c3" (PathCon 1)
+      ]
+  ]
+
+universeGenesisSeedTelescopes :: [Telescope]
+universeGenesisSeedTelescopes =
+  [ Telescope
+      [ TeleEntry "c1" Univ
+      , TeleEntry "c2" (App Univ (Var 1))
+      ]
+  ]
+
+witnessIntroductionSeedTelescopes :: Library -> [Telescope]
+witnessIntroductionSeedTelescopes lib =
+  case witnessIntroductionRepresentativeExprs lib of
+    Just [expr] ->
+      [ Telescope
+          [ TeleEntry "c1" expr
+          ]
+      ]
+    _ -> []
+
 postTruncLiftSeedTelescopes :: Library -> [Telescope]
 postTruncLiftSeedTelescopes lib =
   let nextDim = max 1 (libraryMaxPathDim lib + 1)
@@ -2545,6 +4389,13 @@ postTruncLiftSeedTelescopes lib =
       coherence = Id (Var 1) (Var 1) (Var 1)
       richer =
         [ Telescope
+            [ TeleEntry "c1" carrier
+            , TeleEntry "c2" point
+            , TeleEntry "c3" liftPath
+            , TeleEntry "c4" (Lam (Var 1))
+            , TeleEntry "c5" (Lam (Var 2))
+            ]
+        , Telescope
             [ TeleEntry "c1" carrier
             , TeleEntry "c2" point
             , TeleEntry "c3" liftPath
@@ -2591,6 +4442,26 @@ postTruncLiftSeedTelescopes lib =
     then richer ++ minimal
     else minimal
 
+truncBridgeSeedTelescopes :: Library -> [Telescope]
+truncBridgeSeedTelescopes lib =
+  let squashDim = max 1 (libraryMaxPathDim lib)
+      truncForm = Trunc (Var 1)
+      truncIntro = App truncForm (Var 2)
+      squash = PathCon squashDim
+  in
+    [ Telescope
+        [ TeleEntry "c1" truncForm
+        , TeleEntry "c2" truncIntro
+        , TeleEntry "c3" squash
+        ]
+    , Telescope
+        [ TeleEntry "c1" truncForm
+        , TeleEntry "c2" truncIntro
+        , TeleEntry "c3" squash
+        , TeleEntry "c4" (Id (Var 1) (Var 1) (Var 1))
+        ]
+    ]
+
 mapBridgeSeedTelescopes :: Library -> [Telescope]
 mapBridgeSeedTelescopes lib =
   let refsByDim d = [i | (i, e) <- zip [1..] lib, d `elem` lePathDims e]
@@ -2600,9 +4471,9 @@ mapBridgeSeedTelescopes lib =
       tgtRef = case reverse (refsByDim 2) of
         (i:_) -> i
         [] -> max 1 (length lib)
-      fiberRef = case reverse (refsByDim 1) of
-        (i:_) -> i
-        [] -> max 1 (length lib)
+      fiberRef = case preferredMapBridgeFiberRef lib of
+        Just i -> i
+        Nothing -> max 1 (length lib)
   in
     [ Telescope
         [ TeleEntry "hopf-map" (Pi (Lib srcRef) (Lib tgtRef))
@@ -2624,12 +4495,26 @@ modalLiftSeedTelescopes lib =
       loopRef = case reverse loopRefs of
         (i:_) -> i
         [] -> max 1 (length lib)
-      carrier = Lib loopRef
+      carrierRef = case preferredModalCarrierRef lib of
+        Just i -> i
+        Nothing -> loopRef
+      carrier = Lib carrierRef
+      exact =
+        case modalRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "c1" (Flat carrier)
         , TeleEntry "c2" (Sharp carrier)
         , TeleEntry "c3" (Disc carrier)
+      ]
+    , Telescope
+        [ TeleEntry "c1" (Flat carrier)
+        , TeleEntry "c2" (Sharp carrier)
+        , TeleEntry "c3" (Disc carrier)
+        , TeleEntry "c4" (Shape carrier)
         ]
     , Telescope
         [ TeleEntry "c1" (Flat carrier)
@@ -2651,7 +4536,12 @@ differentialLiftSeedTelescopes lib =
         (i:_) -> i
         [] -> max 1 (length lib)
       carrier = Lib modalRef
+      exact =
+        case differentialRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "conn-form"  (Pi carrier carrier)
         , TeleEntry "transport"  (Pi (Flat carrier) carrier)
@@ -2675,7 +4565,12 @@ curvatureLiftSeedTelescopes lib =
         (i:_) -> i
         [] -> max 1 (length lib)
       carrier = Lib differentialRef
+      exact =
+        case curvatureRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "surface-form" (App Univ carrier)
         , TeleEntry "R-form"       (Pi carrier carrier)
@@ -2711,7 +4606,12 @@ metricLiftSeedTelescopes lib =
       hodge = Pi (Lib curvatureRef) (Lib curvatureRef)
       laplace = Lam (Pi (Var 1) (Var 1))
       ricci = Pi (Lib curvatureRef) (Var 1)
+      exact =
+        case metricRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "c1" gForm
         , TeleEntry "c2" connLaw
@@ -2752,7 +4652,12 @@ hilbertLiftSeedTelescopes lib =
       curvatureOp = Pi (Lib curvatureRef) (Lib differentialRef)
       connectionOp = Pi (Lib differentialRef) (Lib metricRef)
       functionalDeriv = Lam (Pi (Lib metricRef) Univ)
+      exact =
+        case hilbertRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "c1" innerProduct
         , TeleEntry "c2" cauchyComplete
@@ -2802,7 +4707,12 @@ temporalLiftSeedTelescopes lib =
       polyTemporal = Pi (Next (Var 1)) (Eventually (Var 1))
       spatialTemporalLam = Lam (App spatial (Next (Var 1)))
       spatialTemporalLamEv = Lam (App spatial (Eventually (Var 1)))
+      exact =
+        case temporalRepresentativeExprs lib of
+          Just exprs -> [mkSeedTelescope exprs]
+          Nothing -> []
   in
+    exact ++
     [ Telescope
         [ TeleEntry "c1" (Pi spatial spatial)
         , TeleEntry "c2" (Pi dynamic dynamic)
@@ -2912,7 +4822,7 @@ isModalLiftCandidate :: Library -> Telescope -> Bool
 isModalLiftCandidate lib tele =
   desugaredKappa tele >= requiredModalLiftKappa tele
   && teleModalCount tele >= 3
-  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
+  && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele || teleModalCount tele >= 4)
   && (teleReferencesLoopCarrier lib tele || teleReferencesModalCarrier lib tele || detectCanonicalName tele lib == "Cohesion")
 
 modalLiftQualityScore :: Library -> Telescope -> Int
@@ -2952,8 +4862,7 @@ isDifferentialLiftCandidate :: Library -> Telescope -> Bool
 isDifferentialLiftCandidate lib tele =
   teleReferencesModalCarrier lib tele
   && desugaredKappa tele >= requiredDifferentialLiftKappa tele
-  && teleHasCoherenceExpr tele
-  && (teleHasPiSigma tele || teleHasBridgeInteraction tele)
+  && teleHasDifferentialBundleEvidence tele
 
 differentialLiftQualityScore :: Library -> Telescope -> Int
 differentialLiftQualityScore lib tele
@@ -2966,7 +4875,7 @@ differentialLiftQualityScore lib tele
     hasModalRef = teleReferencesModalCarrier lib tele
     connectionScore = if isConnections then 2 else 0
     modalRefScore = if hasModalRef then 2 else 0
-    formerScore = if teleHasPiSigma tele then 1 else 0
+    formerScore = if teleHasDifferentialFormer tele then 1 else 0
     coherenceScore = if teleHasCoherenceExpr tele then 1 else 0
     interactionScore = if teleHasBridgeInteraction tele then 1 else 0
     classScore = if cls == TCAxiomatic then 1 else 0
@@ -2988,7 +4897,7 @@ isCurvatureLiftCandidate :: Library -> Telescope -> Bool
 isCurvatureLiftCandidate lib tele =
   teleReferencesDifferentialCarrier lib tele
   && desugaredKappa tele >= requiredCurvatureLiftKappa tele
-  && teleHasSurfaceEvidence tele
+  && (teleHasSurfaceEvidence tele || teleHasCurvatureBundleEvidence tele)
   && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
 
 curvatureLiftQualityScore :: Library -> Telescope -> Int
@@ -3124,7 +5033,7 @@ hilbertLiftPenalty lib tele kappa
 
 isTemporalLiftCandidate :: Library -> Telescope -> Bool
 isTemporalLiftCandidate lib tele =
-  teleReferencesHilbertCarrier lib tele
+  any leHasHilbert lib
   && teleReferencesModalCarrier lib tele
   && desugaredKappa tele >= requiredTemporalLiftKappa tele
   && teleHasTemporalOpsPair tele
@@ -3142,13 +5051,14 @@ temporalLiftQualityScore lib tele
     isDCT = detectCanonicalName tele lib == "DCT"
     hasHilbertRef = teleReferencesHilbertCarrier lib tele
     hasModalRef = teleReferencesModalCarrier lib tele
+    hasHilbertInLib = any leHasHilbert lib
     hasPair = teleHasTemporalOpsPair tele
     compat = teleTemporalCompatibilityScore tele
     hasInfShift = teleHasInfinitesimalShiftEvidence tele
     hasDistLaw = teleHasDistributiveTemporalLaw tele
     hasPoly = teleHasTemporalPolymorphism tele
     canonicalScore = if isDCT then 5 else 0
-    hilbertRefScore = if hasHilbertRef then 3 else 0
+    hilbertRefScore = if hasHilbertRef then 3 else if hasHilbertInLib then 1 else 0
     modalRefScore = if hasModalRef then 2 else 0
     pairScore = if hasPair then 3 else 0
     compatScore = 2 * compat
@@ -3246,6 +5156,44 @@ teleHasSurfaceEvidence (Telescope entries) = any (go . teType) entries
       Shape a -> go a
       Next a -> go a
       Eventually a -> go a
+      _ -> False
+
+teleHasCurvatureBundleEvidence :: Telescope -> Bool
+teleHasCurvatureBundleEvidence (Telescope entries) =
+  hasCurvatureForm && hasDifferentialAction && hasTransportLike
+  where
+    exprs = map teType entries
+    hasCurvatureForm = any hasCurvatureFormExpr exprs
+    hasDifferentialAction = any hasDifferentialActionExpr exprs
+    hasTransportLike = any hasTransportLikeExpr exprs
+
+    hasCurvatureFormExpr expr = case expr of
+      Pi (Lib _) (Pi _ _) -> True
+      Pi (Lib _) (Lib _) -> True
+      Pi _ (Lib _) -> True
+      Lam a -> hasCurvatureFormExpr a
+      App a b -> hasCurvatureFormExpr a || hasCurvatureFormExpr b
+      Id a x y -> hasCurvatureFormExpr a || hasCurvatureFormExpr x || hasCurvatureFormExpr y
+      Refl a -> hasCurvatureFormExpr a
+      _ -> False
+
+    hasDifferentialActionExpr expr = case expr of
+      App (Lib _) _ -> True
+      Lam a -> hasDifferentialActionExpr a
+      App a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Pi a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Sigma a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Id a x y -> hasDifferentialActionExpr a || hasDifferentialActionExpr x || hasDifferentialActionExpr y
+      Refl a -> hasDifferentialActionExpr a
+      _ -> False
+
+    hasTransportLikeExpr expr = case expr of
+      Lam _ -> True
+      Pi _ _ -> True
+      Sigma _ _ -> True
+      App a b -> hasTransportLikeExpr a || hasTransportLikeExpr b
+      Id a x y -> hasTransportLikeExpr a || hasTransportLikeExpr x || hasTransportLikeExpr y
+      Refl a -> hasTransportLikeExpr a
       _ -> False
 
 teleModalCount :: Telescope -> Int
@@ -3518,6 +5466,48 @@ teleHasLiftCoherenceWitness (Telescope entries) = any (go . teType) entries
       Eventually a -> go a
       _ -> False
 
+teleHasDifferentialBundleEvidence :: Telescope -> Bool
+teleHasDifferentialBundleEvidence (Telescope entries) =
+  teleHasDifferentialFormer tele
+    && hasTransportLike
+    && hasModalAction
+  where
+    tele = Telescope entries
+    exprs = map teType entries
+    hasTransportLike = any isTransportLike exprs
+    hasModalAction = any isModalAction exprs
+
+    isTransportLike expr = case expr of
+      Pi a b -> containsModalish a || isTransportLike b
+      Lam a -> isTransportLike a
+      App a b -> isTransportLike a || isTransportLike b
+      _ -> False
+
+    isModalAction expr = case expr of
+      App (Lib _) _ -> True
+      Lam a -> isModalAction a
+      App a b -> isModalAction a || isModalAction b
+      _ -> False
+
+    containsModalish expr = case expr of
+      Flat _ -> True
+      Sharp _ -> True
+      Disc _ -> True
+      Shape _ -> True
+      App a b -> containsModalish a || containsModalish b
+      Pi a b -> containsModalish a || containsModalish b
+      Sigma a b -> containsModalish a || containsModalish b
+      Lam a -> containsModalish a
+      Id a x y -> containsModalish a || containsModalish x || containsModalish y
+      _ -> False
+
+teleHasDifferentialFormer :: Telescope -> Bool
+teleHasDifferentialFormer (Telescope entries) = any (isConnectionFormer . teType) entries
+  where
+    isConnectionFormer expr = case expr of
+      Pi _ (Pi _ _) -> True
+      _ -> False
+
 teleHasMetricBundleEvidence :: Telescope -> Bool
 teleHasMetricBundleEvidence (Telescope entries) =
   hasGForm && hasConnLike && hasCurvLike
@@ -3541,6 +5531,7 @@ teleHasMetricBundleEvidence (Telescope entries) =
       Pi _ (Pi _ _) -> True
       Lam (Pi _ _) -> True
       App (Lib _) _ -> True
+      Pi a b -> hasConnectionLink a || hasConnectionLink b
       Lam a -> hasConnectionLink a
       App a b -> hasConnectionLink a || hasConnectionLink b
       Id a x y -> hasConnectionLink a || hasConnectionLink x || hasConnectionLink y
@@ -3550,6 +5541,7 @@ teleHasMetricBundleEvidence (Telescope entries) =
     hasCurvatureLink expr = case expr of
       Pi (Lib _) (Lib _) -> True
       Pi (Lib _) (Var _) -> True
+      Pi a b -> hasCurvatureLink a || hasCurvatureLink b
       Lam a -> hasCurvatureLink a
       App a b -> hasCurvatureLink a || hasCurvatureLink b
       Id a x y -> hasCurvatureLink a || hasCurvatureLink x || hasCurvatureLink y
@@ -3582,6 +5574,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isInnerProduct expr = case expr of
       Sigma (Pi _ (Pi _ _)) _ -> True
       Sigma (Pi _ _) _ -> True
+      Pi a b -> isInnerProduct a || isInnerProduct b
       Lam a -> isInnerProduct a
       App a b -> isInnerProduct a || isInnerProduct b
       Id a x y -> isInnerProduct a || isInnerProduct x || isInnerProduct y
@@ -3598,6 +5591,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isOrthDecomp expr = case expr of
       Pi _ (Sigma _ _) -> True
+      Pi a b -> isOrthDecomp a || isOrthDecomp b
       Lam a -> isOrthDecomp a
       App a b -> isOrthDecomp a || isOrthDecomp b
       Id a x y -> isOrthDecomp a || isOrthDecomp x || isOrthDecomp y
@@ -3607,6 +5601,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isSpectral expr = case expr of
       Pi (Pi _ _) (Sigma _ _) -> True
       Pi (Lam _) (Sigma _ _) -> True
+      Pi _ (Sigma _ _) -> True
+      Pi a b -> isSpectral a || isSpectral b
       Lam a -> isSpectral a
       App a b -> isSpectral a || isSpectral b
       Id a x y -> isSpectral a || isSpectral x || isSpectral y
@@ -3615,6 +5611,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isCStar expr = case expr of
       Sigma (Pi _ _) (Pi _ _) -> True
+      Pi a b -> isCStar a || isCStar b
       Lam a -> isCStar a
       App a b -> isCStar a || isCStar b
       Id a x y -> isCStar a || isCStar x || isCStar y
@@ -3623,6 +5620,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isMetricCompat expr = case expr of
       Pi (Lib _) _ -> True
+      Pi _ (Lib _) -> True
+      Pi a b -> isMetricCompat a || isMetricCompat b
       Lam a -> isMetricCompat a
       App a b -> isMetricCompat a || isMetricCompat b
       Id a x y -> isMetricCompat a || isMetricCompat x || isMetricCompat y
@@ -3632,6 +5631,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isCurvatureOp expr = case expr of
       Pi (Lib _) (Lib _) -> True
       Pi (Lib _) (Var _) -> True
+      Pi _ (Lib _) -> True
+      Pi a b -> isCurvatureOp a || isCurvatureOp b
       Lam a -> isCurvatureOp a
       App a b -> isCurvatureOp a || isCurvatureOp b
       Id a x y -> isCurvatureOp a || isCurvatureOp x || isCurvatureOp y
@@ -3641,6 +5642,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isConnectionOp expr = case expr of
       Pi (Lib _) (Lib _) -> True
       Pi (Lib _) (Var _) -> True
+      Pi _ (Lib _) -> True
+      Pi a b -> isConnectionOp a || isConnectionOp b
       Lam a -> isConnectionOp a
       App a b -> isConnectionOp a || isConnectionOp b
       Id a x y -> isConnectionOp a || isConnectionOp x || isConnectionOp y
@@ -3649,6 +5652,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isFunctionalDerivative expr = case expr of
       Lam (Pi _ Univ) -> True
+      Pi _ b -> isFunctionalDerivative b
       Lam a -> isFunctionalDerivative a
       App a b -> isFunctionalDerivative a || isFunctionalDerivative b
       Id a x y -> isFunctionalDerivative a || isFunctionalDerivative x || isFunctionalDerivative y
@@ -3887,6 +5891,26 @@ exprRefs (App a b) = exprRefs a ++ exprRefs b
 exprRefs (Id a x y) = exprRefs a ++ exprRefs x ++ exprRefs y
 exprRefs _ = []
 
+teleHasLam :: Telescope -> Bool
+teleHasLam (Telescope entries) = any (go . teType) entries
+  where
+    go expr = case expr of
+      Lam _ -> True
+      App a b -> go a || go b
+      Pi a b -> go a || go b
+      Sigma a b -> go a || go b
+      Id a x y -> go a || go x || go y
+      Refl a -> go a
+      Susp a -> go a
+      Trunc a -> go a
+      Flat a -> go a
+      Sharp a -> go a
+      Disc a -> go a
+      Shape a -> go a
+      Next a -> go a
+      Eventually a -> go a
+      _ -> False
+
 teleHasPiSigma :: Telescope -> Bool
 teleHasPiSigma (Telescope entries) = any (go . teType) entries
   where
@@ -3935,6 +5959,30 @@ prefixReportHeader = intercalate ","
   , "bar"
   , "raw_candidates"
   , "viable_candidates"
+  , "guidance_mode"
+  , "admissibility_kappa_cap"
+  , "searched_kappa_bands"
+  , "selected_kappa_band"
+  , "step_budget_s"
+  , "elapsed_s"
+  , "evaluated_candidates"
+  , "deduped_candidates"
+  , "minimality_rejections"
+  , "best_obligation_score"
+  , "best_interface_density"
+  , "best_genericity_score"
+  , "best_closure_score"
+  , "frontier_candidates"
+  , "frontier_kept"
+  , "mcts_seed_states"
+  , "mcts_completed_states"
+  , "retry_tier"
+  , "retry_cause"
+  , "required_family"
+  , "best_family_rho"
+  , "best_family_kappa"
+  , "family_candidate_count"
+  , "family_viable_count"
   , "selected_name"
   , "selected_nu"
   , "selected_kappa"
@@ -3958,12 +6006,13 @@ emitPrefixReportRow
   -> Double
   -> Int
   -> Int
+  -> PrefixDiagnostics
   -> Maybe Candidate
   -> [Candidate]
   -> AgendaDiagnostics
   -> String
   -> IO ()
-emitPrefixReportRow cfg lib step bar rawCount viableCount selected runners agendaDiag status =
+emitPrefixReportRow cfg lib step bar rawCount viableCount prefixDiag selected runners agendaDiag status =
   case cfgPrefixReport cfg of
     Nothing -> return ()
     Just path ->
@@ -3988,6 +6037,30 @@ emitPrefixReportRow cfg lib step bar rawCount viableCount selected runners agend
             , printf' "%.4f" bar
             , show rawCount
             , show viableCount
+            , csvEscape (pdGuidanceMode prefixDiag)
+            , maybe "" show (pdAdmissibilityKappaCap prefixDiag)
+            , csvEscape (pdSearchedKappaBands prefixDiag)
+            , maybe "" show (pdSelectedKappaBand prefixDiag)
+            , maybe "" show (pdStepBudgetSeconds prefixDiag)
+            , maybe "" (printf' "%.4f") (pdElapsedSeconds prefixDiag)
+             , show (pdEvaluatedCandidates prefixDiag)
+             , show (pdDedupedCandidates prefixDiag)
+             , show (pdMinimalityRejections prefixDiag)
+             , maybe "" show (pdBestObligationScore prefixDiag)
+             , maybe "" show (pdBestInterfaceDensity prefixDiag)
+             , maybe "" show (pdBestGenericityScore prefixDiag)
+             , maybe "" show (pdBestClosureScore prefixDiag)
+             , show (pdFrontierCandidates prefixDiag)
+             , show (pdFrontierKept prefixDiag)
+             , show (pdMCTSSeedStates prefixDiag)
+             , show (pdMCTSCompletedStates prefixDiag)
+             , show (pdRetryTier prefixDiag)
+             , csvEscape (pdRetryCause prefixDiag)
+            , csvEscape (pdRequiredFamily prefixDiag)
+            , maybe "" (printf' "%.4f") (pdBestFamilyRho prefixDiag)
+            , maybe "" show (pdBestFamilyKappa prefixDiag)
+            , show (pdFamilyCandidates prefixDiag)
+            , show (pdFamilyViable prefixDiag)
             , csvEscape selName
             , selNu
             , selKappa

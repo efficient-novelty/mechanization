@@ -39,7 +39,8 @@ module TelescopeEval
 
 import Kolmogorov (MBTTExpr(..))
 import Telescope
-import Types (LibraryEntry(..), Library, mkLibraryEntry)
+import Types (LibraryEntry(..), Library, TypeExpr(..), mkLibraryEntry)
+import ProofRank (availableFormers)
 import UniformNu (computeUniformNu, UniformNuResult(..), genesisLibrarySteps, GenesisStep(..))
 import MBTTNu (computeNativeNu, NativeNuResult(..))
 import StructuralNu (detectDistributiveLaws, detectUniversePolymorphism, detectInfinitesimalShift)
@@ -67,7 +68,8 @@ data CapabilityPolicy
 --   κ comes from strictKappa (teleKappa + explicit suspension policy).
 data EvalMode
   = EvalPaperCalibrated     -- ^ Use paper ν/κ for canonical names (effectiveNu/effectiveKappa)
-  | EvalStrictComputed      -- ^ Never use paper ν/κ; compute from telescope + UniformNu
+  | EvalGuidedComputed      -- ^ Guided recovery: compute ν structurally plus legacy bonuses
+  | EvalStrictComputed      -- ^ Honest strict mode: no paper tables and no target-conditioned bonuses
   | EvalStructural          -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
@@ -325,21 +327,24 @@ detectAxiomName tele lib =
       refsCurvature = any leHasCurvature refEntries
       refsMetric = any leHasMetric refEntries
       hasSurface = teleHasSurfaceEvidence tele
+      hasCurvatureBundle = teleHasCurvatureBundleEvidence tele
       hasCoherence = teleHasCoherenceExpr tele
       hasInteraction = teleHasBridgeInteraction tele
       hasFormer = teleHasPiSigma tele
       hasMetricBundle = teleHasMetricBundleEvidence tele
       hasHilbertBundle = teleHasHilbertBundleEvidence tele
-      curvatureSignal = refsDifferential && hasSurface && (hasCoherence || hasInteraction || hasFormer)
+      hasDifferentialBundle = teleHasDifferentialBundleEvidence tele
+      curvatureSignal = refsDifferential && kappa >= 6 && (hasSurface || hasCurvatureBundle) && (hasCoherence || hasInteraction || hasFormer)
       metricSignal = refsCurvature && kappa >= 7 && hasMetricBundle
       hilbertSignal = refsMetric && refsCurvature && refsDifferential && hasHilbertBundle && kappa >= 9
+      differentialSignal = refsModal && kappa >= 5 && hasDifferentialBundle
   in if hilbertSignal
      then "Hilbert"
      else if metricSignal
      then "Metric"
      else if curvatureSignal
      then "Curvature"
-     else if refsModal
+     else if differentialSignal
      then "Connections"
      else if maxRef > 0 && maxRef <= length lib
      then "Axiom_" ++ show maxRef
@@ -408,13 +413,13 @@ telescopeToCandidateWithPolicy capPolicy tele lib name =
             modalStructural = modalCount >= 3
             kappaStrict = strictKappa tele
             differentialStructural =
-              kappaStrict >= 3
+              kappaStrict >= 5
               && any leHasModalOps refs
-              && (teleHasPiSigma tele || teleHasBridgeInteraction tele)
+              && teleHasDifferentialBundleEvidence tele
             curvatureStructural =
-              kappaStrict >= 3
+              kappaStrict >= 6
               && any leHasDifferentialOps refs
-              && teleHasSurfaceEvidence tele
+              && (teleHasSurfaceEvidence tele || teleHasCurvatureBundleEvidence tele)
               && (teleHasCoherenceExpr tele || teleHasBridgeInteraction tele || teleHasPiSigma tele)
             metricStructural =
               strictKappa tele >= 7
@@ -533,26 +538,20 @@ evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
     let canonName = detectCanonicalName tele lib
         evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
         entryPaper = telescopeToCandidate tele lib evalNamePaper
-        entryStrict = telescopeToCandidateStructural tele lib name
         cls = classifyTelescope tele lib
         (nuRaw, kappa) = case evalMode of
           EvalPaperCalibrated ->
             -- Paper-calibrated: use paper's κ and ν for known canonical names
             ( effectiveNu canonName entryPaper lib maxDepth
             , effectiveKappa canonName tele )
+          EvalGuidedComputed ->
+            ( guidedComputedNu tele lib maxDepth name nuHistory
+            , strictKappa tele )
           EvalStrictComputed ->
-            -- Strict: compute everything from telescope + library, no paper tables
-            ( unrUniformNu (computeUniformNu entryStrict lib maxDepth)
-              + strictBridgeBonus tele lib
-              + strictLiftBonus tele lib
-              + strictMapBridgeBonus tele lib
-              + strictModalBonus tele lib
-              + strictDifferentialBonus tele lib
-              + strictCurvatureBonus tele lib
-              + strictMetricBonus tele lib
-              + strictHilbertBonus tele lib
-              + strictTemporalBonus tele lib nuHistory
-             , strictKappa tele )
+            -- Honest strict: compute everything from telescope + library,
+            -- keeping only bootstrap adjoint completion for Witness and Pi/Sigma.
+            ( honestStrictNu tele lib maxDepth name
+            , strictKappa tele )
           EvalStructural ->
             -- StructuralNu: AST rule extraction, no semantic proxy
              let result = computeNativeNu tele lib nuHistory
@@ -572,6 +571,59 @@ stabilizeBootstrapNu cls lib nu
   , not (any leHasLoop lib)
   , any leHasDependentFunctions lib = min nu 7
   | otherwise = nu
+
+guidedComputedNu :: Telescope -> Library -> Int -> String -> [(Int, Int)] -> Int
+guidedComputedNu tele lib maxDepth name nuHistory =
+  let entryStrict = telescopeToCandidateStructural tele lib name
+  in unrUniformNu (computeUniformNu entryStrict lib maxDepth)
+     + strictBridgeBonus tele lib
+     + strictLiftBonus tele lib
+     + strictMapBridgeBonus tele lib
+     + strictModalBonus tele lib
+     + strictDifferentialBonus tele lib
+     + strictCurvatureBonus tele lib
+     + strictMetricBonus tele lib
+     + strictHilbertBonus tele lib
+     + strictTemporalBonus tele lib nuHistory
+
+honestStrictNu :: Telescope -> Library -> Int -> String -> Int
+honestStrictNu tele lib maxDepth name =
+  let entry = telescopeToCandidateStructural tele lib name
+      result = computeUniformNu entry lib maxDepth
+      formersBefore = availableFormers lib
+      formersAfter = availableFormers (lib ++ [entry])
+      newFormerNames = [f | f <- formersAfter, f `notElem` formersBefore]
+      depFormerCredit = sum [formerElimArity f | f <- newFormerNames, f `elem` ["Pi", "Sigma"]]
+      honestAdjointCredit = depFormerCredit + witnessAdjointCredit tele result
+      baseUniformNu = unrUniformNu result - unrAdjointCredit result
+  in baseUniformNu + honestAdjointCredit
+
+witnessAdjointCredit :: Telescope -> UniformNuResult -> Int
+witnessAdjointCredit tele result
+  | not (isWitnessAdjointTelescope tele) = 0
+  | hasSchemaX && not hasOmegaX = 1
+  | otherwise = 0
+  where
+    schemaExprs = map fst (unrSchemas result)
+    hasSchemaX = TRef "X" `elem` schemaExprs
+    hasOmegaX = TOmega (TRef "X") `elem` schemaExprs
+
+isWitnessAdjointTelescope :: Telescope -> Bool
+isWitnessAdjointTelescope (Telescope entries) =
+  any isWitnessExpr (map teType entries)
+  where
+    isWitnessExpr (App (Lib _) (Var _)) = True
+    isWitnessExpr (Lam body) = isWitnessExpr body
+    isWitnessExpr (App a b) = isWitnessExpr a || isWitnessExpr b
+    isWitnessExpr (Pi a b) = isWitnessExpr a || isWitnessExpr b
+    isWitnessExpr (Sigma a b) = isWitnessExpr a || isWitnessExpr b
+    isWitnessExpr (Id a x y) = isWitnessExpr a || isWitnessExpr x || isWitnessExpr y
+    isWitnessExpr (Refl a) = isWitnessExpr a
+    isWitnessExpr _ = False
+
+formerElimArity :: String -> Int
+formerElimArity "Sigma" = 2
+formerElimArity _ = 1
 
 -- | Structural bridge bonus used in strict mode.
 -- In the pre-trunc HIT phase, reward truncation candidates that include
@@ -693,7 +745,7 @@ strictDifferentialBonus tele lib
       && not (any leHasDifferentialOps lib)
     referencesModal =
       any (\i -> i >= 1 && i <= length lib && leHasModalOps (lib !! (i - 1))) (Set.toList (teleLibRefs tele))
-    differentialEvidence = referencesModal && (teleHasPiSigma tele || teleHasBridgeInteraction tele)
+    differentialEvidence = referencesModal && teleHasDifferentialBundleEvidence tele
     base = 4
     refScore = if referencesModal then 3 else 0
     formerScore = if teleHasPiSigma tele then 2 else 0
@@ -718,9 +770,10 @@ strictCurvatureBonus tele lib
     referencesDifferential =
       any (\i -> i >= 1 && i <= length lib && leHasDifferentialOps (lib !! (i - 1))) (Set.toList (teleLibRefs tele))
     hasSurface = teleHasSurfaceEvidence tele
+    hasCurvatureBundle = teleHasCurvatureBundleEvidence tele
     curvatureEvidence =
       referencesDifferential
-      && hasSurface
+      && (hasSurface || hasCurvatureBundle)
       && (teleHasCoherenceExpr tele || teleHasBridgeInteraction tele || teleHasPiSigma tele)
 
 -- | Structural metric bootstrap bonus in strict mode.
@@ -818,6 +871,7 @@ strictTemporalBonus tele lib nuHistory
       any (\i -> i >= 1 && i <= length lib && leHasHilbert (lib !! (i - 1))) refs
     referencesModal =
       any (\i -> i >= 1 && i <= length lib && leHasModalOps (lib !! (i - 1))) refs
+    hasHilbertInLib = any leHasHilbert lib
     hasPair = teleHasTemporalOpsPair tele
     compat = teleTemporalCompatibilityScore tele
     hasInfShiftEvidence = teleHasInfinitesimalShiftEvidence tele
@@ -825,13 +879,13 @@ strictTemporalBonus tele lib nuHistory
     univPoly = detectUniversePolymorphism tele lib
     infShift = detectInfinitesimalShift tele lib
     temporalEvidence =
-      referencesHilbert
+      hasHilbertInLib
       && referencesModal
       && hasPair
       && compat >= 2
       && (teleHasPiSigma tele || teleHasBridgeInteraction tele || teleHasCoherenceExpr tele)
     base = 20
-    hilbertRefScore = if referencesHilbert then 8 else 0
+    hilbertRefScore = if referencesHilbert then 8 else if hasHilbertInLib then 2 else 0
     modalRefScore = if referencesModal then 7 else 0
     pairScore = if hasPair then 6 else 0
     compatScore = 2 * compat
@@ -867,6 +921,7 @@ teleHasMetricBundleEvidence (Telescope entries) =
       Pi _ (Pi _ _) -> True
       Lam (Pi _ _) -> True
       App (Lib _) _ -> True
+      Pi a b -> hasConnectionLawExpr a || hasConnectionLawExpr b
       Lam a -> hasConnectionLawExpr a
       App a b -> hasConnectionLawExpr a || hasConnectionLawExpr b
       Id a x y -> hasConnectionLawExpr a || hasConnectionLawExpr x || hasConnectionLawExpr y
@@ -876,10 +931,48 @@ teleHasMetricBundleEvidence (Telescope entries) =
     hasCurvatureInteractionExpr expr = case expr of
       Pi (Lib _) (Lib _) -> True
       Pi (Lib _) (Var _) -> True
+      Pi a b -> hasCurvatureInteractionExpr a || hasCurvatureInteractionExpr b
       Lam a -> hasCurvatureInteractionExpr a
       App a b -> hasCurvatureInteractionExpr a || hasCurvatureInteractionExpr b
       Id a x y -> hasCurvatureInteractionExpr a || hasCurvatureInteractionExpr x || hasCurvatureInteractionExpr y
       Refl a -> hasCurvatureInteractionExpr a
+      _ -> False
+
+teleHasDifferentialBundleEvidence :: Telescope -> Bool
+teleHasDifferentialBundleEvidence (Telescope entries) =
+  hasConnectionFormer && hasTransportLike && hasModalAction
+  where
+    exprs = map teType entries
+    hasConnectionFormer = any isConnectionFormer exprs
+    hasTransportLike = any isTransportLike exprs
+    hasModalAction = any isModalAction exprs
+
+    isConnectionFormer expr = case expr of
+      Pi _ (Pi _ _) -> True
+      _ -> False
+
+    isTransportLike expr = case expr of
+      Pi a b -> containsModalish a || isTransportLike b
+      Lam a -> isTransportLike a
+      App a b -> isTransportLike a || isTransportLike b
+      _ -> False
+
+    isModalAction expr = case expr of
+      App (Lib _) _ -> True
+      Lam a -> isModalAction a
+      App a b -> isModalAction a || isModalAction b
+      _ -> False
+
+    containsModalish expr = case expr of
+      Flat _ -> True
+      Sharp _ -> True
+      Disc _ -> True
+      Shape _ -> True
+      App a b -> containsModalish a || containsModalish b
+      Pi a b -> containsModalish a || containsModalish b
+      Sigma a b -> containsModalish a || containsModalish b
+      Lam a -> containsModalish a
+      Id a x y -> containsModalish a || containsModalish x || containsModalish y
       _ -> False
 
 teleHasHilbertBundleEvidence :: Telescope -> Bool
@@ -907,6 +1000,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isInnerProduct expr = case expr of
       Sigma (Pi _ (Pi _ _)) _ -> True
       Sigma (Pi _ _) _ -> True
+      Pi a b -> isInnerProduct a || isInnerProduct b
       Lam a -> isInnerProduct a
       App a b -> isInnerProduct a || isInnerProduct b
       Id a x y -> isInnerProduct a || isInnerProduct x || isInnerProduct y
@@ -923,6 +1017,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isOrthDecomp expr = case expr of
       Pi _ (Sigma _ _) -> True
+      Pi a b -> isOrthDecomp a || isOrthDecomp b
       Lam a -> isOrthDecomp a
       App a b -> isOrthDecomp a || isOrthDecomp b
       Id a x y -> isOrthDecomp a || isOrthDecomp x || isOrthDecomp y
@@ -932,6 +1027,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isSpectral expr = case expr of
       Pi (Pi _ _) (Sigma _ _) -> True
       Pi (Lam _) (Sigma _ _) -> True
+      Pi _ (Sigma _ _) -> True
+      Pi a b -> isSpectral a || isSpectral b
       Lam a -> isSpectral a
       App a b -> isSpectral a || isSpectral b
       Id a x y -> isSpectral a || isSpectral x || isSpectral y
@@ -940,6 +1037,7 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isCStar expr = case expr of
       Sigma (Pi _ _) (Pi _ _) -> True
+      Pi a b -> isCStar a || isCStar b
       Lam a -> isCStar a
       App a b -> isCStar a || isCStar b
       Id a x y -> isCStar a || isCStar x || isCStar y
@@ -948,6 +1046,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
 
     isMetricCompat expr = case expr of
       Pi (Lib _) _ -> True
+      Pi _ (Lib _) -> True
+      Pi a b -> isMetricCompat a || isMetricCompat b
       Lam a -> isMetricCompat a
       App a b -> isMetricCompat a || isMetricCompat b
       Id a x y -> isMetricCompat a || isMetricCompat x || isMetricCompat y
@@ -957,6 +1057,8 @@ teleHasHilbertBundleEvidence (Telescope entries) =
     isCurvatureOrConnectionOp expr = case expr of
       Pi (Lib _) (Lib _) -> True
       Pi (Lib _) (Var _) -> True
+      Pi _ (Lib _) -> True
+      Pi a b -> isCurvatureOrConnectionOp a || isCurvatureOrConnectionOp b
       Lam a -> isCurvatureOrConnectionOp a
       App a b -> isCurvatureOrConnectionOp a || isCurvatureOrConnectionOp b
       Id a x y -> isCurvatureOrConnectionOp a || isCurvatureOrConnectionOp x || isCurvatureOrConnectionOp y
@@ -1324,6 +1426,44 @@ teleHasSurfaceEvidence (Telescope entries) = any (go . teType) entries
       Eventually a -> go a
       _ -> False
 
+teleHasCurvatureBundleEvidence :: Telescope -> Bool
+teleHasCurvatureBundleEvidence (Telescope entries) =
+  hasCurvatureForm && hasDifferentialAction && hasTransportLike
+  where
+    exprs = map teType entries
+    hasCurvatureForm = any hasCurvatureFormExpr exprs
+    hasDifferentialAction = any hasDifferentialActionExpr exprs
+    hasTransportLike = any hasTransportLikeExpr exprs
+
+    hasCurvatureFormExpr expr = case expr of
+      Pi (Lib _) (Pi _ _) -> True
+      Pi (Lib _) (Lib _) -> True
+      Pi _ (Lib _) -> True
+      Lam a -> hasCurvatureFormExpr a
+      App a b -> hasCurvatureFormExpr a || hasCurvatureFormExpr b
+      Id a x y -> hasCurvatureFormExpr a || hasCurvatureFormExpr x || hasCurvatureFormExpr y
+      Refl a -> hasCurvatureFormExpr a
+      _ -> False
+
+    hasDifferentialActionExpr expr = case expr of
+      App (Lib _) _ -> True
+      Lam a -> hasDifferentialActionExpr a
+      App a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Pi a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Sigma a b -> hasDifferentialActionExpr a || hasDifferentialActionExpr b
+      Id a x y -> hasDifferentialActionExpr a || hasDifferentialActionExpr x || hasDifferentialActionExpr y
+      Refl a -> hasDifferentialActionExpr a
+      _ -> False
+
+    hasTransportLikeExpr expr = case expr of
+      Lam _ -> True
+      Pi _ _ -> True
+      Sigma _ _ -> True
+      App a b -> hasTransportLikeExpr a || hasTransportLikeExpr b
+      Id a x y -> hasTransportLikeExpr a || hasTransportLikeExpr x || hasTransportLikeExpr y
+      Refl a -> hasTransportLikeExpr a
+      _ -> False
+
 -- | Detailed evaluation returning the full UniformNuResult.
 evaluateTelescopeDetailed :: EvalMode -> Telescope -> Library -> Int -> String -> UniformNuResult
 evaluateTelescopeDetailed evalMode tele lib maxDepth name =
@@ -1353,12 +1493,11 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
         EvalPaperCalibrated ->
           ( effectiveNu canonName entryPaper lib maxDepth
           , effectiveKappa canonName tele )
+        EvalGuidedComputed ->
+          ( guidedComputedNu tele lib maxDepth name []
+          , strictKappa tele )
         EvalStrictComputed ->
-          ( computedNu + strictBridgeBonus tele lib + strictLiftBonus tele lib + strictMapBridgeBonus tele lib + strictModalBonus tele lib
-                      + strictDifferentialBonus tele lib
-                      + strictCurvatureBonus tele lib
-                      + strictMetricBonus tele lib
-                      + strictHilbertBonus tele lib
+          ( honestStrictNu tele lib maxDepth name
           , strictKappa tele )
         EvalStructural ->
           ( nnTotal (computeNativeNu tele lib [])

@@ -61,6 +61,7 @@ data MCTSConfig = MCTSConfig
   , mctsWidenC       :: !Double  -- ^ Progressive widening coefficient (default 1.0)
   , mctsWidenAlpha   :: !Double  -- ^ Progressive widening exponent (default 0.5)
   , mctsGoalProfile  :: !(Maybe GoalProfile) -- ^ Optional semantic intent profile
+  , mctsEnableMacroReuse :: !Bool -- ^ Allow macro/library reuse during rollout
   } deriving (Show)
 
 defaultMCTSConfig :: MCTSConfig
@@ -76,6 +77,7 @@ defaultMCTSConfig = MCTSConfig
   , mctsWidenC       = 1.0
   , mctsWidenAlpha   = 0.5
   , mctsGoalProfile  = Nothing
+  , mctsEnableMacroReuse = True
   }
 
 activeGoalProfile :: MCTSConfig -> Library -> GoalProfile
@@ -416,7 +418,7 @@ randomEntry cfg lib ctx gen =
       state = deriveSearchState lib goalProfile ctx
       actions = validActionsWithProfile goalProfile hole lib
       name = "c" ++ show (length ctx + 1)
-      macroExprs = macroReuseExprs goalProfile lib ctx
+      macroExprs = if mctsEnableMacroReuse cfg then macroReuseExprs goalProfile lib ctx else []
       (macroTicket, gen0) = randomR (0 :: Int, 99) gen
   in if null actions
      then (TeleEntry name Univ, gen)
