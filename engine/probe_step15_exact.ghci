@@ -1,0 +1,13 @@
+:m + Main Telescope TelescopeEval Types MBTTNu Kolmogorov
+let kappas = [("Universe",2),("Unit",1),("Witness",1),("Pi",3),("S1",3),("Trunc",3),("S2",3),("S3",5),("Hopf",4),("Cohesion",4),("Connections",5),("Curvature",6),("Metric",7),("Hilbert",9)]
+let mkSeed nm tele = case lookup nm kappas of { Just k -> Just (StrictBandSeed tele (Just k) (Just k) Nothing "REF"); Nothing -> Nothing }
+let lib14 = foldl (\lib (_,nm,tele) -> lib ++ [strictInsertedEntry lib nm tele (mkSeed nm tele)]) [] (take 14 allReferenceTelescopes)
+let hist = [(1,1),(2,1),(3,2),(4,5),(5,7),(6,8),(7,10),(8,18),(9,17),(10,19),(11,27),(12,35),(13,47),(14,63)]
+let tele = Telescope [ TeleEntry "next" (Next (Var 1)), TeleEntry "eventually" (Eventually (Var 1)), TeleEntry "flow" (Pi (Next (Var 1)) (Eventually (Var 1))), TeleEntry "guard" (Lam (App (Lib 10) (Next (Var 1)))), TeleEntry "flat-next" (Pi (Flat (Next (Var 1))) (Next (Flat (Var 1)))), TeleEntry "sharp-eventually" (Pi (Sharp (Eventually (Var 1))) (Eventually (Sharp (Var 1)))), TeleEntry "ev-app" (Lam (App (Eventually (Var 1)) (Var 2))), TeleEntry "next-mul" (Pi (Next (Next (Var 1))) (Next (Var 1))) ]
+print (detectCanonicalName tele lib14)
+print (classifyTelescope tele lib14)
+print (evaluateTelescopeWithHistory EvalStrictComputed tele lib14 1 "candidate" hist)
+print (evaluateTelescopeWithHistory EvalGuidedComputed tele lib14 1 "candidate" hist)
+print (evaluateTelescopeWithHistory EvalStructural tele lib14 1 "candidate" hist)
+print (computeNativeNu tele lib14 hist)
+:q

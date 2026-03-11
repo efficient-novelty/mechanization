@@ -1,0 +1,2 @@
+step,status,bar,raw_candidates,viable_candidates,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,runner_1,runner_2,runner_3,agenda_expanded,agenda_sigma_prunes,agenda_dominance_prunes,agenda_critic_transitions,agenda_action_failures,agenda_near_misses
+1,selected,0.5000,337,172,Universe,1,2,0.5000,ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,candidate|1|2|0.5000|ENUM_MBTT,0,0,0,0,0,0

@@ -1,0 +1,16 @@
+step,status,bar,raw_candidates,viable_candidates,retry_tier,retry_cause,required_family,best_family_rho,best_family_kappa,family_candidate_count,family_viable_count,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,runner_1,runner_2,runner_3,agenda_expanded,agenda_sigma_prunes,agenda_dominance_prunes,agenda_critic_transitions,agenda_action_failures,agenda_near_misses
+1,selected,0.5000,338,173,0,bootstrap_universe,universe_genesis,0.5000,2,35,7,Universe,1,2,0.5000,ENUM_MBTT,,,,0,0,0,0,0,0
+2,selected,0.5000,454,150,0,bootstrap_foundation,foundation,1.0000,1,173,94,Unit,1,1,1.0000,ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,Unit|1|1|1.0000|ENUM_MBTT,0,0,0,0,0,0
+3,selected,1.3333,699,7,0,bootstrap_witness,witness_intro,2.0000,1,694,2,Witness,2,1,2.0000,ENUM_MBTT,,,,0,0,0,0,0,0
+4,selected,1.5000,30,18,0,bootstrap_former,former,1.6667,3,1,1,Pi,5,3,1.6667,AGENDA,,,,48,0,66,0,3,8
+5,selected,2.1429,4,2,0,bootstrap_hit,bootstrap_hit,2.3333,3,1,1,S1,7,3,2.3333,AGENDA,,,,25,76,70,0,4,8
+6,selected,2.5600,569,9,0,,trunc_bridge,3.6667,3,453,9,Trunc,8,3,2.6667,AGENDA,Trunc|8|3|2.6667|AGENDA,Trunc|8|3|2.6667|AGENDA,Trunc|8|3|2.6667|AGENDA,131,0,0,0,7,8
+7,selected,3.0000,5,5,0,,post_trunc_lift,3.3333,3,5,5,S2,10,3,3.3333,AGENDA,S2|10|3|3.3333|AGENDA,S2|10|3|3.3333|AGENDA,S2|10|3|3.3333|AGENDA,29,174,4,0,26,8
+8,selected,3.4327,3,3,0,,post_trunc_lift,3.6000,5,3,3,S3,18,5,3.6000,AGENDA,S3|18|5|3.6000|AGENDA,S3|18|5|3.6000|AGENDA,,6,32,3,0,4,8
+9,selected,4.0091,2,1,0,,map_bridge,4.2500,4,2,1,Hopf,17,4,4.2500,AGENDA,,,,19,0,129,0,0,8
+10,selected,4.4647,2,2,0,late_modal_family,modal,5.0000,4,2,2,Cohesion,20,4,5.0000,AGENDA,,,,140,0,0,0,0,6
+11,selected,4.9661,6,6,0,,differential,5.5556,9,6,6,Connections,25,5,5.0000,AGENDA,Connections|26|5|5.2000|AGENDA,Connections|26|5|5.2000|AGENDA,Connections|50|9|5.5556|MCTS,37,0,180,0,0,8
+12,selected,5.4250,3,2,0,,curvature,5.6667,6,3,2,Curvature,34,6,5.6667,AGENDA,Curvature|34|6|5.6667|AGENDA,,,43,296,0,0,0,8
+13,selected,5.9868,2,2,0,late_metric_family,metric,6.5714,7,2,2,Metric,46,7,6.5714,AGENDA,,,,25,165,5,0,6,8
+14,selected,6.6787,3,3,0,,hilbert,7.1111,9,3,3,Hilbert,62,9,6.8889,AGENDA,Hilbert|62|9|6.8889|AGENDA,Hilbert|64|9|7.1111|AGENDA,,4,18,5,0,6,8
+15,selected,7.3967,5,5,0,late_temporal_family,temporal,13.0000,8,5,5,DCT,98,8,12.2500,AGENDA,,,,140,0,740,0,60,8

@@ -1,0 +1,8 @@
+============================================
+PEN Ab Initio Discovery Engine
+Mode: PaperCalibrated, d=2
+============================================
+  Evaluator: EvalPaperCalibrated (effectiveNu/effectiveKappa for canonical names)
+  Bar:       Paper nu/kappa history
+  Library:   Fallback to paper entries for unknown names
+  Window:    d=2 (Fibonacci ab-initio.exe: <stdout>: commitBuffer: invalid argument (cannot encode character '\8212')

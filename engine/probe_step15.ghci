@@ -1,0 +1,16 @@
+:m + Main Telescope StrictMolecules TelescopeEval AbInitioPolicy Types StrictMinimality
+import qualified Data.Map.Strict as Map
+let kappas = [("Universe",2),("Unit",1),("Witness",1),("Pi",3),("S1",3),("Trunc",3),("S2",3),("S3",5),("Hopf",4),("Cohesion",4),("Connections",5),("Curvature",6),("Metric",7),("Hilbert",9)]
+let mkSeed nm tele = case lookup nm kappas of { Just k -> Just (StrictBandSeed tele (Just k) (Just k) Nothing "REF"); Nothing -> Nothing }
+let lib14 = foldl (\lib (_,nm,tele) -> lib ++ [strictInsertedEntry lib nm tele (mkSeed nm tele)]) [] (take 14 allReferenceTelescopes)
+print (strictAdmissibility 15 lib14)
+let hist = [(1,1),(2,1),(3,2),(4,5),(5,7),(6,8),(7,10),(8,18),(9,17),(10,19),(11,27),(12,35),(13,47),(14,63)]
+let mkBandSeed cm = StrictBandSeed (cmCompiledTelescope cm) (Just (cmConceptualKappa cm)) (Just (cmAxiomaticExports cm)) (Just (cmClauseProvenance cm)) "ENUM_MOLECULAR"
+let inspect cm = let seed = mkBandSeed cm; ((tele,nu,kappa,rho,_),_) = evaluateStrictBandSeedCached EvalStrictComputed seed lib14 1 hist Map.empty in do { print (cmPackages cm); print (detectCanonicalName tele lib14); print (classifyTelescope tele lib14); print (nu,kappa,rho); print (hybridStrictSeedNu seed lib14 hist, seedTopologicalNu seed, temporalLiftQualityScore lib14 tele); print (teleReferencesHilbertCarrier lib14 tele, teleReferencesModalCarrier lib14 tele, teleHasTemporalOpsPair tele, teleTemporalCompatibilityScore tele, teleHasInfinitesimalShiftEvidence tele); print (teleHasDistributiveTemporalLaw tele, teleHasTemporalPolymorphism tele); print (map teleKappa (terminalSCCSubBundles tele)); print tele }
+let cms8 = enumerateStrictMolecularCandidates lib14 8
+print (length cms8)
+mapM_ inspect cms8
+let cms9 = enumerateStrictMolecularCandidates lib14 9
+print (length cms9)
+mapM_ inspect cms9
+:q

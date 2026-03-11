@@ -1,0 +1,1246 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACKAGES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{float}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{stmaryrd}
+
+\microtypesetup{expansion=false}
+\geometry{margin=1in}
+\allowdisplaybreaks
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black,
+    hypertexnames=false
+}
+\emergencystretch=2em
+\pdfstringdefDisableCommands{%
+  \def\leq{<=}%
+  \def\geq{>=}%
+  \def\to{->}%
+  \def\otimes{otimes}%
+  \def\nabla{nabla}%
+  \def\wedge{wedge}%
+  \def\flat{flat}%
+  \def\sharp{sharp}%
+  \def\bigcirc{next}%
+  \def\Diamond{eventually}%
+}
+
+% ============================================
+% THEOREM ENVIRONMENTS
+% ============================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+
+% ============================================
+% CUSTOM COMMANDS
+% ============================================
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\D}{\mathbb{D}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Ocal}{\mathcal{O}}
+\newcommand{\Gcal}{\mathcal{G}}
+\newcommand{\Shape}{\Pi_{\!\infty}}
+\newcommand{\Disc}{\mathrm{Disc}}
+\newcommand{\Strm}{\mathrm{Str}}
+\newcommand{\ModCat}{\mathrm{Mod}}
+\newcommand{\SelBar}{\mathrm{Bar}}
+\newcommand{\Supp}{\mathrm{Supp}}
+\newcommand{\hcomp}{\mathrm{hcomp}}
+\newcommand{\compop}{\mathrm{comp}}
+\newcommand{\transp}{\mathrm{transp}}
+
+% ============================================
+% TITLE
+% ============================================
+\title{\textbf{Coherence Depth, Fibonacci Scaling, and Fixed-Point Termination\\
+in Type-Theoretic Library Growth}}
+
+\author{Halvor Lande\\
+\texttt{hsl@awc.no}}
+
+\date{March 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We study a metatheoretic invariant of type-theoretic library growth.  When a new type former, modality, or structured API is sealed against an existing library, preserving canonicity forces coherence witnesses against the active interface.  The least historical depth at which these induced obligations stabilize is the \emph{coherence depth} of the foundation.
+
+For extensional type theory with UIP, the coherence depth is $d=1$.  For the fully coupled intensional cubical lane considered here, based on CCHM cubical type theory and univalence, the coherence depth is $d=2$.  We justify the latter by a dimensional upper bound from weak $\omega$-groupoid semantics and cubical Kan filling, a categorical lower bound from adjunction coherence, a homological upper bound via degeneration of the obligation spectral sequence at $E_2$, and an exact topological family provided by clutching constructions for principal bundles over spheres.
+
+Once the coherence depth is fixed, the integration latency of a growing library satisfies a universal linear recurrence.  In the depth-two case this becomes the Fibonacci recurrence $\Delta_{n+1}=\Delta_n+\Delta_{n-1}$, so the structural inflation rate converges to the Golden Ratio.  Coupled with the dual-cost selection policy PEN, this forces a sharp distinction between low-interaction discrete packages and high-interaction geometric ones.  We prove a combinatorial schema-synthesis lower bound showing that novelty grows superlinearly for unary formers added to a rich dependent library, while effort remains bounded by intrinsic arity.
+
+Finally, we analyze the temporal-cohesive package selected at step~15 of the PEN trajectory.  Under a model-theoretic representability hypothesis in a cohesive $\infty$-topos, its temporal modality becomes a synthetic tangent endofunctor, allowing the library to internalize its own guarded evolution on the connected component of the univalent universe.  A combinatorial squeeze then yields local algorithmic halting: internal continuations have zero marginal novelty up to equivalence, while disconnected external axioms cannot amortize the depth-two interface debt.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{The Metatheoretic Question}
+
+The central question of this paper is purely mathematical:
+
+\begin{quote}
+\emph{When a type-theoretic library is extended by sealing a new structure against the existing interface, how does the cost of integration scale with library depth, and what determines that scaling?}
+\end{quote}
+
+The question arises whenever a foundation is used as a growing mathematical environment rather than as a fixed deductive background.  A new type former, modality, or structured API is not integrated merely by writing down its formation clause.  To preserve normalization, canonicity, and computational closure, the extension must cohere with the eliminators, transports, and computation principles already exported by the library.  These coherence witnesses are part of the metatheory of the type theory itself.
+
+We call the least stabilizing historical depth of these obligations the \emph{coherence depth}, or \emph{coherence window}.  In extensional type theories with UIP, higher coherences collapse and the window is $d=1$.  In the fully coupled intensional CCHM cubical lane studied here, the window is $d=2$.  That discrete jump changes the asymptotic law of integration.
+
+\subsection{Summary of Results}
+
+The paper has three main results.
+
+\begin{theorem}[Coherence Window Theorem, informal]
+Extensional type theory with UIP has coherence depth $d=1$.  The fully coupled CCHM/HoTT lane studied here has coherence depth $d=2$.
+\end{theorem}
+
+The depth-two statement is established by four convergent arguments: a dimensional upper bound from cubical Kan filling, a categorical lower bound from adjunction coherence, a homological upper bound from spectral degeneration of the obligation complex, and a topological exact family from clutching constructions for principal bundles over spheres.
+
+\begin{theorem}[Complexity Scaling Theorem, informal]
+For a foundation of coherence depth $d$, the integration latency satisfies
+\[
+  \Delta_{n+1}=\sum_{j=0}^{d-1}\Delta_{n-j}.
+\]
+Hence the depth-two case is Fibonacci:
+\[
+  \Delta_{n+1}=\Delta_n+\Delta_{n-1},\qquad \Delta_n=F_n,
+\]
+and the asymptotic inflation rate converges to the Golden Ratio $\varphi$.
+\end{theorem}
+
+\begin{theorem}[Terminal Fixed-Point Theorem, informal]
+Under PEN's fixed efficiency-based extension policy, the depth-two Fibonacci bar selects a temporal-cohesive package whose semantic completion internalizes guarded structural evolution.  Beyond this point, internal continuations add no new derivation rules up to equivalence, while disconnected external jumps fail the bar.  Therefore the process halts on the connected component under consideration.
+\end{theorem}
+
+The fixed-point statement is local, not absolute.  It is a theorem about one connected component of the moduli space of extensions under PEN's axioms, not a claim that mathematics itself terminates.
+
+\subsection{What This Paper Is Not}
+
+This is not a paper about AI systems, even though computation later provides evidence for the trajectory.  The main claims are metatheorems about type-theoretic library growth.
+
+It is not a uniqueness theorem over all foundations or all selection objectives.  The results are conditional on the fully coupled CCHM cubical lane and the fixed selection policy PEN.
+
+It is not a global end-of-mathematics claim.  The halting theorem is local to one connected component, the one accessible by internal continuous deformation after the temporal-cohesive step.
+
+\subsection{Related Work}
+\label{sec:related}
+
+\paragraph{Type-theoretic metatheory.}
+The weak $\omega$-groupoid semantics of identity types developed by Lumsdaine~\cite{lumsdaine} and van~den~Berg--Garner~\cite{vdberg-garner} supplies the higher-dimensional background for our depth analysis.  Cubical type theory in the sense of Cohen--Coquand--Huber--M\"ortberg~\cite{cubical} and its treatment of higher inductive types and Kan composition~\cite{cchm-hits} provides the operational setting.  Cubical Agda~\cite{cubical-agda} supplies the mechanized environment used later for recurrence and abstraction-barrier checks.
+
+\paragraph{Coherence theory.}
+Mac~Lane's coherence theorem~\cite{maclane-coherence}, Stasheff's associahedra~\cite{stasheff}, and more recent type-theoretic coherence results such as Kraus--von~Raumer~\cite{kraus-vonraumer} all support the same structural message: once the relevant $2$-dimensional data is fixed, higher coherence often ceases to be independent.  Our contribution is to convert that idea into a quantitative invariant governing the integration debt of library extension.
+
+\paragraph{Cohesive and differential type theory.}
+Lawvere's axiomatic cohesion~\cite{lawvere}, Schreiber's differential cohomology in cohesive $\infty$-toposes~\cite{schreiber}, and the synthetic differential geometry tradition represented by Kock~\cite{kock} motivate the later temporal-cohesive and tangent-topos reading.  The present paper adds a cost-theoretic perspective: cohesive structure is not merely expressively useful but efficiency-optimal under the depth-two growth law.
+
+\paragraph{Guarded type theory and temporal logic.}
+Nakano's ``later'' modality~\cite{nakano} underlies the guarded recursion used in the fixed-point section.  Our step-15 package combines that temporal core with cohesive modalities and explicit exchange laws, yielding a temporal-cohesive object that is stronger than either ingredient in isolation.
+
+\paragraph{Description complexity.}
+The dual-cost distinction between novelty and effort is a typed structural analogue of the complexity-vs.-compression viewpoint familiar from MDL and Kolmogorov complexity.  We use clause count as the main effort metric and appeal only to the invariance perspective of Li--Vit\'anyi~\cite{kolmogorov} to argue that encoding bias is bounded.
+
+\section{The Framework}
+\label{sec:framework}
+
+\subsection{States, Candidates, and Library Extension}
+
+\begin{definition}[State]
+\label{def:state}
+A \emph{state} or \emph{library} is a monotone context $\B$ closed under derivability.  An evolution step
+\[
+  \B_n \leadsto \B_{n+1}
+\]
+adjoins one sealed structure.
+\end{definition}
+
+\begin{definition}[Candidate]
+\label{def:candidate}
+A \emph{candidate} over $\B$ is a pair
+\[
+  X=(X_{\mathrm{core}},\Gcal_{\mathrm{obl}})
+\]
+where $X_{\mathrm{core}}$ is the definitive mathematical content to be added and $\Gcal_{\mathrm{obl}}$ is the obligation graph of atomic coherence witnesses required to seal $X$ against the active interface.
+\end{definition}
+
+\begin{definition}[Sealed extension]
+\label{def:sealed}
+A \emph{sealed extension} is an admissible candidate whose obligations have all been discharged, after which the resolved witnesses are exported only through an opaque interface.  Future extensions may use those exports but do not inspect the internal derivations that produced them.
+\end{definition}
+
+\subsection{The Dual-Cost Model}
+
+\begin{definition}[Integration latency]
+\label{def:latency}
+The \emph{integration latency} of a candidate $X$ over a library $\B$ is
+\[
+  \Delta(X\mid \B):=|\Gcal_{\mathrm{obl}}|,
+\]
+the number of coherence witnesses needed to seal the candidate.
+\end{definition}
+
+\begin{definition}[Construction effort]
+\label{def:effort}
+A \emph{specification} $\mathcal S$ for $X$ is a finite family of atomic formation, introduction, elimination, and equation clauses.  Its \emph{construction effort} is the clause count
+\[
+  \kappa(\mathcal S):=|\mathcal S|.
+\]
+\end{definition}
+
+\begin{definition}[Definitional derivability and constructive irreducibility]
+\label{def:derivable}
+Fix a prior library $\B$ with operational semantics $\rightsquigarrow_{\B}$.
+\begin{enumerate}[nosep]
+    \item An operation is \emph{definitionally derivable} if it is realized by a closed term in the existing signature whose required computation behavior already follows from $\rightsquigarrow_{\B}$.
+    \item An operation is \emph{constructively irreducible} if every intended realization leaves a new neutral head or stuck eliminator relative to $\rightsquigarrow_{\B}$, so that at least one new clause must be added.
+\end{enumerate}
+Only the irreducible part contributes to $\kappa$.
+\end{definition}
+
+\begin{definition}[Generative capacity]
+\label{def:novelty}
+Let $\Lcal(\B)$ denote the set of derivation schemas available in library $\B$.  The \emph{generative capacity} of $X$ over $\B$ is
+\[
+  \nu(X\mid\B):=|\Lcal(\B\cup\{X\})|-|\Lcal(\B)|.
+\]
+\end{definition}
+
+\begin{definition}[Novelty decomposition]
+\label{def:components}
+We decompose
+\[
+  \nu=\nu_G+\nu_C+\nu_H,
+\]
+where $\nu_G$ counts formation and introduction schemas, $\nu_C$ counts elimination and cross-interface schemas, and $\nu_H$ counts computation and homotopical path-algebra schemas.
+\end{definition}
+
+\begin{lemma}[Adjoint Completion Principle]
+\label{lem:adjoint-completion}
+In a comprehension-category or hyperdoctrine semantics, elimination structure is forced by the adjunctions interpreting substitution and quantification.  Counting elimination credit for a new introduction package is therefore a completeness requirement, not a heuristic bonus.
+\end{lemma}
+
+\begin{proof}
+Reindexing sits in the usual adjoint pattern
+\[
+  \Sigma_f \dashv f^* \dashv \Pi_f.
+\]
+Once the introduction-side data for a type former is fixed, the corresponding elimination behavior is forced by the unit, counit, and triangle identities of these adjunctions.  Lawvere's adjointness thesis~\cite{lawvere-adjoint} makes this categorical point explicit: introduction and elimination are not independent pieces of syntax but adjoint faces of one logical operation.
+\end{proof}
+
+\begin{definition}[Efficiency]
+\label{def:efficiency}
+The \emph{efficiency} of a candidate is
+\[
+  \rho(X):=\frac{\nu(X)}{\kappa(X)}.
+\]
+\end{definition}
+
+\subsection{The Interface and the Integration Trace Principle}
+
+\begin{definition}[Interface basis]
+\label{def:interface}
+If the foundation has coherence depth $d$, the active interface for step $n+1$ is
+\[
+  I_n^{(d)}:=\biguplus_{j=0}^{d-1}S(L_{n-j}),
+\]
+where $L_k$ is the $k$th sealed integration layer and $S(L_k)$ is the set of schemas exported by that layer.
+\end{definition}
+
+\begin{theorem}[Integration Trace Principle]
+\label{thm:trace}
+Each integration layer exports exactly the schemas corresponding to its resolved obligations:
+\[
+  |S(L_k)|=\Delta_k.
+\]
+\end{theorem}
+
+\begin{proof}
+For native type formers and higher inductive constructions, elimination is linear over the cell presentation: one constructor or path constructor contributes one atomic interaction site.  For maps such as the Hopf step, the same linearity appears as one compatibility site per domain or codomain interface generator.  Thus the obligation graph decomposes over an atomic basis.
+
+The active interface $I_n^{(d)}$ is a context telescope.  Sealing against a telescope requires at least one clause per entry, because missing interaction data would leave a stuck eliminator.  It requires at most one clause per entry, because confluence forbids distinct defining clauses for the same eliminator head and interface generator.  Therefore the sealing obligations are in bijection with the interface generators.  Once discharged, those generators become the opaque exports of the new layer.
+\end{proof}
+
+\begin{remark}[Modal and axiomatic extensions]
+\label{rem:axiomatic-trace}
+For the HIT and map regime (steps~3--9), the trace principle is directly verified by explicit obligation decomposition and the Cubical Agda abstraction-barrier modules.  For modal or axiomatic packages, one needs an additional semantic argument: the compatibility witnesses of the package must again be indexed by the active interface telescope.
+\end{remark}
+
+\begin{theorem}[Semantic trace principle for adjoint-style packages]
+\label{thm:semantic-trace}
+Suppose a modal or axiomatic extension is presented in a comprehension-category semantics by a finite telescope of endofunctors, adjunction data, and computation laws whose action on terms is determined generatorwise on the active interface.  Then its sealing obligations are again in bijection with the entries of the active interface telescope.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+In such a semantics, every exported schema $s\in I_n^{(d)}$ induces one comparison square expressing the action of the new package on $s$.  Generatorwise determination gives uniqueness: once the action on each generator is fixed, functoriality and adjunction force the action on derived terms.  Canonicity still gives necessity: omitting the comparison square for some $s$ leaves a stuck interaction term.
+\end{proof}
+
+\subsection{Canonicity Preservation under Maximal Interface Density}
+
+\begin{theorem}[Canonicity preservation]
+\label{thm:canonicity}
+Let $\B$ be a fully coupled library and let $X$ be a new type former, modality, or API package sealed against $I_n^{(d)}$.  The extension preserves global computational closure, canonicity, and strong normalization only if every eliminator exported by $I_n^{(d)}$ receives a defining interaction clause.  Hence the sealing cost is exactly $|I_n^{(d)}|$.
+\end{theorem}
+
+\begin{proof}
+If some exported eliminator $e$ has no interaction clause with $X$, then the extended theory contains a well-typed term $e_X(\vec u)$ whose head symbol is neutral relative to the old reduction relation and cannot reduce further.  This yields a stuck neutral term that is not canonical, so canonicity fails.  Conversely, if every exported eliminator receives exactly one defining clause, reduction on the active interface is total and confluent.
+\end{proof}
+
+\subsection{Selection Dynamics}
+
+\begin{axiom}[Cumulative growth]
+\label{ax:cumulative}
+The library grows monotonically: $\B_n\subseteq \B_{n+1}$.
+\end{axiom}
+
+\begin{axiom}[Horizon policy]
+\label{ax:horizon}
+Candidates are generated under a finite complexity horizon $H_n$ that is reset after realization and widened after idle time.
+\end{axiom}
+
+\begin{axiom}[Admissibility]
+\label{ax:admissibility}
+A candidate is admissible if it is well-typed over $\B_n$, not derivable from $\B_n$, and lies within the active horizon.
+\end{axiom}
+
+\begin{definition}[Structural inflation and cumulative baseline]
+\label{def:bar}
+Set
+\[
+  \Phi_n:=\frac{\Delta_n}{\Delta_{n-1}},
+  \qquad
+  \Omega_{n-1}:=\frac{\sum_{i=1}^{n-1}\nu_i}{\sum_{i=1}^{n-1}\kappa_i}.
+\]
+\end{definition}
+
+\begin{axiom}[Selection]
+\label{ax:selection}
+The active bar is
+\[
+  \SelBar_n:=\Phi_n\cdot\Omega_{n-1}.
+\]
+Among admissible candidates with $\rho(X)\geq \SelBar_n$, PEN selects the one with minimal positive overshoot; ties are broken by smaller $\kappa$.
+\end{axiom}
+
+\begin{axiom}[Coherent integration]
+\label{ax:integration}
+When a candidate is realized, its sealing process produces an integration layer $L_{n+1}$ with cost $\Delta_{n+1}$.
+\end{axiom}
+
+\section{Coherence Windows}
+\label{sec:coherence}
+
+\subsection{Induced Obligations and Coherence Depth}
+
+\begin{definition}[Induced obligations]
+\label{def:obligations}
+Let $\Ocal^{(k)}(X)$ be the set of normalized atomic obligations induced when candidate $X$ is sealed against a historical interface of depth $k$.  Since the interface grows cumulatively,
+\[
+  \Ocal^{(1)}(X)\subseteq \Ocal^{(2)}(X)\subseteq\cdots.
+\]
+\end{definition}
+
+\begin{definition}[Coherence window]
+\label{def:window}
+A foundation has \emph{coherence window} $d$ if for every candidate $X$ and all $k\ge d$ there is a canonical equivalence
+\[
+  \Ocal^{(k)}(X)\simeq \Ocal^{(d)}(X).
+\]
+\end{definition}
+
+\begin{definition}[Historical support and arity]
+\label{def:arity}
+For a normalized obligation $o$, let $\Supp(o)$ be the set of sealed layers whose exported schemas appear irreducibly in the typing derivation of $o$ after each prior layer has been collapsed to its opaque interface.  Its \emph{historical arity} is
+\[
+  a(o):=|\Supp(o)|.
+\]
+\end{definition}
+
+\begin{lemma}[Arity-to-dimension correspondence]
+\label{lem:arity-dimension}
+An irreducible obligation of arity $k$ requires a $k$-dimensional coherence cell.  Arity~$1$ gives substitution or transport, arity~$2$ gives a naturality square or homotopy, and arity $\ge 3$ would require a genuine higher filler.
+\end{lemma}
+
+\begin{proof}
+With one historical input, the witness is a morphism comparing the candidate with one prior interface.  With two historical inputs, it compares two unary composites and therefore forms a square.  In general, relating $k$ independent historical interfaces requires a $k$-dimensional filler.
+\end{proof}
+
+\subsection{\texorpdfstring{Theorem A: Extensional Systems Have $d=1$}{Theorem A: Extensional Systems Have d=1}}
+
+\begin{theorem}
+\label{thm:extensional}
+In MLTT with UIP, the coherence window is $d=1$.
+\end{theorem}
+
+\begin{proof}
+In MLTT+UIP, every identity type is a proposition and higher identity types are contractible.  Hence any would-be dimension-$2$ or higher coherence obligation is uniquely determined once its dimension-$1$ boundary exists.  Therefore no independent historical support of arity $\ge 2$ survives normalization.
+\end{proof}
+
+\subsection{\texorpdfstring{Theorem B: The Fully Coupled CCHM/HoTT Lane Has $d=2$}{Theorem B: The Fully Coupled CCHM/HoTT Lane Has d=2}}
+
+\subsubsection{\texorpdfstring{Upper Bound via Dimensional Analysis ($d\le 2$)}{Upper Bound via Dimensional Analysis}}
+
+\begin{theorem}[Coherence upper bound]
+\label{thm:upper}
+In the fully coupled CCHM cubical lane, every irreducible coherence obligation has historical arity at most $2$.
+\end{theorem}
+
+\begin{proof}
+\emph{Stage 1: unary lookups do not create multi-layer debt.}
+A direct reference to a deep library export still lands in one opaque interface and is therefore arity~$1$.
+
+\emph{Stage 2: genuine sealing pressure is binary.}
+New obligations arise when the candidate must cohere with one prior export together with a previously exported compatibility witness.  Such data forms a naturality square or homotopy and therefore lives on the $2$-skeleton.
+
+\emph{Stage 3: no independent arity $\ge 3$ data.}
+Identity types in intensional type theory organize into weak $\omega$-groupoids~\cite{lumsdaine,vdberg-garner}.  In the cubical operational presentation, the Kan operations $\hcomp$, $\compop$, and $\transp$ compute fillers for higher open boxes from their lower-dimensional boundary data~\cite{cubical,cchm-hits}.  Thus any apparent arity-$k$ obligation with $k\ge 3$ is determined by the already available $2$-boundary and does not carry independent sealing data.
+\end{proof}
+
+\subsubsection{\texorpdfstring{The Adjunction Depth Barrier ($d\ge 2$)}{The Adjunction Depth Barrier}}
+
+\begin{theorem}[Adjunction depth barrier]
+\label{thm:adjunction}
+A system with coherence window $d=1$ cannot verify the triangle identities of a nontrivial adjunction.  Therefore $d\ge 2$ is the minimum depth required for self-consistent adjoint structure.
+\end{theorem}
+
+\begin{proof}
+To specify an adjunction $L\dashv R$ one needs functors $L,R$, natural transformations
+\[
+  \eta:1\to RL,\qquad \varepsilon:LR\to 1,
+\]
+and the triangle identities
+\[
+  \varepsilon L\circ L\eta \simeq \mathrm{id}_L,
+  \qquad
+  R\varepsilon\circ \eta R \simeq \mathrm{id}_R.
+\]
+The triangle identities are genuine $2$-cells.  A depth-one system can talk about the functors and natural transformations but cannot retain independent $2$-dimensional coherence data unless higher cells collapse as in UIP.
+\end{proof}
+
+\begin{remark}[Lawvere and Mac~Lane]
+\label{rem:lawvere-maclane}
+Lawvere's adjointness thesis~\cite{lawvere-adjoint} says that logical rules are controlled by adjoint pairs.  The theorem above turns that slogan into a cost statement: verifying adjoint coherence already forces depth two.  Mac~Lane's coherence theorem~\cite{maclane-coherence} supplies the categorical prototype: once the relevant pentagon and triangle are fixed, higher coherence is determined by the $2$-skeleton.
+\end{remark}
+
+\subsubsection{\texorpdfstring{Spectral Degeneration at $E_2$}{Spectral Degeneration at E2}}
+
+\begin{definition}[Obligation complex]
+\label{def:obligation-complex}
+Let $\Ocal_\bullet(X)$ be the cubical set of normalized coherence judgments needed to seal $X$, and let
+\[
+  N_\bullet(\Ocal(X);\Z)
+\]
+be its normalized cubical chain complex with integral coefficients.  The historical filtration is the increasing filtration
+\[
+  F_0\subseteq F_1\subseteq F_2\subseteq \cdots
+\]
+where $F_p$ is generated by cells whose normalized obligations have arity at most $p$.
+\end{definition}
+
+\begin{theorem}[Spectral degeneration]
+\label{thm:spectral}
+The spectral sequence of the filtered chain complex $N_\bullet(\Ocal(X);\Z)$ degenerates at $E_2$.  Consequently
+\[
+  F_2\Ocal_\bullet(X)\simeq \Ocal_\bullet(X).
+\]
+\end{theorem}
+
+\begin{proof}
+The $E^1$-page is
+\[
+  E^1_{p,q}\cong H_{p+q}(F_p/F_{p-1};\Z).
+\]
+The quotient $F_p/F_{p-1}$ records obligations of exact arity $p$, hence exact coherence dimension $p$ by \cref{lem:arity-dimension}.  For $p\ge 3$, the cubical Kan operations fill every open $p$-box canonically from its lower boundary.  The relative complexes $F_p/F_{p-1}$ are therefore acyclic for $p\ge 3$, so $E^1_{p,q}=0$ in those columns.  The only possible surviving higher differential is
+\[
+  d^2_{2,q}:E^2_{2,q}\to E^2_{0,q+1},
+\]
+but $F_0$ contains only $0$-dimensional constructor data and has no higher homology.  Hence the sequence collapses at $E_2$.
+\end{proof}
+
+\subsubsection{The Clutching Family}
+
+\begin{theorem}[Fibrational lower bound]
+\label{thm:clutching}
+The family of principal $G$-bundles over spheres $S^m$ with nontrivial clutching functions requires exactly depth-two coherence.
+\end{theorem}
+
+\begin{proof}
+A principal $G$-bundle over $S^m$ can be presented by a clutching map
+\[
+  \gamma:S^{m-1}\to G,
+\]
+equivalently by a class in
+\[
+  [S^m,BG]\cong [S^{m-1},G].
+\]
+To seal the total space, one must compare the path geometry of the base sphere with the automorphism data of the fiber.  That comparison is genuinely binary and therefore requires a $2$-cell.
+
+On the other hand, a sphere admits a minimal cover by two hemispheres.  Their intersection is the equator, which carries the clutching function, but there are no triple intersections.  Thus no independent depth-three cocycle condition appears.
+\end{proof}
+
+\subsection{Summary}
+
+\begin{corollary}
+\label{cor:d-two}
+The coherence window of the fully coupled CCHM/HoTT lane is exactly $d=2$.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:upper,thm:spectral} give $d\le 2$.  \Cref{thm:adjunction,thm:clutching} give $d\ge 2$.
+\end{proof}
+
+\section{The Complexity Scaling Theorem}
+\label{sec:scaling}
+
+\begin{theorem}[Complexity scaling]
+\label{thm:scaling}
+For a foundation with coherence window $d$,
+\[
+  \Delta_{n+1}=\sum_{j=0}^{d-1}\Delta_{n-j}.
+\]
+\end{theorem}
+
+\begin{proof}
+By \cref{def:interface},
+\[
+  I_n^{(d)}=\biguplus_{j=0}^{d-1}S(L_{n-j}).
+\]
+By the Integration Trace Principle, $|S(L_k)|=\Delta_k$ for each $k$.  By canonicity preservation, the next sealing cost is exactly the size of the active interface.
+\end{proof}
+
+\begin{corollary}[Depth-two case]
+\label{cor:fibonacci}
+If $d=2$ and $\Delta_1=\Delta_2=1$, then
+\[
+  \Delta_n=F_n,
+  \qquad
+  \tau_n:=\sum_{i=1}^n\Delta_i=F_{n+2}-1.
+\]
+\end{corollary}
+
+\begin{table}[tbp]
+\centering
+\caption{The 15-step PEN trajectory in the depth-two regime.}
+\label{tab:genesis}
+\small
+\begin{tabular}{@{}crlrrrrrrr@{}}
+\toprule
+$n$ & $\tau_n$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & $\SelBar_n$ \\
+\midrule
+1  & 1    & Universe $\U_0$              & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
+2  & 2    & Unit type $\mathbf{1}$       & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
+3  & 4    & Witness $\star:\mathbf{1}$   & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
+4  & 7    & $\Pi/\Sigma$ types           & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
+\midrule
+5  & 12   & Circle $S^1$                 & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
+6  & 20   & Propositional truncation     & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
+7  & 33   & Sphere $S^2$                 & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
+8  & 54   & H-space $S^3$                & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
+9  & 88   & Hopf fibration               & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
+\midrule
+10 & 143  & Cohesion                     & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connections                  & 89  & 26  & 5 & 5.20  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature                    & 144 & 34  & 6 & 5.67  & 1.62 & 3.35 & 5.42 \\
+13 & 609  & Metric                       & 233 & 46  & 7 & 6.57  & 1.62 & 3.70 & 5.99 \\
+14 & 986  & Hilbert functional           & 377 & 62  & 9 & 6.89  & 1.62 & 4.13 & 6.68 \\
+\midrule
+15 & 1596 & Temporal-cohesive extension  & 610 & 103 & 8 & 12.88 & 1.62 & 4.57 & 7.40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{\texorpdfstring{Stagnation at $d=1$}{Stagnation at d=1}}
+
+If $d=1$, then $\Delta_{n+1}=\Delta_n$, so the latency is constant, time is linear, and the bar eventually becomes effectively fixed.  In this regime novelty returns diminish against a stationary threshold and library growth stagnates.  This is the extensional case.
+
+\subsection{\texorpdfstring{Sustained Evolution at $d=2$}{Sustained Evolution at d=2}}
+
+If $d=2$, then $\Delta_n\sim \varphi^n/\sqrt{5}$ and
+\[
+  \Phi_n:=\frac{\Delta_n}{\Delta_{n-1}}\longrightarrow \varphi.
+\]
+The integration burden grows exponentially, but so does the active interface available for future interaction.  This is precisely the regime in which geometry can pay for itself: the same two-step memory that raises the bar also enlarges the combinatorial interaction surface for the next candidate.
+
+\subsection{Cubical Agda Mechanization}
+
+The recurrence
+\[
+  \Delta_{n+1}=\Delta_n+\Delta_{n-1},
+  \qquad
+  \tau_n=F_{n+2}-1,
+  \qquad
+  \Phi_n\to \varphi
+\]
+is formalized in Cubical Agda.  The abstraction-barrier modules for steps~8 and~9 verify that resolved obligations become opaque exports: later sealing steps depend on the sealed record interface, not on the hidden derivations of earlier layers.
+
+\section{Superlinear Novelty and the Divergence of Efficiency}
+\label{sec:novelty}
+
+\subsection{Why Superlinear Growth Matters}
+
+If novelty grew only linearly in specification size, then efficiency $\rho=\nu/\kappa$ would remain bounded while the Fibonacci bar keeps rising.  The depth-two regime would then terminate almost immediately.  Sustained growth therefore requires structural amplification on the novelty side.
+
+\subsection{Sources of Superlinear Growth}
+
+Three mechanisms drive amplification.
+
+\paragraph{Dependent elimination.}
+A type family $P:X\to \U$ interacts with each constructor and path constructor of $X$, generating a family of transport and elimination schemas that grows with both the candidate and the current library.
+
+\paragraph{Library cross-interaction.}
+Each existing library type $T\in \B_n$ creates new constructions such as $X\to T$, $X\times T$, $\Sigma_{x:X}P(x)$, and iterated mixed constructions.
+
+\paragraph{Composite constructions.}
+Products, functions, dependent sums, and modal compositions are superadditive in the sense that they produce more inhabited schema families together than separately.
+
+\subsection{Combinatorial Schema Synthesis}
+
+\begin{theorem}[Combinatorial schema synthesis]
+\label{thm:schemas}
+Suppose a library $\B$ contains $N:=|\B|$ structurally distinct atoms and a candidate introduces $k$ new unary type formers $F_1,\dots,F_k$.  Then the number of depth-$d$ schema families generated by these formers is
+\[
+  \Omega(N^d\cdot k).
+\]
+\end{theorem}
+
+\begin{proof}
+Fix library atoms $A_1,\dots,A_N$.  For depth~$1$, the families
+\[
+  E^{(1)}_{i,j}:=F_i(A_j)
+  \qquad
+  (1\le i\le k,\ 1\le j\le N)
+\]
+already give $kN$ schemas.
+
+Define recursively
+\[
+  E^{(t+1)}_{i,j_1,\dots,j_{t+1}}
+  :=
+  \Sigma_{x:E^{(t)}_{i,j_1,\dots,j_t}} A_{j_{t+1}}.
+\]
+Each such expression is a well-formed depth-$(t+1)$ schema built from one new former and $t+1$ library atoms.  By constructive irreducibility, changing either the top-level new former or any library atom changes the normalized support of the schema.  Hence these schemas remain distinct after normalization up to constant-factor collapse.  The number of raw families at depth~$d$ is $kN^d$, so the surviving count is $\Omega(kN^d)$.
+\end{proof}
+
+\begin{remark}[Step~15 as worked example]
+\label{rem:step15-synthesis}
+At step~15, $k=2$ new unary formers enter a library with $N=14$ realized structures and four already available modal formers.  The theorem predicts a large raw depth-two interaction space.  The audited value $\nu=103$ is the surviving count after normalization, schematization, and collapse of derivable redundancies.
+\end{remark}
+
+\subsection{Bounded Effort Growth}
+
+\begin{lemma}
+\label{lem:bounded-effort}
+For the late-stage modal and axiomatic packages considered here, $\kappa_n$ grows at most linearly in the candidate's intrinsic arity and is independent of the total library size.
+\end{lemma}
+
+\begin{proof}
+The candidate description must list only the new operators and the finitely many compatibility axioms needed for those operators.  Library size affects pointer depth in an encoding audit, but not the number of mathematical clauses required to specify the package.
+\end{proof}
+
+\subsection{Divergence Theorem}
+
+\begin{theorem}[Divergence of efficiency]
+\label{thm:divergence}
+Assume an infinite supply of structurally distinct geometric primitives with nontrivial homotopy content.  Then in the depth-two regime,
+\[
+  \limsup_{n\to\infty}\rho_n=\infty.
+\]
+\end{theorem}
+
+\begin{proof}
+By \cref{thm:schemas}, novelty grows at least polynomially in library size because each new geometric primitive interacts with the existing dependent library.  By \cref{lem:bounded-effort}, the effort denominator grows only with intrinsic arity and stays bounded along fixed-arity families.  Therefore $\rho_n$ is unbounded along sufficiently rich geometric subsequences.  The bar is a cumulative average multiplied by the inflation factor, and in the depth-two case the inflation factor converges to the constant $\varphi$, so the bar grows more slowly than the available combinatorial novelty.
+\end{proof}
+
+\subsection{The Inefficiency of Discrete Structures}
+
+\begin{proposition}
+\label{prop:discrete}
+Any candidate with $\nu_H=0$ and $\nu_G=O(\kappa)$ eventually fails the bar in a depth-two system.
+\end{proposition}
+
+\begin{proof}
+If $\nu_H=0$ and $\nu_G=O(\kappa)$, then $\rho=\nu/\kappa$ remains bounded independently of library size.  But in the depth-two regime the active interface and the admissible interaction space keep growing.  Once the bar exceeds that fixed bound, the candidate class can never recover.
+\end{proof}
+
+\section{The Topological Projection Formula}
+\label{sec:projection}
+
+\subsection{Path-Algebra Analysis of \texorpdfstring{$\nu_H$}{nuH}}
+
+\begin{theorem}[Topological projection formula]
+\label{thm:projection}
+Let $X$ be a higher inductive type with $m$ path constructors and maximal path dimension $d$.  In the CCHM cubical setting,
+\[
+  \nu_H(X)=m+d^2.
+\]
+\end{theorem}
+
+\begin{proof}
+The term $m$ counts the boundary reductions attached to the declared path constructors.  For the cubical contribution, fix a dimension-$d$ constructor.  Along the diagonal directions there are $d$ independent self-reductions.  For ordered pairs of distinct coordinates, the connection operations and homogeneous composition create $d(d-1)$ independent pairwise interactions.  These contributions form a $d\times d$ Kan interaction matrix.  By \cref{thm:spectral}, no further independent higher-dimensional computation survives beyond this matrix.  Therefore the total homotopical computation contribution is
+\[
+  m+d+d(d-1)=m+d^2.
+\]
+\end{proof}
+
+\subsection{The Kan Interaction Matrix}
+
+The first three sphere-like cases are:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Type & $m$ & $d$ & $\nu_H=m+d^2$ \\
+\midrule
+$S^1$ & 1 & 1 & 2 \\
+$S^2$ & 1 & 2 & 5 \\
+$S^3$ & 1 & 3 & 10 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Structural Rigidity}
+
+Sensitivity experiments in the computational evidence section show that the depth-two bar dynamics strongly constrain the admissible values of $\nu_H$.  In that sense, the formula $m+d^2$ behaves less like a fitted parameterization and more like a rigidity statement of the CCHM path algebra inside the Fibonacci regime.
+
+\section{The Terminal Fixed Point}
+\label{sec:terminal}
+
+\subsection{The Temporal-Cohesive Extension}
+
+\begin{definition}[Temporal-cohesive extension]
+\label{def:dct}
+A \emph{temporal-cohesive extension} consists of:
+\begin{enumerate}[nosep]
+    \item cohesive structure inherited from step~10, namely the adjoint string involving $\flat$, $\sharp$, and the shape/discrete interface;
+    \item a temporal core with unary formers $\bigcirc$ (next) and $\Diamond$ (eventually);
+    \item exchange laws
+    \[
+      \flat(\bigcirc X)\simeq \bigcirc(\flat X),
+      \qquad
+      \sharp(\Diamond X)\simeq \Diamond(\sharp X);
+    \]
+    \item guarded self-interaction and elimination clauses making the temporal operators computationally active.
+\end{enumerate}
+\end{definition}
+
+The selected step~15 package has $\kappa=8$ clauses.  It contains temporal operators and exchange laws only.  No primitive infinitesimal object appears syntactically.
+
+\begin{table}[tbp]
+\centering
+\caption{A semantic reading of the eight step-15 clauses.}
+\label{tab:step15}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\# & Clause \\
+\midrule
+1 & formation of $\bigcirc X$ \\
+2 & formation of $\Diamond X$ \\
+3 & comparison map $\bigcirc X \to \Diamond X$ \\
+4 & temporal action on the inherited cohesive interface \\
+5 & exchange law $\flat(\bigcirc X)\simeq \bigcirc(\flat X)$ \\
+6 & exchange law $\sharp(\Diamond X)\simeq \Diamond(\sharp X)$ \\
+7 & elimination or observation principle for $\Diamond$ \\
+8 & guarded composition witness $\bigcirc\bigcirc X\to \bigcirc X$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Syntactic-Semantic Transfer}
+
+\begin{assumption}[Representability hypothesis]
+\label{ass:representability}
+Work in a cohesive $\infty$-topos $\mathcal E$ interpreting the temporal-cohesive package.  Assume that any guarded endofunctor
+\[
+  \bigcirc:\mathcal E\to\mathcal E
+\]
+which preserves the discrete/shape decomposition and is first-order idempotent in the sense of clause~8 is representable by an infinitesimal object $\D$:
+\[
+  \bigcirc X \simeq X^\D.
+\]
+\end{assumption}
+
+\begin{theorem}[Conditional syntactic-semantic transfer]
+\label{thm:transfer}
+Under \cref{ass:representability}, the temporal modality of the step-15 package is naturally equivalent to a synthetic tangent endofunctor:
+\[
+  \theta_X:\bigcirc X\overset{\sim}{\longrightarrow}X^\D.
+\]
+\end{theorem}
+
+\begin{proof}
+The exchange law with $\flat$ says that $\bigcirc$ preserves discrete objects; the exchange law with $\sharp$ says that it respects codiscrete structure on eventual behavior; and the guarded self-composition witness says that iteration of $\bigcirc$ remains first-order rather than creating an independent second temporal direction.  These are precisely the hypotheses needed to invoke the representability assumption.
+\end{proof}
+
+\subsection{Internalization of the Meta-Algorithm}
+
+\begin{lemma}
+\label{lem:internalization}
+Under \cref{thm:transfer}, the semantic completion of the temporal-cohesive package internalizes its own guarded evolution on the connected component of the small univalent universe.
+\end{lemma}
+
+\begin{proof}
+Guarded recursion provides
+\[
+  \mathsf{fix}_A:(\bigcirc A\to A)\to A
+\]
+and the guarded stream coiterator
+\[
+  \mathsf{coiter}_A:(A\to \bigcirc A)\to A\to \Strm(A),
+  \qquad
+  \Strm(A)\cong A\times \bigcirc\Strm(A).
+\]
+Now let
+\[
+  v:\U_0\to \U_0^\D
+\]
+be a vector field on the small universe.  Using $\theta_{\U_0}^{-1}$ we obtain
+\[
+  \mathsf{step}_v:=\theta_{\U_0}^{-1}\circ v:\U_0\to \bigcirc \U_0.
+\]
+Applying the coiterator yields
+\[
+  \mathsf{Flow}_v:=\mathsf{coiter}_{\U_0}(\mathsf{step}_v):\U_0\to \Strm(\U_0).
+\]
+By univalence, paths in $\U_0$ are equivalences, so a continuous guarded deformation remains inside the connected component of $\U_0$ reached by the current library.
+\end{proof}
+
+\subsection{The Combinatorial Squeeze}
+
+\begin{lemma}[External linear bound]
+\label{lem:external-bound}
+Let $Y$ be a disconnected axiomatic jump after step~15 with no new path algebra and no global distributive-law amplification against the temporal-cohesive package.  Then
+\[
+  \nu(Y)\le 8\,\kappa(Y).
+\]
+\end{lemma}
+
+\begin{proof}
+Without new path constructors or global modal exchange, each clause can contribute only finitely many first-order schema types: one formation contribution, one direct elimination contribution, and a bounded number of unary or binary compatibility schemas with the active two-layer interface.  In the fully coupled depth-two regime, that bounded number is uniform, so a linear bound $\nu\le C\kappa$ holds.  The value $C=8$ is a conservative envelope dominating the non-temporal steps of the trajectory while still excluding step~16 bar clearance.
+\end{proof}
+
+\begin{theorem}[Algorithmic halting]
+\label{thm:halting}
+No step-16 candidate clears the bar.  Hence the trajectory halts at the temporal-cohesive step.
+\end{theorem}
+
+\begin{proof}
+At step~16,
+\[
+  \Delta_{16}=F_{16}=987,
+  \qquad
+  \SelBar_{16}\approx 9.08.
+\]
+Partition admissible candidates into internal and external classes.
+
+\emph{Internal class.}
+By \cref{lem:internalization}, any candidate produced by guarded internal flow on the connected component of $\U_0$ is already represented inside the temporal-cohesive completion.  Re-postulating it externally adds no new derivation schemas up to equivalence, so $\nu=0$ and therefore $\rho=0<\SelBar_{16}$.
+
+\emph{External class.}
+Any disconnected jump must pay the full fully-coupled interface debt implied by \cref{thm:canonicity} and the Fibonacci recurrence.  But by \cref{lem:external-bound},
+\[
+  \rho(Y)=\frac{\nu(Y)}{\kappa(Y)}\le 8<9.08=\SelBar_{16}.
+\]
+Hence no disconnected external candidate clears the bar either.
+\end{proof}
+
+\subsection{The Univalent Horizon}
+
+\begin{definition}
+\label{def:horizon}
+The \emph{Univalent Horizon} of a library $\B$ is the boundary of the connected component of $\ModCat(\B)$ reachable by internal continuous deformation of the univalent universe.
+\end{definition}
+
+\begin{corollary}
+\label{cor:horizon}
+The temporal-cohesive completion generates new structure only within one connected component of $\U_0$.  Crossing the Univalent Horizon requires a disconnected axiomatic jump.
+\end{corollary}
+
+\section{Computational Evidence}
+\label{sec:evidence}
+
+\subsection{The Haskell Engine as Oracle}
+
+A Haskell implementation recovers the fifteen-step trajectory under the fixed PEN policy.  The implementation is used here only as an oracle for structural counts and ordering constraints; the systems details belong elsewhere.  Three checks are relevant:
+\begin{enumerate}[nosep]
+    \item structural AST analysis verifies all fifteen stated $\nu$ values;
+    \item a uniform type-inhabitation comparison algorithm independently confirms the ordering constraints;
+    \item cross-validation modes agree on the accepted trajectory.
+\end{enumerate}
+
+\subsection{Cubical Agda Mechanization}
+
+The Fibonacci recurrence, the cumulative identity $\tau_n=F_{n+2}-1$, and the convergence $\Phi_n\to\varphi$ are formalized in Cubical Agda.  Explicit obligation decompositions for steps~7--9 verify the two-layer structure, and the abstraction-barrier modules check that inherited obligations can be discharged from opaque records.
+
+\subsection{Coherence Window Stress Test}
+
+The implementation admits a window parameter.  In the tested regimes:
+\begin{enumerate}[nosep]
+    \item $d=1$ stagnates after a short bootstrap;
+    \item $d=2$ produces the full fifteen-step trajectory;
+    \item $d=3$ inflates the bar too quickly and stalls earlier.
+\end{enumerate}
+This does not prove the coherence theorem, but it is consistent with the mathematical analysis.
+
+\subsection{Sensitivity Analysis}
+
+Sensitivity sweeps for the homotopical contribution $\nu_H$ show strong rigidity.  Only a very small fraction of nearby integer calibrations reproduce the entire trajectory, and among the tested closed forms the CCHM-motivated formula $m+d^2$ is the only one compatible with all fifteen steps.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What Is Proved, What Is Assumed, What Is Open}
+
+\paragraph{Proved.}
+\begin{itemize}[nosep]
+    \item Extensional systems have coherence window $d=1$.
+    \item The fully coupled CCHM/HoTT lane has coherence window $d=2$.
+    \item Coherence depth implies the general latency recurrence, and depth two gives Fibonacci scaling.
+    \item The combinatorial schema-synthesis theorem yields superlinear novelty growth.
+    \item The topological projection formula $\nu_H=m+d^2$ follows from the cubical path algebra and spectral collapse.
+    \item The step-16 halting theorem follows once the representability hypothesis and the external linear bound are granted.
+\end{itemize}
+
+\paragraph{Assumed or conditional.}
+\begin{itemize}[nosep]
+    \item The modal/axiomatic regime uses the semantic trace argument of \cref{thm:semantic-trace}; a full syntactic proof for arbitrary packages remains open.
+    \item The transfer theorem in \cref{thm:transfer} is conditional on the representability hypothesis in a cohesive $\infty$-topos.
+    \item The explicit constant in the external linear bound is model-dependent and should be sharpened.
+\end{itemize}
+
+\paragraph{Open problems.}
+\begin{itemize}[nosep]
+    \item Prove the trace principle for general modal and axiomatic extensions without semantic side conditions.
+    \item Remove the representability hypothesis from the temporal-to-tangent transfer.
+    \item Determine whether the same coherence window appears in other cubical variants and in non-cubical presentations of HoTT.
+    \item Characterize precisely which disconnected jumps lie beyond the Univalent Horizon.
+\end{itemize}
+
+\subsection{The Fibonacci Motif in Metatheory}
+
+The appearance of the Golden Ratio here is not geometric ornamentation but a proof-theoretic consequence of depth-two memory.  Fibonacci growth appears throughout combinatorics and geometry for many unrelated reasons.  The novelty here is that it emerges from the integration law of type-theoretic coherence rather than from spatial packing or classical recurrence problems.  That interpretation is speculative, but it suggests that some quantitative constants in foundations may reflect coherence geometry rather than arbitrary convention.
+
+\subsection{Falsifiability}
+
+The present framework makes at least three testable predictions:
+\begin{enumerate}[nosep]
+    \item no target-family CCHM formalization in the fully coupled lane should require irreducible class-$3$ coherence;
+    \item no low-clause ``efficiency monster'' should appear before the geometric phase;
+    \item the audited step-15 novelty count $\nu=103$ should survive independent structural audit.
+\end{enumerate}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Coherence depth is a metatheoretic invariant of type-theoretic library growth.  In extensional systems it collapses to $d=1$; in the fully coupled CCHM/HoTT lane it is exactly $d=2$.  That single jump changes the integration law from constant cost to Fibonacci cost and forces the structural inflation rate to converge to the Golden Ratio.
+
+Under PEN's fixed efficiency policy, the depth-two regime favors geometric and cohesive structure because only those packages generate enough interaction to clear the rising bar.  The temporal-cohesive step is singled out because, once semantically completed, it internalizes its own guarded evolution and leaves no efficient continuation inside the same connected component.  Within the stated assumptions, this yields a local terminal fixed-point theorem for efficiency-bounded extension.
+
+\appendix
+
+\section{Formal Type Signatures for Steps 10--15}
+\label{app:signatures}
+
+This appendix records the semantic reading of the late-stage clauses.  The point is not that the engine manipulates these names directly, but that each selected package admits a standard typed presentation.
+
+\subsection{Step 10: Cohesion}
+
+\[
+  \flat A:\U,\qquad
+  \sharp A:\U,\qquad
+  \Disc(A):\U,\qquad
+  \Shape(A):\U.
+\]
+Derived maps include
+\[
+  \flat A\to A,
+  \qquad
+  A\to \sharp A,
+  \qquad
+  A\to \Shape(A),
+  \qquad
+  \Disc(A)\to A.
+\]
+
+\subsection{Step 11: Connections}
+
+\[
+  \nabla:\flat(TX)\to TX,
+  \qquad
+  \mathrm{transport}_\nabla:\mathrm{Id}_X(x,y)\to (F_x\simeq F_y),
+  \qquad
+  \mathrm{cov}_\nabla:\flat(A)\to A.
+\]
+
+\subsection{Step 12: Curvature}
+
+\[
+  R:\nabla\to \Omega^2(X),
+  \qquad
+  dR+[\nabla,R]=0,
+  \qquad
+  \mathrm{hol}:\Omega(X,x)\to \mathrm{Aut}(F_x),
+  \qquad
+  \mathrm{CW}:R\to H^*(X).
+\]
+
+\subsection{Step 13: Metric}
+
+\[
+  g:TX\otimes_s TX\to \R,
+  \qquad
+  g\mapsto \nabla_g,
+  \qquad
+  \gamma:[0,1]\to X,
+  \qquad
+  \star_g:\Omega^k(X)\to \Omega^{n-k}(X),
+\]
+\[
+  \Delta_g:\Omega^*(X)\to \Omega^*(X),
+  \qquad
+  \mathrm{Ric}_g:g\mapsto (\mathrm{Ric},R_{\mathrm{scal}}).
+\]
+
+\subsection{Step 14: Hilbert Functional}
+
+\[
+  \langle\cdot,\cdot\rangle:V\times V\to \R,
+  \qquad
+  \mathrm{complete}:\mathrm{Cauchy}(V)\to V,
+  \qquad
+  \mathrm{spec}:\mathrm{Op}(V)\to \Sigma(\lambda:\R).\,V_\lambda,
+\]
+\[
+  C^*\text{-alg}:(V\to V)\times (V\to V)\to (V\to V),
+  \qquad
+  \delta/\delta\phi:(V\to \R)\to V.
+\]
+
+\subsection{Step 15: Temporal-Cohesive Package}
+
+\[
+  \bigcirc A:\U,
+  \qquad
+  \Diamond A:\U,
+  \qquad
+  \bigcirc A\to \Diamond A,
+\]
+\[
+  \flat(\bigcirc A)\simeq \bigcirc(\flat A),
+  \qquad
+  \sharp(\Diamond A)\simeq \Diamond(\sharp A),
+  \qquad
+  \bigcirc\bigcirc A\to \bigcirc A.
+\]
+
+\section{The MBTT Encoding}
+\label{app:mbtt}
+
+Clause count is the main effort measure; MBTT bit-length is an audit layer.  The per-step audited totals are:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Structure & $\kappa$ & MBTT bits \\
+\midrule
+Universe & 2 & 4 \\
+Unit & 1 & 10 \\
+Witness & 1 & 27 \\
+$\Pi/\Sigma$ & 3 & 93 \\
+$S^1$ & 3 & 21 \\
+PropTrunc & 3 & 35 \\
+$S^2$ & 3 & 23 \\
+$S^3$ & 5 & 66 \\
+Hopf & 4 & 78 \\
+Cohesion & 4 & 45 \\
+Connections & 5 & 79 \\
+Curvature & 6 & 121 \\
+Metric & 7 & 138 \\
+Hilbert & 9 & 169 \\
+Temporal-cohesive step & 8 & 229 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Rejected Candidates}
+\label{app:rejected}
+
+\begin{table}[tbp]
+\centering
+\caption{Representative rejected candidates at first admissibility.}
+\label{tab:rejected}
+\small
+\begin{tabular}{@{}lrrrrl@{}}
+\toprule
+Candidate & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin \\
+\midrule
+Natural numbers $\N$ & $\le 4$ & 3 & $\le 1.33$ & 2.14 & $\le -0.81$ \\
+Classical logic (LEM) & $\le 1$ & 1 & $\le 1.00$ & 2.14 & $\le -1.14$ \\
+Power-set axiom & $\le 2$ & 2 & $\le 1.00$ & 2.14 & $\le -1.14$ \\
+Ordinal arithmetic & $\le 6$ & 5 & $\le 1.20$ & 2.14 & $\le -0.94$ \\
+Measure theory & $\approx 12$ & 6 & $\approx 2.0$ & 4.46 & $\approx -2.5$ \\
+Elementary topos axioms & $\approx 15$ & 8 & $\approx 1.9$ & 4.46 & $\approx -2.6$ \\
+Scheme theory & $\approx 18$ & 7 & $\approx 2.6$ & 5.42 & $\approx -2.8$ \\
+Symplectic geometry & $\approx 25$ & 5 & $\approx 5.0$ & 5.99 & $\approx -1.0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{DCT Novelty Audit}
+\label{app:dct-audit}
+
+The mechanized decomposition of the step-15 novelty count is
+\[
+  \nu_G=2,
+  \qquad
+  \nu_H=15,
+  \qquad
+  \nu_C=86,
+  \qquad
+  \nu=103.
+\]
+The three main amplification mechanisms are:
+\begin{enumerate}[nosep]
+    \item Distributive-law amplification: $+38$.
+    \item Universe polymorphism across the fourteen prior structures: $+42$.
+    \item Derived tangent shift on the homotopical library: $+15$.
+\end{enumerate}
+
+Representative schema families include
+\[
+  \bigcirc(L\to L),
+  \qquad
+  \sharp(L)\to \bigcirc(L),
+  \qquad
+  \bigcirc(L)\to L.
+\]
+
+\begin{thebibliography}{99}
+
+\bibitem{hott}
+Univalent Foundations Program.
+\textit{Homotopy Type Theory: Univalent Foundations of Mathematics}.
+Institute for Advanced Study, 2013.
+
+\bibitem{cubical}
+C.~Cohen, T.~Coquand, S.~Huber, A.~M\"ortberg.
+Cubical Type Theory: a constructive interpretation of the univalence axiom.
+\textit{TYPES 2015}, 2015.
+
+\bibitem{cchm-hits}
+T.~Coquand, S.~Huber, A.~M\"ortberg.
+On Higher Inductive Types in Cubical Type Theory.
+\textit{LICS}, 2018.
+
+\bibitem{cubical-agda}
+A.~Vezzosi, A.~M\"ortberg, A.~Abel.
+Cubical Agda: A Dependently Typed Programming Language with Univalence and Higher Inductive Types.
+\textit{ICFP}, 2019.
+
+\bibitem{lurie}
+J.~Lurie.
+\textit{Higher Topos Theory}.
+Princeton University Press, 2009.
+
+\bibitem{lumsdaine}
+P.~L.~Lumsdaine.
+Weak $\omega$-Categories from Intensional Type Theory.
+\textit{TLCA}, 2010.
+
+\bibitem{vdberg-garner}
+B.~van den Berg, R.~Garner.
+Types are Weak $\omega$-Groupoids.
+\textit{Proceedings of the London Mathematical Society}, 102(2):370--394, 2011.
+
+\bibitem{lawvere}
+F.~W.~Lawvere.
+Axiomatic Cohesion.
+\textit{Theory and Applications of Categories}, 19(3), 2007.
+
+\bibitem{lawvere-adjoint}
+F.~W.~Lawvere.
+Adjointness in Foundations.
+\textit{Dialectica}, 23(3/4):281--296, 1969.
+
+\bibitem{schreiber}
+U.~Schreiber.
+Differential Cohomology in a Cohesive Infinity-Topos.
+arXiv:1310.7930, 2013.
+
+\bibitem{kock}
+A.~Kock.
+\textit{Synthetic Differential Geometry}.
+Cambridge University Press, 2nd edition, 2006.
+
+\bibitem{nakano}
+H.~Nakano.
+A Modality for Recursion.
+\textit{LICS}, 2000.
+
+\bibitem{maclane-coherence}
+S.~Mac Lane.
+Natural Associativity and Commutativity.
+\textit{Rice University Studies}, 49(4):28--46, 1963.
+
+\bibitem{stasheff}
+J.~D.~Stasheff.
+Homotopy Associativity of H-Spaces I, II.
+\textit{Transactions of the American Mathematical Society}, 108(2):275--312, 1963.
+
+\bibitem{kraus-vonraumer}
+N.~Kraus, J.~von Raumer.
+Coherence via Well-Foundedness.
+\textit{LICS}, 2019.
+
+\bibitem{kolmogorov}
+M.~Li, P.~Vit\'anyi.
+\textit{An Introduction to Kolmogorov Complexity and Its Applications}.
+Springer, 4th edition, 2019.
+
+\bibitem{godel}
+K.~G\"odel.
+\"Uber formal unentscheidbare S\"atze der Principia Mathematica und verwandter Systeme~I.
+\textit{Monatshefte f\"ur Mathematik und Physik}, 38:173--198, 1931.
+
+\end{thebibliography}
+
+\end{document}

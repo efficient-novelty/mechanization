@@ -1,0 +1,1 @@
+ab-initio.exe: osCommitMemory: VirtualAlloc MEM_COMMIT failed to commit 1048576 bytes of memory  (error code: 1455): Sidevekslingsfilen er for liten til at operasjonen kan fullføres.

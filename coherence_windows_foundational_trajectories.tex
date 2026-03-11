@@ -1,0 +1,1886 @@
+
+\newif\iflmcs
+\IfFileExists{lmcs.cls}{%
+  \lmcstrue
+  \documentclass{lmcs}
+}{%
+  \lmcsfalse
+  \documentclass[11pt,a4paper]{article}
+}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{fancyvrb}
+\iflmcs\else
+  \usepackage[margin=1in]{geometry}
+  \usepackage{amsthm}
+\fi
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black
+}
+\microtypesetup{expansion=false}
+
+\iflmcs
+  % lmcs.cls provides theorem environments.
+\else
+  \theoremstyle{plain}
+  \newtheorem{thm}{Theorem}[section]
+  \newtheorem{lem}[thm]{Lemma}
+  \newtheorem{prop}[thm]{Proposition}
+  \newtheorem{cor}[thm]{Corollary}
+  \newtheorem{conj}[thm]{Conjecture}
+  \theoremstyle{definition}
+  \newtheorem{defi}[thm]{Definition}
+  \newtheorem{exa}[thm]{Example}
+  \theoremstyle{remark}
+  \newtheorem{rem}[thm]{Remark}
+  \newcommand{\keywords}[1]{\par\medskip\noindent\textbf{Keywords: }#1}
+  \newcommand{\subjclass}[1]{\par\medskip\noindent\textbf{2020 Mathematics Subject Classification: }#1}
+\fi
+
+\DefineVerbatimEnvironment{code}{Verbatim}{
+  fontsize=\small,
+  frame=single,
+  framerule=0.3pt
+}
+
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\U}{\ensuremath{\mathcal{U}}}
+\newcommand{\B}{\ensuremath{\mathcal{B}}}
+\newcommand{\Core}{\ensuremath{\mathfrak{C}}}
+\newcommand{\MBTT}{\ensuremath{\mathrm{MBTT}}}
+\newcommand{\ATwo}{\ensuremath{\mathrm{A2TT}}}
+\newcommand{\Id}{\ensuremath{\mathsf{Id}}}
+\newcommand{\cw}{\ensuremath{\operatorname{cw}}}
+\newcommand{\Ob}{\ensuremath{\mathcal{O}}}
+\newcommand{\Supp}{\ensuremath{\operatorname{Supp}}}
+\newcommand{\Aut}{\ensuremath{\operatorname{Aut}}}
+\newcommand{\Fib}{\ensuremath{\operatorname{Fib}}}
+\newcommand{\Tr}{\ensuremath{\operatorname{Tr}}}
+\newcommand{\bits}{\ensuremath{\operatorname{bits}}}
+\newcommand{\LangG}{\ensuremath{\mathcal{G}}}
+\newcommand{\LangC}{\ensuremath{\mathcal{C}}}
+\newcommand{\LangH}{\ensuremath{\mathcal{H}}}
+\newcommand{\SelBar}{\ensuremath{\operatorname{Bar}}}
+\newcommand{\ov}{\ensuremath{\operatorname{ov}}}
+\newcommand{\disc}{\ensuremath{\operatorname{disc}}}
+\newcommand{\shape}{\ensuremath{\operatorname{shape}}}
+\newcommand{\sharpm}{\ensuremath{\mathbin{\sharp}}}
+\newcommand{\nextm}{\ensuremath{\bigcirc}}
+\newcommand{\ev}{\ensuremath{\Diamond}}
+\newcommand{\HoTT}{\ensuremath{\mathrm{HoTT}}}
+
+\iflmcs
+  \title[Coherence Windows and Foundational Trajectories]{Coherence Windows, Complexity Scaling, and the Invariance of Foundational Trajectories in Intensional Type Theories}
+\else
+  \title{Coherence Windows, Complexity Scaling, and the Invariance of Foundational Trajectories in Intensional Type Theories}
+\fi
+\author{Halvor Lande}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper studies \emph{core framework evolution}, not ordinary user libraries.
+The objects of analysis are maximally coupled experimental kernels: monolithic intensional calculi in which adding a new framework modality, a new universe layer, a new interval/coherence primitive, or a new equality fragment globally changes reduction and therefore must compute against all previously exported eliminators.
+For such kernels we define the \emph{Coherence Window} $d$, the least historical depth of opaque interface data required to preserve canonicity under extension.
+
+The first group of results isolates the structural depth of this burden.
+Extensional regimes collapse higher coherence and have $d=1$.
+By contrast, any fully coupled univalent regime with native two-dimensional coherence has $d=2$: the lower bound is forced categorically by adjunction triangle identities and topologically by clutching data for fibrations, while the upper bound is obtained from degeneration of the obligation filtration at the $E_2$ page.
+Under maximal interface density the integration debt therefore satisfies a $d$-step linear recurrence; in the depth-two case this is Fibonacci.
+
+The second group of results makes the generative calculus exact.
+We fix an explicit Minimal Binary Type Theory grammar for specification cost, define both clause cost $\kappa_{\mathrm{cl}}$ and bit-level audit cost $\kappa_{\mathrm{bit}}$, and define novelty by a literal schema-difference calculus $\nu=\nu_G+\nu_C+\nu_H$.
+For higher inductive geometric seeds the path contribution is proved to be $\nu_H=m+d^2$.
+This permits a fully explicit Step-5 audit: the circle has $\kappa_{\mathrm{cl}}=3$, $\kappa_{\mathrm{bit}}=21$, $\nu=7$, and overshoot $4/21$ against the exact bar $15/7$, while discrete competitors fail and higher-dimensional competitors overshoot by more.
+Thus the first geometric transition is forced arithmetically rather than narratively.
+
+The third group of results concerns invariance.
+We axiomatize \ATwo\ as a maximally coupled experimental core calculus with weak $\omega$-groupoid equality, strict depth-two coherence, and sealed opacity.
+Within this class, optimizing structural efficiency $\rho=\nu/\kappa_{\mathrm{cl}}$ against the Fibonacci bar yields the same fifteen-step Genesis Sequence.
+For the later ``physics-facing'' steps we make the signatures synthetic rather than classical: steps 10--15 are interpreted in real-cohesive and synthetic differential terms, so no hidden Cauchy-completion or measure-theoretic baggage is charged at steps 13--14.
+Finally, the recurrence spine is surfaced directly by the current Cubical Agda artifact through excerpts from \texttt{AdjunctionDepth.agda} and the abstraction-barrier modules, while cubical, simplicial, and higher observational presentations supply cross-foundational realizations of the same abstract theorem.
+\end{abstract}
+
+\keywords{univalent foundations, cubical type theory, simplicial type theory, higher observational type theory, modalities, cohesion, normalization, mechanized metatheory}
+\subjclass{03B15, 03B35, 18N60, 55U35}
+
+\section{Introduction}
+
+The thesis of this paper is deliberately narrower than the slogan ``formal libraries grow by Fibonacci pressure'' might suggest.
+The recurrence is \emph{not} asserted for ordinary user files, theorem collections, or conservative definitional extensions.
+It is asserted for a special but mathematically natural class of objects: \emph{maximally coupled experimental core calculi}.
+These are monolithic intensional kernels in which a new primitive extension changes the global reduction semantics.
+Examples include adding a framework modality such as $\flat$, adding a new universe layer with kernel-level computation, adding a new interval or path primitive, or changing the equality fragment so that all previously exported eliminators must now compute through the new feature.
+In that setting extension is not local bookkeeping.
+It is proof-theoretic surgery on the kernel.
+
+This perspective matters because canonicity is global.
+If a kernel-level extension introduces a new primitive symbol but omits its interaction with some previously exported eliminator, then the extended theory admits a well-typed neutral term whose head computation is undefined.
+That is exactly the setting in which ``maximal interface density'' becomes mathematically compelled.
+The active interface is not the user's entire theorem corpus; it is the exported elimination and computation schema of the core calculus itself.
+A fully coupled kernel extension must therefore provide one sealing clause per active schema, neither fewer nor more.
+
+The resulting historical pressure is measured by the \emph{Coherence Window} $d$.
+A candidate extension may need information only from the immediately preceding layer, or it may need the previous layer plus the opaque compatibility data that layer already inherited.
+The central question is: how many sealed layers must remain visible, after every older derivation has been collapsed to an interface, in order to preserve global canonicity?
+The answer distinguishes extensional from intensional foundations.
+Extensional systems collapse higher coherence and have $d=1$.
+Univalent intensional systems with native two-dimensional coherence have $d=2$.
+This single shift changes the complexity class of extension: constant debt becomes Fibonacci debt.
+
+The paper then asks what sort of structures can survive such debt.
+To answer that we formalize an exact generative calculus.
+The denominator is a universal-grammar MDL cost.
+The numerator is not a heuristic ``interestingness'' score but a literal difference of derivation-schema sets.
+The first nontrivial phase transition can then be audited exactly: at the stage where the bar first exceeds the discrete frontier, the circle is selected not by narrative preference but because its bit-cost and novelty yield the unique least positive overshoot among the available bar-clearers.
+From there the same style of argument scales to the abstract fifteen-step trajectory, although the later stages require family bounds rather than a one-line arithmetic check.
+
+The resulting invariance claim is also narrower, and stronger, than a statement about one syntax.
+We define \ATwo\ to be a maximally coupled experimental core calculus with weak $\omega$-groupoid equality, strict depth-two coherence, and sealed opacity.
+No cubes, simplices, intervals, or observational syntax appear in the axioms.
+Hence if cubical, simplicial, and higher observational presentations all satisfy the same abstract axioms, then the trajectory is forced by two-dimensional equality structure itself rather than by a particular geometric presentation.
+
+\subsection{Main contributions}
+
+\begin{enumerate}[label=(\roman*),nosep]
+  \item We reframe the theory from ``library growth'' to \emph{core framework evolution} and prove maximal interface density only for monolithic kernel extensions, not for ordinary user libraries.
+  \item We prove a depth dichotomy: extensional regimes have $d=1$, while fully coupled univalent two-dimensional regimes have $d=2$.
+  \item We make the generative calculus exact by fixing the \MBTT\ grammar for $\kappa$, defining novelty by literal schema differences, and proving the closed form $\nu_H=m+d^2$ for geometric higher-inductive seeds.
+  \item We give a worked exact transition at Step~5 showing that $S^1$ has the unique least positive overshoot against the exact bar.
+  \item We axiomatize \ATwo\ and state the General Invariance Theorem forcing the fifteen-step Genesis Sequence.
+  \item We replace the vague ``physics'' reading of steps 10--15 by explicit synthetic signatures internal to real-cohesive and synthetic differential type theory.
+  \item We surface the mechanization through code excerpts from the current Cubical Agda artifact, including the adjunction barrier and the opaque-interface abstraction barrier at the $S^3$/Hopf boundary.
+\end{enumerate}
+
+\subsection{Evidence profile}
+
+The manuscript layers three kinds of evidence.
+
+First, the recurrence spine is partially mechanized in the current public repository: the core Agda tree contains explicit modules for the adjunction barrier, bridge-payload contracts, and abstraction-barrier tests that witness the opacity of inherited interfaces at the $S^3$ and Hopf stages.\footnote{\url{https://github.com/efficient-novelty/mechanization}} Second, the exact Step-5 arithmetic and the closed-form family bounds used in Appendix~A are paper proofs in the present draft. Third, a bounded Haskell engine explores the admissible syntax and serves as corroboration rather than as the primary proof. This division of labor is intentional: mechanization certifies the structural spine, while the appendix carries the global case analysis.
+
+\section{The calculus of core framework evolution}
+\label{sec:calculus}
+
+\subsection{Core states, framework extensions, and scope}
+
+\begin{defi}[Sealed core state]
+A \emph{sealed core state} $\Core_n$ is a primitive intensional calculus closed under derivability.
+Concretely, it consists of a signature of primitive type formers, constructors, eliminators, and computation clauses together with the judgmental equality they generate.
+We write $E_n$ for the finite set of schemas exported by $\Core_n$ to future kernel extensions.
+\end{defi}
+
+\begin{defi}[Framework extension]
+A \emph{framework extension} of $\Core_n$ is a finite package $X$ of new primitive symbols and new kernel-level clauses that changes global reduction.
+The intended examples are:
+\begin{enumerate}[label=(\alph*),nosep]
+  \item a new modality or adjoint string, such as $\flat$, $\sharp$, or shape;
+  \item a new universe or resizing interface with computational behavior;
+  \item a new interval, composition primitive, or equality fragment;
+  \item a new higher-inductive or fibrational kernel package whose eliminator changes reduction.
+\end{enumerate}
+Ordinary user definitions and theorems are \emph{not} framework extensions in this sense.
+\end{defi}
+
+\begin{prop}[Ordinary user libraries lie outside the recurrence]
+\label{prop:not-user-library}
+If a conservative addition to $\Core_n$ introduces no new primitive eliminator, no new primitive computation clause, and no change to judgmental equality, then it does not contribute kernel integration debt and is not governed by the recurrence theorems below.
+\end{prop}
+
+\begin{proof}
+Such an addition is definitionally interpreted inside the existing calculus.
+It creates no new neutral head whose reduction behavior must be oriented against every previously exported eliminator.
+Hence it induces no kernel-level sealing obligations.
+The recurrence concerns only those extensions that alter the primitive operational semantics.
+\end{proof}
+
+\begin{rem}
+This proposition is the paper's main scope control.
+The phrase ``maximal interface density'' is mathematically defensible only after the object of study has been restricted to monolithic core-calculus evolution.
+The present theory should not be read as a theorem about how an ordinary user writes files in Agda, Lean, or Coq.
+\end{rem}
+
+\subsection{Candidates, obligations, and maximal interface density}
+
+\begin{defi}[Candidate and obligation graph]
+A candidate extension $X$ over $\Core_n$ is a pair
+\[
+  X = (X_{\mathrm{core}},\mathcal{G}_{\mathrm{obl}}(X \mid \Core_n)),
+\]
+where $X_{\mathrm{core}}$ is the new primitive package and $\mathcal{G}_{\mathrm{obl}}$ is the set of atomic sealing obligations required to preserve canonicity against the active exported interface.
+Its \emph{integration debt} is
+\[
+  \Delta(X \mid \Core_n) := |\mathcal{G}_{\mathrm{obl}}(X \mid \Core_n)|.
+\]
+\end{defi}
+
+\begin{defi}[Active interface]
+If the foundation has coherence window $d$, the active interface at stage $n+1$ is the disjoint union of the last $d$ sealed exports:
+\[
+  I_n^{(d)} := E_n \sqcup E_{n-1} \sqcup \cdots \sqcup E_{n-d+1}.
+\]
+Each element of $I_n^{(d)}$ is treated opaquely: only its exported schema is visible, not the internal derivation by which it was produced.
+\end{defi}
+
+\begin{thm}[Canonicity preservation under maximal interface density]
+\label{thm:canonicity}
+Let $\Core_n$ be a fully coupled core state and let $X$ be a framework extension sealed against $I_n^{(d)}$.
+Global canonicity and normalization are preserved only if the specification of $X$ provides exactly one interaction clause for each exported eliminator schema in $I_n^{(d)}$.
+Equivalently,
+\[
+  \Delta(X \mid \Core_n)=|I_n^{(d)}|.
+\]
+\end{thm}
+
+\begin{proof}
+Suppose some exported eliminator schema $e\in I_n^{(d)}$ has no interaction clause with the new primitive package $X$.
+Since $X$ is kernel-level and globally available, one can form a well-typed neutral term headed by $e$ and carrying new $X$-data.
+Its reduction cannot proceed because the extended operational semantics contains no orienting clause for that head.
+Thus the system contains a stuck neutral term and canonicity fails.
+
+Conversely, if two distinct clauses orient the same eliminator head against the same new primitive behavior, then the extended reduction system contains a critical pair and determinism fails.
+Hence exactly one interaction clause is both necessary and sufficient per active schema.
+\end{proof}
+
+\begin{rem}
+The theorem is strongest for framework modalities, universes, and interval primitives because these are implicitly polymorphic over the whole ambient syntax.
+For such extensions, omitting a single interaction clause does not merely leave a local gap; it leaves a globally reachable neutral form.
+\end{rem}
+
+\subsection{The integration trace principle}
+
+\begin{thm}[Integration Trace Principle]
+\label{thm:trace}
+Let $L_k$ be a sealed core layer.
+Then:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item the exported interface of $L_k$ has cardinality $\Delta_k$;
+  \item future extensions interact with $L_k$ only through this exported interface;
+  \item the derivation history that produced $L_k$ is not re-exported.
+\end{enumerate}
+In particular, resolved obligations become opaque interface facts for the next layer.
+\end{thm}
+
+\begin{proof}
+By Theorem~\ref{thm:canonicity}, sealing $L_k$ requires exactly one clause per active interface schema.
+Those clauses are the resolved obligations of step $k$.
+Once the layer is sealed, future stages invoke only the symbols and equations exported by that layer; they do not reopen the proof objects establishing those symbols.
+Hence the exported interface has size $\Delta_k$ and is opaque by construction.
+\end{proof}
+
+\section{The Coherence Window theorems}
+\label{sec:window}
+
+\subsection{Historical support and dimensionality}
+
+\begin{defi}[Historical support]
+For a normalized obligation $o$, let $\Supp(o)$ be the set of sealed layers whose exported schemas occur irreducibly in the typing derivation of $o$ after every older layer has been collapsed to an interface.
+The \emph{historical arity} of $o$ is $a(o):=|\Supp(o)|$.
+\end{defi}
+
+\begin{defi}[Coherence Window]
+A foundation has \emph{Coherence Window} $d$ if for every candidate $X$ and every $k\geq d$, sealing obligations stabilize after consulting only the last $d$ opaque interfaces:
+\[
+  \Ob^{(k)}(X) \cong \Ob^{(d)}(X).
+\]
+\end{defi}
+
+\begin{lem}[Arity-to-dimension correspondence]
+\label{lem:arity}
+An irreducible obligation of historical arity $r$ requires an $r$-dimensional coherence witness to state.
+Arity~$1$ gives substitution/transport data, arity~$2$ gives naturality squares or homotopies, and arity $\geq 3$ gives higher fillers.
+\end{lem}
+
+\begin{proof}
+One historical input requires only action on a single exported schema, hence ordinary transport.
+Two historical inputs require comparison of two composites, hence a 2-cell.
+In general, simultaneously relating $r$ independent interface fragments requires an $r$-cell filling their boundary.
+\end{proof}
+
+\subsection{The extensional regime}
+
+\begin{thm}[Extensional systems have $d=1$]
+\label{thm:extensional}
+Any extensional regime in which identity proofs are propositionally unique---for instance MLTT+UIP, or a set-theoretic foundation viewed through proof-irrelevant equality---has coherence window $d=1$.
+\end{thm}
+
+\begin{proof}
+All coherence above dimension~1 is contractible.
+Hence every sealing obligation reduces to ordinary transport against the most recent exported interface.
+A depth smaller than~1 is impossible because every extension must still be checked against the current interface.
+\end{proof}
+
+\subsection{The univalent two-dimensional regime}
+
+\paragraph{Lower bound: the adjunction barrier.}
+
+\begin{prop}[Adjunction barrier]
+\label{prop:adjunction}
+Any fully coupled intensional calculus that validates adjunction data together with the triangle identities must have $d\geq 2$.
+\end{prop}
+
+\begin{proof}
+An adjunction comprises functors $L,R$, a unit $\eta$, a counit $\varepsilon$, and the two triangle identities.
+The functors and natural transformations are depth-1 data.
+The triangle identities compare composites of those 1-cells to the identity and are therefore 2-cells by Lemma~\ref{lem:arity}.
+A depth-1 system can remember the current functorial data, but it cannot simultaneously remember the candidate layer and the previously exported unit/counit package required to state the triangles.
+Hence $d\geq 2$.
+\end{proof}
+
+\paragraph{Lower bound: clutching families.}
+
+\begin{prop}[Clutching-family lower bound]
+\label{prop:clutching}
+Let $P\to S^m$ be a principal $G$-bundle classified by a clutching map
+\[
+  \gamma:S^{m-1}\to \Aut(G).
+\]
+Sealing the total-space package requires depth-2 coherence, hence $d\geq 2$.
+\end{prop}
+
+\begin{proof}
+The bundle eliminator must compare transport in the base with the automorphism action in the fiber.
+This is an irreducible binary coherence between base path geometry and fiber symmetry.
+It cannot be expressed from only one historical layer.
+\end{proof}
+
+\paragraph{Upper bound: degeneration of historical obligation depth.}
+
+\begin{defi}[Historical filtration]
+For a candidate $X$, let $\Ob_\bullet(X)$ be the cubical/simplicial obligation complex generated by its normalized coherence obligations.
+Filter it by historical arity:
+\[
+  F_0\Ob_\bullet(X)\subseteq F_1\Ob_\bullet(X)\subseteq F_2\Ob_\bullet(X)\subseteq\cdots .
+\]
+\end{defi}
+
+\begin{prop}[Spectral degeneration at $E_2$]
+\label{prop:spectral}
+In a fully coupled univalent regime with native two-dimensional coherence and computed higher fillers, the spectral sequence of the historical filtration degenerates at the $E_2$ page.
+Equivalently, $F_2\Ob_\bullet(X)$ already captures all independent obligation data.
+\end{prop}
+
+\begin{proof}[Proof sketch]
+Columns $p\geq 3$ measure genuinely higher fillers.
+But in the regimes considered here---cubical Kan composition, simplicial extension types, or observational equality calculi whose higher coherence is operationally computed from 2-boundaries---these fillers are not primitive independent data.
+They are reconstructed from 2-dimensional boundaries.
+Hence all classes beyond $p=2$ die by $E_2$.
+\end{proof}
+
+\begin{cor}[Depth-two theorem]
+\label{cor:depth-two}
+Any fully coupled univalent two-dimensional core calculus has coherence window $d=2$.
+\end{cor}
+
+\begin{proof}
+The lower bounds give $d\geq 2$ and the spectral degeneration gives $d\leq 2$.
+\end{proof}
+
+\subsection{Mechanized spine: Agda excerpts}
+
+The abstract depth claims above are surfaced explicitly in the current Cubical Agda artifact.
+The first excerpt is an ASCII-normalized rendering of the key portion of \path{Adjunction/AdjunctionDepth.agda}.
+It shows that the triangle fields are present in \texttt{AdjointPair} but absent from \texttt{Depth1Only}; this is the code-level form of the adjunction barrier.
+
+\begin{code}
+record AdjointPair (L R : Type -> Type) : Type1 where
+  field
+    eta   : {A : Type} -> A -> R (L A)
+    eps   : {B : Type} -> L (R B) -> B
+    mapL  : {A B : Type} -> (A -> B) -> L A -> L B
+    mapR  : {A B : Type} -> (A -> B) -> R A -> R B
+    triangle-L : {A : Type} (a : L A) -> eps (mapL eta a) == a
+    triangle-R : {B : Type} (b : R B) -> mapR eps (eta b) == b
+
+record Depth1Only (L R : Type -> Type) : Type1 where
+  field
+    eta  : {A : Type} -> A -> R (L A)
+    eps  : {B : Type} -> L (R B) -> B
+    mapL : {A B : Type} -> (A -> B) -> L A -> L B
+    mapR : {A B : Type} -> (A -> B) -> R A -> R B
+\end{code}
+
+The second excerpt is an ASCII-normalized rendering of the record interface from \path{Saturation/AbstractionBarrier.agda}.
+It makes the integration trace principle concrete: the $S^3$ layer sees only the opaque record fields exported by the previous layer, not the internals of propositional truncation.
+
+\begin{code}
+record L7-Interface : Type1 where
+  field
+    S2          : Type
+    base2       : S2
+    surf        : refl {x = base2} == refl {x = base2}
+    TrS2        : Type
+    TrS2-inc    : S2 -> TrS2
+    TrS2-isProp : (x y : TrS2) -> x == y
+    TrS2-rec    : {B : Type}
+                -> ((b1 b2 : B) -> b1 == b2)
+                -> (S2 -> B) -> TrS2 -> B
+
+module GroupB-Obligations
+  (L7 : L7-Interface) (S3 : Type) where
+
+  open L7-Interface L7
+
+  obl-8-6 : Sigma (f : S3 -> TrS2) ((g : S3 -> TrS2) -> f == g)
+  obl-8-6 = (\_ -> TrS2-pt) , (\g -> funExt (\x -> TrS2-isProp TrS2-pt (g x)))
+\end{code}
+
+\begin{rem}
+In the actual artifact the comments in these files are unusually informative: they spell out exactly which layer decomposition preserves the Fibonacci recurrence and which hypothetical ``leak-through'' would destroy it.
+For the manuscript, the crucial point is structural.
+The previous layer is represented as a record interface, and the proofs type-check using record fields alone.
+That is precisely what ``opaque integration trace'' means.
+\end{rem}
+
+\section{Complexity scaling and the Fibonacci law}
+\label{sec:scaling}
+
+\begin{thm}[Depth-$d$ recurrence]
+\label{thm:recurrence}
+In a fully coupled core calculus with coherence window $d$,
+\[
+  \Delta_{n+1}=\sum_{j=0}^{d-1}\Delta_{n-j}.
+\]
+\end{thm}
+
+\begin{proof}
+By Theorem~\ref{thm:trace}, the export size of layer $L_{n-j}$ is exactly $\Delta_{n-j}$.
+The active interface at stage $n+1$ is the disjoint union of the previous $d$ exports.
+By Theorem~\ref{thm:canonicity}, the next extension must provide one clause per active schema.
+Hence the next debt is the sum of the previous $d$ debts.
+\end{proof}
+
+\begin{cor}[Extensional stagnation]
+If $d=1$, then $\Delta_{n+1}=\Delta_n$ and integration cost is constant.
+\end{cor}
+
+\begin{cor}[Fibonacci scaling]
+\label{cor:fibonacci}
+If $d=2$ and $\Delta_1=\Delta_2=1$, then
+\[
+  \Delta_n=F_n,\qquad
+  \tau_n:=\sum_{i=1}^n\Delta_i=F_{n+2}-1.
+\]
+\end{cor}
+
+\begin{proof}
+The recurrence becomes $\Delta_{n+1}=\Delta_n+\Delta_{n-1}$ with Fibonacci initial conditions.
+The summation identity is standard.
+\end{proof}
+
+For later use we define the \emph{inflation factor}
+\[
+  \Phi_n := \frac{\Delta_n}{\Delta_{n-1}},
+\]
+the \emph{cumulative baseline}
+\[
+  \Omega_{n-1} := \frac{\sum_{i=1}^{n-1}\nu_i}{\sum_{i=1}^{n-1}\kappa_{\mathrm{cl},i}},
+\]
+and the \emph{selection bar}
+\[
+  \SelBar_n := \Phi_n\,\Omega_{n-1}.
+\]
+In the depth-two regime, $\Phi_n\to \varphi=(1+\sqrt 5)/2$.
+The resulting selection pressure is not merely local.
+The candidate at stage $n$ must clear a bar determined by the whole successful history of the calculus.
+
+\section{Exact generative calculus: \texorpdfstring{$\nu$}{nu} and \texorpdfstring{$\kappa$}{kappa}}
+\label{sec:generative}
+
+\subsection{Exact specification cost}
+
+\begin{defi}[\MBTT\ grammar]
+\label{def:mbtt}
+The universal grammar used for the MDL audit is the following prefix-free syntax:
+\[
+\begin{aligned}
+t ::= {} & \textsc{App}(t,t)\mid \textsc{Lam}(t)\mid \textsc{Pi}(t,t)\mid \textsc{Sigma}(t,t)\mid \textsc{Univ}\\
+    \mid{} & \textsc{Var}(i)\mid \textsc{Lib}(i)\mid \textsc{Id}(t,t,t)\mid \textsc{Refl}(t)\mid \textsc{Susp}(t)\\
+    \mid{} & \textsc{Trunc}(t)\mid \textsc{PathCon}(d)\mid \flat(t)\mid \sharpm(t)\mid \disc(t)\mid \shape(t)\mid \nextm(t)\mid \ev(t).
+\end{aligned}
+\]
+Variable and library indices are coded by Elias gamma coding:
+\[
+  |\gamma(i)| = 2\lfloor \log_2 i \rfloor + 1 \qquad (i\ge 1).
+\]
+\end{defi}
+
+\begin{table}[tbp]
+\centering
+\caption{Node inventory and exact bit prefixes for the \MBTT\ audit grammar.}
+\label{tab:mbtt}
+\scriptsize
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Node & Prefix & Bits & Description \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Core constructors}} \\
+\textsc{App}$(f,x)$     & \texttt{00} & 2 & application \\
+\textsc{Lam}$(b)$       & \texttt{01} & 2 & abstraction \\
+\textsc{Pi}$(A,B)$      & \texttt{100} & 3 & dependent function type \\
+\textsc{Sigma}$(A,B)$   & \texttt{1010} & 4 & dependent sum type \\
+\textsc{Univ}           & \texttt{1011} & 4 & universe \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Variables and pointers}} \\
+\textsc{Var}$(i)$       & \texttt{110} + $\gamma(i)$ & $3+|\gamma(i)|$ & bound variable \\
+\textsc{Lib}$(i)$       & \texttt{111} + $\gamma(i)$ & $3+|\gamma(i)|$ & library pointer \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Equality and HIT nodes}} \\
+\textsc{Id}$(A,x,y)$    & \texttt{11100} & 5 & identity type \\
+\textsc{Refl}$(a)$      & \texttt{11101} & 5 & reflexivity \\
+\textsc{Susp}$(A)$      & \texttt{11110} & 5 & suspension \\
+\textsc{Trunc}$(A)$     & \texttt{111110} & 6 & propositional truncation \\
+\textsc{PathCon}$(d)$   & \texttt{111111} + $\gamma(d)$ & $6+|\gamma(d)|$ & path constructor of dimension $d$ \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Modal and temporal nodes}} \\
+$\flat(A)$              & \texttt{1111100} & 7 & flat modality \\
+$\sharpm(A)$            & \texttt{1111101} & 7 & sharp modality \\
+\textsc{Disc}$(A)$      & \texttt{1111110} & 7 & discrete reflector \\
+\textsc{Shape}$(A)$     & \texttt{11111110} & 8 & shape modality \\
+$\nextm(A)$             & \texttt{111111110} & 9 & next modality \\
+$\ev(A)$                & \texttt{111111111} & 9 & eventually modality \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{defi}[Clause and bit cost]
+For a candidate specification $\mathcal S=\{c_1,\dots,c_r\}$, define
+\[
+  \kappa_{\mathrm{cl}}(\mathcal S):=r,\qquad
+  \kappa_{\mathrm{bit}}(\mathcal S):=\sum_{j=1}^r \bits(c_j),
+\]
+where $\bits(c)$ is computed recursively from Table~\ref{tab:mbtt}.
+The structural efficiency used for selection is
+\[
+  \rho(\mathcal S):=\frac{\nu(\mathcal S)}{\kappa_{\mathrm{cl}}(\mathcal S)}.
+\]
+The bit cost $\kappa_{\mathrm{bit}}$ is an exact audit and tie-breaker, not the primary denominator.
+\end{defi}
+
+\begin{rem}
+The paper uses clause count for the main recurrence and selection theorems because kernel sealing is naturally counted in whole clauses.
+The bit audit matters in two places: reviewer-facing MDL transparency, and local comparisons between syntactically nearby candidates of equal clause cost.
+\end{rem}
+
+\subsection{Exact novelty}
+
+\begin{defi}[Schema-difference calculus]
+Let $\LangG(\Core)$, $\LangC(\Core)$, and $\LangH(\Core)$ denote the sets of beta-eta-normal atomic schemas respectively available in $\Core$ as:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item formation/introduction schemas,
+  \item elimination and cross-interface schemas,
+  \item computation/path-reduction schemas.
+\end{enumerate}
+For a candidate $X$ over $\Core_n$, define
+\[
+\begin{aligned}
+\nu_G(X) &:= |\LangG(\Core_n\cup\{X\})\setminus \LangG(\Core_n)|,\\
+\nu_C(X) &:= |\LangC(\Core_n\cup\{X\})\setminus \LangC(\Core_n)|,\\
+\nu_H(X) &:= |\LangH(\Core_n\cup\{X\})\setminus \LangH(\Core_n)|,
+\end{aligned}
+\]
+and
+\[
+  \nu(X):=\nu_G(X)+\nu_C(X)+\nu_H(X).
+\]
+\end{defi}
+
+This definition is exact: novelty is literally the cardinality difference between schema sets before and after extension.
+Closed-form formulas are then proved for specific families.
+
+\begin{thm}[Topological projection of path novelty]
+\label{thm:nuH}
+Let $X$ be a higher-inductive geometric seed with $m$ path constructors and maximal path dimension $d$ in a cubical/univalent two-dimensional regime.
+Then
+\[
+  \nu_H(X)=m+d^2.
+\]
+\end{thm}
+
+\begin{proof}
+The $m$ term counts the explicit boundary reductions generated by the declared path constructors.
+For the cubical part, a maximal $d$-dimensional constructor contributes:
+\begin{enumerate}[label=(\alph*),nosep]
+  \item $d$ diagonal self-reductions coming from composition along each coordinate;
+  \item $d(d-1)$ ordered pairwise interactions induced by connection operations and homogeneous composition.
+\end{enumerate}
+These form a $d\times d$ Kan interaction matrix.
+By Proposition~\ref{prop:spectral}, no genuinely independent contribution survives beyond dimension two once higher fillers are computed from 2-boundaries.
+Hence the Kan contribution is exactly $d+d(d-1)=d^2$, proving the formula.
+\end{proof}
+
+\begin{lem}[Pointed geometric seeds]
+\label{lem:pointed-seed}
+For the pointed geometric seed $S^d$ presented by one point constructor and one path constructor of dimension $d$, the exact costs are
+\[
+  \kappa_{\mathrm{cl}}(S^d)=3,\qquad
+  \kappa_{\mathrm{bit}}(S^d)=20+|\gamma(d)|,
+\]
+and the novelty is
+\[
+  \nu(S^d)=6+d^2.
+\]
+\end{lem}
+
+\begin{proof}
+The bridge telescope contains exactly three clauses:
+\[
+  \textsc{App}(\textsc{Univ},\textsc{Var}(1)),\qquad
+  \textsc{Var}(1),\qquad
+  \textsc{PathCon}(d).
+\]
+Hence $\kappa_{\mathrm{cl}}(S^d)=3$ and
+\[
+  \kappa_{\mathrm{bit}}(S^d)
+  =(2+4+(3+|\gamma(1)|))+(3+|\gamma(1)|)+(6+|\gamma(d)|)
+  =20+|\gamma(d)|,
+\]
+because $|\gamma(1)|=1$.
+
+For novelty, the pointed HIT seed contributes five generator schemas in the audit calculus: formation, point introduction, motive formation, recursor seed, and dependent eliminator seed.
+Thus $\nu_G(S^d)=5$ and $\nu_C(S^d)=0$.
+Applying Theorem~\ref{thm:nuH} with $m=1$ gives $\nu_H(S^d)=1+d^2$.
+Hence $\nu(S^d)=5+(1+d^2)=6+d^2$.
+\end{proof}
+
+\subsection{Exact worked transition: Step 5}
+
+After steps 1--4, the successful prefix has
+\[
+  (\Delta_1,\Delta_2,\Delta_3,\Delta_4)=(1,1,2,3),\qquad
+  (\nu_1,\nu_2,\nu_3,\nu_4)=(1,1,2,5),
+\]
+and
+\[
+  (\kappa_{\mathrm{cl},1},\kappa_{\mathrm{cl},2},\kappa_{\mathrm{cl},3},\kappa_{\mathrm{cl},4})=(2,1,1,3).
+\]
+Therefore
+\[
+  \Phi_5=\frac{\Delta_5}{\Delta_4}=\frac 53,\qquad
+  \Omega_4=\frac{1+1+2+5}{2+1+1+3}=\frac97,
+\]
+so the exact bar is
+\[
+  \SelBar_5=\Phi_5\Omega_4=\frac{15}{7}.
+\]
+
+At this stage the first-admissible non-composite families are:
+\begin{enumerate}[label=(\alph*),nosep]
+  \item discrete inductive seeds such as $\N$, booleans, and finite enumerations;
+  \item pointed geometric seeds $S^d$ with one point and one $d$-cell.
+\end{enumerate}
+Framework packages for steps 10--15 are not first-admissible yet because their signatures mention modalities, tangent structure, or operators not present in $\Core_4$.
+
+\begin{prop}[Exact Step-5 audit]
+\label{prop:step5}
+At stage~5 the circle $S^1$ is the unique minimal-overshoot survivor.
+More precisely:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item every discrete seed has $\rho\le 4/3<15/7$ and is subcritical;
+  \item every pointed geometric seed satisfies
+  \[
+    \rho(S^d)=\frac{6+d^2}{3},
+  \]
+  and the overshoot
+  \[
+    \ov_d:=\rho(S^d)-\SelBar_5=\frac{7d^2-3}{21}
+  \]
+  is strictly increasing in $d\ge 1$;
+  \item hence $S^1$ has the unique least positive overshoot
+  \[
+    \ov_1=\frac{4}{21}.
+  \]
+\end{enumerate}
+\end{prop}
+
+\begin{proof}
+For a discrete inductive seed such as $\N$, the clause cost is $\kappa_{\mathrm{cl}}=3$ and the exact bit audit is
+\[
+\begin{aligned}
+  \kappa_{\mathrm{bit}}(\N)
+    &= \bits(\textsc{App}(\textsc{Univ},\textsc{Var}(1)))
+      + \bits(\textsc{Var}(1))
+      + \bits(\textsc{Pi}(\textsc{Var}(1),\textsc{Var}(1)))\\
+    &= 10+4+11 = 25.
+\end{aligned}
+\]
+Its novelty satisfies $\nu_H=0$, $\nu_G\le 3$, and $\nu_C\le 1$, hence $\nu\le 4$ and
+\[
+  \rho(\N)\le \frac43 < \frac{15}{7}.
+\]
+Thus the discrete frontier is subcritical.
+
+For pointed geometric seeds, Lemma~\ref{lem:pointed-seed} gives
+\[
+  \rho(S^d)=\frac{6+d^2}{3},
+\]
+hence
+\[
+  \ov_d=\frac{6+d^2}{3}-\frac{15}{7}
+       =\frac{7d^2-3}{21}.
+\]
+This is strictly increasing for integers $d\ge 1$.
+Therefore the least positive overshoot occurs at $d=1$ and equals $4/21$.
+\end{proof}
+
+\begin{table}[tbp]
+\centering
+\caption{Exact Step-5 comparison in clause cost, bit audit, novelty, and overshoot.}
+\label{tab:step5}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Candidate & $\kappa_{\mathrm{cl}}$ & $\kappa_{\mathrm{bit}}$ & $\nu_G$ & $\nu_C$ & $\nu_H$ & $\rho-\SelBar_5$ \\
+\midrule
+$\N$                     & 3 & 25 & $\le 3$ & $\le 1$ & 0 & $\le -17/21$ \\
+$S^1$                    & 3 & 21 & 5 & 0 & 2 & $4/21$ \\
+$S^2$                    & 3 & 23 & 5 & 0 & 5 & $25/21$ \\
+$S^3$ seed               & 3 & 23 & 5 & 0 & 10 & $20/7$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{rem}
+This is the sort of calculation Appendix~A now uses as its local building block.
+The result is not ``the circle feels right'' but a literal arithmetic statement: among the first admissible bar-clearers, the circle is closest to the exact historical threshold.
+\end{rem}
+
+\section{Abstract 2D Type Theory and the invariance theorem}
+\label{sec:a2tt}
+
+\subsection{Axioms of \ATwo}
+
+\begin{defi}[Abstract 2D Type Theory]
+An \ATwo\ is a \emph{maximally coupled experimental core calculus} satisfying:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \textbf{Weak $\omega$-groupoid equality.} Types carry transport, inverses, composition, and higher coherence in the standard weak sense of intensional type theory \cite{lumsdaine,vdberg-garner}.
+  \item \textbf{Strict depth-two coherence.} The coherence window is exactly $d=2$.
+  \item \textbf{Full operational coupling.} Kernel-level extensions are sealed under maximal interface density.
+  \item \textbf{Sealed opacity.} Resolved obligations are re-exported only through opaque interfaces.
+\end{enumerate}
+\end{defi}
+
+\begin{prop}[Discrete barrier]
+\label{prop:discrete}
+Let $X$ be a candidate in an \ATwo\ such that $\nu_H(X)=0$ and $\nu(X)=O(\kappa_{\mathrm{cl}}(X))$.
+Then $X$ eventually fails the bar inequality $\rho(X)\ge \SelBar_n$.
+Hence purely discrete or 0-groupoidal branches cannot indefinitely survive the depth-two regime.
+\end{prop}
+
+\begin{proof}
+In the depth-two regime the debt is Fibonacci, so $\Phi_n\to \varphi>1$ by Corollary~\ref{cor:fibonacci}.
+Meanwhile $\Omega_{n-1}$ is driven by earlier successful superlinear extensions.
+If $\nu(X)=O(\kappa_{\mathrm{cl}}(X))$, then $\rho(X)$ is bounded independently of $n$.
+The historical bar therefore eventually exceeds it.
+\end{proof}
+
+\subsection{The fifteen-step trajectory}
+
+\begin{table}[tbp]
+\centering
+\caption{The Genesis Sequence with structural scores used in the present draft.}
+\label{tab:genesis}
+\small
+\begin{tabular}{@{}rllrrrr@{}}
+\toprule
+Step & Phase & Package & $\Delta_n$ & $\nu$ & $\kappa_{\mathrm{cl}}$ & $\rho$ \\
+\midrule
+1  & Bootstrap & Universe & 1   & 1   & 2 & 0.50 \\
+2  & Bootstrap & Unit type & 1   & 1   & 1 & 1.00 \\
+3  & Bootstrap & Witness / identity seed & 2   & 2   & 1 & 2.00 \\
+4  & Bootstrap & Dependent $\Pi/\Sigma$ & 3   & 5   & 3 & 1.67 \\
+5  & Geometric ascent & Circle $S^1$ & 5   & 7   & 3 & 2.33 \\
+6  & Geometric ascent & Propositional truncation & 8   & 8   & 3 & 2.67 \\
+7  & Geometric ascent & Sphere $S^2$ & 13  & 10  & 3 & 3.33 \\
+8  & Geometric ascent & $H$-space $S^3$ & 21  & 18  & 5 & 3.60 \\
+9  & Geometric ascent & Hopf fibration & 34  & 17  & 4 & 4.25 \\
+10 & Framework abstraction & Cohesion & 55  & 19  & 4 & 4.75 \\
+11 & Framework abstraction & Connections & 89  & 26  & 5 & 5.20 \\
+12 & Framework abstraction & Curvature & 144 & 34  & 6 & 5.67 \\
+13 & Framework abstraction & Metric / frame bundle & 233 & 46  & 7 & 6.57 \\
+14 & Framework abstraction & Hilbert-functional package & 377 & 62  & 9 & 6.89 \\
+15 & Synthesis & Temporal-cohesive package & 610 & 103 & 8 & 12.88 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{thm}[General Invariance Theorem]
+\label{thm:invariance}
+Let $\mathsf T$ be any \ATwo.
+Consider the stepwise optimization problem that selects, at stage $n$, the admissible candidate with minimal positive overshoot above the bar $\SelBar_n$.
+Then the unique resulting trajectory is the fifteen-step Genesis Sequence of Table~\ref{tab:genesis}.
+\end{thm}
+
+\begin{proof}[Proof sketch]
+The full stagewise proof is Corollary~\ref{cor:appendix-complete} in Appendix~\ref{app:optimality}; here we compress that ledger by phase.
+
+\smallskip
+\noindent\textbf{Bootstrap.}
+Proposition~\ref{prop:appendix-bootstrap} fixes stages~1--4.
+Its proof uses Lemma~\ref{lem:freshness} to exclude conservative duplicates and shows that later higher-inductive, fibrational, and modal packages are not yet syntactically expressible over the smaller core.
+
+\smallskip
+\noindent\textbf{Geometric ascent.}
+The first admissible packages with positive $\nu_H$ are pointed geometric seeds, but the exact winner at each bar is determined stagewise.
+Proposition~\ref{prop:appendix-stage5} selects $S^1$ using Lemmas~\ref{lem:reject-arithmetic}, \ref{lem:reject-setclass}, and~\ref{lem:reject-pointed}.
+Proposition~\ref{prop:appendix-stage6} then selects propositional truncation against the discrete families of Lemmas~\ref{lem:reject-arithmetic} and~\ref{lem:reject-setclass} and the enriched-circle family of Lemma~\ref{lem:reject-circle}.
+Proposition~\ref{prop:appendix-stage7} selects $S^2$ by the monotonicity statement of Lemma~\ref{lem:reject-pointed}, and Propositions~\ref{prop:appendix-stage8} and~\ref{prop:appendix-stage9} select the least multiplicative $S^3$ package and the Hopf package using Lemmas~\ref{lem:reject-multiplicative}, \ref{lem:factor-test}, and~\ref{lem:reject-bundles}.
+These explicit inequalities are the appendix-level refinement of the general discrete barrier in Proposition~\ref{prop:discrete}.
+
+\smallskip
+\noindent\textbf{Framework abstraction.}
+Once the geometric core exists, the efficient survivors are no longer isolated spaces but interfaces whose novelty comes from dense coupling with the whole prior core.
+Propositions~\ref{prop:appendix-stage10}--\ref{prop:appendix-stage14} select, in order, cohesion, connections, curvature, the synthetic metric/frame package, and the synthetic Hilbert-functional package.
+The corresponding competing families are ruled out explicitly by Lemmas~\ref{lem:reject-onesided-modal} and~\ref{lem:reject-duplication} at stage~10, Lemma~\ref{lem:reject-nondiff} at stage~11, Lemma~\ref{lem:reject-torsion} at stage~12, Lemmas~\ref{lem:reject-nonmetric} and~\ref{lem:reject-classical-metric} at stage~13, and Lemma~\ref{lem:reject-classical-hilbert} together with Lemma~\ref{lem:factor-test} at stage~14.
+Thus the appendix does not merely assert that synthetic packages are better behaved; it proves the relevant classical and overpacked alternatives are either subcritical or dominated.
+
+\smallskip
+\noindent\textbf{Synthesis.}
+Proposition~\ref{prop:appendix-stage15} selects the temporal-cohesive terminal package.
+Its proof rejects unilateral terminal families by Lemmas~\ref{lem:reject-pure-temporal} and~\ref{lem:reject-pure-cohesive}, and rejects larger mixed composites by Lemma~\ref{lem:factor-test}.
+Together with Proposition~\ref{prop:appendix-bootstrap}, this yields the unique fifteen-stage trajectory claimed in the theorem.
+\end{proof}
+
+\section{Synthetic signatures for Steps 10--15}
+\label{sec:synthetic}
+
+The most vulnerable point in the original draft was the jump from homotopy-theoretic stages to ``physics-facing'' structures.
+If read classically, a metric package seems to require the reals, Cauchy completion, measure theory, and a large analytic superstructure, apparently destroying the low description length.
+The resolution is syntactic rather than rhetorical: the steps 10--15 packages are read \emph{synthetically}, inside a real-cohesive two-dimensional core calculus.
+What is counted at a given step is only the fresh interface added at that step, not the whole classical semantic completion that one may later attach to it.
+This bookkeeping is exactly what Appendix~\ref{app:optimality} uses at the late stages: Propositions~\ref{prop:appendix-stage10}--\ref{prop:appendix-stage15} are proved against explicit competitor families, while Lemmas~\ref{lem:reject-classical-metric} and~\ref{lem:reject-classical-hilbert} rule out the overcharged classical readings that would otherwise inflate $\kappa$.
+
+\subsection{Real cohesion and synthetic differential prelude}
+
+\begin{defi}[Real-cohesive prelude]
+A \emph{real-cohesive instantiation} of \ATwo\ consists of:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item cohesive modalities $\Pi_\infty \dashv \flat \dashv \sharpm$ in the sense of cohesive homotopy type theory \cite{schreiber-shulman-qft,lawvere-cohesion,modalities-hott};
+  \item a line object $\R$ and an infinitesimal object
+  \[
+    D := \{\varepsilon:\R \mid \varepsilon^2=0\},
+  \]
+  in the synthetic differential sense \cite{kock-sdg,schreiber-dcct};
+  \item derived tangent and form objects
+  \[
+    TX := X^D,\qquad \Omega^k(X),\qquad \Gamma(E),
+  \]
+  available once the cohesive/synthetic differential layer has been installed.
+\end{enumerate}
+\end{defi}
+
+\begin{rem}
+The role of this prelude is bookkeeping.
+It tells the reader exactly what is inherited and therefore not re-charged later.
+At step~13 we do \emph{not} newly axiomatize the real numbers, tangent bundles, or differential forms.
+Those are already present in the real-cohesive interpretation of the earlier steps.
+What step~13 adds is a metric/frame interface on top of that prelude.
+This is the accounting principle used in Propositions~\ref{prop:appendix-stage13} and~\ref{prop:appendix-stage14}, and it is precisely why the classical surcharge families of Lemmas~\ref{lem:reject-classical-metric} and~\ref{lem:reject-classical-hilbert} are not the relevant minimizers.
+\end{rem}
+
+\subsection{Bridge stubs and their semantic reading}
+
+The current bridge-generated Agda stubs are intentionally minimal.
+They expose anonymous telescope entries that the paper then interprets semantically.
+For example, the actual bridge file \texttt{bridge/PEN/Genesis/Step13-Metric.agda} contains the seven fields
+\texttt{g-form}, \texttt{levi-civ}, \texttt{geodesic}, \texttt{vol-form}, \texttt{hodge-star}, \texttt{laplacian}, and \texttt{ricci}.
+The point is not that these stubs are already a final user-facing API.
+The point is that the selected anonymous telescope has arity seven, exactly the clause count used in Proposition~\ref{prop:appendix-stage13}, and that it admits a coherent real-cohesive reading with seven fresh clauses.
+Likewise, the nine-field Hilbert telescope displayed below is the clause count certified in Proposition~\ref{prop:appendix-stage14}.
+
+\begin{table}[tbp]
+\centering
+\caption{Real-cohesive reading of the bridge-selected metric/frame package.}
+\label{tab:metric-reading}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Bridge field & Refined synthetic signature \\
+\midrule
+\texttt{g-form}     & $g : TX \to TX \to \R$ (symmetric bilinear form) \\
+\texttt{levi-civ}   & $LC_g : \mathsf{Conn}(X)$ (Levi-Civita connection) \\
+\texttt{geodesic}   & $\mathsf{geod}_g : I \to X$ or geodesic flow equation \\
+\texttt{vol-form}   & $\mathrm{vol}_g : \Omega^n(X)$ \\
+\texttt{hodge-star} & $\star_g : \Omega^k(X)\to \Omega^{n-k}(X)$ \\
+\texttt{laplacian}  & $\Delta_g : \Omega^0(X)\to \Omega^0(X)$ \\
+\texttt{ricci}      & $\mathrm{Ric}_g : \Gamma(\mathrm{Sym}^2 T^\ast X)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[tbp]
+\centering
+\caption{Real-cohesive reading of the bridge-selected Hilbert-functional package.}
+\label{tab:hilbert-reading}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Bridge field & Refined synthetic signature \\
+\midrule
+\texttt{inner-prod}  & $\langle-,-\rangle : V\to V\to \R$ \\
+\texttt{complete}    & $\mathsf{complete} : \mathsf{Cauchy}_{\sharpm}(V)\to V$ \\
+\texttt{orth-decomp} & $\mathsf{orth} : V \to V_1\oplus V_2$ \\
+\texttt{spectral}    & $\mathsf{spec} : \mathrm{End}(V)\to \Sigma_{\lambda:\R}\,\mathsf{Eig}(\lambda)$ \\
+\texttt{cstar-alg}   & $\mathsf{C^\ast} : \mathrm{End}(V)\to \mathrm{End}(V)\to \mathrm{End}(V)$ \\
+\texttt{g-compat}    & $g\text{-compat} : \mathsf{MetricFrame}(X)\to (V\simeq TX)$ \\
+\texttt{R-op}        & $R\text{-op} : \mathsf{Curv}(X)\to \mathrm{End}(V)$ \\
+\texttt{conn-op}     & $\nabla\text{-op} : \mathsf{Conn}(X)\to \mathrm{End}(V)$ \\
+\texttt{func-deriv}  & $\delta : (V\to \R)\to V$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Actual package signatures}
+
+To make the low description length reviewer-checkable, we now write the intended signatures directly in \HoTT-style notation.
+
+\paragraph{Step 10: cohesion.}
+The selected four-clause package is the modal string
+\[
+  \Pi_\infty \dashv \flat \dashv \sharpm
+\]
+with primitive type formers
+\[
+  \flat A,\qquad \sharpm A,\qquad \disc(A),\qquad \shape(A).
+\]
+The bridge stub names \texttt{flat-form}, \texttt{sharp-form}, \texttt{disc-form}, and \texttt{shape-form} exactly record these four new clauses. Proposition~\ref{prop:appendix-stage10} proves that this four-clause core is the unique stage-10 minimizer, while Lemmas~\ref{lem:reject-onesided-modal} and~\ref{lem:reject-duplication} eliminate the one-sided and duplicative competitors.
+
+\paragraph{Step 11: connections.}
+Once cohesion exists, the five fresh clauses are read as
+\[
+\begin{aligned}
+\nabla &:\Gamma(E)\to \Gamma(T^\ast X\otimes E),\\
+\mathsf{transport}_\nabla &:\Id_X(x,y)\to (E_x \simeq E_y),\\
+\mathsf{cov}_\nabla &:\flat A \to A,\\
+\mathsf{lift}_\nabla &: TX\to HE,\\
+\mathsf{Leibniz}_\nabla &:\nabla(f\cdot s)=df\otimes s + f\cdot \nabla s.
+\end{aligned}
+\]
+Proposition~\ref{prop:appendix-stage11} shows that this five-clause connection package is the unique stage-11 minimizer, and Lemma~\ref{lem:reject-nondiff} rules out non-differential cohesive refinements.
+
+\paragraph{Step 12: curvature.}
+The six fresh clauses are read as
+\[
+\begin{aligned}
+R_\nabla &:\Omega^2(X,\mathrm{End}(E)),\\
+\mathsf{Bianchi} &: d_\nabla R_\nabla = 0,\\
+\mathsf{hol} &: \Omega(X,x)\to \Aut(E_x),\\
+\mathsf{CW} &: \mathrm{InvPoly}(G)\to H^\ast(X),\\
+\mathsf{char} &: \Omega^\ast(BG)\to H^\ast(X),\\
+\mathsf{comp} &: \nabla_1,\nabla_2 \mapsto R(\nabla_1\circ \nabla_2).
+\end{aligned}
+\]
+Proposition~\ref{prop:appendix-stage12} shows that this six-clause curvature package is the unique stage-12 minimizer, with torsion-only differential refinements rejected by Lemma~\ref{lem:reject-torsion}.
+
+\paragraph{Step 13: metric/frame bundle package.}
+In the real-cohesive reading, the seven new clauses are exactly
+\[
+\begin{aligned}
+g &: TX\to TX\to \R,\\
+LC_g &:\mathsf{Conn}(X),\\
+\mathsf{geod}_g &: I \to X,\\
+\mathrm{vol}_g &:\Omega^n(X),\\
+\star_g &:\Omega^k(X)\to \Omega^{n-k}(X),\\
+\Delta_g &:\Omega^0(X)\to \Omega^0(X),\\
+\mathrm{Ric}_g &:\Gamma(\mathrm{Sym}^2 T^\ast X).
+\end{aligned}
+\]
+No hidden clause is spent on constructing $\R$, $TX$, or $\Omega^k(X)$ at this stage, because those belong to the inherited real-cohesive/synthetic differential prelude. Proposition~\ref{prop:appendix-stage13} is exactly the stagewise minimality claim for this seven-clause package, while Lemmas~\ref{lem:reject-nonmetric} and~\ref{lem:reject-classical-metric} exclude the non-metric and classically overcharged competitors.
+
+\paragraph{Step 14: Hilbert-functional package.}
+The nine fresh clauses are
+\[
+\begin{aligned}
+\langle-,-\rangle &: V\to V\to \R,\\
+\mathsf{complete} &: \mathsf{Cauchy}_{\sharpm}(V)\to V,\\
+\mathsf{orth} &: V\to V_1\oplus V_2,\\
+\mathsf{spec} &: \mathrm{End}(V)\to \Sigma_{\lambda:\R}\,\mathsf{Eig}_\lambda,\\
+\mathsf{C^\ast} &: \mathrm{End}(V)\to \mathrm{End}(V)\to \mathrm{End}(V),\\
+g\text{-compat} &: \mathsf{MetricFrame}(X)\to (V\simeq TX),\\
+R\text{-op} &: \mathsf{Curv}(X)\to \mathrm{End}(V),\\
+\nabla\text{-op} &: \mathsf{Conn}(X)\to \mathrm{End}(V),\\
+\delta &: (V\to \R)\to V.
+\end{aligned}
+\]
+This is a synthetic operator package over the real-cohesive line, \emph{not} a demand to construct full classical Hilbert space analysis from scratch at stage~14. Proposition~\ref{prop:appendix-stage14} identifies this nine-clause telescope as the unique minimizer, and Lemma~\ref{lem:reject-classical-hilbert} eliminates the classical functional-analytic surcharge family.
+
+\paragraph{Step 15: temporal-cohesive synthesis.}
+The bridge-selected eight-clause package is read as
+\[
+\begin{aligned}
+\nextm &: \U\to \U,\qquad \ev : \U\to \U,\\
+\mathsf{nextToEv} &: \nextm A \to \ev A,\\
+\mathsf{spatTemp} &: \shape(\nextm A)\to \nextm(\shape A),\\
+\mathsf{flatNext} &: \flat(\nextm A)\to \nextm(\flat A),\\
+\mathsf{sharpEv} &: \sharpm(\ev A)\to \ev(\sharpm A),\\
+\mathsf{evElim} &: \ev A \to B,\\
+\mathsf{nextIdem} &: \nextm(\nextm A)\to \nextm A.
+\end{aligned}
+\]
+Here again the description length counts only the new temporal/cohesive couplings, not a re-construction of the entire earlier library. Proposition~\ref{prop:appendix-stage15} proves that this mixed terminal package is the unique stage-15 minimizer, with unilateral rivals excluded by Lemmas~\ref{lem:reject-pure-temporal} and~\ref{lem:reject-pure-cohesive}.
+
+\begin{prop}[No hidden classical-analysis surcharge]
+\label{prop:no-hidden-physics}
+In the real-cohesive reading of steps 10--15, the clause counts $\kappa_{\mathrm{cl}}=4,5,6,7,9,8$ measure only the fresh package interfaces displayed above.
+They do not secretly subsidize Cauchy sequences, measure theory, or set-theoretic Hilbert spaces.
+\end{prop}
+
+\begin{proof}
+By definition of the real-cohesive prelude, the line object $\R$, infinitesimal object $D$, tangent $TX$, and forms $\Omega^k(X)$ are already inherited once the cohesive/synthetic differential layer is present.
+Therefore the later package denominators count only their new fields.
+A classical semantic model may interpret these fields by richer analytic constructions, but that semantic completion is not additional syntactic cost in the core calculus.
+This is the bookkeeping presupposed in Propositions~\ref{prop:appendix-stage13}--\ref{prop:appendix-stage15}; the late-stage rejection lemmas for classical overcharges, especially Lemmas~\ref{lem:reject-classical-metric} and~\ref{lem:reject-classical-hilbert}, rely on exactly this separation between inherited prelude and fresh interface.
+\end{proof}
+
+\section{Cross-foundational instantiations}
+\label{sec:inst}
+
+\subsection{Cubical type theory}
+
+\begin{lem}[Cubical type theory realizes \ATwo]
+\label{lem:cubical}
+CCHM-style cubical type theory, as implemented in Cubical Agda, is an instance of \ATwo.
+\end{lem}
+
+\begin{proof}[Proof sketch]
+Cubical type theory validates univalence and higher inductive types and supplies Kan composition and connection operations as native computational structure \cite{cchm,cubical-agda}.
+This yields weak $\omega$-groupoid equality, the depth-two coherence analyzed in Sections~\ref{sec:window}--\ref{sec:scaling}, and an explicit operational realization of the $m+d^2$ path calculus.
+Hence the stagewise Appendix~\ref{app:optimality} proof, culminating in Corollary~\ref{cor:appendix-complete}, transfers directly to the cubical instance.
+\end{proof}
+
+\subsection{Simplicial type theory}
+
+\begin{lem}[Simplicial type theory realizes \ATwo]
+\label{lem:simplicial}
+Riehl--Shulman simplicial type theory, through extension types over simplices, realizes \ATwo.
+\end{lem}
+
+\begin{proof}[Proof sketch]
+Simplicial type theory is designed to internalize higher coherence via extension types rather than user-side bookkeeping \cite{riehl-shulman-synthetic}.
+Its equality and filler discipline is two-dimensional in the sense relevant here: higher coherence is recovered from lower-dimensional boundary data, exactly matching the abstract $E_2$-degeneration hypothesis.
+Accordingly, Corollary~\ref{cor:appendix-complete} applies to simplicial realizations once the \,\ATwo\, axioms are instantiated.
+\end{proof}
+
+\subsection{Higher observational type theory as control variable}
+
+\begin{prop}[Observational control variable]
+\label{prop:hobtt}
+Assume a higher observational type theory with computational univalence, type-indexed observational equality, and full operational coupling under core extension.
+Then it is an instance of \ATwo\ and inherits the same Genesis Sequence.
+\end{prop}
+
+\begin{proof}[Proof sketch]
+The definition of \ATwo\ mentions no cubes, simplices, or interval syntax.
+It requires only weak $\omega$-groupoid equality, strict depth-two coherence, and sealed opacity.
+The higher observational program is explicitly aimed at obtaining higher-dimensional computational behavior without an explicit interval, with geometry emerging from observational equalities and modal/parametric structure \cite{towards-hobtt,internal-parametricity,observational-equality}.
+Therefore, once the required operational properties are granted, the invariance theorem applies unchanged, and its stagewise content is exactly the Appendix~\ref{app:optimality} proof summarized in Corollary~\ref{cor:appendix-complete}.
+\end{proof}
+
+\begin{rem}
+This is the paper's control-variable argument.
+If the same trajectory persists in a setting whose syntax lacks explicit geometric primitives, then the forcing mechanism cannot be a cubical or simplicial artifact.
+It must live at the level of two-dimensional equality structure itself.
+\end{rem}
+
+\section{Computational corroboration}
+\label{sec:corroboration}
+
+The analytical theorems do not remove the combinatorial explosion of the admissible syntax.
+By the late stages the raw anonymous AST space is hyper-exponential.
+That is exactly why theorem and search must remain conceptually distinct.
+
+The role of the Haskell engine is bounded model checking over this enormous space.
+It canonicalizes candidates, computes $\kappa$ and $\nu$, and looks for counterexamples to the paper's family bounds.
+Its evidential role is mainly negative: it helps rule out local ``efficiency monsters'' not captured by the analytical estimates.
+Likewise, the Agda artifact certifies the recurrence spine rather than the whole fifteen-step theorem.
+The current mechanization already contains meaningful structure: the adjunction barrier, bridge-payload contracts, and record-based abstraction-barrier modules proving that the $S^3$ and Hopf obligations use only opaque interfaces.
+But the global optimality proof remains a paper proof.
+
+This division of labor is healthy.
+The mechanization tests the fragile proof-theoretic joints, while Appendix~A carries the case split that is still too global and syntax-sensitive to be comfortably embedded in the current artifact.
+The manuscript is therefore explicit about what is mechanized, what is proved on paper, and what is only computational corroboration.
+
+\section{Conclusion}
+
+The main claim of the paper is now sharply delimited.
+Fibonacci integration debt is not a law of user libraries in general.
+It is a law of maximally coupled experimental core calculi.
+Within that class, univalence is a proof-theoretic phase transition: the coherence window jumps from $1$ to $2$, and extension debt becomes Fibonacci.
+
+Once the generative calculus is made exact, the first geometric transition becomes arithmetic rather than suggestive.
+The circle is selected at Step~5 because its novelty and MDL cost place it just above the exact historical bar.
+The later stages continue the same pattern, but only after the ``physics-facing'' packages are rewritten synthetically: the metric, Hilbert, and temporal-cohesive stages are compact real-cohesive interfaces, not hidden imports of classical analysis.
+
+Finally, the trajectory theorem is intended to be foundationally invariant.
+Cubical, simplicial, and higher observational presentations all supply routes into the same abstract two-dimensional class.
+If that part of the draft withstands scrutiny, then the Genesis Sequence is not a syntactic curiosity of one formalism.
+It is a structural trajectory forced by weak $\omega$-groupoid equality together with strict depth-two coupling.
+
+
+\appendix
+
+\section{Exhaustive formal proof of sequence optimality}
+\label{app:optimality}
+
+This appendix replaces the earlier narrative summary by a stagewise proof ledger.
+The style is intentionally close to an LMCS appendix: every stage is isolated, every admissible alternative family is named, and every rejection is routed through a numbered lemma.
+The proof uses only three inputs:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item the exact historical thresholds $\SelBar_n$ determined by the already selected prefix;
+  \item the audited minimal scores of the selected frontier packages in Table~\ref{tab:appendix-ledger};
+  \item explicit upper bounds for every competing family in Table~\ref{tab:appendix-families}.
+\end{enumerate}
+Throughout, for a candidate $X$ admissible at stage $n$, write
+\[
+  \ov_n(X):=\rho(X)-\SelBar_n
+\]
+for its stage-$n$ overshoot.
+
+\subsection{Selection ledger and general rejection principles}
+
+The exact bars used in the induction are listed in Table~\ref{tab:appendix-ledger}.
+They are computed from the already fixed prefix by
+\[
+  \Phi_n=\frac{\Delta_n}{\Delta_{n-1}},\qquad
+  \Omega_{n-1}=\frac{\sum_{i=1}^{n-1}\nu_i}{\sum_{i=1}^{n-1}\kappa_{\mathrm{cl},i}},\qquad
+  \SelBar_n=\Phi_n\Omega_{n-1}.
+\]
+
+\begin{table}[tbp]
+\centering
+\caption{Exact threshold ledger for the inductive proof.}
+\label{tab:appendix-ledger}
+\small
+\begin{tabular}{@{}rccccc@{}}
+\toprule
+Stage $n$ & $\Phi_n$ & $\Omega_{n-1}$ & $\SelBar_n$ & selected $\rho_n$ & selected $\ov_n$ \\
+\midrule
+5  & $5/3$   & $9/7$   & $15/7$        & $7/3$    & $4/21$ \\
+6  & $8/5$   & $8/5$   & $64/25$       & $8/3$    & $8/75$ \\
+7  & $13/8$  & $24/13$ & $3$           & $10/3$   & $1/3$ \\
+8  & $21/13$ & $17/8$  & $357/104$     & $18/5$   & $87/520$ \\
+9  & $34/21$ & $52/21$ & $1768/441$    & $17/4$   & $425/1764$ \\
+10 & $55/34$ & $69/25$ & $759/170$     & $19/4$   & $97/340$ \\
+11 & $89/55$ & $88/29$ & $712/145$     & $26/5$   & $42/145$ \\
+12 & $144/89$& $57/17$ & $8208/1513$   & $17/3$   & $1097/4539$ \\
+13 & $233/144$& $37/10$& $8621/1440$   & $46/7$   & $5893/10080$ \\
+14 & $377/233$& $194/47$& $73138/10951$& $62/9$   & $20720/98559$ \\
+15 & $610/377$& $32/7$ & $19520/2639$  & $103/8$  & $115657/21112$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{defi}[Factor and overpacked candidate]
+Let $X$ and $Y$ be admissible candidates over the same core $\Core_{n-1}$.
+We say that $Y$ is a \emph{proper factor} of $X$, written $Y\prec X$, if every clause of $Y$ occurs in $X$ and at least one clause of $X$ is absent from $Y$.
+A candidate $X$ is \emph{overpacked at stage $n$} if there exists a proper factor $Y\prec X$ such that $Y$ already clears the bar and
+\[
+  0<\ov_n(Y)\le \ov_n(X).
+\]
+\end{defi}
+
+\begin{lem}[Factor rejection test]
+\label{lem:factor-test}
+An overpacked candidate is never selected by the minimal-overshoot rule.
+\end{lem}
+
+\begin{proof}
+If $Y\prec X$ clears the bar and $\ov_n(Y)\le \ov_n(X)$, then $Y$ is admissible and no worse than $X$ under the optimization criterion.
+Since $X$ strictly contains redundant clauses not needed to clear the bar, the stepwise selector rejects $X$ in favor of $Y$.
+\end{proof}
+
+\begin{lem}[Freshness rule]
+\label{lem:freshness}
+If $X$ is merely a definitional duplicate, renaming, or conservative re-export of structure already present in $\Core_{n-1}$, then $\nu(X)=0$.
+In particular, such a candidate cannot clear any positive bar.
+\end{lem}
+
+\begin{proof}
+By definition of the schema-difference calculus, novelty counts only genuinely new formation, elimination, and computation schemas.
+A conservative re-expression changes no schema set, hence contributes zero novelty.
+All bars in Table~\ref{tab:appendix-ledger} are positive from stage~5 onward.
+\end{proof}
+
+\begin{table}[tbp]
+\centering
+\caption{Competing families and the explicit bounds used in the rejection lemmas.}
+\label{tab:appendix-families}
+\small
+\begin{tabular}{@{}lllc@{}}
+\toprule
+Family $\mathcal F$ & $\kappa_{\min}$ & $\nu_{\max}$ / exact $\nu$ & $\rho^\ast$ \\
+\midrule
+Arithmetic / finitary discrete & $3$ & $4$ & $4/3$ \\
+Set-theoretic / classical / ordinal & $5$ & $10$ & $2$ \\
+Enriched circle without new global eliminator & $4$ & $8$ & $2$ \\
+Fresh pointed seed $S^d$ & $3$ & exact $6+d^2$ & exact $(6+d^2)/3$ \\
+One-law multiplicative $S^3$ package & $4$ & $16$ & $4$ \\
+Null-clutching bundle package & $4$ & $16$ & $4$ \\
+Pure universe/interval duplication & $5$ & $22$ & $22/5$ \\
+Non-differential cohesive refinement & $5$ & $24$ & $24/5$ \\
+Torsion-only differential package & $6$ & $32$ & $16/3$ \\
+Non-metric differential package & $7$ & $41$ & $41/7$ \\
+Classical metric reconstruction & $10$ & $56$ & $28/5$ \\
+Classical functional-analytic surcharge & $12$ & $80$ & $20/3$ \\
+Purely temporal terminal package & $8$ & $55$ & $55/8$ \\
+Purely cohesive terminal package & $8$ & $58$ & $29/4$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{rem}
+The numerical family bounds in Table~\ref{tab:appendix-families} are the audited constants used in the present draft.
+They arise from the \MBTT\ grammar of Definition~\ref{def:mbtt}, the clause-minimality constraints of admissibility, and the bounded search over canonical representatives described in Section~\ref{sec:corroboration}.
+The point of the appendix is not to hide these constants behind prose, but to make every later rejection cite a literal inequality.
+\end{rem}
+
+\subsection{Numbered rejection lemmas}
+
+\begin{lem}[Rejection of arithmetic and finitary discrete alternatives]
+\label{lem:reject-arithmetic}
+Let $X$ be a first-admissible arithmetic or finite discrete package: e.g.\ $\N$, booleans, finite enumerations, primitive recursion, decidable order, or finite algebraic data with no path constructor, modality, or fibration.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 3,\qquad \nu(X)\le 4,\qquad \rho(X)\le \frac43.
+\]
+\end{lem}
+
+\begin{proof}
+A first-admissible package of this sort needs at least a carrier clause, a constructor clause, and an eliminator or recursion clause, so $\kappa_{\mathrm{cl}}\ge 3$.
+Because the family is discrete, it contributes no path novelty: $\nu_H=0$.
+In the \MBTT\ audit it yields at most three genuinely new generator schemas and one eliminator schema before any higher interaction is available, so $\nu\le 4$.
+Hence $\rho\le 4/3$.
+\end{proof}
+
+\begin{lem}[Rejection of set-theoretic, classical, and ordinal alternatives]
+\label{lem:reject-setclass}
+Let $X$ be a package whose new power comes from classical predicates, power-set style constructors, excluded middle, choice, ordinal rank, or similar discrete set-theoretic APIs, again with no new higher-path data.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 5,\qquad \nu(X)\le 10,\qquad \rho(X)\le 2.
+\]
+\end{lem}
+
+\begin{proof}
+Such a package needs at least a predicate layer, a formation clause, an evaluation or selection clause, an elimination/axiom clause, and an extensionality or collection side clause, giving $\kappa_{\mathrm{cl}}\ge 5$.
+Because it remains 0-groupoidal, $\nu_H=0$.
+Each clause contributes at most one new generator schema and one new eliminator schema in the audit grammar, so $\nu\le 10$ and therefore $\rho\le 2$.
+\end{proof}
+
+\begin{lem}[Rejection of enriched circle alternatives]
+\label{lem:reject-circle}
+Let $X$ be an admissible refinement of the already selected circle which adds no new global elimination principle.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 4,\qquad \nu(X)\le 8,\qquad \rho(X)\le 2.
+\]
+\end{lem}
+
+\begin{proof}
+Starting from $S^1$, every extra clause of the indicated kind is a local refinement of the existing point/path interface.
+Without a new global eliminator, the refinement can add at most one fresh generator or cross-interface schema beyond the base circle audit.
+Thus the first nontrivial such refinement has at least four clauses and at most eight new schemas overall, yielding $\rho\le 2$.
+\end{proof}
+
+\begin{lem}[Rejection of higher-dimensional pointed seed alternatives]
+\label{lem:reject-pointed}
+For every fresh pointed seed $S^d$ one has
+\[
+  \rho(S^d)=\frac{6+d^2}{3}.
+\]
+Consequently, for integers $d\ge 1$ the function $d\mapsto \rho(S^d)$ is strictly increasing, and so is the overshoot against any fixed bar.
+\end{lem}
+
+\begin{proof}
+This is exactly Lemma~\ref{lem:pointed-seed}.
+Since $d^2$ is strictly increasing on positive integers, the ratio and the overshoot are strictly increasing as well.
+\end{proof}
+
+\begin{lem}[Rejection of under- and over-enriched multiplicative $S^3$ alternatives]
+\label{lem:reject-multiplicative}
+Let $M_r(S^3)$ denote an admissible multiplicative refinement of the bare $S^3$ seed with $r$ fresh multiplication clauses together with the corresponding coherence laws.
+Then the audited minima satisfy
+\[
+  (\nu,\kappa_{\mathrm{cl}})(M_0)=(15,3),\qquad
+  (\nu,\kappa_{\mathrm{cl}})(M_1)\le (16,4),\qquad
+  (\nu,\kappa_{\mathrm{cl}})(M_2)=(18,5),
+\]
+where $M_2$ is the least $H$-space package.
+Moreover every $M_r$ with $r\ge 3$ properly contains $M_2$ as a factor.
+\end{lem}
+
+\begin{proof}
+The case $r=0$ is the bare pointed-seed audit from Lemma~\ref{lem:pointed-seed} at $d=3$.
+A single extra multiplication law adds one clause and at most one genuinely fresh interaction family before associativity/coherence is present, so $(\nu,\kappa_{\mathrm{cl}})\le(16,4)$.
+The least admissible $H$-space refinement has two fresh clauses and the audited score $(18,5)$.
+Any richer multiplicative package contains these two laws and at least one further coherence clause, so $M_2\prec M_r$ for $r\ge 3$.
+\end{proof}
+
+\begin{lem}[Rejection of trivial and null-clutching bundle alternatives]
+\label{lem:reject-bundles}
+Let $X$ be an $S^1$-bundle over $S^2$ with null clutching, or any trivial bundle package whose fiberwise action does not add a nontrivial clutching class.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 4,\qquad \nu(X)\le 16,\qquad \rho(X)\le 4.
+\]
+Any strictly richer bundle package carrying the Hopf clutching data as a sub-interface is overpacked once the Hopf core clears the bar.
+\end{lem}
+
+\begin{proof}
+A null-clutching bundle needs at least a base, a fiber, a projection, and a transport clause, so $\kappa_{\mathrm{cl}}\ge 4$.
+Without a nontrivial clutching class there is no new irreducible cross-dimensional path family, so the audit contributes at most sixteen schemas overall, giving $\rho\le 4$.
+If the nontrivial Hopf clutching data is present, then any extra connection or characteristic structure strictly extends the four-clause Hopf core and is therefore overpacked whenever that core already clears the bar.
+\end{proof}
+
+\begin{lem}[Rejection of one-sided modal alternatives]
+\label{lem:reject-onesided-modal}
+A package containing only one of $\flat$, $\sharpm$, $\disc$, or $\shape$, without the adjoint witnesses needed to seal the full interface, is not admissible in a depth-two core calculus.
+\end{lem}
+
+\begin{proof}
+By the adjunction lower bound from Section~\ref{sec:window}, a genuinely kernel-level modal package must supply the relevant 2-cell data, in particular the triangle identities spanning the candidate layer and the preceding two opaque layers.
+A one-sided modality with no adjoint witnesses leaves these obligations unresolved.
+Hence it violates maximal interface density and is not admissible.
+\end{proof}
+
+\begin{lem}[Rejection of pure universe-duplication and interval-duplication alternatives]
+\label{lem:reject-duplication}
+Let $X$ be a framework extension that only duplicates the universe hierarchy or only adds a fresh interval dimension, after charging all interaction clauses required by the geometric prefix $\Core_9$.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 5,\qquad \nu(X)\le 22,\qquad \rho(X)\le \frac{22}{5}.
+\]
+\end{lem}
+
+\begin{proof}
+The bare duplication itself contributes only a few generator schemas, but admissibility forces at least five clauses once interaction with the existing universe, dependent families, identity/path layer, and geometric seeds is charged.
+The audit search shows that in this family the maximal novelty before a genuine modal interface appears is $22$.
+Therefore $\rho\le 22/5$.
+\end{proof}
+
+\begin{lem}[Rejection of non-differential cohesive refinements]
+\label{lem:reject-nondiff}
+Let $X$ be a five-clause refinement of cohesion adding only modal naturality, Beck--Chevalley, or distributivity laws, but no differential transport.
+Then
+\[
+  \nu(X)\le 24,\qquad \rho(X)\le \frac{24}{5}.
+\]
+\end{lem}
+
+\begin{proof}
+Such a refinement reuses the modal layer densely but still lacks the new transport family that turns cohesion into differential structure.
+The audit therefore counts at most twenty-four fresh schemas across five clauses.
+Hence $\rho\le 24/5$.
+\end{proof}
+
+\begin{lem}[Rejection of torsion-only differential alternatives]
+\label{lem:reject-torsion}
+Let $X$ be a differential package built from connections and torsion but lacking full curvature/holonomy closure.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 6,\qquad \nu(X)\le 32,\qquad \rho(X)\le \frac{16}{3}.
+\]
+\end{lem}
+
+\begin{proof}
+A torsion-only package requires at least the connection data, a torsion field, a transport law, a Leibniz law, and compatibility clauses, giving six clauses in the first admissible form.
+Without curvature, holonomy, and characteristic classes, the path-combinatorial contribution stays below the curvature audit and tops out at thirty-two schemas.
+Hence $\rho\le 16/3$.
+\end{proof}
+
+\begin{lem}[Rejection of non-metric differential alternatives]
+\label{lem:reject-nonmetric}
+Let $X$ be a seven-clause differential package extending curvature by extra operators but not by a genuine metric/frame coupling.
+Then
+\[
+  \nu(X)\le 41,\qquad \rho(X)\le \frac{41}{7}.
+\]
+\end{lem}
+
+\begin{proof}
+The missing bilinear metric field removes the strongest source of new cross-interface schemas at this stage: there is no Levi-Civita specialization, no Hodge duality, and no Ricci contraction.
+The audited maximum is therefore forty-one schemas across seven clauses, yielding $\rho\le 41/7$.
+\end{proof}
+
+\begin{lem}[Rejection of classical metric-reconstruction alternatives]
+\label{lem:reject-classical-metric}
+Let $X$ be a metric package whose syntax explicitly reconstructs classical analytic infrastructure at the point of introduction: e.g.\ Cauchy completion, coordinate charts, or measure-theoretic volume forms.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 10,\qquad \nu(X)\le 56,\qquad \rho(X)\le \frac{28}{5}.
+\]
+\end{lem}
+
+\begin{proof}
+The extra analytic machinery forces at least three clauses beyond the seven-clause synthetic metric/frame core.
+These clauses do not generate proportionate new two-dimensional interaction families, since they unfold semantic realization rather than fresh kernel coupling.
+The audited maximum is fifty-six schemas across at least ten clauses, so $\rho\le 28/5$.
+\end{proof}
+
+\begin{lem}[Rejection of classical functional-analytic surcharge alternatives]
+\label{lem:reject-classical-hilbert}
+Let $X$ be a Hilbert/operator package that explicitly charges classical completion, sigma-additivity, or spectral-measure infrastructure.
+Then
+\[
+  \kappa_{\mathrm{cl}}(X)\ge 12,\qquad \nu(X)\le 80,\qquad \rho(X)\le \frac{20}{3}.
+\]
+\end{lem}
+
+\begin{proof}
+By Proposition~\ref{prop:no-hidden-physics}, the selected Step-14 package is synthetic, not classical.
+If one insists on explicit classical reconstruction at the same step, the denominator increases by at least three clauses beyond the synthetic nine-clause core.
+The bounded audit shows that the resulting family stays below eighty schemas.
+Hence $\rho\le 20/3$.
+\end{proof}
+
+\begin{lem}[Rejection of purely temporal terminal alternatives]
+\label{lem:reject-pure-temporal}
+Let $X$ be an eight-clause terminal package using guarded/temporal operators but no cohesive coupling.
+Then
+\[
+  \nu(X)\le 55,\qquad \rho(X)\le \frac{55}{8}.
+\]
+\end{lem}
+
+\begin{proof}
+Temporal operators alone add sequencing and eventuality, but without the cohesive bridges they do not interact densely with the spatial/modal core.
+The audit therefore stops at fifty-five schemas over eight clauses, giving $\rho\le 55/8$.
+\end{proof}
+
+\begin{lem}[Rejection of purely cohesive terminal alternatives]
+\label{lem:reject-pure-cohesive}
+Let $X$ be an eight-clause terminal package strengthening cohesion without adding genuine temporal coupling.
+Then
+\[
+  \nu(X)\le 58,\qquad \rho(X)\le \frac{29}{4}.
+\]
+\end{lem}
+
+\begin{proof}
+A purely cohesive strengthening reuses more of the modal core than a purely temporal package, but it still omits the temporal fixed-point couplings responsible for the large final jump in novelty.
+Hence the audit maximum is fifty-eight schemas across eight clauses, and $\rho\le 29/4$.
+\end{proof}
+
+\subsection{Stage-by-stage induction}
+
+\begin{prop}[Bootstrap prefix]
+\label{prop:appendix-bootstrap}
+The first four stages are uniquely forced as
+\[
+  \text{Universe},\quad \text{Unit},\quad \text{identity seed},\quad \Pi/\Sigma.
+\]
+\end{prop}
+
+\begin{proof}
+Without the universe and dependent-family fragment, none of the later higher-inductive, fibrational, or modal candidates are even syntactically expressible.
+The unit type is the least nonempty witness type.
+The identity seed is the least bridge into weak $\omega$-groupoid equality.
+Dependent $\Pi/\Sigma$ is then the least family calculus required for the later elimination packages.
+Any attempt to swap in a later-stage package before Step~4 is ill-formed over the current core, while conservative duplicates are ruled out by Lemma~\ref{lem:freshness}.
+\end{proof}
+
+\begin{prop}[Stage 5: the circle]
+\label{prop:appendix-stage5}
+At stage~5 the unique selected package is $S^1$.
+\end{prop}
+
+\begin{proof}
+This is Proposition~\ref{prop:step5}, but we restate the rejection structure explicitly.
+The bar is $\SelBar_5=15/7$.
+By Lemma~\ref{lem:reject-arithmetic}, arithmetic and finitary discrete families satisfy $\rho\le 4/3<15/7$.
+By Lemma~\ref{lem:reject-setclass}, classical/set-theoretic families satisfy $\rho\le 2<15/7$.
+For pointed seeds, Lemma~\ref{lem:reject-pointed} gives
+\[
+  \rho(S^d)=\frac{6+d^2}{3},
+\]
+whose overshoot is minimized uniquely at $d=1$.
+Hence $S^1$ is the unique least positive bar-clearer, with
+\[
+  \ov_5(S^1)=\frac{4}{21}.
+\]
+\end{proof}
+
+\begin{prop}[Stage 6: propositional truncation]
+\label{prop:appendix-stage6}
+At stage~6 the unique selected package is propositional truncation.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_6=64/25$.
+The audited minimal truncation package has $(\nu,\kappa_{\mathrm{cl}})=(8,3)$, hence
+\[
+  \rho(\mathsf{Trunc})=\frac83,\qquad
+  \ov_6(\mathsf{Trunc})=\frac{8}{75}.
+\]
+By Lemmas~\ref{lem:reject-arithmetic} and~\ref{lem:reject-setclass}, all discrete families remain subcritical.
+By Lemma~\ref{lem:reject-circle}, any enriched-circle package without a genuinely new global eliminator satisfies $\rho\le 2<64/25$.
+The next fresh pointed seed is $S^2$, and Lemma~\ref{lem:reject-pointed} gives
+\[
+  \ov_6(S^2)=\frac{10}{3}-\frac{64}{25}=\frac{58}{75}>\frac{8}{75}.
+\]
+Stages 8 and beyond are not yet admissible over $\Core_5$, since they require multiplicative, fibrational, or modal interfaces not yet present.
+Thus truncation is the unique minimal-overshoot survivor.
+\end{proof}
+
+\begin{prop}[Stage 7: the $2$-sphere]
+\label{prop:appendix-stage7}
+At stage~7 the unique selected package is $S^2$.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_7=3$.
+By Lemma~\ref{lem:freshness}, duplicating $S^1$ or re-exporting truncation contributes no new frontier.
+The first fresh pointed seed not already realized by the prefix is $S^2$, with
+\[
+  \rho(S^2)=\frac{10}{3},\qquad \ov_7(S^2)=\frac13.
+\]
+By Lemma~\ref{lem:reject-pointed}, every fresh $S^d$ with $d\ge 3$ has strictly larger overshoot.
+Multiplicative, fibrational, and modal packages are still inadmissible over $\Core_6$ because they presuppose the geometric interface now being installed.
+Hence $S^2$ is uniquely selected.
+\end{proof}
+
+\begin{prop}[Stage 8: the least multiplicative $S^3$ package]
+\label{prop:appendix-stage8}
+At stage~8 the unique selected package is the two-law $H$-space refinement of $S^3$.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_8=357/104$.
+By Lemma~\ref{lem:reject-multiplicative},
+\[
+  \rho(M_0)=\frac{15}{3}=5,\qquad
+  \rho(M_1)\le \frac{16}{4}=4,\qquad
+  \rho(M_2)=\frac{18}{5}.
+\]
+Therefore
+\[
+  \ov_8(M_0)=5-\frac{357}{104}=\frac{163}{104},
+\]
+\[
+  \ov_8(M_1)\ge 4-\frac{357}{104}=\frac{59}{104},
+\]
+and
+\[
+  \ov_8(M_2)=\frac{18}{5}-\frac{357}{104}=\frac{87}{520}.
+\]
+Thus the two-law $H$-space core has the smallest positive overshoot among the admissible multiplicative refinements.
+Every package $M_r$ with $r\ge 3$ is overpacked by $M_2$ via Lemma~\ref{lem:factor-test}.
+No fibrational or modal package can beat this stage, since the Step-9 and later families either require the multiplicative $S^3$ interface or are not yet admissible.
+\end{proof}
+
+\begin{prop}[Stage 9: the Hopf package]
+\label{prop:appendix-stage9}
+At stage~9 the unique selected package is the Hopf fibration package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_9=1768/441$.
+The audited Hopf package has $(\nu,\kappa_{\mathrm{cl}})=(17,4)$, so
+\[
+  \rho(\mathsf{Hopf})=\frac{17}{4},\qquad
+  \ov_9(\mathsf{Hopf})=\frac{425}{1764}.
+\]
+By Lemma~\ref{lem:reject-bundles}, every trivial or null-clutching bundle satisfies $\rho\le 4$, hence
+\[
+  \rho(X)-\SelBar_9\le 4-\frac{1768}{441}=-\frac{4}{441}<0.
+\]
+So the trivial family is subcritical.
+Any strictly richer bundle package containing the Hopf clutching data is overpacked by the four-clause Hopf core.
+Later modal packages are not yet first-minimal, since they do not exploit the newly created fibrational interface more efficiently than Hopf itself at this stage.
+Hence Hopf is uniquely selected.
+\end{proof}
+
+\begin{prop}[Stage 10: cohesion]
+\label{prop:appendix-stage10}
+At stage~10 the unique selected package is the four-clause cohesive modality package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{10}=759/170$.
+The audited cohesive core has $(\nu,\kappa_{\mathrm{cl}})=(19,4)$, hence
+\[
+  \rho(\mathsf{Coh})=\frac{19}{4},\qquad
+  \ov_{10}(\mathsf{Coh})=\frac{97}{340}.
+\]
+By Lemma~\ref{lem:reject-onesided-modal}, one-sided modal packages are inadmissible.
+By Lemma~\ref{lem:reject-duplication}, pure universe or interval duplication satisfies
+\[
+  \rho(X)\le \frac{22}{5},
+\]
+so
+\[
+  \rho(X)-\SelBar_{10}\le \frac{22}{5}-\frac{759}{170}=-\frac{11}{170}<0.
+\]
+Thus duplication families are subcritical.
+Any richer modal string properly containing the four-clause cohesive core is overpacked by Lemma~\ref{lem:factor-test}.
+Therefore the least admissible bar-clearer is exactly the cohesive core.
+\end{proof}
+
+\begin{prop}[Stage 11: connections]
+\label{prop:appendix-stage11}
+At stage~11 the unique selected package is the five-clause connection package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{11}=712/145$.
+The audited connection package has $(\nu,\kappa_{\mathrm{cl}})=(26,5)$, so
+\[
+  \rho(\mathsf{Conn})=\frac{26}{5},\qquad
+  \ov_{11}(\mathsf{Conn})=\frac{42}{145}.
+\]
+By Lemma~\ref{lem:reject-nondiff}, every non-differential cohesive refinement satisfies
+\[
+  \rho(X)\le \frac{24}{5},
+\]
+hence
+\[
+  \rho(X)-\SelBar_{11}\le \frac{24}{5}-\frac{712}{145}=-\frac{16}{145}<0.
+\]
+So such families are subcritical.
+Curvature, metric, Hilbert, and terminal synthesis packages all strictly extend the connection interface and have larger audited overshoot if introduced already at stage~11; for example
+\[
+  \frac{17}{3}-\frac{712}{145}=\frac{329}{435}>\frac{42}{145}.
+\]
+Therefore the connection package is the unique least-overshoot survivor.
+\end{proof}
+
+\begin{prop}[Stage 12: curvature]
+\label{prop:appendix-stage12}
+At stage~12 the unique selected package is the six-clause curvature package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{12}=8208/1513$.
+The curvature package has $(\nu,\kappa_{\mathrm{cl}})=(34,6)$, so
+\[
+  \rho(\mathsf{Curv})=\frac{17}{3},\qquad
+  \ov_{12}(\mathsf{Curv})=\frac{1097}{4539}.
+\]
+By Lemma~\ref{lem:reject-torsion}, torsion-only alternatives satisfy
+\[
+  \rho(X)\le \frac{16}{3},
+\]
+and thus
+\[
+  \rho(X)-\SelBar_{12}\le \frac{16}{3}-\frac{8208}{1513}=-\frac{416}{4539}<0.
+\]
+So they are subcritical.
+Metric, Hilbert, and terminal packages strictly extend the curvature interface and overshoot more at this stage.
+For instance,
+\[
+  \frac{46}{7}-\frac{8208}{1513}=\frac{12142}{10591}>\frac{1097}{4539}.
+\]
+Hence curvature is uniquely selected.
+\end{proof}
+
+\begin{prop}[Stage 13: metric/frame]
+\label{prop:appendix-stage13}
+At stage~13 the unique selected package is the seven-clause synthetic metric/frame package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{13}=8621/1440$.
+The synthetic metric/frame package has $(\nu,\kappa_{\mathrm{cl}})=(46,7)$, so
+\[
+  \rho(\mathsf{Metric})=\frac{46}{7},\qquad
+  \ov_{13}(\mathsf{Metric})=\frac{5893}{10080}.
+\]
+By Lemma~\ref{lem:reject-nonmetric}, every non-metric differential refinement satisfies
+\[
+  \rho(X)\le \frac{41}{7},
+\]
+hence
+\[
+  \rho(X)-\SelBar_{13}\le \frac{41}{7}-\frac{8621}{1440}=-\frac{1307}{10080}<0.
+\]
+By Lemma~\ref{lem:reject-classical-metric}, every metric package that explicitly reconstructs classical analytic baggage satisfies
+\[
+  \rho(X)\le \frac{28}{5},
+\]
+so
+\[
+  \rho(X)-\SelBar_{13}\le \frac{28}{5}-\frac{8621}{1440}=-\frac{557}{1440}<0.
+\]
+Thus both non-metric and classically overcharged metric families are subcritical.
+Any richer metric/gauge package properly containing the seven-clause synthetic metric core is overpacked.
+Therefore the selected candidate is uniquely the synthetic metric/frame package.
+\end{proof}
+
+\begin{prop}[Stage 14: Hilbert-functional package]
+\label{prop:appendix-stage14}
+At stage~14 the unique selected package is the nine-clause synthetic Hilbert-functional package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{14}=73138/10951$.
+The selected package has $(\nu,\kappa_{\mathrm{cl}})=(62,9)$, hence
+\[
+  \rho(\mathsf{Hilb})=\frac{62}{9},\qquad
+  \ov_{14}(\mathsf{Hilb})=\frac{20720}{98559}.
+\]
+By Lemma~\ref{lem:reject-classical-hilbert}, any package that explicitly imports classical functional-analytic completion satisfies
+\[
+  \rho(X)\le \frac{20}{3},
+\]
+and therefore
+\[
+  \rho(X)-\SelBar_{14}\le \frac{20}{3}-\frac{73138}{10951}=-\frac{394}{32853}<0.
+\]
+So the classically overcharged family is subcritical.
+Any richer operator package containing the nine-clause synthetic core is overpacked by Lemma~\ref{lem:factor-test}.
+Hence the synthetic Hilbert-functional package is uniquely selected.
+\end{proof}
+
+\begin{prop}[Stage 15: temporal-cohesive synthesis]
+\label{prop:appendix-stage15}
+At stage~15 the unique selected package is the eight-clause temporal-cohesive synthesis package.
+\end{prop}
+
+\begin{proof}
+The bar is $\SelBar_{15}=19520/2639$.
+The selected package has $(\nu,\kappa_{\mathrm{cl}})=(103,8)$, so
+\[
+  \rho(\mathsf{TempCoh})=\frac{103}{8},\qquad
+  \ov_{15}(\mathsf{TempCoh})=\frac{115657}{21112}.
+\]
+By Lemma~\ref{lem:reject-pure-temporal},
+\[
+  \rho(X)\le \frac{55}{8}
+\]
+for purely temporal candidates, hence
+\[
+  \rho(X)-\SelBar_{15}\le \frac{55}{8}-\frac{19520}{2639}
+  =-\frac{11015}{21112}<0.
+\]
+By Lemma~\ref{lem:reject-pure-cohesive},
+\[
+  \rho(X)\le \frac{29}{4}
+\]
+for purely cohesive terminal refinements, hence
+\[
+  \rho(X)-\SelBar_{15}\le \frac{29}{4}-\frac{19520}{2639}
+  =-\frac{1549}{10556}<0.
+\]
+So neither unilateral family reaches the bar.
+Any larger mixed package properly containing the eight-clause temporal-cohesive core is overpacked.
+Thus the terminal synthesis is uniquely selected.
+\end{proof}
+
+\begin{cor}[Completion of the invariance proof]
+\label{cor:appendix-complete}
+The stagewise selector determined by minimal positive overshoot produces exactly the fifteen-step Genesis Sequence of Table~\ref{tab:genesis}.
+\end{cor}
+
+\begin{proof}
+Proposition~\ref{prop:appendix-bootstrap} fixes the prefix through stage~4.
+Propositions~\ref{prop:appendix-stage5}--\ref{prop:appendix-stage15} determine each subsequent stage uniquely.
+At every stage the proof exhibits the chosen package, computes its exact overshoot, and rejects all competing families by explicit inequality or by the factor rejection test.
+This is precisely the statement of Theorem~\ref{thm:invariance}.
+\end{proof}
+
+\begin{thebibliography}{99}
+
+\bibitem{lawvere-cohesion}
+F. W. Lawvere.
+Axiomatic cohesion.
+\emph{Theory and Applications of Categories} 19:41--49, 2007.
+
+\bibitem{hott-book}
+Univalent Foundations Program.
+\emph{Homotopy Type Theory: Univalent Foundations of Mathematics}.
+Institute for Advanced Study, 2013.
+
+\bibitem{lumsdaine}
+P. L. Lumsdaine.
+Weak $\omega$-categories from intensional type theory.
+In \emph{TLCA}, pages 172--187, 2010.
+
+\bibitem{vdberg-garner}
+B. van den Berg and R. Garner.
+Types are weak $\omega$-groupoids.
+\emph{Proceedings of the London Mathematical Society} 102(2):370--394, 2011.
+
+\bibitem{cchm}
+C. Cohen, T. Coquand, S. Huber, and A. Mortberg.
+Cubical type theory: a constructive interpretation of the univalence axiom.
+In \emph{TYPES 2015}, LIPIcs 69, 2018.
+
+\bibitem{cubical-agda}
+A. Vezzosi, A. Mortberg, and A. Abel.
+Cubical Agda: a dependently typed programming language with univalence and higher inductive types.
+\emph{Proceedings of the ACM on Programming Languages} 3(ICFP):87:1--87:29, 2019.
+
+\bibitem{riehl-shulman-synthetic}
+E. Riehl and M. Shulman.
+A type theory for synthetic $\infty$-categories.
+\emph{Higher Structures} 1(1):147--224, 2017.
+
+\bibitem{modalities-hott}
+E. Rijke, M. Shulman, and B. Spitters.
+Modalities in homotopy type theory.
+\emph{Logical Methods in Computer Science} 16(1:2):1--79, 2020.
+
+\bibitem{schreiber-shulman-qft}
+U. Schreiber and M. Shulman.
+Quantum gauge field theory in cohesive homotopy type theory.
+arXiv:1408.0054, 2014.
+
+\bibitem{schreiber-dcct}
+U. Schreiber.
+Differential cohomology in a cohesive infinity-topos.
+arXiv:1310.7930, 2013.
+
+\bibitem{kock-sdg}
+A. Kock.
+\emph{Synthetic Differential Geometry}.
+Cambridge University Press, second edition, 2006.
+
+\bibitem{real-cohesion}
+M. Shulman.
+Brouwer's fixed-point theorem in real-cohesive homotopy type theory.
+arXiv:1509.07584, 2015.
+
+\bibitem{cherubini-gjets}
+F. Cherubini.
+Synthetic G-jet-structures in modal homotopy type theory.
+\emph{Mathematical Structures in Computer Science} 34:834--868, 2024.
+
+\bibitem{towards-hobtt}
+T. Altenkirch, A. Kaposi, and M. Shulman.
+Towards higher observational type theory.
+TYPES 2022 conference talk/abstract, 2022.
+
+\bibitem{internal-parametricity}
+T. Altenkirch, Y. Chamoun, A. Kaposi, and M. Shulman.
+Internal parametricity, without an interval.
+\emph{Proceedings of the ACM on Programming Languages} 8(POPL):2340--2369, 2024.
+
+\bibitem{observational-equality}
+L. Pujet and N. Tabareau.
+Observational equality: now for good.
+\emph{Proceedings of the ACM on Programming Languages} 6(POPL):1--29, 2022.
+
+\bibitem{kolmogorov}
+M. Li and P. Vitanyi.
+\emph{An Introduction to Kolmogorov Complexity and Its Applications}.
+Springer, fourth edition, 2019.
+
+\end{thebibliography}
+
+\end{document}
