@@ -3,6 +3,15 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENGINE_DIR="$ROOT_DIR/engine"
+
+if command -v cabal >/dev/null 2>&1; then
+  CABAL_BIN=cabal
+elif command -v cabal.exe >/dev/null 2>&1; then
+  CABAL_BIN=cabal.exe
+else
+  echo "cabal or cabal.exe is required" >&2
+  exit 1
+fi
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT_DIR_INPUT="${1:-$ROOT_DIR/runs/phase1_bundle/$STAMP}"
 if [[ "$OUT_DIR_INPUT" = /* ]]; then
@@ -32,7 +41,7 @@ mkdir -p "$OUT_DIR"
   echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
   echo "ghc_version=$(ghc --version 2>/dev/null || echo unavailable)"
-  echo "cabal_version=$(cabal --version 2>/dev/null | head -n 1 || echo unavailable)"
+  echo "cabal_version=$("$CABAL_BIN" --version 2>/dev/null | head -n 1 || echo unavailable)"
 } > "$OUT_DIR/env.txt"
 
 status_file="$OUT_DIR/lane_status.csv"
@@ -86,13 +95,13 @@ failed=0
 pushd "$ENGINE_DIR" >/dev/null
 
 run_lane "acceptance_core" "$OUT_DIR/acceptance-core.log" \
-  cabal run acceptance-core || failed=1
+  "$CABAL_BIN" run acceptance-core || failed=1
 
 run_lane "acceptance_mbtt_fast" "$OUT_DIR/acceptance-mbtt-fast.log" \
-  cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates "$MBTT_FAST_MAX_CANDS" || failed=1
+  "$CABAL_BIN" run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates "$MBTT_FAST_MAX_CANDS" || failed=1
 
 run_lane "abinitio_shadow" "$OUT_DIR/abinitio_mbtt_shadow6.log" \
-  cabal run ab-initio -- --structural --phase1-shadow --max-steps "$SHADOW_MAX_STEPS" --mbtt-max-candidates "$SHADOW_MAX_CANDS" --csv abinitio_mbtt_shadow6.csv || failed=1
+  "$CABAL_BIN" run ab-initio -- --strict --phase1-shadow --max-steps "$SHADOW_MAX_STEPS" --mbtt-max-candidates "$SHADOW_MAX_CANDS" --csv abinitio_mbtt_shadow6.csv || failed=1
 if [[ -f abinitio_mbtt_shadow6.csv ]]; then
   mv abinitio_mbtt_shadow6.csv "$OUT_DIR/abinitio_mbtt_shadow6.csv"
 fi
@@ -125,12 +134,12 @@ fi
 
 if [[ "$RUN_MAIN_GATES" == "1" ]]; then
   run_lane "acceptance_mbtt_full" "$OUT_DIR/acceptance-mbtt-full.log" \
-    cabal run acceptance-mbtt || failed=1
+    "$CABAL_BIN" run acceptance-mbtt || failed=1
 
-  run_lane "abinitio_mbtt_full" "$OUT_DIR/abinitio_mbtt_structural.log" \
-    cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates "$MAIN_LADDER_MAX_CANDS" --csv abinitio_mbtt_structural.csv || failed=1
-  if [[ -f abinitio_mbtt_structural.csv ]]; then
-    mv abinitio_mbtt_structural.csv "$OUT_DIR/abinitio_mbtt_structural.csv"
+  run_lane "abinitio_mbtt_full" "$OUT_DIR/abinitio_mbtt_full.log" \
+    "$CABAL_BIN" run ab-initio -- --strict --mbtt-first --mbtt-max-candidates "$MAIN_LADDER_MAX_CANDS" --csv abinitio_mbtt_full.csv || failed=1
+  if [[ -f abinitio_mbtt_full.csv ]]; then
+    mv abinitio_mbtt_full.csv "$OUT_DIR/abinitio_mbtt_full.csv"
   fi
 
   set +e
@@ -148,7 +157,7 @@ if [[ "$RUN_MAIN_GATES" == "1" ]]; then
 fi
 
 shadow_canon_json="$(extract_canonical_json "$OUT_DIR/abinitio_mbtt_shadow6.csv")"
-full_canon_json="$(extract_canonical_json "$OUT_DIR/abinitio_mbtt_structural.csv")"
+full_canon_json="$(extract_canonical_json "$OUT_DIR/abinitio_mbtt_full.csv")"
 
 cat > "$OUT_DIR/manifest.json" <<JSON
 {
@@ -177,7 +186,7 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   },
   "canonical_telemetry": {
     "abinitio_mbtt_shadow6": $shadow_canon_json,
-    "abinitio_mbtt_structural": $full_canon_json
+    "abinitio_mbtt_full": $full_canon_json
   }
 }
 JSON

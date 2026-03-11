@@ -144,12 +144,12 @@ shadow_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_shadow6.csv" | wc -l | tr -d ' 
 if [[ "$MODE" == "main" ]]; then
   require_file "$RUN_DIR/acceptance-mbtt-full.log"
   require_regex "$RUN_DIR/summary.md" 'mbtt_full:[[:space:]]+Results:'
-  require_file "$RUN_DIR/abinitio_mbtt_structural.log"
-  require_file "$RUN_DIR/abinitio_mbtt_structural.csv"
-  require_csv_columns "$RUN_DIR/abinitio_mbtt_structural.csv" raw_candidates canonical_candidates dedupe_ratio best_canonical_key bit_kappa ast_nodes canonical_key "decoded_name?" decode_confidence decode_ambiguity decode_status
+  require_file "$RUN_DIR/abinitio_mbtt_full.log"
+  require_file "$RUN_DIR/abinitio_mbtt_full.csv"
+  require_csv_columns "$RUN_DIR/abinitio_mbtt_full.csv" raw_candidates canonical_candidates dedupe_ratio best_canonical_key bit_kappa ast_nodes canonical_key "decoded_name?" decode_confidence decode_ambiguity decode_status
   require_zero_failed "$RUN_DIR/acceptance-mbtt-full.log" "acceptance-mbtt-full"
-  full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_structural.csv" | wc -l | tr -d ' ' )
-  [[ "$full_rows" -ge 1 ]] || fail "expected abinitio_mbtt_structural.csv to contain at least one row"
+  full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_full.csv" | wc -l | tr -d ' ' )
+  [[ "$full_rows" -ge 1 ]] || fail "expected abinitio_mbtt_full.csv to contain at least one row"
   require_file "$RUN_DIR/phase1-shadow-ladder-main.log"
   require_file "$RUN_DIR/ladder-main/ladder_status.csv"
   require_file "$RUN_DIR/ladder-main/ladder_gate.txt"

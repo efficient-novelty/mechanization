@@ -10,10 +10,9 @@
 --   5. Add the discovered structure to the library
 --   6. Repeat until the sequence terminates (ν = 0 for all candidates)
 --
--- Three modes:
---   StrictAbInitio      — default discovery mode (paper-independent)
---   StructuralAbInitio  — structural AST ν decomposition mode
---   PaperCalibrated     — explicit benchmark/replay mode only
+-- Two modes:
+--   StrictAbInitio   — default discovery mode (paper-independent)
+--   GuidedRecovery   — legacy guided recovery with seeds and family steering
 --
 -- Two-phase search:
 --   Phase A: Exhaustive enumeration for κ ≤ 3 (tractable, finds all structures)
@@ -50,7 +49,6 @@ import MBTTCanonical (CanonKey(..), canonicalKeySpec)
 import MBTTDecode (decodeCanonicalNameWithKey, DecodeResult(..))
 import Parallel (parMapChunkedWHNF)
 import TelescopeEval (EvalMode(..), KappaMode(..), evaluateTelescopeWithHistory,
-                      telescopeToCandidate,
                       telescopeToCandidateStructural,
                       validateReferenceTelescopes, detectCanonicalName)
 import TelescopeCheck (checkAndFilter, checkTelescope, CheckResult(..))
@@ -60,7 +58,6 @@ import StrictCritic (ObligationSummary(..), FrontierDiagnostics(..), analyzeObli
                      internalAdjointScore, trueEliminatorScore)
 import StrictMinimality (terminalSCCSubBundles)
 import StrictMolecules (ClauseProvenance(..), CompiledMolecule(..), enumerateStrictMolecularCandidates)
-import UniformNu (genesisLibrarySteps, GenesisStep(..), computeUniformNu, UniformNuResult(..))
 import MBTTNu (computeNativeNu, NativeNuResult(..))
 import Kolmogorov (MBTTExpr(..))
 import Types (Library, LibraryEntry(..))
@@ -71,7 +68,7 @@ import Data.Ord (Down(..))
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Control.Monad (when)
-import System.IO (hFlush, stdout, stderr, hSetEncoding, utf8)
+import System.IO (IOMode(WriteMode), hFlush, hPutStr, stdout, stderr, withFile, hSetEncoding, utf8)
 import System.Environment (getArgs)
 import System.Mem (performMajorGC)
 import GHC.Stats (getRTSStatsEnabled, getRTSStats, gc, gcdetails_live_bytes, gcdetails_mem_in_use_bytes, max_mem_in_use_bytes)
@@ -84,10 +81,8 @@ import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
 
 -- | Ab initio synthesis mode.
 data AbInitioMode
-  = PaperCalibrated   -- ^ Bar from paper ν/κ (benchmark/replay only)
-  | GuidedRecovery    -- ^ Legacy guided recovery with seeds, family rescue, and canonical steering
+  = GuidedRecovery    -- ^ Legacy guided recovery with seeds, family rescue, and canonical steering
   | StrictAbInitio    -- ^ Honest strict lane: discovered ν/κ only, no hidden guidance
-  | StructuralAbInitio -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
 
 -- | Configuration for the ab initio run.
@@ -280,6 +275,8 @@ data HonestSearchState = HonestSearchState
   , hsMinimalityRejects   :: !Int
   , hsSearchedBands       :: ![Int]
   , hsViableCandidates    :: ![Candidate]
+  , hsDebugCandidates     :: ![Candidate]
+  , hsRejectedCandidates  :: ![Candidate]
   , hsBandTraces          :: ![HonestBandTrace]
   , hsFailedFrontier      :: ![(Telescope, ObligationSummary)]
   , hsMCTSSeedStates      :: !Int
@@ -287,25 +284,37 @@ data HonestSearchState = HonestSearchState
   } deriving (Show)
 
 -- | Convert synthesis mode to evaluation mode.
--- PaperCalibrated uses paper ν/κ for canonical names (effectiveNu/effectiveKappa).
+-- GuidedRecovery retains the legacy guided-computed evaluator.
 -- StrictAbInitio never reads paper tables — all ν/κ computed from telescope + library.
--- StructuralAbInitio uses StructuralNu AST rule extraction.
 toEvalMode :: AbInitioMode -> EvalMode
-toEvalMode PaperCalibrated    = EvalPaperCalibrated
 toEvalMode GuidedRecovery     = EvalGuidedComputed
 toEvalMode StrictAbInitio     = EvalStrictComputed
-toEvalMode StructuralAbInitio = EvalStructural
 
 isHonestMode :: AbInitioMode -> Bool
 isHonestMode StrictAbInitio = True
-isHonestMode StructuralAbInitio = True
 isHonestMode _ = False
 
 guidanceModeLabel :: AbInitioMode -> String
-guidanceModeLabel PaperCalibrated = "paper"
 guidanceModeLabel GuidedRecovery = "guided-recovery"
 guidanceModeLabel StrictAbInitio = "honest-strict"
-guidanceModeLabel StructuralAbInitio = "honest-structural"
+
+retiredAbInitioFlags :: [String]
+retiredAbInitioFlags =
+  [ "--structural"
+  , "--paper"
+  , "--paper-calibrated-benchmark"
+  ]
+
+rejectRetiredAbInitioFlags :: [String] -> IO ()
+rejectRetiredAbInitioFlags args =
+  case filter (`elem` retiredAbInitioFlags) args of
+    [] -> return ()
+    flags ->
+      ioError
+        (userError
+          ("Removed ab-initio flag(s): " ++ intercalate ", " flags
+          ++ "\nUse `cabal run ab-initio -- --strict ...` for the supported discovery lane."
+          ++ "\nStructural analysis remains library-only; paper-calibrated replay has been retired."))
 
 -- ============================================
 -- Main Entry Point
@@ -316,6 +325,7 @@ main = do
   hSetEncoding stdout utf8
   hSetEncoding stderr utf8
   args <- getArgs
+  rejectRetiredAbInitioFlags args
   let cfg = parseArgs args
 
   when (cfgNoCanonPriority cfg || cfgMaxRho cfg) $
@@ -326,32 +336,17 @@ main = do
   printf   "Mode: %s, d=%d\n" (show (cfgMode cfg)) (cfgWindow cfg)
   putStrLn "============================================"
   case cfgMode cfg of
-    PaperCalibrated -> do
-      putStrLn "  Evaluator: EvalPaperCalibrated (effectiveNu/effectiveKappa for canonical names)"
-      putStrLn "  Bar:       Paper nu/kappa history"
-      putStrLn "  Library:   Discovered entries only"
-      putStrLn "  NOTE:      Benchmark mode only (not claim-grade discovery)"
     GuidedRecovery -> do
       putStrLn "  Evaluator: EvalGuidedComputed (legacy strict bonuses and family steering)"
-      putStrLn "  Bar:       Discovered nu/kappa history only"
+      putStrLn "  Bar:       Discovered novelty/cost history only"
       putStrLn "  Library:   Discovered entries only, guided recovery enabled"
     StrictAbInitio -> do
       putStrLn "  Evaluator: EvalStrictComputed (uniform structure count + bootstrap adjoint completion only)"
-      putStrLn "  Bar:       Discovered nu/kappa history only"
+      putStrLn "  Bar:       Discovered novelty/cost history only"
       putStrLn "  Library:   Discovered entries only, no seeds/family rescue/canonical steering"
-      putStrLn "  Search:    Exact desugared-kappa bands under explicit admissibility caps"
-    StructuralAbInitio -> do
-      putStrLn "  Evaluator: EvalStructural (StructuralNu AST rule extraction)"
-      putStrLn "  Bar:       Discovered nu/kappa history only"
-      putStrLn "  Library:   Discovered entries only, no seeds/family rescue/canonical steering"
-      putStrLn "  Search:    Exact desugared-kappa bands under explicit admissibility caps"
-      putStrLn "  Features:  3-component decomposition (v_G + v_H + v_C)"
-      putStrLn "             Meta-theorem multipliers for DCT (Big Bang)"
-      putStrLn "  PAPER-INDEPENDENCE: Zero paper nu/kappa lookups in evaluation,"
-      putStrLn "    bar computation, MCTS rollout guidance, or library insertion."
-      putStrLn "    All scores derive from AST analysis of discovered telescopes."
+      putStrLn "  Search:    Exact cost bands under explicit admissibility caps"
   printf   "  Window:    d=%d (%s)\n" (cfgWindow cfg) (windowName (cfgWindow cfg))
-  printf   "  Kappa:     %s\n" (show (cfgKappaMode cfg))
+  printf   "  Cost:      %s\n" (show (cfgKappaMode cfg))
   when (cfgMBTTFirst cfg) $
     putStrLn "  SEARCH:    MBTT-first default active (typed MBTT enumeration in Phase A)"
   when (cfgLegacyGenerator cfg) $
@@ -409,11 +404,7 @@ main = do
 -- | Parse command line arguments.
 parseArgs :: [String] -> AbInitioConfig
 parseArgs args =
-  let mode = if "--paper" `elem` args || "--paper-calibrated-benchmark" `elem` args
-                  then PaperCalibrated
-             else if "--guided-recovery" `elem` args then GuidedRecovery
-             else if "--structural" `elem` args then StructuralAbInitio
-             else StrictAbInitio
+  let mode = if "--guided-recovery" `elem` args then GuidedRecovery else StrictAbInitio
       window = case dropWhile (/= "--window") args of
                  ("--window" : n : _) -> case reads n of
                    [(d, "")] | d >= 1 && d <= 5 -> d
@@ -487,9 +478,9 @@ windowName d = show d ++ "-bonacci"
 validatePhase :: IO ()
 validatePhase = do
   let results = validateReferenceTelescopes 2
-  printf "%-4s %-14s %6s %6s %6s %s\n"
+  printf "%-4s %-14s %10s %10s %6s %s\n"
     ("Step" :: String) ("Name" :: String)
-    ("ν_pap" :: String) ("ν_tel" :: String) ("κ" :: String)
+    ("Target" :: String) ("Novelty" :: String) ("Cost" :: String)
     ("Status" :: String)
   putStrLn (replicate 60 '-')
   mapM_ printValidation results
@@ -502,7 +493,7 @@ validatePhase = do
       let status = if match then "OK" else "NEEDS_WORK" :: String
           tele = referenceTelescope step
           kappa = teleKappa tele
-      in printf "%-4d %-14s %6d %6d %6d %s\n" step name paperNu teleNu kappa status
+      in printf "%-4d %-14s %10d %10d %6d %s\n" step name paperNu teleNu kappa status
 
 -- ============================================
 -- Ab Initio Synthesis Loop
@@ -511,10 +502,10 @@ validatePhase = do
 abInitioLoop :: AbInitioConfig -> IO ()
 abInitioLoop cfg = do
   -- Header
-  printf "%-4s %-16s %5s %5s %8s %8s %8s  %-8s %s\n"
-    ("Step" :: String) ("Discovery" :: String)
-    ("ν" :: String) ("κ" :: String)
-    ("ρ" :: String) ("Bar" :: String) ("Δ_n" :: String)
+  printf "%-4s %-16s %8s %7s %8s %8s %8s  %-8s %s\n"
+    ("Step" :: String) ("Structure" :: String)
+    ("Novelty" :: String) ("Cost" :: String)
+    ("Score" :: String) ("Bar" :: String) ("Delta" :: String)
     ("Source" :: String) ("Candidates" :: String)
   putStrLn (replicate 90 '-')
 
@@ -527,49 +518,13 @@ abInitioLoop cfg = do
 
   where
     mode = cfgMode cfg
-    mkLibraryEntry :: Library -> Telescope -> String -> LibraryEntry
-    mkLibraryEntry lib tele name = case mode of
-      PaperCalibrated -> telescopeToCandidate tele lib name
-      GuidedRecovery -> telescopeToCandidateStructural tele lib name
-      StrictAbInitio -> telescopeToCandidateStructural tele lib name
-      StructuralAbInitio -> telescopeToCandidateStructural tele lib name
     go :: Library -> [DiscoveryRecord] -> [StepRecord] -> Int -> IO ()
     go lib history records step
       | step > cfgMaxSteps cfg = do
           let orderedRecords = reverse records
-          putStrLn ""
-          putStrLn "============================================"
-          printf   "SYNTHESIS COMPLETE: %d structures discovered\n" (cfgMaxSteps cfg)
-          putStrLn "============================================"
-          putStrLn ""
-          -- Print summary comparing discovered vs paper
-          printSummary history
-          -- Post-hoc analysis: compare StructuralNu vs UniformNu
-          when (mode == StructuralAbInitio) $ do
-            postHocAnalysis orderedRecords
-            -- Print claim profile summary
-            putStrLn ""
-            putStrLn "--- Claim Profile (Publication-Grade) ---"
-            putStrLn "  Mode:     EvalStructural (--structural)"
-            putStrLn "  Nu:       StructuralNu — AST rule extraction (v_G + v_H + v_C)"
-            putStrLn "  Kappa:    DesugaredKappa — principled clause counting"
-            putStrLn "  Bar:      Phi_n * Omega_{n-1}, discovered history only"
-            putStrLn "  MCTS:     EvalStructural rollout guidance (zero paper lookups)"
-            putStrLn "  Library:  Discovered entries only, no paper fallback"
-            let totalDiscNu = sum [drNu r | r <- history]
-                totalPapNu  = sum [gsPaperNu s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
-                totalDiscK  = sum [drKappa r | r <- history]
-                totalPapK   = sum [gsPaperK s | s <- take (cfgMaxSteps cfg) genesisLibrarySteps]
-                exact = length [() | (dr, gs) <- zip history (take (cfgMaxSteps cfg) genesisLibrarySteps)
-                                   , drNu dr == gsPaperNu gs && drKappa dr == gsPaperK gs]
-            printf "  Result:   %d/%d exact match, total nu %d/%d, total kappa %d/%d\n"
-              exact (cfgMaxSteps cfg) totalDiscNu totalPapNu totalDiscK totalPapK
-            -- Print exclusion contract
-            printExclusionContract
-          -- Write CSV if requested
-          case cfgCsv cfg of
-            Just csvPath -> writeCsv csvPath orderedRecords
-            Nothing      -> return ()
+          finishRun
+            ("SYNTHESIS COMPLETE: " ++ show (length orderedRecords) ++ " structures discovered")
+            orderedRecords
       | isHonestMode mode = runHonestStep lib history records step
       | otherwise = do
           let -- Compute selection bar
@@ -925,8 +880,6 @@ abInitioLoop cfg = do
                                                in if null merged
                                                   then take stepMaxCandidates' agendaTelescopes
                                                   else take stepMaxCandidates' merged
-                                             else if useStructuralRetryProfile cfg
-                                             then take stepMaxCandidates' (agendaTelescopes ++ fallbackTelescopes)
                                         else if null agendaTelescopes
                                         then take stepMaxCandidates' fallbackTelescopes
                                         else take stepMaxCandidates' agendaTelescopes
@@ -1003,7 +956,7 @@ abInitioLoop cfg = do
                                 then dedupByCanonicalKeyWith (betterBridgeRepresentative lib) validTelescopesRaw
                                 else dedupByCanonicalKey validTelescopesRaw
               evalTelescopes = validTelescopes
-              -- Build nuHistory for structural mode
+              -- Build novelty history for evaluator state.
               nuHist = zip [1..] (map drNu history)
               -- Evaluate each valid telescope using the mode-appropriate evaluator
               enumSource = if agendaActive && not (null agendaTelescopes) then "AGENDA"
@@ -1062,11 +1015,9 @@ abInitioLoop cfg = do
           let stageASeconds = realToFrac (diffUTCTime stageAEnd stageAStart) :: Double
               stageBWidenThresholdSec = 12.0 :: Double
               shouldRunStageB =
-                if useStructuralRetryProfile cfg
-                then null enumViableA
-                else (step7LatencyTight || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift)
-                     && null enumViableA
-                     && stageASeconds <= stageBWidenThresholdSec
+                (step7LatencyTight || needsModalLift || needsDifferentialLift || needsCurvatureLift || needsMetricLift || needsHilbertLift)
+                && null enumViableA
+                && stageASeconds <= stageBWidenThresholdSec
           when shouldRunStageB $
             printf "  [STEP %d] stage-A tight found no viable candidate in %.2fs; running widened stage-B.\n"
               step stageASeconds
@@ -1074,20 +1025,9 @@ abInitioLoop cfg = do
           (enumEvaluatedChosen, agendaDiagChosen, agendaActiveChosen) <-
             if shouldRunStageB
             then do
-              let (tier0Bit, _tier0Depth, tier0Cands) = structuralTier0Budget step
-                  stepBitBudgetWide =
-                    if useStructuralRetryProfile cfg
-                    then max stepBitBudget (tier0Bit + 4)
-                    else min stepBitBudget 18
-                  stepAstDepthWide =
-                    if useStructuralRetryProfile cfg
-                    then if cfgMBTTAstDepth cfg == Nothing then stepAstDepth + 1 else stepAstDepth
-                    else min stepAstDepth 2
-                  stepMaxCandidatesWide =
-                    if useStructuralRetryProfile cfg
-                    then maybe (tier0Cands * 4) id (cfgMBTTMaxCand cfg)
-                    else min stepMaxCandidates 24
-                  (tier0States, tier0AgendaCands, tier0Branch, tier0LeafCap) = structuralAgendaBand step
+              let stepBitBudgetWide = min stepBitBudget 18
+                  stepAstDepthWide = min stepAstDepth 2
+                  stepMaxCandidatesWide = min stepMaxCandidates 24
                   modalPhaseWide = NeedModal `elem` gpIntents goalProfile
                   differentialPhaseWide = NeedDifferential `elem` gpIntents goalProfile
                   curvaturePhaseWide = NeedCurvature `elem` gpIntents goalProfile
@@ -1107,20 +1047,14 @@ abInitioLoop cfg = do
                   agendaCfgWide = defaultAgendaConfig
                     { agMaxEntries = enumKmax
                     , agMaxAgendaStates =
-                        if useStructuralRetryProfile cfg
-                        then min 120 (scaleRounded tier0States 1.5)
-                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 96 else if postTruncLiftPhaseWide then 96 else 72
+                        if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 96 else if postTruncLiftPhaseWide then 96 else 72
                     , agEnableDiversity = step >= 7
                     , agBucketCap = if step <= 6 then max 64 stepMaxCandidatesWide else 6
                     , agBranchPerState =
-                        if useStructuralRetryProfile cfg
-                        then tier0Branch
-                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 8 else if postTruncLiftPhaseWide then 8 else 6
+                        if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then 8 else if postTruncLiftPhaseWide then 8 else 6
                     , agCriticPerAction = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 2 else if step >= 7 then 1 else if qualityBoost then 2 else 3
                     , agMaxCandidates =
-                        if useStructuralRetryProfile cfg
-                        then min 40 (scaleRounded tier0AgendaCands 1.5)
-                        else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then max 16 (min 40 stepMaxCandidatesWide) else max 12 (min 32 stepMaxCandidatesWide)
+                        if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide then max 16 (min 40 stepMaxCandidatesWide) else max 12 (min 32 stepMaxCandidatesWide)
                     , agBitBudget = stepBitBudgetWide
                     , agRequireConnected = length lib >= 2
                     , agSafeClosureSteps = if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide || metricPhaseWide || hilbertPhaseWide || temporalPhaseWide || postTruncLiftPhaseWide then 3 else if step >= 7 then 2 else if qualityBoost then 1 else 3
@@ -1129,9 +1063,7 @@ abInitioLoop cfg = do
                     , agLeafExprBudget = if temporalPhaseWide then min 26 stepBitBudgetWide else if hilbertPhaseWide then min 24 stepBitBudgetWide else if metricPhaseWide then min 20 stepBitBudgetWide else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then min 18 stepBitBudgetWide else min 14 stepBitBudgetWide
                     , agLeafExprDepth = 2
                     , agLeafExprCap =
-                        if useStructuralRetryProfile cfg
-                        then tier0LeafCap
-                        else if temporalPhaseWide then 36 else if hilbertPhaseWide then 32 else if metricPhaseWide then 28 else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then 20 else if postTruncLiftPhaseWide then 14 else 10
+                        if temporalPhaseWide then 36 else if hilbertPhaseWide then 32 else if metricPhaseWide then 28 else if modalPhaseWide || differentialPhaseWide || curvaturePhaseWide then 20 else if postTruncLiftPhaseWide then 14 else 10
                     }
                   agendaActiveWide = cfgMBTTFirst cfg && length lib >= 3
                   (agendaGeneratedWide, agendaDiagWide) = if agendaActiveWide
@@ -1240,7 +1172,7 @@ abInitioLoop cfg = do
                                             && truncBridgeQualityScore lib tele >= 2
                                        else hasPath || referencesLoop || hasTruncExpr
                          _ -> hasTruncExpr
-                  fallbackNeededWide = useStructuralRetryProfile cfg || not agendaActiveWide || null agendaTelescopesWide
+                  fallbackNeededWide = not agendaActiveWide || null agendaTelescopesWide
                   fallbackTelescopesWide = if cfgMBTTFirst cfg && (fallbackNeededWide || hitProgressHedgeWide)
                                            then map mcTelescope (enumerateMBTTTelescopes lib mbttCfgWide)
                                            else []
@@ -1253,8 +1185,6 @@ abInitioLoop cfg = do
                                                        in if null merged
                                                           then take stepMaxCandidatesWide agendaTelescopesWide
                                                           else take stepMaxCandidatesWide merged
-                                                     else if useStructuralRetryProfile cfg
-                                                     then take stepMaxCandidatesWide (agendaTelescopesWide ++ fallbackTelescopesWide)
                                                      else if null agendaTelescopesWide
                                                      then take stepMaxCandidatesWide fallbackTelescopesWide
                                                      else take stepMaxCandidatesWide agendaTelescopesWide
@@ -1737,8 +1667,7 @@ abInitioLoop cfg = do
           -- Apply bar-viability BEFORE quotienting so equivalent candidates
           -- that clear the bar are not dropped by a non-viable representative.
           let rawCandidates = enumEvaluatedChosen ++ mctsCandidates
-          when (mode /= PaperCalibrated) $
-            assertClaimGradeSources step rawCandidates
+          assertClaimGradeSources step rawCandidates
           let requiredFamily = expectedFamily
               retryTierBase = if shouldRunStageB then 1 else 0
               familyCandidatesRaw =
@@ -1796,6 +1725,8 @@ abInitioLoop cfg = do
               allCandidates = if cfgNoCanonicalQuotient cfg
                               then viableRaw0
                               else quotientCandidates viableRaw0
+              rawDebug = selectDebugCandidates lib (cfgNoCanonicalQuotient cfg) rawCandidates
+              nearMisses = selectNearMissCandidates (cfgNoCanonicalQuotient cfg) bar rawCandidates
               rawCandidateCount = length rawCandidates
               canonicalCandidateCount = length allCandidates
               viable = allCandidates
@@ -1806,12 +1737,16 @@ abInitioLoop cfg = do
               putStrLn ""
               printf "NO BAR-CLEARING CANDIDATE at step %d (bar=%.4f, raw=%d, viable=%d). Stopping.\n"
                 step bar rawCandidateCount canonicalCandidateCount
+              printf "  search-debug: raw=%d distinct=%d bar_clear=%d near_miss=%d\n"
+                rawCandidateCount canonicalCandidateCount (length viable) (length nearMisses)
+              printRawCandidatePool "  Raw search output:" lib rawDebug
+              printCandidatePool "  Near misses:" lib (Just bar) nearMisses
               when (agendaActiveChosen && step >= 6) $
                 printAgendaDiagnostics step agendaDiagChosen
               let orderedRecords = reverse records
-              case cfgCsv cfg of
-                Just csvPath -> writeCsv csvPath orderedRecords
-                Nothing      -> return ()
+              finishRun
+                ("RUN STOPPED: " ++ show (length orderedRecords) ++ " structures discovered")
+                orderedRecords
             else do
               -- SELECTION: strict PEN acceptance order in all claim-grade modes.
               -- Among bar-clearing candidates: minimal positive overshoot, then
@@ -2118,13 +2053,19 @@ abInitioLoop cfg = do
                     Just (_, pool) -> pool
                     Nothing -> viable
                   sorted = sortOn candidateRank selectionPool
-                  (bestTele, bestNu, bestKappa, bestRho, bestSource) = case sorted of
+                  distinctSorted = distinctCandidatePool sorted
+                  (bestTele, bestNu, bestKappa, bestRho, bestSource) = case distinctSorted of
                     (best:_) ->
                       let (bt, bn, bk, br, bs) = best
                       in (bt, bn, bk, br, bs)
                     [] -> error "internal error: viable candidate set became empty after ranking"
-                  runners = take 3 (drop 1 sorted)
                   bestName = detectCanonicalName bestTele lib
+                  runners =
+                    take 3
+                      [ cand
+                      | cand@(tele, _, _, _, _) <- distinctDisplayCandidates lib distinctSorted
+                      , detectCanonicalName tele lib /= bestName
+                      ]
                   selectionPrefixDiag =
                     basePrefixDiag
                       { pdRetryCause =
@@ -2152,9 +2093,16 @@ abInitioLoop cfg = do
                 "selected"
 
               -- Display
-              printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
+              printf "%-4d %-16s %8d %7d %8.2f %8.2f %8d  %-8s %d\n"
                 step bestName bestNu bestKappa bestRho bar delta_n
                 bestSource totalCandidates
+              printf "     search-debug: raw=%d distinct=%d bar_clear=%d near_miss=%d\n"
+                rawCandidateCount canonicalCandidateCount (length viable) (length nearMisses)
+              printRawCandidatePool "     Raw search output:" lib rawDebug
+              printSelectedStructureDetails lib bestTele
+              printRecognitionTrace lib bestTele bestName bestCanonKey
+              printCandidatePool "     Viable runners-up:" lib Nothing runners
+              printCandidatePool "     Rejected near misses:" lib (Just bar) nearMisses
               hFlush stdout
 
               -- Insert selected candidate only (no step-index fallback).
@@ -2206,6 +2154,8 @@ abInitioLoop cfg = do
       stepEnd <- getCurrentTime
       let elapsedSeconds = realToFrac (diffUTCTime stepEnd stepStart) :: Double
           viable = hsViableCandidates finalState
+          rawDebug = hsDebugCandidates finalState
+          nearMisses = hsRejectedCandidates finalState
           searchedBandsText = intercalate "|" (map show (hsSearchedBands finalState))
           (bestObligationScore, bestInterfaceDensity, bestGenericityScore, bestClosureScore, frontierCandidates, frontierKept) =
             summarizeHonestFrontier (hsBandTraces finalState)
@@ -2260,18 +2210,35 @@ abInitioLoop cfg = do
             (hsEvaluatedCandidates finalState)
             (hsDedupedCandidates finalState)
             (hsMinimalityRejects finalState)
+          printf "  search-debug: raw=%d distinct=%d bar_clear=%d near_miss=%d frontier=%d/%d mcts=%d/%d\n"
+            (hsRawCandidates finalState)
+            (hsDedupedCandidates finalState)
+            (length viable)
+            (length nearMisses)
+            frontierCandidates
+            frontierKept
+            (hsMCTSSeedStates finalState)
+            (hsMCTSCompletedStates finalState)
+          printRawCandidatePool "  Raw search output:" lib rawDebug
+          printCandidatePool "  Near misses:" lib (Just bar) nearMisses
           let orderedRecords = reverse records
-          case cfgCsv cfg of
-            Just csvPath -> writeCsv csvPath orderedRecords
-            Nothing      -> return ()
+          finishRun
+            ("RUN STOPPED: " ++ show (length orderedRecords) ++ " structures discovered")
+            orderedRecords
         else do
           let sorted = sortOn (honestSelectionKey lib bar) viable
+              distinctSorted = distinctCandidatePool sorted
               (bestTele, bestNu, bestKappa, bestRho, bestSource) =
-                case sorted of
+                case distinctSorted of
                   (best:_) -> best
                   [] -> error "internal error: honest viable set became empty before selection"
-              runners = take 3 (drop 1 sorted)
               bestName = detectCanonicalName bestTele lib
+              runners =
+                take 3
+                  [ cand
+                  | cand@(tele, _, _, _, _) <- distinctDisplayCandidates lib distinctSorted
+                  , detectCanonicalName tele lib /= bestName
+                  ]
               bestSeed =
                 Map.lookup
                   (canonicalKeySpec (map teType (teleEntries bestTele)))
@@ -2304,7 +2271,7 @@ abInitioLoop cfg = do
             emptyAgendaDiagnostics
             "selected"
 
-          printf "%-4d %-16s %5d %5d %8.2f %8.2f %8d  %-8s %d\n"
+          printf "%-4d %-16s %8d %7d %8.2f %8.2f %8d  %-8s %d\n"
             step bestName bestNu bestKappa bestRho bar delta_n bestSource totalCandidates
           printf "     guidance=%s cap=%d bands=%s budget=%ds elapsed=%.2fs evaluated=%d deduped=%d minrej=%d\n"
             (guidanceModeLabel mode)
@@ -2315,6 +2282,20 @@ abInitioLoop cfg = do
             (hsEvaluatedCandidates finalState)
             (hsDedupedCandidates finalState)
             (hsMinimalityRejects finalState)
+          printf "     search-debug: raw=%d distinct=%d bar_clear=%d near_miss=%d frontier=%d/%d mcts=%d/%d\n"
+            (hsRawCandidates finalState)
+            (hsDedupedCandidates finalState)
+            (length viable)
+            (length nearMisses)
+            frontierCandidates
+            frontierKept
+            (hsMCTSSeedStates finalState)
+            (hsMCTSCompletedStates finalState)
+          printRawCandidatePool "     Raw search output:" lib rawDebug
+          printSelectedStructureDetails lib bestTele
+          printRecognitionTrace lib bestTele bestName bestCanonKey
+          printCandidatePool "     Viable runners-up:" lib Nothing runners
+          printCandidatePool "     Rejected near misses:" lib (Just bar) nearMisses
           hFlush stdout
 
           let discoveredEntry = strictInsertedEntry lib bestName bestLibraryTele bestSeed
@@ -2415,6 +2396,20 @@ abInitioLoop cfg = do
                       , hsMinimalityRejects = hsMinimalityRejects state + minimalityRejects
                       , hsSearchedBands = hsSearchedBands state ++ [band]
                       , hsViableCandidates = hsViableCandidates state ++ barViable
+                      , hsDebugCandidates =
+                          mergeDebugCandidates
+                            lib
+                            (reverse evaluatedAll)
+                            (hsDebugCandidates state)
+                      , hsRejectedCandidates =
+                          mergeNearMissCandidates
+                            bar'
+                            [ cand
+                            | cand@(_, nu, _, rho, _) <- reverse evaluatedAll
+                            , nu > 0
+                            , rho < bar'
+                            ]
+                            (hsRejectedCandidates state)
                       , hsBandTraces = hsBandTraces state ++ [bandTrace]
                       , hsFailedFrontier = failedFrontier
                       }
@@ -2506,65 +2501,239 @@ abInitioLoop cfg = do
                   , hsDedupedCandidates = hsDedupedCandidates state + length unseenCandidates
                   , hsMinimalityRejects = hsMinimalityRejects state + minimalityRejects
                   , hsViableCandidates = hsViableCandidates state ++ viableBand
+                  , hsDebugCandidates =
+                      mergeDebugCandidates
+                        lib
+                        unseenCandidates
+                        (hsDebugCandidates state)
+                  , hsRejectedCandidates =
+                      mergeNearMissCandidates
+                        bar'
+                        [ cand
+                        | cand@(_, nu, _, rho, _) <- unseenCandidates
+                        , nu > 0
+                        , rho < bar'
+                        ]
+                        (hsRejectedCandidates state)
                   }
 
-    printSummary :: [DiscoveryRecord] -> IO ()
-    printSummary history = do
-      putStrLn "Discovery vs Paper Comparison:"
-      printf "%-4s %8s %8s %8s %8s\n"
-        ("Step" :: String) ("disc_ν" :: String) ("pap_ν" :: String)
-        ("disc_κ" :: String) ("pap_κ" :: String)
-      putStrLn (replicate 44 '-')
-      let n = length history
-          paperSteps = take n genesisLibrarySteps
-      mapM_ (\(i, dr, gs) ->
-        printf "%-4d %8d %8d %8d %8d\n"
-          i (drNu dr) (gsPaperNu gs) (drKappa dr) (gsPaperK gs)
-        ) (myZip3 ([1..n] :: [Int]) history paperSteps)
-      let totalDiscNu = sum (map drNu history)
-          totalPapNu  = sum (map gsPaperNu paperSteps)
-          totalDiscK  = sum (map drKappa history)
-          totalPapK   = sum (map gsPaperK paperSteps)
-      putStrLn (replicate 44 '-')
-      printf "%-4s %8d %8d %8d %8d\n"
-        ("SUM" :: String) totalDiscNu totalPapNu totalDiscK totalPapK
-
-    -- | Post-hoc analysis: recompute UniformNu on the discovered sequence
-    -- and display a side-by-side comparison with StructuralNu.
-    --
-    -- This runs AFTER selection is complete — UniformNu is never called
-    -- during the selection loop in structural mode.
-    postHocAnalysis :: [StepRecord] -> IO ()
-    postHocAnalysis recs = do
+    finishRun :: String -> [StepRecord] -> IO ()
+    finishRun banner orderedRecords = do
       putStrLn ""
-      putStrLn "Post-Hoc Analysis: StructuralNu vs UniformNu"
-      putStrLn "(UniformNu computed AFTER selection — not used for discovery)"
-      printf "%-4s %-14s %6s %6s %6s %10s\n"
-        ("Step" :: String) ("Name" :: String)
-        ("v_str" :: String) ("v_uni" :: String) ("k" :: String)
-        ("Amplif." :: String)
-      putStrLn (replicate 60 '-')
-      postHocGo [] recs
+      putStrLn "============================================"
+      putStrLn banner
+      putStrLn "============================================"
+      putStrLn ""
+      printDiscoverySummary orderedRecords
+      printExclusionContract
+      case cfgCsv cfg of
+        Just csvPath -> writeCsv csvPath orderedRecords
+        Nothing      -> return ()
 
-    postHocGo :: Library -> [StepRecord] -> IO ()
-    postHocGo _ [] = return ()
-    postHocGo lib (r : rest) = do
+    printDiscoverySummary :: [StepRecord] -> IO ()
+    printDiscoverySummary recs = do
+      putStrLn "Discovery Summary:"
+      printf "%-4s %-16s %8s %7s %8s %-12s %-11s %7s %4s %s\n"
+        ("Step" :: String) ("Structure" :: String) ("Novelty" :: String)
+        ("Cost" :: String) ("Score" :: String) ("Source" :: String)
+        ("Form" :: String) ("Clauses" :: String) ("Refs" :: String)
+        ("Dims" :: String)
+      putStrLn (replicate 104 '-')
+      printSummaryRows [] recs
+      putStrLn (replicate 104 '-')
+      printf "Totals: steps=%d novelty=%d cost=%d\n"
+        (length recs)
+        (sum [srNu r | r <- recs])
+        (sum [srKappa r | r <- recs])
+
+    printSummaryRows :: Library -> [StepRecord] -> IO ()
+    printSummaryRows _ [] = return ()
+    printSummaryRows lib0 (r:rs) = do
       let tele = srTele r
-          name = srName r
-          entry = mkLibraryEntry lib tele name
-          uniResult = computeUniformNu entry lib 1
-          uniNu = unrUniformNu uniResult
-          strNu = srNu r
-          amplif = if strNu > 0
-                   then fromIntegral uniNu / fromIntegral strNu :: Double
-                   else 0.0 :: Double
-      printf "%-4d %-14s %6d %6d %6d %10.2fx\n"
-        (srStep r) name strNu uniNu (srKappa r) amplif
-      postHocGo (lib ++ [entry]) rest
+          cls = telescopeClassLabel (classifyTelescope tele lib0)
+          clauses = teleKappa tele
+          refs = Set.size (teleLibRefs tele)
+          dims = renderIntList (telePathDimensions tele)
+      printf "%-4d %-16s %8d %7d %8.2f %-12s %-11s %7d %4d %s\n"
+        (srStep r)
+        (srName r)
+        (srNu r)
+        (srKappa r)
+        (srRho r)
+        (srSource r)
+        cls
+        clauses
+        refs
+        dims
+      let nextLib = lib0 ++ [strictInsertedEntry lib0 (srName r) tele Nothing]
+      printSummaryRows nextLib rs
 
-    myZip3 :: [a] -> [b] -> [c] -> [(a,b,c)]
-    myZip3 (a:as) (b:bs) (c:cs) = (a,b,c) : myZip3 as bs cs
-    myZip3 _ _ _ = []
+    printSelectedStructureDetails :: Library -> Telescope -> IO ()
+    printSelectedStructureDetails lib0 tele = do
+      printf "     form=%s clauses=%d bits=%d ast=%d refs=%s dims=%s\n"
+        (telescopeClassLabel (classifyTelescope tele lib0))
+        (teleKappa tele)
+        (teleBitCost tele)
+        (teleAstNodes tele)
+        (renderIntList (Set.toList (teleLibRefs tele)))
+        (renderIntList (telePathDimensions tele))
+      printf "     raw=%s\n" (shorten 160 (show tele))
+
+    printCandidatePool :: String -> Library -> Maybe Double -> [Candidate] -> IO ()
+    printCandidatePool _ _ _ [] = return ()
+    printCandidatePool label lib0 mBar cs =
+      putStrLn
+        (label ++ " " ++ intercalate " | " (map (candidateBrief lib0 mBar) (take 3 (distinctDisplayCandidates lib0 cs))))
+
+    printRawCandidatePool :: String -> Library -> [Candidate] -> IO ()
+    printRawCandidatePool _ _ [] = return ()
+    printRawCandidatePool label lib0 cs =
+      putStrLn
+        (label ++ " " ++ intercalate " | " (map (rawCandidateBrief lib0) (take 3 (distinctDisplayCandidates lib0 cs))))
+
+    printRecognitionTrace :: Library -> Telescope -> String -> String -> IO ()
+    printRecognitionTrace _lib0 tele name canonKey = do
+      let dr = decodeCanonicalNameWithKey name (Just canonKey)
+          decoded = maybe "unresolved" id (drDecodedLabel dr)
+          ambiguity =
+            if null (drAmbiguity dr)
+            then "-"
+            else intercalate "|" (drAmbiguity dr)
+          referenceInfo =
+            case [(stepIdx, refTele) | (stepIdx, refName, refTele) <- allReferenceTelescopes, refName == name] of
+              ((stepIdx, refTele):_) ->
+                "ref=step " ++ show stepIdx
+                ++ " clauses=" ++ show (teleKappa tele) ++ "/" ++ show (teleKappa refTele)
+                ++ " bits=" ++ show (teleBitCost tele) ++ "/" ++ show (teleBitCost refTele)
+                ++ " dims=" ++ renderIntList (telePathDimensions tele) ++ "/" ++ renderIntList (telePathDimensions refTele)
+              [] ->
+                "ref=-"
+      printf "     recognition: key=%s -> %s, decode=%s, confidence=%.2f, aliases=%s, %s\n"
+        (shortCanonKey canonKey)
+        name
+        decoded
+        (drConfidence dr)
+        ambiguity
+        referenceInfo
+
+    candidateBrief :: Library -> Maybe Double -> Candidate -> String
+    candidateBrief lib0 mBar (tele, nu, kappa, rho, source) =
+      let gapText = case mBar of
+                      Just bar0 -> ", gap=" ++ printf' "%.4f" (bar0 - rho)
+                      Nothing -> ""
+          keyText = shortCanonKey (candidateCanonKeyText tele)
+      in detectCanonicalName tele lib0
+         ++ "#" ++ keyText
+         ++ " [nov=" ++ show nu
+         ++ ", cost=" ++ show kappa
+         ++ ", score=" ++ printf' "%.4f" rho
+          ++ gapText
+         ++ ", form=" ++ telescopeClassLabel (classifyTelescope tele lib0)
+         ++ ", bits=" ++ show (teleBitCost tele)
+         ++ ", refs=" ++ renderIntList (Set.toList (teleLibRefs tele))
+         ++ ", dims=" ++ renderIntList (telePathDimensions tele)
+         ++ ", src=" ++ source
+         ++ "]"
+
+    rawCandidateBrief :: Library -> Candidate -> String
+    rawCandidateBrief lib0 (tele, nu, kappa, rho, source) =
+      detectCanonicalName tele lib0
+      ++ "#" ++ shortCanonKey (candidateCanonKeyText tele)
+      ++ " [nov=" ++ show nu
+      ++ ", cost=" ++ show kappa
+      ++ ", score=" ++ printf' "%.4f" rho
+      ++ ", form=" ++ telescopeClassLabel (classifyTelescope tele lib0)
+      ++ ", src=" ++ source
+      ++ ", raw=" ++ shorten 96 (show tele)
+      ++ "]"
+
+    telescopeClassLabel :: TelescopeClass -> String
+    telescopeClassLabel cls = case cls of
+      TCFoundation -> "foundation"
+      TCFormer -> "former"
+      TCHIT -> "hit"
+      TCSuspension -> "suspension"
+      TCMap -> "map"
+      TCModal -> "modal"
+      TCAxiomatic -> "axiomatic"
+      TCSynthesis -> "synthesis"
+      TCUnknown -> "unknown"
+
+    renderIntList :: [Int] -> String
+    renderIntList xs =
+      case nub xs of
+        [] -> "-"
+        ys -> intercalate "|" (map show ys)
+
+    distinctCandidatePool :: [Candidate] -> [Candidate]
+    distinctCandidatePool =
+      reverse . snd . foldl' step (Set.empty, [])
+      where
+        step (seen, acc) cand@(tele, _, _, _, _) =
+          let key = canonicalKeySpec (map teType (teleEntries tele))
+          in if Set.member key seen
+             then (seen, acc)
+             else (Set.insert key seen, cand : acc)
+
+    distinctDisplayCandidates :: Library -> [Candidate] -> [Candidate]
+    distinctDisplayCandidates lib0 =
+      reverse . snd . foldl' step (Set.empty, [])
+      where
+        step (seen, acc) cand =
+          let key = candidateDisplayKey lib0 cand
+          in if Set.member key seen
+             then (seen, acc)
+             else (Set.insert key seen, cand : acc)
+
+    candidateDisplayKey :: Library -> Candidate -> String
+    candidateDisplayKey lib0 (tele, _, kappa, _, _) =
+      intercalate ":"
+        [ detectCanonicalName tele lib0
+        , telescopeClassLabel (classifyTelescope tele lib0)
+        , show kappa
+        , show (teleKappa tele)
+        ]
+
+    selectDebugCandidates :: Library -> Bool -> [Candidate] -> [Candidate]
+    selectDebugCandidates lib0 noQuotient candidates =
+      let deduped = if noQuotient then candidates else quotientCandidates candidates
+      in take 4 (distinctDisplayCandidates lib0 (sortOn debugCandidateSortKey deduped))
+
+    mergeDebugCandidates :: Library -> [Candidate] -> [Candidate] -> [Candidate]
+    mergeDebugCandidates lib0 new old =
+      take 4 (distinctDisplayCandidates lib0 (sortOn debugCandidateSortKey (new ++ old)))
+
+    selectNearMissCandidates :: Bool -> Double -> [Candidate] -> [Candidate]
+    selectNearMissCandidates noQuotient bar0 candidates =
+      let rejected =
+            [ cand
+            | cand@(_, nu, _, rho, _) <- candidates
+            , nu > 0
+            , rho < bar0
+            ]
+          deduped = if noQuotient then rejected else quotientCandidates rejected
+      in take 3 (distinctCandidatePool (sortOn (nearMissSortKey bar0) deduped))
+
+    mergeNearMissCandidates :: Double -> [Candidate] -> [Candidate] -> [Candidate]
+    mergeNearMissCandidates bar0 new old =
+      take 3 (distinctCandidatePool (sortOn (nearMissSortKey bar0) (new ++ old)))
+
+    nearMissSortKey :: Double -> Candidate -> (Double, Int, Down Int, Int)
+    nearMissSortKey bar0 (_, nu, kappa, rho, source) =
+      (bar0 - rho, kappa, Down nu, sourceRank source)
+
+    debugCandidateSortKey :: Candidate -> (Down Double, Int, Down Int, Int)
+    debugCandidateSortKey (_, nu, kappa, rho, source) =
+      (Down rho, kappa, Down nu, sourceRank source)
+
+    shortCanonKey :: String -> String
+    shortCanonKey key = take 8 key
+
+    shorten :: Int -> String -> String
+    shorten limit s =
+      if length s <= limit
+      then s
+      else take (max 0 (limit - 3)) s ++ "..."
 
 -- ============================================
 -- CSV Output
@@ -2577,7 +2746,9 @@ writeCsv path recs = do
   let header = "step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status"
       rows = map formatRow recs
       content = unlines (header : rows)
-  writeFile path content
+  withFile path WriteMode $ \h -> do
+    hSetEncoding h utf8
+    hPutStr h content
   printf "CSV written to %s (%d steps)\n" path (length recs)
 
 formatRow :: StepRecord -> String
@@ -3267,20 +3438,12 @@ computeSearchBudget cfg step = do
             then readMemorySnapshot
             else return Nothing
   let shadowProfile = cfgMBTTShadowProfile cfg && step <= 6
-      structuralRetry = useStructuralRetryProfile cfg
-      (structBit, structDepth, structCands) = structuralTier0Budget step
       baseBitBudget =
-        if structuralRetry
-        then structBit
-        else if shadowProfile then 14 else 16
+        if shadowProfile then 14 else 16
       baseAstDepth =
-        if structuralRetry
-        then maybe structDepth id (cfgMBTTAstDepth cfg)
-        else maybe 2 id (cfgMBTTAstDepth cfg)
+        maybe 2 id (cfgMBTTAstDepth cfg)
       baseMaxCandidates =
-        if structuralRetry
-        then maybe structCands id (cfgMBTTMaxCand cfg)
-        else maybe 800 id (cfgMBTTMaxCand cfg)
+        maybe 800 id (cfgMBTTMaxCand cfg)
       baseMCTSIterations = 1200
       baseMCTSDepth = 3
       baseMCTSTopK = 10
@@ -3288,9 +3451,7 @@ computeSearchBudget cfg step = do
       pressure0 = if cfgAdaptiveMemory cfg then classifyMemoryPressure snap else MemLow
       pressure = if cfgMemorySafe cfg then raisePressure pressure0 else pressure0
 
-      stepScale = if structuralRetry
-                  then 100
-                  else if step >= 13 then 30
+      stepScale = if step >= 13 then 30
                   else if step >= 10 then 40
                   else if step >= 7 then 60
                   else 100
@@ -3359,51 +3520,6 @@ printSearchBudget step budget = do
         step (pressureLabel (sbPressure budget))
         (sbBitBudget budget) (sbAstDepth budget) (sbMaxCandidates budget)
         (sbMCTSIterations budget) (sbMCTSDepth budget) (sbMCTSTopK budget) mctsSuffix
-
-useStructuralRetryProfile :: AbInitioConfig -> Bool
-useStructuralRetryProfile cfg =
-  cfgMode cfg == StructuralAbInitio && not (cfgPhase1Shadow cfg)
-
-structuralTier0Budget :: Int -> (Int, Int, Int)
-structuralTier0Budget step
-  | step <= 3 = (14, 2, 20)
-  | step <= 6 = (16, 2, 32)
-  | step <= 9 = (18, 2, 48)
-  | step <= 12 = (20, 2, 64)
-  | otherwise = (24, 2, 80)
-
-structuralAgendaBand :: Int -> (Int, Int, Int, Int)
-structuralAgendaBand step
-  | step <= 3 = (48, 16, 4, 8)
-  | step <= 6 = (64, 20, 4, 10)
-  | step <= 9 = (80, 24, 5, 12)
-  | step <= 12 = (96, 28, 5, 12)
-  | otherwise = (120, 32, 6, 14)
-
-scaleRounded :: Int -> Double -> Int
-scaleRounded x factor = max 1 (round (fromIntegral x * factor))
-
-buildStructuralRetryBudgets :: AbInitioConfig -> Int -> SearchBudget -> [RetryBudget]
-buildStructuralRetryBudgets cfg step budget =
-  let (baseBit, baseDepthRaw, baseCandRaw) = structuralTier0Budget step
-      (baseStates, baseAgendaCands, baseBranch, baseLeafCap) = structuralAgendaBand step
-      depth0 = maybe baseDepthRaw id (cfgMBTTAstDepth cfg)
-      cand0 = maybe baseCandRaw id (cfgMBTTMaxCand cfg)
-      depth1 = depth0
-      depth2 = if cfgMBTTAstDepth cfg == Nothing then depth0 + 1 else depth0
-      cand1 = if cfgMBTTMaxCand cfg == Nothing then cand0 * 2 else cand0
-      cand2 = if cfgMBTTMaxCand cfg == Nothing then cand0 * 4 else cand0
-      bit0 = max (sbBitBudget budget) baseBit
-      bit1 = max bit0 (baseBit + 2)
-      bit2 = max bit1 (baseBit + 4)
-      states1 = min 120 (scaleRounded baseStates 1.5)
-      states2 = min 120 (baseStates * 2)
-      agenda1 = min 40 (scaleRounded baseAgendaCands 1.5)
-      agenda2 = min 40 (baseAgendaCands * 2)
-  in [ RetryBudget 0 bit0 depth0 cand0 baseStates baseAgendaCands baseBranch baseLeafCap
-     , RetryBudget 1 bit1 depth1 cand1 states1 agenda1 baseBranch baseLeafCap
-     , RetryBudget 2 bit2 depth2 cand2 states2 agenda2 baseBranch baseLeafCap
-     ]
 
 exprCapLimitForStep :: Int -> Int -> Int
 exprCapLimitForStep step maxCand =
@@ -3477,13 +3593,6 @@ computeBarD d mode n history =
       phi_n = delta_n / delta_nm1
       -- Ω_{n-1} = (Σν_i) / (Σκ_i) for i = 1..n-1
       omega = case mode of
-        PaperCalibrated ->
-          let steps = take (n-1) genesisLibrarySteps
-              sumNu = sum [gsPaperNu s | s <- steps]
-              sumK  = sum [gsPaperK s | s <- steps]
-          in if sumK > 0
-             then fromIntegral sumNu / fromIntegral sumK
-             else 1.0
         GuidedRecovery ->
           let past = take (n-1) history
               sumNu = sum [drNu r | r <- past]
@@ -3492,13 +3601,6 @@ computeBarD d mode n history =
              then fromIntegral sumNu / fromIntegral sumK
              else 1.0
         StrictAbInitio ->
-          let past = take (n-1) history
-              sumNu = sum [drNu r | r <- past]
-              sumK  = sum [drKappa r | r <- past]
-          in if sumK > 0
-             then fromIntegral sumNu / fromIntegral sumK
-             else 1.0
-        StructuralAbInitio ->
           let past = take (n-1) history
               sumNu = sum [drNu r | r <- past]
               sumK  = sum [drKappa r | r <- past]
@@ -3573,6 +3675,8 @@ emptyHonestSearchState =
     , hsMinimalityRejects = 0
     , hsSearchedBands = []
     , hsViableCandidates = []
+    , hsDebugCandidates = []
+    , hsRejectedCandidates = []
     , hsBandTraces = []
     , hsFailedFrontier = []
     , hsMCTSSeedStates = 0

@@ -18,8 +18,6 @@ module TelescopeEval
   , evaluateTelescope
   , evaluateTelescopeWithHistory
   , evaluateTelescopeDetailed
-  , effectiveKappa
-  , effectiveNu
   , strictKappa
   , computeKappa
     -- * Tracing
@@ -62,13 +60,10 @@ data CapabilityPolicy
 -- or computes them strictly from the telescope + library (for genuine discovery).
 --
 -- This is the key architectural distinction for the strictness audit:
--- - EvalPaperCalibrated: routes through effectiveNu/effectiveKappa, which
---   return paper values for known canonical names.
 -- - EvalStrictComputed: NEVER reads paper tables. ν comes from computeUniformNu,
 --   κ comes from strictKappa (teleKappa + explicit suspension policy).
 data EvalMode
-  = EvalPaperCalibrated     -- ^ Use paper ν/κ for canonical names (effectiveNu/effectiveKappa)
-  | EvalGuidedComputed      -- ^ Guided recovery: compute ν structurally plus legacy bonuses
+  = EvalGuidedComputed      -- ^ Guided recovery: compute ν structurally plus legacy bonuses
   | EvalStrictComputed      -- ^ Honest strict mode: no paper tables and no target-conditioned bonuses
   | EvalStructural          -- ^ StructuralNu: AST rule extraction, no semantic proxy
   deriving (Show, Eq)
@@ -511,12 +506,7 @@ makeSuspEntry (Telescope entries) lib name =
 -- | Evaluate a telescope's efficiency ρ = ν/κ.
 -- Returns (ν, κ, ρ).
 --
--- The EvalMode parameter controls whether paper values are used:
---
--- **EvalPaperCalibrated**: For known canonical names, uses paper's ν and κ
--- via effectiveNu/effectiveKappa. The uniform algorithm systematically
--- overestimates ν (counting all schemas rather than independent ones),
--- so paper values are needed for correct minimal-overshoot selection.
+-- The EvalMode parameter controls which honest or guided evaluator is used:
 --
 -- **EvalStrictComputed**: NEVER reads paper tables. ν comes from
 -- computeUniformNu, κ comes from strictKappa (teleKappa + suspension
@@ -535,15 +525,8 @@ evaluateTelescopeWithHistory :: EvalMode -> Telescope -> Library -> Int -> Strin
 evaluateTelescopeWithHistory evalMode tele lib maxDepth name nuHistory
   | isTriviallyDerivable tele lib = (0, teleKappa tele, 0.0)
   | otherwise =
-    let canonName = detectCanonicalName tele lib
-        evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
-        entryPaper = telescopeToCandidate tele lib evalNamePaper
-        cls = classifyTelescope tele lib
+    let cls = classifyTelescope tele lib
         (nuRaw, kappa) = case evalMode of
-          EvalPaperCalibrated ->
-            -- Paper-calibrated: use paper's κ and ν for known canonical names
-            ( effectiveNu canonName entryPaper lib maxDepth
-            , effectiveKappa canonName tele )
           EvalGuidedComputed ->
             ( guidedComputedNu tele lib maxDepth name nuHistory
             , strictKappa tele )
@@ -1467,11 +1450,10 @@ teleHasCurvatureBundleEvidence (Telescope entries) =
 -- | Detailed evaluation returning the full UniformNuResult.
 evaluateTelescopeDetailed :: EvalMode -> Telescope -> Library -> Int -> String -> UniformNuResult
 evaluateTelescopeDetailed evalMode tele lib maxDepth name =
-  let canonName = detectCanonicalName tele lib
-      evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
-      entry = case evalMode of
-        EvalPaperCalibrated -> telescopeToCandidate tele lib evalNamePaper
-        _ -> telescopeToCandidateStructural tele lib name
+  let entry = case evalMode of
+        EvalGuidedComputed -> telescopeToCandidateStructural tele lib name
+        EvalStrictComputed -> telescopeToCandidateStructural tele lib name
+        EvalStructural -> telescopeToCandidateStructural tele lib name
       result = computeUniformNu entry lib maxDepth
   in result { unrName = name }
 
@@ -1480,19 +1462,11 @@ evaluateTelescopeDetailed evalMode tele lib maxDepth name =
 evaluateTelescopeTrace :: EvalMode -> Telescope -> Library -> Int -> String -> EvalTrace
 evaluateTelescopeTrace evalMode tele lib maxDepth name =
   let canonName = detectCanonicalName tele lib
-      evalNamePaper = if canonName `elem` knownCanonicalNames then canonName else name
-      entryPaper = telescopeToCandidate tele lib evalNamePaper
       entryStrict = telescopeToCandidateStructural tele lib name
       -- Always compute the uniform ν (paper-independent)
       computedNu = unrUniformNu (computeUniformNu entryStrict lib maxDepth)
-      -- Look up paper values (may be Nothing for non-canonical names)
-      paperNu = canonName `lookup` paperNuByName
-      paperK  = canonName `lookup` paperKappaByName
       -- What's actually used depends on mode
       (usedNu, usedK) = case evalMode of
-        EvalPaperCalibrated ->
-          ( effectiveNu canonName entryPaper lib maxDepth
-          , effectiveKappa canonName tele )
         EvalGuidedComputed ->
           ( guidedComputedNu tele lib maxDepth name []
           , strictKappa tele )
@@ -1502,21 +1476,15 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
         EvalStructural ->
           ( nnTotal (computeNativeNu tele lib [])
           , strictKappa tele )
-      paperNuUsed = case evalMode of
-        EvalPaperCalibrated -> paperNu
-        _ -> Nothing
-      paperKUsed = case evalMode of
-        EvalPaperCalibrated -> paperK
-        _ -> Nothing
   in EvalTrace
     { etCanonName      = canonName
     , etMode           = evalMode
     , etNuComputed     = computedNu
     , etNuUsed         = usedNu
-    , etNuFromPaper    = paperNuUsed
+    , etNuFromPaper    = Nothing
     , etKappaEntry     = teleKappa tele
     , etKappaUsed      = usedK
-    , etKappaFromPaper = paperKUsed
+    , etKappaFromPaper = Nothing
     }
 
 -- | Effective κ for a telescope.
@@ -1530,12 +1498,6 @@ evaluateTelescopeTrace evalMode tele lib maxDepth name =
 -- telescope entry count (teleKappa), with a floor of 3 for suspension
 -- telescopes. The paper counts the full HIT specification complexity
 -- for suspensions (S² has κ=3, S³ has κ=5), not the 1-entry shortcut.
-effectiveKappa :: String -> Telescope -> Int
-effectiveKappa canonName tele =
-  case canonName `lookup` paperKappaByName of
-    Just k  -> k
-    Nothing -> desugaredKappa tele
-
 -- | Compute κ using the specified kappa mode.
 computeKappa :: KappaMode -> Telescope -> Int
 computeKappa DesugaredKappa tele = desugaredKappa tele
@@ -1556,47 +1518,6 @@ computeKappa BitCostKappa  tele = teleBitCost tele
 -- suspension shortcuts.
 strictKappa :: Telescope -> Int
 strictKappa = desugaredKappa
-
--- | Paper's κ values indexed by canonical name.
-paperKappaByName :: [(String, Int)]
-paperKappaByName =
-  [ ("Universe",    2), ("Unit",        1), ("Witness",     1)
-  , ("Pi",          3), ("S1",          3), ("Trunc",       3)
-  , ("S2",          3), ("S3",          5), ("Hopf",        4)
-  , ("Cohesion",    4), ("Connections", 5), ("Curvature",   6)
-  , ("Metric",      7), ("Hilbert",     9), ("DCT",         8)
-  ]
-
--- | Effective ν for a telescope.
---
--- For known canonical names, uses the paper's generative capacity.
--- The uniform algorithm systematically overestimates ν because it counts
--- all enumerable schemas rather than only independent ones. The paper's
--- ν values are the correct counts of independent derivation schemas.
---
--- For unknown names, computes ν via the uniform algorithm.
-effectiveNu :: String -> LibraryEntry -> Library -> Int -> Int
-effectiveNu canonName entry lib maxDepth =
-  case canonName `lookup` paperNuByName of
-    Just nu -> nu
-    Nothing -> unrUniformNu (computeUniformNu entry lib maxDepth)
-
--- | Paper's ν values indexed by canonical name.
-paperNuByName :: [(String, Int)]
-paperNuByName =
-  [ ("Universe",    1), ("Unit",        1), ("Witness",     2)
-  , ("Pi",          5), ("S1",          7), ("Trunc",       8)
-  , ("S2",         10), ("S3",         18), ("Hopf",       17)
-  , ("Cohesion",   19), ("Connections", 26), ("Curvature", 34)
-  , ("Metric",     43), ("Hilbert",    62), ("DCT",       105)
-  ]
-
--- | The canonical names that `availableFormers` (ProofRank.hs) recognizes.
-knownCanonicalNames :: [String]
-knownCanonicalNames =
-  [ "Universe", "Unit", "Witness", "Pi", "S1", "Trunc", "S2", "S3"
-  , "Hopf", "Cohesion", "Connections", "Curvature", "Metric", "Hilbert", "DCT"
-  ]
 
 -- ============================================
 -- Reference Telescope Validation

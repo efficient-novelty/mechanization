@@ -12,7 +12,16 @@ MANIFEST="$RUN_DIR/manifest.json"
 
 [[ -f "$MANIFEST" ]] || { echo "Missing manifest: $MANIFEST" >&2; exit 1; }
 
-python - "$MANIFEST" "$MODE" <<'PY'
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN=python3
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN=python
+else
+  echo "python3 or python is required" >&2
+  exit 1
+fi
+
+"$PYTHON_BIN" - "$MANIFEST" "$MODE" <<'PY'
 import json, sys
 manifest_path, mode = sys.argv[1], sys.argv[2]
 with open(manifest_path, 'r', encoding='utf-8') as f:

@@ -24,8 +24,10 @@ agda Test/BridgePayloadContract.agda
 ```bash
 cd engine
 cabal build all
-cabal run ab-initio -- --structural --csv ../runs/quickstart_structural_d2.csv
+cabal run ab-initio -- --strict --csv ../runs/quickstart_strict_d2.csv
 ```
+
+Archived reports and snapshots may still mention the retired `--structural` and `--paper` modes.
 
 ### 3) Run benchmark harness
 

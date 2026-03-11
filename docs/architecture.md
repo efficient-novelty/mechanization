@@ -114,7 +114,7 @@ The README should always contain a short architecture summary and link here.
 |---|---|---|
 | Type-check main mechanization | `cd agda && agda PEN.agda` | terminal success/failure |
 | Build engine executables | `cd engine && cabal build all` | Cabal build output |
-| Structural synthesis run | `cd engine && cabal run ab-initio -- --structural --csv ../runs/<tag>.csv` | run CSV + log |
+| Strict synthesis run | `cd engine && cabal run ab-initio -- --strict --csv ../runs/<tag>.csv` | run CSV + log |
 | Acceptance suite | `cd engine && cabal run acceptance` | acceptance terminal output |
 | Full benchmark profile | `./scripts/benchmark.sh <tag>` | `runs/<tag>/REPORT.txt` |
 

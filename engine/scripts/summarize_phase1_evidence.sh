@@ -75,14 +75,14 @@ if [[ -f "$RUN_DIR/abinitio_mbtt_shadow6.csv" ]]; then
 fi
 
 full_rows=0
-if [[ -f "$RUN_DIR/abinitio_mbtt_structural.csv" ]]; then
-  full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_structural.csv" | wc -l | tr -d ' ')
+if [[ -f "$RUN_DIR/abinitio_mbtt_full.csv" ]]; then
+  full_rows=$(tail -n +2 "$RUN_DIR/abinitio_mbtt_full.csv" | wc -l | tr -d ' ')
 fi
 
 shadow_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_shadow6.csv")"
-full_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_structural.csv")"
+full_canon="$(extract_canonical_telemetry "$RUN_DIR/abinitio_mbtt_full.csv")"
 shadow_p4="$(extract_p4_kappa_telemetry "$RUN_DIR/abinitio_mbtt_shadow6.csv")"
-full_p4="$(extract_p4_kappa_telemetry "$RUN_DIR/abinitio_mbtt_structural.csv")"
+full_p4="$(extract_p4_kappa_telemetry "$RUN_DIR/abinitio_mbtt_full.csv")"
 
 ladder_status="$(ladder_tail "$RUN_DIR/ladder/ladder_status.csv")"
 ladder_main_status="$(ladder_tail "$RUN_DIR/ladder-main/ladder_status.csv")"

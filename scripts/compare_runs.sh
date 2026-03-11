@@ -3,7 +3,7 @@
 #
 # Usage:
 #   ./scripts/compare_runs.sh runs/baseline runs/candidate
-#   ./scripts/compare_runs.sh runs/baseline runs/candidate structural_d2
+#   ./scripts/compare_runs.sh runs/baseline runs/candidate strict_d2
 #
 # Compares CSV files between two run directories. If a specific mode is given,
 # only compares that mode. Otherwise compares all common CSV files.
@@ -12,7 +12,7 @@ set -euo pipefail
 
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <baseline_dir> <candidate_dir> [mode]"
-    echo "  mode: structural_d2, structural_d1, structural_d3, paper_calibrated"
+    echo "  common mode examples: strict_d2, strict_d1, strict_d3"
     exit 1
 fi
 

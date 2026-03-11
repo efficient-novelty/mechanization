@@ -4,6 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENGINE_DIR="$ROOT_DIR/engine"
 
+if command -v cabal >/dev/null 2>&1; then
+  CABAL_BIN=cabal
+elif command -v cabal.exe >/dev/null 2>&1; then
+  CABAL_BIN=cabal.exe
+else
+  echo "cabal or cabal.exe is required" >&2
+  exit 1
+fi
+
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT_DIR_INPUT="${1:-$ROOT_DIR/runs/phase1_shadow/$STAMP}"
 if [[ "$OUT_DIR_INPUT" = /* ]]; then
@@ -40,11 +49,11 @@ PY2
 
 pushd "$ENGINE_DIR" >/dev/null
 
-cabal run acceptance-core > "$OUT_DIR/acceptance-core.log" 2>&1
+"$CABAL_BIN" run acceptance-core > "$OUT_DIR/acceptance-core.log" 2>&1
 
 # Bounded MBTT shadow replay preset
-cabal run ab-initio -- \
-  --structural \
+"$CABAL_BIN" run ab-initio -- \
+  --strict \
   --phase1-shadow \
   --max-steps "$MAX_STEPS" \
   --mbtt-max-candidates "$MAX_CANDS" \
@@ -61,8 +70,8 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "max_steps": $MAX_STEPS,
   "max_candidates": $MAX_CANDS,
   "commands": {
-    "core": "cabal run acceptance-core",
-    "shadow": "cabal run ab-initio -- --structural --phase1-shadow --max-steps $MAX_STEPS --mbtt-max-candidates $MAX_CANDS --csv phase1_shadow.csv"
+    "core": "$CABAL_BIN run acceptance-core",
+    "shadow": "$CABAL_BIN run ab-initio -- --strict --phase1-shadow --max-steps $MAX_STEPS --mbtt-max-candidates $MAX_CANDS --csv phase1_shadow.csv"
   },
   "canonical_telemetry": $shadow_canon_json
 }

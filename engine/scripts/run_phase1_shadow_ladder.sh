@@ -3,6 +3,15 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENGINE_DIR="$ROOT_DIR/engine"
+
+if command -v cabal >/dev/null 2>&1; then
+  CABAL_BIN=cabal
+elif command -v cabal.exe >/dev/null 2>&1; then
+  CABAL_BIN=cabal.exe
+else
+  echo "cabal or cabal.exe is required" >&2
+  exit 1
+fi
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT_DIR_INPUT="${1:-$ROOT_DIR/runs/phase1_shadow_ladder/$STAMP}"
 if [[ "$OUT_DIR_INPUT" = /* ]]; then
@@ -26,8 +35,8 @@ for s in $STEPS; do
   log="$OUT_DIR/step_${s}.log"
   csv="$OUT_DIR/step_${s}.csv"
   set +e
-  timeout "$TIMEOUT_S" cabal run ab-initio -- \
-    --structural \
+  timeout "$TIMEOUT_S" "$CABAL_BIN" run ab-initio -- \
+    --strict \
     --phase1-shadow \
     --max-steps "$s" \
     --mbtt-max-candidates "$MAX_CANDS" \
@@ -79,7 +88,7 @@ cat > "$OUT_DIR/manifest.json" <<JSON
   "max_candidates": $MAX_CANDS,
   "steps": "$STEPS",
   "require_success_through": $REQUIRE_SUCCESS_THROUGH,
-  "command_template": "cabal run ab-initio -- --structural --phase1-shadow --max-steps <N> --mbtt-max-candidates $MAX_CANDS --csv step_<N>.csv"
+  "command_template": "$CABAL_BIN run ab-initio -- --strict --phase1-shadow --max-steps <N> --mbtt-max-candidates $MAX_CANDS --csv step_<N>.csv"
 }
 JSON
 

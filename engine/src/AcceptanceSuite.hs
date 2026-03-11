@@ -43,7 +43,7 @@ import AbInitioPolicy ( strictAdmissibility
 import System.Exit (exitFailure, exitSuccess)
 import System.Environment (getArgs)
 import Text.Printf (printf)
-import System.IO (hFlush, stdout)
+import System.IO (hFlush, hSetEncoding, stdout, stderr, utf8)
 import Text.Read (readMaybe)
 import Control.Monad (when)
 
@@ -1018,11 +1018,13 @@ runAcceptanceWithConfig cfg = do
 
 runCoreAcceptance :: IO ()
 runCoreAcceptance = do
+  initializeConsoleUtf8
   putStrLn "[acceptance-core] running core suites A-I only."
   runTests coreTests
 
 runMBTTAcceptance :: AcceptanceConfig -> IO ()
 runMBTTAcceptance cfg = do
+  initializeConsoleUtf8
   let cfg' = cfg { acMbttSkip = False }
   when (acMbttFast cfg') $
     putStrLn "[acceptance-mbtt] --mbtt-fast enabled for MBTT-only lane."
@@ -1030,5 +1032,11 @@ runMBTTAcceptance cfg = do
 
 runAcceptanceMain :: IO ()
 runAcceptanceMain = do
+  initializeConsoleUtf8
   cfg <- parseArgs <$> getArgs
   runAcceptanceWithConfig cfg
+
+initializeConsoleUtf8 :: IO ()
+initializeConsoleUtf8 = do
+  hSetEncoding stdout utf8
+  hSetEncoding stderr utf8

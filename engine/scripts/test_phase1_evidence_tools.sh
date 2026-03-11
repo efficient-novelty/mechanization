@@ -27,10 +27,10 @@ TXT
 step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status
 1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe,1.0000,,exact_isomorphism
 TXT
-  cat > "$dir/abinitio_mbtt_structural.log" <<TXT
+  cat > "$dir/abinitio_mbtt_full.log" <<TXT
 ok
 TXT
-  cat > "$dir/abinitio_mbtt_structural.csv" <<TXT
+  cat > "$dir/abinitio_mbtt_full.csv" <<TXT
 step,name,nu,kappa,rho,bar,delta,source,candidates,raw_candidates,canonical_candidates,dedupe_ratio,best_canonical_key,k_desugar,k_entry,k_bitcost,canonical_key,bit_kappa,ast_nodes,decoded_name?,decode_confidence,decode_ambiguity,decode_status
 1,Universe,1,1,1.0000,0.5000,1,REF,1,1,1,1.0000,abc123,1,1,4,abc123,4,1,Universe,1.0000,,exact_isomorphism
 TXT
@@ -100,7 +100,7 @@ TXT
 pass
 TXT
   cat > "$dir/manifest.json" <<TXT
-{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --structural --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --structural --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_structural.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)","strict_prefix_regression":"TIMEOUT_S=30 MAX_STEPS=7 REQUIRE_SUCCESS_THROUGH=7 RTS_CORES=-N EXPECTED_NAMES='1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2' bash engine/scripts/run_prefix_regression.sh runs/phase1_ci/<run-id>/prefix","phase3_native_nu_evidence":"STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"}}
+{"contract":"docs/phase1_evidence_contract.md","lanes":{"core":"cabal run acceptance-core","mbtt_fast":"cabal run acceptance-mbtt -- --mbtt-fast --mbtt-max-candidates 50","mbtt_full":"cabal run acceptance-mbtt (main branch only)","abinitio_mbtt_shadow":"cabal run ab-initio -- --strict --phase1-shadow --mbtt-max-candidates 200 --csv abinitio_mbtt_shadow6.csv","abinitio_mbtt_full":"cabal run ab-initio -- --strict --mbtt-first --mbtt-max-candidates 200 --csv abinitio_mbtt_full.csv (main branch only)","mbtt_shadow_ladder":"TIMEOUT_S=45 MAX_CANDS=20 STEPS='1 2 3' engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder","mbtt_shadow_ladder_main_gate":"TIMEOUT_S=90 MAX_CANDS=20 STEPS='1 2 3 4 5 6' REQUIRE_SUCCESS_THROUGH=6 engine/scripts/run_phase1_shadow_ladder.sh runs/phase1_ci/<run-id>/ladder-main (main branch only)","strict_prefix_regression":"TIMEOUT_S=30 MAX_STEPS=7 REQUIRE_SUCCESS_THROUGH=7 RTS_CORES=-N EXPECTED_NAMES='1:Universe 2:Unit 3:Witness 4:Pi 5:S1 6:Trunc 7:S2' bash engine/scripts/run_prefix_regression.sh runs/phase1_ci/<run-id>/prefix","phase3_native_nu_evidence":"STEPS='1 2 3 4 5 6' engine/scripts/run_phase3_native_nu_evidence.sh runs/phase1_ci/<run-id>/phase3/native_nu"}}
 TXT
 }
 
