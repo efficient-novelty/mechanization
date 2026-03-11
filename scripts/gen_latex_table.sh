@@ -33,12 +33,12 @@ declare -A TEX_NAMES=(
   [S2]='Sphere $S^2$'
   [S3]='$S^3 \cong \mathrm{SU}(2)$'
   [Hopf]='Hopf fibration'
-  [Cohesion]='Cohesion'
-  [Connections]='Connections'
-  [Curvature]='Curvature tensors'
-  [Metric]='Metric + frame bundle'
-  [Hilbert]='Hilbert functional'
-  [DCT]='Dynamical Cohesive Topos'
+  [Cohesion]='Modal shell (cohesion reading)'
+  [Connections]='Connection shell'
+  [Curvature]='Curvature shell'
+  [Metric]='Endomorphic operator bundle (metric reading)'
+  [Hilbert]='Hilbert-functional shell'
+  [DCT]='Temporal-cohesive shell (semantic DCT completion)'
 )
 
 # Cumulative tau values (tau_n = F_{n+2} - 1 for d=2)
@@ -50,7 +50,7 @@ TAU=(1 2 4 7 12 20 33 54 88 143 232 376 609 986 1596)
   echo "% Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo '\begin{tabular}{@{}cr l rrrr rrr@{}}'
   echo '\toprule'
-  echo '$n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\'
+  echo '$n$ & $\tau$ & Selected AST skeleton & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\'
   echo '\midrule'
 
   # Track cumulative sums for Omega computation

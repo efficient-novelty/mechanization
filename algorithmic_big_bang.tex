@@ -127,7 +127,7 @@ Time is measured solely by algorithmic ticks $\tau_n$ and integration latency $\
 
 \begin{definition}[Runtime Ignition]
 \label{def:ignition}
-\emph{Runtime ignition} (Step~15) is the realization of the Dynamical Cohesive Topos (DCT), which introduces temporal modalities ($\nextmod$, $\eventually$), infinitesimals ($\D$), and the Compatibility Triad into the library.
+\emph{Runtime ignition} (Step~15) is the selection of the temporal-cohesive shell whose semantic completion is the Dynamical Cohesive Topos (DCT): it introduces temporal modalities ($\nextmod$, $\eventually$), explicit exchange laws with cohesion, and guarded coherence clauses into the library.
 At this step, the universe transitions from extrinsic structural selection (maximizing $\rho$) to intrinsic dynamical evolution (integrating vector fields on $\U$).
 \end{definition}
 
@@ -197,28 +197,27 @@ What happened \emph{instead} of physical time was algorithmic assembly---a categ
 \subsection{The Arrival of LTL}
 \label{sec:ltl}
 
-The Dynamical Cohesive Topos extends the library $\B_{14}$ with three structural components (Definition~5.7 of~\cite{pen}):
+The Step~15 temporal-cohesive shell extends the library $\B_{14}$ with four structural components~\cite{pen}:
 
 \begin{enumerate}[label=(\arabic*), nosep]
-    \item \textbf{Temporal Logic:} The modalities $\nextmod$ (``next'') and $\eventually$ (``eventually'') from Linear Temporal Logic, following Nakano~\cite{nakano}.
-    \item \textbf{Infinitesimals:} A type $\D$ with $0 : \D$ and $d^2 = 0$ for all $d : \D$.
-    \item \textbf{Compatibility Triad:}
-    (C1)~$\nextmod(\flat X) \simeq \flat(\nextmod X)$;
-    (C2)~$\nextmod(\Pi X) \simeq \Pi(\nextmod X)$;
-    (C3)~$\nextmod(X^{\D}) \simeq (\nextmod X)^{\D}$.
+    \item \textbf{Spatial Logic:} The cohesive interface already present in $\B_{14}$, namely $(\flat \dashv \sharp,\; \Pi_{\mathrm{coh}} \dashv \Disc)$.
+    \item \textbf{Temporal Core:} The modalities $\nextmod$ (``next'') and $\eventually$ (``eventually'') from Linear Temporal Logic, following Nakano~\cite{nakano}.
+    \item \textbf{Spatial-Temporal Exchange:} Explicit commuting laws between temporal and cohesive structure, exemplified by $\nextmod(\flat X) \simeq \flat(\nextmod X)$ and $\sharp(\eventually X) \simeq \eventually(\sharp X)$.
+    \item \textbf{Guarded Coherence:} The temporal self-interaction and elimination clauses that make the shell executable as a typed AST.
 \end{enumerate}
 
-\noindent The specification cost is $\kappa = 8$ (2~imports + 2~temporal + 1~infinitesimal + 3~compatibility clauses).
-The generative capacity is $\nu = 103$, yielding $\rho = 12.88$, which clears the Step~15 bar of $7.40$ by the largest margin in the sequence~\cite{pen}.
+\noindent The specification cost is $\kappa = 8$, audited as the eight temporal-cohesive clauses of the selected AST~\cite{pen}.
+In the current strict machine canon, the generative capacity is $\nu = 88$, yielding $\rho = 11.00$ and clearing the Step~15 bar of $7.51$ by the largest absolute overshoot in the sequence~\cite{pen}.
+The infinitesimal object $\D$ belongs to the semantic completion of this shell rather than to the primitive Step~15 syntax.
 
 \subsection{The Kinematic-Dynamic Equivalence as Geometrization of Time}
 \label{sec:kde}
 
-The central mechanism is the Kinematic-Dynamic Equivalence (Lemma~5.10 of~\cite{pen}): the Compatibility Triad forces the discrete temporal modality $\nextmod$ to be natively equivalent to the continuous tangent endofunctor $(-)^{\D}$.
+The central mechanism is the Kinematic-Dynamic Equivalence: in the semantic completion of the temporal-cohesive shell, the discrete temporal modality $\nextmod$ is naturally equivalent to the continuous tangent endofunctor $(-)^{\D}$~\cite{pen}.
 
-This is not a stipulation but a \emph{forced identification}.
-The three compatibility axioms (C1)--(C3) constrain $\nextmod$ so severely that it can only be consistently interpreted as tangent exponentiation.
-The proof proceeds by functorial substitution: replacing $\nextmod X$ with $X^{\D}$ throughout the triad yields identities that hold by the structural properties of flat, shape, and infinitesimal modalities already present in $\B_{14}$~\cite{pen}.
+This is not a primitive stipulation of the selected AST but a \emph{forced semantic identification}.
+The exchange laws with the cohesive modalities and the guarded coherence clauses constrain $\nextmod$ so strongly that, in the DCT reading, it is represented by tangent exponentiation.
+The proof does not begin by postulating $\D$ in the syntax; rather, $\D$ is derived as the infinitesimal shadow of the first-order temporal-cohesive endofunctor selected by the engine~\cite{pen}.
 
 The physical content of this equivalence is profound: \emph{the passage of time is the same operation as infinitesimal spatial displacement}.
 What the temporal logic calls ``the next state'' is what synthetic differential geometry calls ``an infinitesimal tangent vector.''
@@ -261,8 +260,9 @@ The DCT is the \emph{unique minimal} extension of $\B_{14}$ that introduces auto
 
 \begin{proof}
 Dynamics requires (i)~a notion of succession, (ii)~a fixpoint or corecursion principle to unfold finite prescriptions into infinite trajectories, and (iii)~compatibility with the existing geometric library so that trajectories inhabit the already-constructed spaces.
-Requirements (i) and (ii) are supplied by $\nextmod$ and L\"ob's rule; requirement~(iii) is enforced by the Compatibility Triad.
-No proper subset of these eight clauses suffices: removing any temporal modality eliminates succession; removing $\D$ eliminates the geometric interpretation; removing any compatibility axiom breaks the forced identification $\nextmod X \simeq X^{\D}$.
+Requirements (i) and (ii) are supplied by $\nextmod$ and L\"ob's rule; requirement~(iii) is enforced by the temporal-cohesive exchange laws and guarded coherence clauses.
+No proper subset of these eight clauses suffices: removing any temporal modality eliminates succession; removing the exchange laws severs temporal evolution from the geometric library; removing guarded coherence destroys the executable dynamics.
+The infinitesimal interpretation is then recovered semantically from this shell rather than paid for as a primitive clause.
 \end{proof}
 
 
@@ -272,10 +272,10 @@ No proper subset of these eight clauses suffices: removing any temporal modality
 \section{Cosmological Inflation as Combinatorial Schema Synthesis}
 \label{sec:inflation}
 
-\subsection{The $\rho = 12.88$ Efficiency Singularity}
+\subsection{The $\rho = 11.00$ Efficiency Peak}
 \label{sec:rho-spike}
 
-The efficiency ratio at Step~15 is $\rho = 103/8 = 12.88$, exceeding the bar ($7.40$) by a factor of $1.74$---the largest overshoot in the entire 15-step sequence~\cite{pen}.
+The strict machine-verified efficiency ratio at Step~15 is $\rho = 88/8 = 11.00$, clearing the bar ($7.51$) by an absolute overshoot of $3.49$---the largest in the entire 15-step sequence~\cite{pen}.
 This ``efficiency singularity'' is the PEN counterpart of the cosmological singularity, but with a crucial difference: the mathematics does not break down.
 Where General Relativity produces divergent curvature scalars at $t = 0$, PEN produces a finite, well-defined maximum of algorithmic efficiency.
 The singularity is not a failure of the formalism but a signature of \emph{optimal synthesis}---the point at which the library's combinatorial capacity is most powerfully leveraged.
@@ -284,27 +284,26 @@ The singularity is not a failure of the formalism but a signature of \emph{optim
 \label{rem:singularity-contrast}
 In GR, the initial singularity signals the breakdown of the theory: physical quantities (density, temperature, curvature) diverge, and the Einstein equations lose predictive power~\cite{hawking-ellis,wald}.
 In PEN, the ``singularity'' at Step~15 is a computable finite maximum of a well-defined ratio.
-It arises not from a failure of description but from the confluence of three structural amplifiers---the Distributive Law, Universe Polymorphism, and Infinitesimal Dimension Shift---which collectively multiply the base novelty of 6~axiom rules into $\nu = 103$~\cite{pen}.
+It arises not from a failure of description but from the temporal-cohesive shell's measured interaction payload with the existing library.
+The manuscript now treats the strict machine total $\nu = 88$ as canonical and no longer promotes the older structural-AST tally to theorem-level status~\cite{pen}.
 The analogy is precise: both mark the moment of cosmological origin.
 The disanalogy is equally precise: one is a breakdown, the other is a peak of algorithmic performance.
 \end{remark}
 
-\subsection{The $\nu = 103$ Explosion and the Inflationary Epoch}
+\subsection{The $\nu = 88$ Explosion and the Inflationary Epoch}
 \label{sec:nu-explosion}
 
 Cosmic inflation is the hypothesis that the very early universe underwent a brief period of exponentially rapid expansion, during which the number of accessible physical degrees of freedom increased by many orders of magnitude~\cite{guth,linde}.
 In PEN, the analogous phenomenon is the combinatorial schema explosion at Step~15.
 
-The mechanism is the Combinatorial Schema Synthesis theorem (Theorem~5.6 of~\cite{pen}): when the DCT's temporal modalities ($\nextmod$, $\eventually$) are introduced into a library of 14~structures already equipped with spatial modalities ($\flat, \sharp, \Disc, \Pi_{\mathrm{coh}}$), the cross-interaction at depth~2 produces a superlinear explosion of new inference schemas.
-Concretely:
+The mechanism is the Combinatorial Schema Synthesis theorem~\cite{pen}: when the DCT's temporal modalities ($\nextmod$, $\eventually$) are introduced into a library of 14~structures already equipped with spatial modalities ($\flat, \sharp, \Disc, \Pi_{\mathrm{coh}}$), the cross-interaction at depth~2 produces a superlinear expansion of new inference schemas.
+In the current strict lane, this temporal-cohesive shell is evaluated at $\kappa = 8$ and yields the canonical machine value $\nu = 88$.
+Representative schema families include:
 
 \begin{itemize}[nosep]
-    \item The \textbf{Distributive Law} detector identifies Beck-type distributive laws between the new temporal modalities and existing spatial modalities, contributing $+38$ to $\nu_C$.
-    The 14~previously isolated kinematic structures suddenly acquire mutual temporal-spatial interaction terms.
-    \item \textbf{Universe Polymorphism} recognizes that L\"ob-type eliminators are polymorphic over all 14~library types, contributing $+42$ to $\nu_C$.
-    Every type in the library gains a temporal dynamics.
-    \item The \textbf{Infinitesimal Dimension Shift} forces new Kan operations on each library HIT, contributing $\nu_H = 15$.
-    Tangent structure generates new homotopical content at every sphere.
+    \item Guarded temporal endomorphism and recursion patterns built from $\nextmod$ and $\eventually$.
+    \item Spatial-temporal exchange laws that tie the new temporal operators to the pre-existing cohesive modalities.
+    \item Transport and flow-like interaction with the already selected cohesive and differential layers.
 \end{itemize}
 
 The picture is one of sudden, explosive logical cross-interaction: 14~structures that previously coexisted as independent library entries are now woven into a single dynamical fabric, with each pair generating new eliminators, new homotopy schemas, and new compositional types.
@@ -312,7 +311,7 @@ This is the algorithmic analogue of inflationary reheating: the degrees of freed
 
 \begin{proposition}[Structural inflation precedes thermal inflation]
 \label{prop:structural-inflation}
-The combinatorial explosion at Step~15 ($\nu = 103$, compared to $\nu \leq 18$ at all prior steps) is a necessary precondition for any physical inflationary dynamics.
+The combinatorial amplification at Step~15 ($\nu = 88$, compared to $\nu \leq 63$ at all prior steps) is a necessary precondition for any physical inflationary dynamics.
 Inflation requires a scalar field propagating on a differentiable manifold with Lorentzian metric; all of these structures are in $\B_{14}$, but they acquire dynamical content only at Step~15.
 The ``inflaton field'' is not a separate posit: it is the generic vector field $v : \U \to \U^{\D}$ whose existence is guaranteed by the DCT's corecursion principle.
 \end{proposition}
@@ -344,7 +343,7 @@ Consequently, the temporal unfolding $\unfold_f : X \to \Stream\, X$ is causally
 Suppose for contradiction that a general inverse $\fix^{-1} : A \to (\nextmod A \to A)$ existed.
 Then for any type $A$, one could construct a term of type $\nextmod A \to A$ from any element of $A$, which when fed back into $\fix$ would yield a fixpoint independent of the dynamical law $f$.
 This violates the productivity guarantee of guarded corecursion: the $\nextmod$ guard ensures that each step of the unfolding makes genuine computational progress.
-A general inverse would collapse the guarded modality, making $\nextmod A \simeq A$, which contradicts the non-triviality of temporal logic in the DCT (the Compatibility Triad requires $\nextmod$ to be distinguishable from the identity).
+A general inverse would collapse the guarded modality, making $\nextmod A \simeq A$, which contradicts the non-triviality of temporal logic in the DCT (the temporal-cohesive exchange laws require $\nextmod$ to remain distinguishable from the identity).
 \end{proof}
 
 \begin{remark}[Closed timelike curves are ill-typed]
@@ -409,7 +408,7 @@ The argument has three steps:
     \item By univalence, paths in $\U$ are type equivalences: $(A =_{\U} B) \simeq (A \simeq B)$.
     Integrating the vector field produces a continuous family of types connected by paths in $\U$, hence a family of pairwise equivalent types.
     The flow is permanently confined to the connected component of $\U$ containing $\B_{15}$.
-    \item Any candidate $Y$ proposed at Step~16 is either (a)~internally derivable (contributing $\nu = 0$) or (b)~structurally alien to the $d = 2$ Coherence Window (incurring $\Delta_{16} = F_{16} = 987$ integration latency, making $\rho \ll \mathrm{Bar}_{16} \approx 9.08$).
+    \item Any candidate $Y$ proposed at Step~16 is either (a)~internally derivable (contributing $\nu = 0$) or (b)~structurally alien to the $d = 2$ Coherence Window (incurring $\Delta_{16} = F_{16} = 987$ integration latency, making $\rho \ll \mathrm{Bar}_{16} \approx 8.80$).
     In either case, the bar is permanently uncleared.
 \end{enumerate}
 
@@ -462,7 +461,7 @@ Specifically:
     \item \textbf{The compilation epoch} (Steps~1--14) assembles the kinematic framework---types, spaces, cohesion, metrics, Hilbert functionals---in discrete algorithmic time $\tau$, without presupposing continuous dynamics.
     \item \textbf{Runtime ignition} (Step~15) introduces the DCT, whose Kinematic-Dynamic Equivalence ($\nextmod X \simeq X^{\D}$) geometrizes time, converting discrete temporal logic into continuous infinitesimal structure.
     L\"ob's guarded corecursion sets the static library into perpetual, autonomous motion.
-    \item \textbf{The inflationary epoch} is the combinatorial schema explosion ($\nu = 103$) produced by the sudden cross-interaction of 14~previously disconnected kinematic structures.
+    \item \textbf{The inflationary epoch} is the combinatorial schema explosion ($\nu = 88$) produced by the sudden cross-interaction of 14~previously disconnected kinematic structures.
     \item \textbf{The arrow of time} is the type-theoretic asymmetry of the guarded $\nextmod$ modality: forward computation is productive, backward extraction is ill-typed.
     \item \textbf{The Past Hypothesis} is the algorithmic compressibility of the Generative Sequence: a universe built by 15~steps of Kolmogorov-optimal selection begins in a state of minimal entropy by construction.
     \item \textbf{The Univalent Horizon} is the cosmological firewall separating the pre-physical compilation epoch from the self-computing physical runtime.

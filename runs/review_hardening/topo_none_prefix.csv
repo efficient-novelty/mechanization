@@ -1,0 +1,6 @@
+step,status,bar,raw_candidates,viable_candidates,guidance_mode,admissibility_kappa_cap,searched_kappa_bands,selected_kappa_band,step_budget_s,elapsed_s,evaluated_candidates,deduped_candidates,minimality_rejections,best_obligation_score,best_interface_density,best_genericity_score,best_closure_score,frontier_candidates,frontier_kept,mcts_seed_states,mcts_completed_states,retry_tier,retry_cause,required_family,best_family_rho,best_family_kappa,family_candidate_count,family_viable_count,selected_name,selected_nu,selected_kappa,selected_rho,selected_source,runner_1,runner_2,runner_3,agenda_expanded,agenda_sigma_prunes,agenda_dominance_prunes,agenda_critic_transitions,agenda_action_failures,agenda_near_misses
+1,selected,0.5000,2144,7,honest-strict,2,2,2,10,0.3145,552,552,0,,,,,1047,1024,0,0,0,,,,,0,0,Universe,1,2,0.5000,ENUM_MBTT,,,,0,0,0,0,0,0
+2,selected,0.5000,96,27,honest-strict,1,1,1,15,0.0050,78,78,0,,,,,89,89,0,0,0,,,,,0,0,Unit,1,1,1.0000,ENUM_MBTT,,,,0,0,0,0,0,0
+3,selected,1.3333,96,4,honest-strict,1,1,1,20,0.0093,81,81,0,,,,,88,88,0,0,0,,,,,0,0,Witness,2,1,2.0000,ENUM_MBTT,,,,0,0,0,0,0,0
+4,selected,1.5000,1,1,honest-strict,3,3,3,30,0.0000,1,1,0,,,,,1,1,0,0,0,,,,,0,0,Pi,5,3,1.6667,ENUM_MOLECULAR,,,,0,0,0,0,0,0
+5,no_viable,2.1429,1,0,honest-strict,3,3,,45,0.0000,1,1,0,,,,,1,1,0,0,0,,,,,0,0,,,,,,,,,0,0,0,0,0,0

@@ -99,7 +99,7 @@ Automated discovery in formal mathematics traditionally focuses on searching for
 
 The manuscript separates three claim layers. At the \emph{PEN-theorem layer}, we prove that in fully coupled intensional Homotopy Type Theory (specifically CCHM/HoTT), maintaining global canonicity imposes a Coherence Window of depth $d=2$. This two-step memory forces the interface debt of new structures to scale according to the Fibonacci sequence, raising the survival threshold at the rate of the Golden Ratio. Consequently, purely discrete structures (e.g., natural numbers, classical logic) yield only linear novelty and are permanently rejected, while geometric and topological structures naturally dominate because their higher path constructors generate the superlinear combinatorial capacity required to outpace the exponentially rising bar.
 
-At the \emph{executable layer}, an open-source Haskell synthesis engine operating over a fixed Minimal Binary Type Theory (MBTT) grammar recovers a deterministic 15-step trajectory in its current strict unguided lane. At the \emph{semantic-interpretation layer}, labels such as cohesion, metric, Hilbert, or DCT are post-hoc readings of selected AST skeletons rather than targets encoded in the search. Under that interpretation, the sequence bootstraps minimal type theory, ascends through core homotopy theory, reaches modal and differential API shells, and halts at a temporal-cohesive fixed point whose semantic completion can be read as the Dynamical Cohesive Topos (DCT). The machine-verified strict canon reported here is therefore the output of the present executable artifact under a fixed shared vocabulary, not a hand-calibrated reconstruction or a claim that the system invented its own semantics from scratch.
+At the \emph{executable layer}, an open-source Haskell synthesis engine operating over a fixed Minimal Binary Type Theory (MBTT) grammar together with a disclosed finite inventory of ambient activators, HIT signatures, and API shells recovers a deterministic 15-step trajectory in its current strict bounded molecular-first recovery lane. At the \emph{semantic-interpretation layer}, labels such as cohesion, metric, Hilbert, or DCT are post-hoc readings of selected AST skeletons rather than targets encoded in the search. Under that interpretation, the sequence bootstraps minimal type theory, ascends through core homotopy theory, reaches modal and differential API shells, and halts at a temporal-cohesive shell whose semantic completion can be read as the Dynamical Cohesive Topos (DCT). The machine-verified strict canon reported here is therefore the output of the present executable artifact under a fixed shared vocabulary and finite shell inventory, not a hand-calibrated reconstruction or a claim that the system invented its own semantics from scratch.
 \end{abstract}
 
 \tableofcontents
@@ -120,14 +120,15 @@ This paper presents an executable answer via the \emph{Principle of Efficient No
 and $\nu$ counts marginal derivational expansion while $\kappa$ counts irreducible specification clauses.
 
 The key point is algorithmic: candidate search, scoring, and selection are implemented as one reproducible loop.
-Default discovery is MBTT-first and type-directed over well-typed ASTs; semantic names are assigned only post hoc for interpretability.
+Default recovery is MBTT-first and type-directed over well-typed ASTs, with late-stage exact-band search over a disclosed finite molecular inventory before atomic fallback; semantic names are assigned only post hoc for interpretability.
 The resulting trajectory is deterministic under fixed settings and yields a specific sequence of geometric type-theoretic structures.
 
 \paragraph{Three claim layers.}
 The paper distinguishes three layers that should not be conflated.
-\emph{Executable finding:} the current strict unguided Haskell artifact recovers a specific 15-step trajectory under bounded search.
+\emph{Executable finding:} the current Haskell artifact recovers a specific 15-step trajectory in a strict bounded molecular-first recovery lane under bounded search.
 \emph{PEN-level structural theorem:} under PEN's fixed admissibility policy, cost model, and fully coupled CCHM/HoTT lane, the coherence dynamics force Fibonacci integration debt and privilege high-interaction geometric structure over discrete alternatives.
 \emph{Post-hoc semantic interpretation:} the engine searches over MBTT ASTs, while names such as ``metric,'' ``Hilbert,'' or ``DCT'' are human semantic readings of the selected structural skeletons rather than semantic targets supplied to the evaluator.
+Late-stage discovery in the current executable artifact therefore means objective filtering over a fixed shell inventory, not open-ended invention of a new mathematical vocabulary.
 
 This differs from the dominant theorem-prover use pattern.
 Interactive provers and ATP systems typically consume a human-specified conjecture and produce or check a proof object for that target.
@@ -138,13 +139,14 @@ The Haskell engine is the computational verification of this claim, not an argum
 \paragraph{Fixed shared vocabulary.}
 The search does \emph{not} begin from a semantically empty token inventory.
 The shared MBTT grammar already fixes foundational, modal, and temporal primitives, including $\flat$, $\sharp$, $\Disc$, $\Pi_{\!\infty}$, $\bigcirc$, and $\Diamond$.
+Late-stage recovery also draws from a finite human-authored molecular inventory of ambient activators, HIT signatures, and API shells; \S\ref{sec:mdp-mcts} makes that inventory explicit.
 The defensible claim is narrower: PEN gives these symbols no target-conditioned reward, theorem hint, or hand-written selection bonus.
 They survive only if typed combinations built from that fixed vocabulary clear the same structural objective as every other admissible candidate.
 
 \paragraph{Conjecture versus finding.}
 The paper makes one conjectural claim and one implemented claim, and they should not be conflated.
 \emph{Conjecture:} with sufficiently large compute and materially weaker pruning, the same PEN objective over the same admissible MBTT space would recover the same 15-step trajectory and the same mathematical structures.
-\emph{Finding:} the current implementation recovers that trajectory in a strict unguided lane suitable for standard desktop hardware by combining exact-band admissibility, molecular candidate synthesis, hybrid novelty evaluation, and semantic minimality filtering.
+\emph{Finding:} the current implementation recovers that trajectory in a strict bounded molecular-first recovery lane suitable for standard desktop hardware by combining exact-band admissibility, a fixed molecular shell inventory, hybrid novelty evaluation, and semantic minimality filtering.
 These tractability devices are part of the implementation status report, not part of the mathematical theorem.
 Legacy structural audits and reference telescopes remain diagnostics only and do not override the strict canon reported in this manuscript.
 
@@ -153,7 +155,7 @@ We prove that intensional type theory, in the fully coupled CCHM/HoTT lane studi
 This two-step memory forces the integration cost to obey the Fibonacci recurrence $\Delta_{n+1} = \Delta_n + \Delta_{n-1}$, so the selection threshold rises at the rate of the Golden Ratio $\varphi \approx 1.618$.
 
 Against this exponentially rising bar, only structures with \emph{superlinear} novelty growth can survive.
-Discrete structures---natural numbers, ordinals, classical logic---have at most linear novelty ($\nu_H = 0$, no path constructors), so they are permanently rejected once the bar exceeds their efficiency.
+Discrete structures---natural numbers, ordinals, classical logic---have at most linear novelty ($\nu_H = 0$, no path constructors), so they are permanently rejected once the bar exceeds their efficiency; \S\ref{sec:exponentiality} promotes this to a general asymptotic proposition for $0$-groupoid-style candidates.
 Geometric structures, by contrast, carry nontrivial homotopy content: path constructors generate $\mathcal{O}(d^2)$ independent computation rules, producing the superlinear novelty needed to outpace the Fibonacci threshold.
 The algorithmic objective $\rho$ thus inherently biases the search away from discrete structures, mathematically demonstrating why continuous, topological frameworks naturally dominate complexity-bounded synthesis.
 
@@ -161,10 +163,10 @@ Starting from an empty library, the selection process produces a 15-step \emph{P
 \begin{enumerate}[nosep]
     \item \textbf{Bootstrap} (steps 1--4): A universe, unit type, witness, and dependent function/sum types---the minimal infrastructure of type theory.
     \item \textbf{Geometric Ascent} (steps 5--9): The circle $S^1$, propositional truncation, the sphere $S^2$, the H-space $S^3$, and the Hopf fibration---the core objects of homotopy theory.
-    \item \textbf{Framework Abstraction} (steps 10--14): Cohesion (differential modalities), connections, curvature, metric structure with associated operators, and Hilbert-functional structure.
-    \item \textbf{Synthesis} (step 15): A temporal-cohesive extension whose semantic completion is read as the Dynamical Cohesive Topos (DCT) fuses spatial logic with Nakano temporal modalities and explicit exchange axioms, clears the selection bar with the largest absolute overshoot in the sequence ($\rho = 11.00$, bar $= 7.51$), and triggers PEN's terminal halting condition.
+    \item \textbf{Framework Abstraction} (steps 10--14): Cohesion, connections, curvature, an endomorphic operator bundle (metric-equivalent semantic reading), and Hilbert-functional structure.
+    \item \textbf{Synthesis} (step 15): A temporal-cohesive shell whose semantic completion is read as the Dynamical Cohesive Topos (DCT) fuses spatial logic with Nakano temporal modalities and explicit exchange axioms, clears the selection bar with the largest absolute overshoot in the sequence ($\rho = 11.00$, bar $= 7.51$), and triggers PEN's local halting condition.
 \end{enumerate}
-Termination is not a failure of the search: the Step-15 temporal-cohesive package internalizes continuous evolution on the connected component of the Univalent Universe, so every subsequent continuous proposal has zero marginal novelty up to equivalence, while disconnected axiomatic jumps cannot amortize the required interface debt under PEN's bar.
+Termination is not a failure of the search: the Step-15 temporal-cohesive shell internalizes continuous evolution on the connected component of the Univalent Universe, so every subsequent continuous proposal has zero marginal novelty up to equivalence, while disconnected axiomatic jumps cannot amortize the required Step-16 interface debt $\Delta_{16}=F_{16}=987$ under PEN's bar.
 We call this boundary the \emph{Univalent Horizon}---the connected-component boundary of the type-theoretic moduli space beyond which only external axiomatic jumps can reach.
 
 The model produces several structural results:
@@ -172,18 +174,18 @@ The model produces several structural results:
     \item The \textbf{Coherence Window Theorems} establish $d = 1$ for extensional type theory (constant costs, stagnation) and $d = 2$ for the fully coupled CCHM/HoTT intensional lane analyzed here (Fibonacci costs, sustained evolution), via three independent arguments from categorical, homological, and topological perspectives.
     \item The \textbf{Complexity Scaling Theorem} shows that this $d = 2$ coherence regime forces $\Delta_n = F_n$ (the Fibonacci sequence), making the Golden Ratio $\varphi$ the dominant eigenvalue of mathematical evolution.
     \item The \textbf{Combinatorial Novelty Theorem} proves that novelty grows superlinearly, ensuring that efficiency permanently outpaces the rising selection bar.
-    \item The \textbf{Terminal Fixed-Point Analysis} shows that the DCT endpoint is selected with a large deterministic overshoot in the current strict lane and realizes the unique high-interaction structural fixed point available inside the connected component explored by the engine.
+    \item The \textbf{Terminal Fixed-Point Analysis} shows that the temporal-cohesive endpoint is selected with a large deterministic overshoot in the current strict recovery lane and realizes the unique high-interaction structural fixed point available inside the connected component explored by the engine.
 \end{itemize}
-Computational verification is provided by an open Haskell synthesis engine that recovers the 15-step sequence in its current strict unguided lane.
+Computational verification is provided by an open Haskell synthesis engine that recovers the 15-step sequence in its current strict bounded molecular-first recovery lane.
 The main machine-verified values in this paper come from that strict run; older structural-AST and type-inhabitation diagnostics are retained only as secondary checks where they do not contradict the strict canon.
 Formal proofs in Cubical Agda verify the Fibonacci recurrence and the abstraction barrier at steps 8--9.
 
 \paragraph{Scope and limitations.}
 A common objection to automated mathematical discovery is teleology---that target structures were smuggled into candidate generation.
-Our current implementation addresses this by making MBTT-first typed AST synthesis the default runtime path, so the primary search is syntactic rather than reference-replay.
-The strict implementation still uses bounded search and explicit admissibility controls, but its main discovery path is now the strict unguided lane described in \S\ref{sec:verification}.
+Our current implementation addresses this partly by making MBTT-first typed AST synthesis the default runtime path, but the late-stage search basis is \emph{not} semantically empty: it is a disclosed finite inventory of ambient activators, HIT signatures, and API shells compiled to MBTT only after exact-band selection.
+The strict implementation still uses bounded search and explicit admissibility controls, and its main discovery path is the strict bounded recovery lane described in \S\ref{sec:verification}.
 The PEN evaluator remains structural: it computes efficiency mechanically from the candidate and library state, and the names in Table~\ref{tab:genesis} are post-hoc semantic identifications of selected syntactic winners.
-The search also uses a fixed shared vocabulary rather than an unbiased empty grammar; what is absent is target-conditioned scoring, theorem injection, and semantic rewards for any particular modal or geometric label.
+The search therefore uses both a fixed shared vocabulary and a fixed shell inventory rather than an unbiased empty grammar; what is absent is target-conditioned scoring, theorem injection, and semantic rewards for any particular modal or geometric label.
 PEN therefore derives a concrete trajectory of geometric type-theoretic library extensions, not a claim of global uniqueness across all logics or all objective functions.
 The model still assumes \emph{maximal interface density} (each candidate seals against the exported interface of the past $d$ layers).
 For foundational constructors and modalities, that burden is tied to canonicity preservation: without explicit interaction clauses against prior eliminators, normalization can get stuck and the $d=2$ Fibonacci latency theorem loses its logical basis.
@@ -194,7 +196,7 @@ For late API specifications, the same burden is enforced by an economic-topologi
     \item A formal selection model (PEN) with explicit axioms, costs, and admissibility.
     \item An executable strict MBTT-first synthesis algorithm implementing the model end-to-end.
     \item Structural theorems linking coherence depth to Fibonacci integration dynamics and bar growth.
-    \item A deterministic 15-step PEN trajectory plus auditable omitted alternatives under the same scoring rule, together with a strict unguided recovery of that trajectory in the current implementation.
+    \item A deterministic 15-step PEN trajectory plus auditable omitted alternatives under the same scoring rule, together with a strict bounded recovery of that trajectory in the current implementation.
     \item Open, reproducible artifact support: source, scripts, and instructions for independent reruns.
 \end{enumerate}
 
@@ -248,7 +250,7 @@ On the metamathematical side, our use of intensionality is aligned with work sho
 
 \Cref{tab:genesis} displays the complete output of the Principle of Efficient Novelty: a deterministic emergence path of geometric type-theoretic structure from an empty intensional library.
 The model operates on abstract Obligation Graphs rather than syntactic artifacts; it generates candidate structures, computes their integration costs, and selects the least supercritical admissible candidate.
-The reader should treat the table in two ways: as the mathematical prediction produced by the PEN model, and as the trajectory that the current strict unguided implementation recovers under bounded desktop-oriented search policies.
+The reader should treat the table in two ways: as the mathematical prediction produced by the PEN model, and as the trajectory that the current strict bounded recovery implementation recovers under bounded desktop-oriented search policies.
 
 \subsection{Syntactic Skeletons vs.\ Semantic Interpretation}
 \label{sec:semantic-firewall}
@@ -265,9 +267,10 @@ The executable finding is narrower: the engine selects compact, highly coupled t
 Accordingly, \cref{tab:genesis} should be read with three constraints in mind:
 \begin{enumerate}[nosep]
     \item \textbf{What PEN derives:} A deterministic sequence of realizable library extensions under fixed axioms, admissibility, vocabulary, and ranking.
-    \item \textbf{What PEN does not derive:} A semantic theorem that every selected AST already contains the full body of the human mathematical concept named in the ``Structure'' column.
-    \item \textbf{What the implementation establishes:} Recovery of this trajectory in the current strict unguided lane, not exhaustive search over the full admissible MBTT space.
+    \item \textbf{What PEN does not derive:} A semantic theorem that every selected AST already contains the full body of the human mathematical concept named in the late-row glosses.
+    \item \textbf{What the implementation establishes:} Recovery of this trajectory in the current strict bounded recovery lane, not exhaustive search over the full admissible MBTT space.
 \end{enumerate}
+Late rows should therefore be read shell-first: the quantitative canon attaches to the selected AST skeleton, while labels such as ``metric'' and ``DCT'' name semantic completions discussed later in the paper.
 
 \begin{definition}[Three structural components of novelty]
 \label{def:nu-components-preview}
@@ -281,12 +284,13 @@ This notation is used throughout \cref{tab:genesis} and receives its operational
 
 \begin{table}[tbp]
 \centering
-\caption{The PEN Synthesis Trajectory.  $\nu$ is the Generative Capacity (count of atomic inference rules added to the derivation logic).  The quantitative canon in this table is the machine-verified output of the current strict unguided Haskell engine (\S\ref{sec:verification}).  Legacy structural and uniform diagnostics are discussed later only as secondary cross-checks and do not override these values.  Structure names are post-hoc human semantic labels for anonymous selected ASTs.}
+\caption{The PEN Synthesis Trajectory.  $\nu$ is the Generative Capacity (count of atomic inference rules added to the derivation logic).  The quantitative canon in this table is the machine-verified output of the current strict bounded recovery Haskell engine (\S\ref{sec:verification}).  Legacy structural and uniform diagnostics are discussed later only as secondary cross-checks and do not override these values.  Rows 10--15 should be read as selected AST skeletons with post-hoc semantic readings, not as literal theorem-level presentations of the named human theories; in particular, Step~13 receives the metric-equivalent reading and Step~15 receives the semantic DCT completion.}
 \label{tab:genesis}
 \small
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}cr l rrrr rrr@{}}
 \toprule
-$n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\
+$n$ & $\tau$ & Selected AST skeleton & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\
 \midrule
 1  & 1    & Universe $\U_0$              & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
 2  & 2    & Unit type $\mathbf{1}$       & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
@@ -299,13 +303,13 @@ $n$ & $\tau$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $
 8  & 54   & H-space $S^3$                & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
 9  & 88   & Hopf fibration               & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
 \midrule
-10 & 143  & Cohesion                     & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
-11 & 232  & Connections                  & 89  & 27  & 5 & 5.40  & 1.62 & 3.03 & 4.91 \\
-12 & 376  & Curvature tensors            & 144 & 35  & 6 & 5.83  & 1.62 & 3.38 & 5.47 \\
-13 & 609  & Metric + frame bundle        & 233 & 47  & 7 & 6.71  & 1.62 & 3.75 & 6.07 \\
-14 & 986  & Hilbert functional           & 377 & 63  & 9 & 7.00  & 1.62 & 4.19 & 6.78 \\
+10 & 143  & Modal shell (cohesion reading)              & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connection shell                            & 89  & 27  & 5 & 5.40  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature shell                             & 144 & 35  & 6 & 5.83  & 1.62 & 3.38 & 5.47 \\
+13 & 609  & Endomorphic operator bundle (metric reading) & 233 & 47  & 7 & 6.71  & 1.62 & 3.75 & 6.07 \\
+14 & 986  & Hilbert-functional shell                    & 377 & 63  & 9 & 7.00  & 1.62 & 4.19 & 6.78 \\
 \midrule
-15 & 1596 & Dynamical Cohesive Topos     & 610 & 88  & 8 & 11.00 & 1.62 & 4.64 & 7.51 \\
+15 & 1596 & Temporal-cohesive shell (semantic DCT completion) & 610 & 88  & 8 & 11.00 & 1.62 & 4.64 & 7.51 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -318,12 +322,13 @@ Three features matter for the rest of the paper:
     \item \textbf{Fibonacci timing.} $\Delta_n$ follows $F_n$ and $\tau_n=F_{n+2}-1$.
     \item \textbf{Selective survival.} Every realized structure clears the bar, with the tightest margin at Step~6.
     \item \textbf{Four phases.} The trajectory separates into bootstrap, geometric ascent, framework abstraction, and terminal synthesis.
+    \item \textbf{Shell-first late rows.} Steps~10--15 are named by selected AST skeletons first; their human mathematical names are semantic glosses supplied only after selection.
 \end{enumerate}
 A worked arithmetic expansion of Steps~5--6 and an expanded reading guide are deferred to \cref{app:worked-arithmetic}.
 
 \subsection{The Efficiency Peak}
 
-The fifteenth structure is a temporal-cohesive extension whose semantic completion is read as the Dynamical Cohesive Topos (DCT).
+The fifteenth selected shell is temporal-cohesive; DCT is its semantic completion.
 Syntactically, the selected AST combines spatial logic (cohesion) with temporal logic (LTL~\cite{nakano}) and explicit exchange laws only; the infinitesimal reading is derived later as a semantic consequence rather than postulated as a primitive clause.
 Its strict machine-verified efficiency is $\rho = 11.00$, clearing the Step-15 bar of $7.51$ by an absolute overshoot of $3.49$, the largest in the sequence.
 The current strict evaluator reaches this value by scoring the conceptual temporal shell at conceptual cost $\kappa = 8$ and measuring its mechanically available temporal-cohesive interaction payload against the existing library.
@@ -331,7 +336,7 @@ Unlike earlier drafts, we do not treat a separate structural-AST count of $103$ 
 The manuscript canon is the strict machine value reported in \cref{tab:genesis}; explanatory rule-group reconstructions later in the paper are subordinate to that total.
 We define the Step-15 AST and its semantic DCT reading in \S\ref{sec:exponentiality} and detail the computational verification in \S\ref{sec:verification}.
 
-After this temporal-cohesive step, no candidate in PEN's strict fully coupled lane can clear the bar.
+After this temporal-cohesive step, no candidate in PEN's strict fully coupled lane can clear the positive Step-16 bar: internal continuations contribute zero marginal novelty up to equivalence, while disconnected jumps face the full interface debt $\Delta_{16}=987$.
 The sequence halts algorithmically.
 
 % ============================================
@@ -653,7 +658,7 @@ This enforces the empty-library premise at the clause-accounting level and remov
 
 \begin{observation}[DCT fixed-point preview]
 \label{thm:spectral-preview}
-The terminal candidate selected at step~15 is the temporal-cohesive package whose semantic completion is read as DCT, with strict machine values $\nu=88$, $\kappa=8$, and $\rho=11.00$, clearing the bar by the largest absolute overshoot in the sequence.
+The terminal candidate selected at step~15 is the temporal-cohesive shell whose semantic completion is read as DCT, with strict machine values $\nu=88$, $\kappa=8$, and $\rho=11.00$, clearing the bar by the largest absolute overshoot in the sequence.
 Section~\ref{sec:decomposition} consolidates the evidence that this endpoint is the terminal structural fixed point selected by the objective rather than by target-conditioned theorem search.
 \end{observation}
 
@@ -828,6 +833,9 @@ The minimal-overshoot criterion is not reward shaping or raw greed.
 It is PEN's MDL-style filter for constructive primality.
 If one maximized $\rho$ outright, constructively composite candidates would dominate by packing several independently viable strongly connected components into one update and thereby importing surplus inferential power not forced by the historical integration debt.
 Minimal overshoot removes that slack: once a proper SCC-factor already clears the bar, the packed candidate is rejected as over-expressive for the current step.
+This is not only conceptual.
+In the current strict replay, the greedy max-$\rho$ ablation (\texttt{--max-rho}) first diverges at Step~6, selecting $S^2$ instead of propositional truncation; the resulting library compresses to 14 rather than 15 steps and reaches an inflated terminal shell with $\nu=99$ and $\rho=12.375$.
+Greedy selection therefore does not preserve the one-constructively-prime-update-at-a-time interpretation of the trajectory, even though it still finds a high-scoring late package.
 PEN therefore assimilates one structurally indivisible concept at a time, choosing the bar-clearer whose efficiency is closest to the cumulative baseline.
 \end{remark}
 
@@ -858,7 +866,7 @@ $\tau_n := \sum_{i=1}^{n} \Delta_i = F_{n+2} - 1$ for $d = 2$.
 The implementation follows the same abstract loop at every step:
 \begin{enumerate}[nosep]
     \item Compute strict admissibility from the active two-layer interface debt.
-    \item Enumerate exact-band candidates, prioritizing molecular packages and falling back to atomic MBTT enumeration only when molecular enumeration is empty.
+    \item Enumerate exact-band candidates from the current finite molecular inventory, falling back to bounded atomic MBTT enumeration only when that inventory is empty at the active band.
     \item Type-check candidates, deduplicate by canonical key, and evaluate each candidate at conceptual cost.
     \item Apply semantic minimality by testing proper terminal SCC sub-bundles against the same active bar.
     \item Select by minimal positive overshoot (tie-break by lower $\kappa$, then deterministic key).
@@ -880,7 +888,7 @@ for step n:
   B_{n+1} <- InsertConceptualExports(B_n, x*)
 \end{verbatim}
 
-This is the canonical path used in the current strict synthesis lane: no paper-value substitution, no step-indexed reference injection in scoring, and no target-conditioned ranking.
+This is the canonical path used in the current strict recovery lane: no paper-value substitution, no step-indexed reference injection in scoring, and no target-conditioned semantic reward.
 The key tractability move is representational rather than semantic: the engine searches over exact-band molecular signatures whose compiled payloads are checked and evaluated honestly against the same PEN bar.
 
 \subsection{Exact-Band Molecular Search}
@@ -894,12 +902,46 @@ Each molecular candidate carries three layers:
     \item \textbf{Provenance split.} Axiomatic clauses count toward conceptual cost; framework-derived clauses provide mechanically forced eliminators or computation rules at zero additional conceptual $\kappa$.
 \end{itemize}
 
+The current molecular inventory is finite and explicit.
+At the signature level it contains exactly three ambient activators (\texttt{Pi}, \texttt{Sigma}, \texttt{Trunc}), three geometric HIT shells (one-point/one-path, one-point/two-path, one-point/three-path), and seven API shells (\texttt{MapBridge}, \texttt{Modal}, \texttt{Connection}, \texttt{Curvature}, \texttt{Metric}, \texttt{Hilbert}, \texttt{Temporal}).
+Availability is determined procedurally from the current library state: e.g.\ the temporal shell is opened only once modal and Hilbert capabilities are already present, while the metric shell is opened only once differential and curvature capabilities are present.
+The executable claim is therefore not that the engine invents its own late-stage vocabulary from scratch, but that it objectively filters this disclosed basis under one fixed admissibility and selection rule.
+
 The current strict canon does not rely on the older MCTS-guided claim-grade lane.
 Instead, later-stage structures are reached by exact-band molecular compilation together with hybrid strict evaluation:
 \[
   \nu_{\mathrm{strict}} = (\nu_G+\nu_C)_{\mathrm{native}} + \nu_{H,\mathrm{explicit}},
 \]
 where the first term is computed on the conceptual shell and the second counts only explicit topological witness payload whose framework-derived computations are present in the compiled telescope.
+The baseline strict replay reported in \texttt{runs/review\_hardening/baseline\_prefix.csv} makes the resulting search basis concrete: after the bootstrap, each realized band contains only the currently unlocked molecular inventory for that band, and by Step~7 onward the viable bar-clearing set is singleton.
+
+\begin{table}[tbp]
+\centering
+\caption{Baseline strict replay telemetry for the current bounded molecular-first lane.  ``Raw'' counts the active-band candidate pool before canonical quotienting; ``Distinct'' counts canonical candidates after deduplication; ``Viable'' counts bar-clearers after semantic minimality.}
+\label{tab:search-telemetry}
+\small
+\begin{tabular}{@{}r l rrr l@{}}
+\toprule
+Step & Winner & Raw & Distinct & Viable & Source \\
+\midrule
+1  & Universe    & 2144 & 552 & 7 & MBTT \\
+2  & Unit        & 96   & 78  & 27 & MBTT \\
+3  & Witness     & 96   & 81  & 4 & MBTT \\
+4  & $\Pi/\Sigma$ shell & 1 & 1 & 1 & molecular \\
+5  & $S^1$ shell & 1 & 1 & 1 & molecular \\
+6  & Trunc shell & 3 & 3 & 2 & molecular \\
+7  & $S^2$ shell & 2 & 2 & 1 & molecular \\
+8  & $S^3$ shell & 1 & 1 & 1 & molecular \\
+9  & Hopf shell  & 1 & 1 & 1 & molecular \\
+10 & Modal shell & 2 & 2 & 1 & molecular \\
+11 & Connection shell & 2 & 2 & 1 & molecular \\
+12 & Curvature shell & 3 & 3 & 1 & molecular \\
+13 & Endomorphic operator bundle & 3 & 3 & 1 & molecular \\
+14 & Hilbert-functional shell & 4 & 4 & 1 & molecular \\
+15 & Temporal-cohesive shell & 3 & 3 & 1 & molecular \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ============================================
 % SECTION 5: COHERENCE WINDOWS
@@ -1276,7 +1318,7 @@ A \emph{temporal-cohesive Step-15 extension} is a type theory equipped with:
 \end{enumerate}
 Construction effort: $\kappa = 8$ clauses, exactly as audited in \cref{tab:step15}.
 No primitive infinitesimal object $\D$ appears in the selected AST; adding one would incur extra $\kappa$ with no syntactic justification from the engine's chosen specification.
-In the remainder, ``DCT'' refers to the semantic completion of this temporal-cohesive package once \cref{lem:infinitesimal-temporal} identifies its derived tangent behavior.
+In the remainder, ``DCT'' refers to the semantic completion of this temporal-cohesive shell once \cref{lem:infinitesimal-temporal} identifies its derived tangent behavior.
 \end{definition}
 
 \begin{theorem}[Combinatorial Schema Synthesis]
@@ -1285,8 +1327,8 @@ When a synthesis candidate introduces $k$ new unary type formers into a library 
 \end{theorem}
 
 \noindent \textbf{Application.}
-The selected temporal-cohesive package introduces temporal modalities ($\bigcirc$, $\Diamond$) into a library of 14~structures already equipped with spatial modalities ($\flat$, $\sharp$, $\Disc$, $\Pi_{\mathrm{coh}}$).
-In the current strict lane, this package is evaluated at conceptual cost $\kappa=8$ and yields the canonical machine value $\nu = 88$, hence $\rho = 11.00$.
+The selected temporal-cohesive shell introduces temporal modalities ($\bigcirc$, $\Diamond$) into a library of 14~structures already equipped with spatial modalities ($\flat$, $\sharp$, $\Disc$, $\Pi_{\mathrm{coh}}$).
+In the current strict bounded recovery lane, this shell is evaluated at conceptual cost $\kappa=8$ and yields the canonical machine value $\nu = 88$, hence $\rho = 11.00$.
 The manuscript no longer treats the older uniform and structural-AST tallies as canonical here.
 What matters for the present theorem is that the temporal shell clears the active bar by a wide margin and acts as a library-wide endofunctor over the already selected cohesive and differential layers.
 
@@ -1317,13 +1359,26 @@ Therefore the efficiency $\rho_n = \nu_n / \kappa_n$ grows without bound as $\nu
 
 The bar $\mathrm{Bar}_n = \varphi \cdot \Omega_{n-1}$ is a cumulative average, growing at most linearly.
 The ratio $\rho_n / \mathrm{Bar}_n$ is eventually increasing, so efficiency permanently clears the bar.
-The singularity of the Dynamical Cohesive Topos is structurally guaranteed: combinatorial novelty dominates bounded specification cost.
+The temporal-cohesive endpoint is structurally guaranteed to be high-yield in this regime: combinatorial novelty dominates bounded specification cost.
+\end{proof}
+
+\begin{proposition}[Asymptotic rejection of discrete candidates]
+\label{prop:discrete-asymptote-main}
+Let $X$ be a candidate family with $\nu_H(X)=0$ and $\nu_G(X)=O(\kappa(X))$.
+Then in the fully coupled $d=2$ PEN regime, $X$ eventually fails the selection bar permanently.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+If $\nu_H(X)=0$, the candidate contributes no homotopy-driven superlinear term.
+Under the stated hypothesis, novelty grows at most linearly in specification size, so $\rho(X)=\nu(X)/\kappa(X)$ remains bounded.
+By \cref{thm:scaling,thm:divergence}, the active geometric frontier can sustain efficiencies that continue to outpace the Fibonacci-governed bar, while purely discrete families cannot.
+Hence once the bar rises past the bounded discrete efficiency ceiling, all later members of the family remain subcritical.
 \end{proof}
 
 \begin{remark}[Divergence vs.\ termination]
 \label{rem:divergence-vs-termination}
 \Cref{thm:divergence} describes the \emph{theoretical trajectory} of efficiency growth: given an inexhaustible supply of structurally distinct geometric primitives, the combinatorial novelty of successive candidates grows without bound.
-The algorithmic halting theorem (\cref{thm:end-of-history}) describes what \emph{actually happens} in PEN's fully coupled strict lane: after Step~15, continuous internal continuations contribute zero marginal novelty up to equivalence, while disconnected extensions are starved by interface debt.
+The algorithmic halting theorem (\cref{thm:end-of-history}) describes what \emph{actually happens} in PEN's current strict bounded recovery lane: after Step~15, continuous internal continuations contribute zero marginal novelty up to equivalence, while disconnected extensions are starved by interface debt.
 The two results are complementary, not contradictory: divergence guarantees that the selection mechanism \emph{never stalls prematurely} (efficiency always outpaces the bar while geometric primitives remain available), while halting identifies the first step at which PEN's internal/external squeeze leaves no admissible bar-clearer.
 \end{remark}
 
@@ -1333,7 +1388,7 @@ The two results are complementary, not contradictory: divergence guarantees that
 \subsection{The Tangent Topos Hypothesis and the Combinatorial Squeeze}
 \label{sec:tangent-topos}
 
-The abrupt termination of the PEN Synthesis Trajectory after Step~15 is not a heuristic failure of the search space, but an algorithmic phase transition inside PEN's fully coupled strict lane. The selected temporal-cohesive package internalizes continuous deformation inside the connected component of $\U_0$, while any disconnected extension must pay the full interface debt of the accumulated library. We formalize this by proving that the semantic DCT completion acts as a tangent-style internalization of the historical library and then showing that Step~16 faces a combinatorial squeeze.
+The abrupt termination of the PEN Synthesis Trajectory after Step~15 is not a heuristic failure of the search space, but an algorithmic phase transition inside PEN's current strict bounded recovery lane. The selected temporal-cohesive shell internalizes continuous deformation inside the connected component of $\U_0$, while any disconnected extension must pay the full interface debt of the accumulated library. We formalize this by proving that the semantic DCT completion acts as a tangent-style internalization of the historical library and then showing that Step~16 faces a combinatorial squeeze.
 
 \begin{theorem}[Syntactic-Semantic Transfer: Emergence of the Infinitesimal]
 \label{lem:infinitesimal-temporal}
@@ -1434,25 +1489,25 @@ The halting claim is therefore algorithmic and PEN-local, not a claim that mathe
 % ============================================
 % SECTION 8: DCT FIXED-POINT CONSOLIDATION
 % ============================================
-\section{The Dynamical Cohesive Topos as a Terminal Structural Fixed Point}
+\section{The Temporal-Cohesive Shell as a Terminal Structural Fixed Point}
 \label{sec:decomposition}
 \label{sec:dct-discovery}
 
-This section consolidates the manuscript's Step-15 claim around the semantic DCT completion of the selected temporal-cohesive AST.
-Under fixed fully coupled settings, the PEN objective realizes that temporal-cohesive package as the terminal high-yield extension, and the current strict unguided engine recovers that package under bounded search.
-The key claim is not semantic naming, but structural: a typed search-and-selection engine with no target theorem injection in its scoring path reaches a nontrivial fixed point.
+This section consolidates the manuscript's Step-15 claim around the selected temporal-cohesive AST and its semantic DCT completion.
+Under fixed fully coupled settings, the PEN objective realizes the temporal-cohesive shell as the terminal high-yield extension, and the current strict bounded recovery engine recovers that shell under bounded search.
+The key claim is not semantic naming, but structural: a typed search-and-selection engine with no target theorem injection in its scoring path reaches a PEN-local fixed point at the Univalent Horizon of the current $d=2$ lane.
 
-\subsection{Why DCT Is a Terminal Signal}
+\subsection{Why the Temporal-Cohesive Shell Is a Terminal Signal}
 
-\begin{observation}[Terminal DCT fixed-point signal]
+\begin{observation}[Terminal temporal-cohesive fixed-point signal]
 \label{thm:spectral}
-In the current strict unguided mode, the engine selects a step-15 candidate with $\kappa=8$, $\nu=88$, and $\rho=11.00$, clearing the step-15 bar (7.51) by an absolute overshoot of $3.49$, the largest in the sequence.
+In the current strict bounded recovery mode, the engine selects a Step-15 temporal-cohesive shell with $\kappa=8$, $\nu=88$, and $\rho=11.00$, clearing the step-15 bar (7.51) by an absolute overshoot of $3.49$, the largest in the sequence.
 The selection is made from admissible typed candidates under fixed rules and bounded budgets, without step-indexed target conditioning or reference-candidate replay in the scoring-selection lane.
 \end{observation}
 
 The interpretive claim is deliberately conservative.
 We do \emph{not} claim global uniqueness across all possible logics or objectives.
-We claim that, under PEN and the implemented mechanism, DCT is the terminal selected structure and the first point at which the library internalizes its own evolution operator.
+We claim that, under PEN and the implemented mechanism, the temporal-cohesive shell is the terminal selected structure in this lane and the first point at which the library internalizes its own evolution operator; ``DCT'' names its semantic completion rather than the raw AST itself.
 
 This is methodologically distinct from the dominant theorem-prover workflow.
 Classical ITP/ATP systems validate user-supplied conjectures.
@@ -1496,6 +1551,8 @@ In CCHM cubical type theory with connections, the computation-rule contribution 
 \]
 \end{theorem}
 
+\noindent In the current strict evaluator this theorem is used as an exact computational shortcut on the candidate's explicit path data; the code does not dynamically enumerate every surviving reduction one by one when the same value is already fixed by the CCHM interaction matrix.
+
 \begin{proof}[Proof sketch]
 The $m$ term counts the explicit boundary reductions attached to the $m$ declared path constructors of~$X$.
 Each constructor contributes one independent computation rule when its boundary is reduced against the corresponding eliminator.
@@ -1517,9 +1574,10 @@ independent reductions, and therefore $\nu_H = m + d^2$.
 
 \begin{remark}[Sensitivity of $\nu_H$]
 \label{rem:nuH-sensitivity}
-The strict lane uses $m+d^2$ as the canonical calibration for the explicit path-style computation payload that survives into the current hybrid evaluator.
+The current strict bounded recovery lane uses $m+d^2$ as the canonical calibration for the explicit path-style computation payload that survives into the current hybrid evaluator.
 This is the operative formula for the HIT and higher-path parts of the strict canon.
-Earlier sensitivity sweeps around broader structural-AST counting are historical diagnostics only and are not used as manuscript evidence for the present Step-15 total.
+The current ablation replay in \texttt{runs/review\_hardening/} is sensitive in exactly the way the theorem predicts: weakening the shortcut to $m+d$ halts the strict bounded recovery lane after Step~6, while removing the dimensional term entirely halts after Step~4 before any geometric HIT survives.
+Thus the quadratic term is not a cosmetic bonus on late geometry; it is the operative CCHM shortcut that keeps the geometric branch open at all.
 \end{remark}
 
 \begin{proposition}[Schema Canonicality]
@@ -1565,9 +1623,9 @@ The first command checks the core acceptance harness; the second reproduces the 
 
 \paragraph{Candidate generation.}
 The strict engine computes admissibility from the active two-layer interface debt, opens a small set of exact $\kappa$-bands, and searches those bands in priority order.
-Within each band it first enumerates molecular packages---ambient formers, HIT signatures, and API shells---then compiles them to MBTT telescopes and checks them for well-typedness.
+Within each band it first enumerates a finite disclosed molecular inventory---ambient formers, HIT signatures, and API shells---then compiles those signatures to MBTT telescopes and checks them for well-typedness.
 Only if molecular enumeration is empty does it fall back to atomic MBTT enumeration.
-This is the key search-policy shift that makes the present strict lane feasible without target-conditioned ranking.
+This is the key search-policy shift that makes the present strict bounded recovery lane feasible without target-conditioned semantic ranking.
 
 \paragraph{Conceptual $\kappa$ and compiled payload.}
 Each molecular candidate separates conceptual $\kappa$, axiomatic exports, and compiled telescope payload.
@@ -1583,15 +1641,16 @@ For molecular seeds the strict engine uses a hybrid evaluator:
 \]
 The native term is computed on the conceptual evaluation telescope.
 The explicit topological term counts only path-style witness payload whose framework-derived computation clauses are physically present in the compiled telescope.
+In the current strict code path this payload is scored by the theorem-backed shortcut $\nu_H=m+d^2$ on the compiled witness basis, rather than by dynamically expanding all CCHM reductions individually.
 This is the canonical source of the machine values in \cref{tab:genesis}.
 
 \paragraph{Semantic minimality.}
 Every bar-clearing candidate is subjected to semantic minimality filtering.
 The engine removes terminal SCC sub-bundles, re-checks the remainder for well-typedness, and rejects any candidate whose proper sub-bundle already clears the active bar.
-This operationalizes constructive primality in the current strict lane.
+This operationalizes constructive primality in the current strict bounded recovery lane.
 
 \paragraph{Results.}
-The strict unguided run recovers all 15 structures in the order shown in \cref{tab:genesis}, with machine totals
+The strict bounded recovery run recovers all 15 structures in the order shown in \cref{tab:genesis}, with machine totals
 \[
   (1,1,2,5,7,8,10,18,17,19,27,35,47,63,88)
 \]
@@ -1638,7 +1697,7 @@ For DCT we record only the canonical total unless a finer split is justified dir
 \small
 \begin{tabular}{@{}cl rl@{}}
 \toprule
-$n$ & Structure & $\nu_{\mathrm{strict}}$ & Audit status \\
+$n$ & Selected AST skeleton & $\nu_{\mathrm{strict}}$ & Audit status \\
 \midrule
 1  & Universe         & 1  & exact foundational rule count \\
 2  & Unit             & 1  & exact foundational rule count \\
@@ -1649,12 +1708,12 @@ $n$ & Structure & $\nu_{\mathrm{strict}}$ & Audit status \\
 7  & $S^2$            & 10 & exact HIT reconstruction \\
 8  & $S^3$            & 18 & exact HIT/H-space reconstruction \\
 9  & Hopf             & 17 & exact map reconstruction \\
-10 & Cohesion         & 19 & exact API-shell reconstruction \\
-11 & Connections      & 27 & expository API-shell reconstruction \\
-12 & Curvature        & 35 & expository API-shell reconstruction \\
-13 & Metric           & 47 & expository API-shell reconstruction \\
-14 & Hilbert          & 63 & expository API-shell reconstruction \\
-15 & DCT              & 88 & strict total only; no canonical finer split claimed \\
+10 & Modal shell      & 19 & exact API-shell reconstruction \\
+11 & Connection shell & 27 & expository API-shell reconstruction \\
+12 & Curvature shell  & 35 & expository API-shell reconstruction \\
+13 & Endomorphic operator bundle & 47 & expository API-shell reconstruction \\
+14 & Hilbert-functional shell & 63 & expository API-shell reconstruction \\
+15 & Temporal-cohesive shell & 88 & strict total only; no canonical finer split claimed \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1669,7 +1728,7 @@ This keeps the manuscript aligned with the executable artifact rather than with 
 \label{rem:automation-scope}
 The verification of the PEN Synthesis Trajectory decomposes into two logically independent claims: (a)~the \emph{selection ordering and bar clearance} ($\rho_n \ge \mathrm{Bar}_n$ for all $n$), and (b)~the \emph{rule-component accounting} ($\nu = \nu_G + \nu_C + \nu_H$).
 
-Claim~(a) is verified computationally for \textbf{all 15~steps} by the current strict unguided run itself.
+Claim~(a) is verified computationally for \textbf{all 15~steps} by the current strict bounded recovery run itself.
 Given the admissible typed candidates produced by the generation layer, the PEN quantities $\nu$, $\kappa$, $\rho$, and bar clearance are computed automatically with no paper lookup and no target-conditioned evaluation term.
 
 \noindent Claim~(b)---the internal rule-component accounting---now has mixed status.
@@ -1677,15 +1736,34 @@ For steps~1--10 the explanatory audit is exact.
 For steps~11--14 it is an expository reconstruction constrained to match the strict total.
 For step~15 only the strict total $\nu = 88$ is canonical.
 
-The implemented finding is that the current strict unguided lane recovers the 15-step PEN Synthesis Trajectory and clears every bar mechanically.
+The implemented finding is that the current strict bounded recovery lane recovers the 15-step PEN Synthesis Trajectory and clears every bar mechanically.
 The stronger conjecture is that sufficiently powerful, materially less-pruned search over the same admissible space would recover the same trajectory without the present bounded search controls.
 \end{remark}
 
 \subsection{DCT Sensitivity Sweep}
 
-Earlier DCT sensitivity sweeps targeted the manuscript's older structural-AST calibration.
-Those sweeps are retained only as historical diagnostics and are not part of the current strict canon.
-In the present manuscript, the canonical Step-15 value is the direct strict machine total $\nu = 88$.
+The present manuscript uses only sensitivity sweeps against the current strict evaluator.
+All runs below use the same bounded recovery command with \texttt{--skip-validation --skip-mcts}; the only changes are the explicit ablation flags recorded in \path{runs/review_hardening/ablation_report.md}.
+
+\begin{center}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Ablation & Completed steps & First divergence & Outcome \\
+\midrule
+Baseline & 15 & --- & full trajectory recovered \\
+Greedy max-$\rho$ selector & 14 & Step~6 ($\|{-}\|_0 \to S^2$) & truncation bridge removed; terminal shell inflated to $\nu=99$ \\
+Linear topological bonus ($m+d$) & 6 & Step~7 halt & geometric branch stalls after truncation \\
+No dimensional bonus ($m$ only) & 4 & Step~5 halt & no geometric HIT clears the bar \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+These runs sharpen two reviewer-facing points.
+First, minimal overshoot is not a cosmetic tie-breaker: greedy max-$\rho$ changes the library qualitatively by skipping the truncation bridge and compressing the history into 14 updates.
+Second, the $d^2$ term in $\nu_H$ is not a magic late-stage booster for DCT; weakening it to $O(d)$ already kills the geometric branch before $S^2$ is selected.
 
 \subsection{Cubical Agda Mechanization}
 
@@ -1730,15 +1808,16 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
     \item Schema Canonicality (\cref{prop:grammar-canonical}): depth-1 schemas are window-independent, verified computationally for steps 1--7.
     \item The $S^2 \equiv S^3$ Syntactic Identity (\cref{prop:s2s3}).
     \item \textbf{The Topological Projection} (\cref{thm:topological-projection}): The formula $\nu_H = m + d^2$ is derived from the cubical path algebra within the CCHM framework.  The derivation relies on framework-specific properties (connection maps, Kan operations, spectral degeneration at $E_2$) and should be read as a structural derivation within CCHM cubical type theory rather than a theorem of arbitrary cubical frameworks.
-    \item The terminal DCT fixed-point signal (\cref{thm:spectral}): in the current strict unguided lane, DCT is selected at step~15 with $\nu=88$, $\kappa=8$, and the largest absolute overshoot in the sequence.
+    \item The terminal DCT fixed-point signal (\cref{thm:spectral}): in the current strict bounded recovery lane, the temporal-cohesive shell is selected at step~15 with $\nu=88$, $\kappa=8$, and the largest absolute overshoot in the sequence.
 \end{itemize}
 
 \paragraph{Assumed.}
 \begin{itemize}[nosep]
     \item \textbf{Fully coupled evaluation lane} (\cref{thm:canonicity-preservation,thm:univalent-functoriality,rem:maximal-coupling}): PEN evaluates every candidate under maximal interface density. Within that lane, full coupling is forced by canonicity preservation for foundational constructors and by the economic-topological squeeze of univalent functoriality for API packages. What remains assumed is that the search stays in this monolithic, efficiency-optimized lane throughout.
     \item The Integration Trace Principle is verified for steps~3--9 and the abstraction barrier is machine-checked at steps~8--9, but a general proof for all $k$ remains open.  Steps~10--15 (modal operators and library specifications) are extrapolated: the obligation structure for axioms differs from HITs and maps, and verification of the trace principle for these steps remains open.
-    \item The $\nu$ values in \cref{tab:genesis}: the canonical values are the machine totals produced by the current strict unguided run.  The expository rule audits for steps~11--15 remain subordinate to those totals, although individual components are now justified where named structural theorems apply (notably \cref{thm:telescopic-elimination} for explicit-reference API bundles).
+    \item The $\nu$ values in \cref{tab:genesis}: the canonical values are the machine totals produced by the current strict bounded recovery run.  The expository rule audits for steps~11--15 remain subordinate to those totals, although individual components are now justified where named structural theorems apply (notably \cref{thm:telescopic-elimination} for explicit-reference API bundles).
     \item The DCT novelty claim is local to the current strict evaluator: the canonical statement is $\nu=88$ at conceptual cost $\kappa=8$.  A finer decomposition of that total remains open.
+    \item The late-stage executable basis is finite: the current recovery artifact ranges over a disclosed molecular inventory of ambient activators, HIT signatures, and API shells before atomic fallback.
 \end{itemize}
 
 \paragraph{Open.}
@@ -1757,7 +1836,7 @@ This provides computational evidence that, among the tested values $d \in \{1, 2
 
 \paragraph{Conjecture versus implemented finding.}
 The manuscript's strongest mathematical claim is a \emph{conjecture} about search-power, not a theorem about the current runtime profile: that sufficiently powerful MBTT-first search over the same admissible space would recover the same PEN Synthesis Trajectory without materially changing the present evaluator.
-The \emph{implemented finding} is narrower and fully auditable: the current codebase recovers that trajectory in a strict unguided lane using exact-band admissibility, molecular compilation, hybrid novelty evaluation, and semantic minimality filtering.
+The \emph{implemented finding} is narrower and fully auditable: the current codebase recovers that trajectory in a strict bounded molecular-first recovery lane using exact-band admissibility, molecular compilation, hybrid novelty evaluation, and semantic minimality filtering.
 The paper should therefore be read as proving PEN's objective-level theorems and reporting a strict recovery result for the current executable artifact.
 
 \subsection{Limitations}
@@ -1772,7 +1851,7 @@ The decisive quantities $\nu$, $\kappa$, admissibility, and minimal overshoot ar
 The manuscript's theorems are therefore conditional: once these quantities are fixed by constructive irreducibility, canonicity preservation, and universal coding, the induced trajectory is deterministic.
 
 The topological projection $\nu_H = m + d^2$ is now a derived quantity (\cref{thm:topological-projection}), but the derivation relies on Spectral Degeneration at $E_2$ and the cubical interaction matrix, which are structural properties of the path algebra rather than consequences of the PEN axioms alone.
-In the present manuscript that formula is used only for the explicit path-style payload preserved by the strict evaluator.
+In the present manuscript that formula is used only for the explicit path-style payload preserved by the strict evaluator, where it functions as a theorem-backed shortcut rather than as a hand-tuned late-stage heuristic.
 
 \paragraph{Component decomposition for axiomatic steps.}
 For step~9 (Hopf fibration), $\nu_G = \nu_H = 0$ and $\nu = \nu_C$: as a map introducing no new type formers, all novelty is Elimination rules.
@@ -1809,7 +1888,7 @@ The PEN framework makes three testable predictions:
     \item \textbf{No early efficiency monsters.}
     If a structure existed with $\kappa < 4$ and $\nu > 20$ before homotopy theory, the sequence would be falsified.
     \item \textbf{The DCT novelty count.}
-    $\nu(R_{15}) = 88$ is the canonical machine value in the current strict lane.
+    $\nu(R_{15}) = 88$ is the canonical machine value in the current strict bounded recovery lane.
     If independent analysis reduces this below the bar-clearing threshold $\kappa \cdot \mathrm{Bar}_{15} \approx 60.10$, the terminal fixed-point claim disappears and the framework is falsified.
 \end{enumerate}
 
@@ -1827,15 +1906,15 @@ The Principle of Efficient Novelty determines a 15-step PEN Synthesis Trajectory
 \end{enumerate}
 and two structural results:
 \begin{enumerate}[nosep, start=4]
-    \item \textbf{Terminal DCT Fixed Point.} In PEN's fully coupled strict lane, the temporal-cohesive Step-15 AST is selected with $\nu=88$, $\kappa=8$, and maximal absolute overshoot; its semantic completion is read as DCT, and Step~16 then halts by the internal/external combinatorial squeeze.
+    \item \textbf{Terminal DCT Fixed Point.} In PEN's current strict bounded recovery lane, the temporal-cohesive Step-15 AST is selected with $\nu=88$, $\kappa=8$, and maximal absolute overshoot; its semantic completion is read as DCT, and Step~16 then halts by the internal/external combinatorial squeeze.
     This identifies the terminal fixed point of PEN within the connected component explored by the engine.
-    \item \textbf{Mechanical Verification.} The strict unguided engine recovers the full 15-step sequence with the machine values reported in \cref{tab:genesis}.  Explanatory rule audits and older type-inhabitation diagnostics remain secondary and do not override those totals.
+    \item \textbf{Mechanical Verification.} The strict bounded recovery engine recovers the full 15-step sequence with the machine values reported in \cref{tab:genesis}.  Explanatory rule audits and older type-inhabitation diagnostics remain secondary and do not override those totals.
 \end{enumerate}
 
 The paper's final claim splits in two.
 \emph{Conjecture:} with sufficiently powerful search over the same admissible MBTT space, the same PEN trajectory and same semantic identifications would emerge without the current tractability guidance.
-\emph{Finding:} the present executable artifact recovers that trajectory in a strict unguided lane using exact-band admissibility, molecular compilation, hybrid novelty evaluation, and semantic minimality filtering.
-Taken together, these results support a conditional metatheory of typed library growth rather than an anthropomorphic discovery claim: under PEN's fixed MBTT vocabulary, admissibility policy, minimal-overshoot rule, and maximal-interface-density requirement, the fully coupled CCHM/HoTT $d=2$ coherence regime forces Fibonacci integration debt, superlinear novelty, and convergence to a temporal-cohesive Step-15 fixed point whose semantic completion is DCT and whose external continuation is halted inside the connected component of $\U_0$ explored by the engine.
+\emph{Finding:} the present executable artifact recovers that trajectory in a strict bounded molecular-first lane using exact-band admissibility, a finite disclosed shell inventory, hybrid novelty evaluation, and semantic minimality filtering.
+Taken together, these results support a conditional metatheory of typed library growth rather than an anthropomorphic discovery claim: under PEN's fixed MBTT vocabulary, disclosed finite shell inventory, admissibility policy, minimal-overshoot rule, and maximal-interface-density requirement, the fully coupled CCHM/HoTT $d=2$ coherence regime forces Fibonacci integration debt, superlinear novelty, asymptotic rejection of purely discrete families, and convergence to a temporal-cohesive Step-15 fixed point whose semantic completion is DCT and whose external continuation is halted inside the connected component of $\U_0$ explored by the engine.
 Reproducibility details, rejected-candidate arithmetic, boundary-case clarifications, and full MBTT audits are deferred to the appendices.
 
 % ============================================
@@ -1914,6 +1993,7 @@ The claim is exhaustion of the largest connected fragment reachable from the emp
 
 The DCT count $\nu=88$ is not a raw string count.
 It is the canonical value produced by the current strict hybrid evaluator on the temporal shell selected at step~15.
+Where explicit path-style payload is present, that evaluator uses the theorem-backed CCHM shortcut $\nu_H=m+d^2$ on the compiled witness basis rather than an ad hoc semantic bonus.
 That total is the one used throughout the manuscript and in the executable selection loop.
 
 Likewise, Adjoint Completion (\cref{lem:adjoint-completion}) is not a retrofitted scoring bonus.
@@ -1966,7 +2046,7 @@ They are included to show that PEN does not merely favor one hand-picked branch;
 
 \begin{table}[tbp]
 \centering
-\caption{Rejected candidates at first admissibility.}
+\caption{Rejected candidates at first admissibility under the same fixed evaluator and vocabulary.  Rejection here means ``not an efficient frontier point under PEN,'' not ``mathematically invalid.''}
 \label{tab:rejected}
 \small
 \begin{tabular}{@{}l rrrrl@{}}
@@ -1988,7 +2068,7 @@ Symplectic geometry & $\approx 25$ & 5 & $\approx 5.0$ & 6.07 (step 13) & $\appr
 \end{table}
 
 \paragraph{Discrete candidates.}
-$\N$, classical logic, power-set style axioms, and ordinal arithmetic are all trapped by the same mechanism: they remain 0-groupoid or near-0-groupoid structures, so $\nu_H=0$ and novelty grows at most linearly in specification size.
+$\N$, classical logic, power-set style axioms, and ordinal arithmetic are all trapped by the same mechanism: they remain 0-groupoid or near-0-groupoid structures, so $\nu_H=0$ and novelty grows at most linearly in specification size, exactly as in \cref{prop:discrete-asymptote-main}.
 For $\N$ in particular, addition and multiplication do not increase $\kappa$-worthy novelty because they are definitionally derivable from $\mathsf{rec}_\N$.
 
 \paragraph{Generous arithmetic bundling.}
@@ -2208,22 +2288,19 @@ Total: $2\;(\nu_G) + 4 + 8 + 2 + 19\;(\nu_C) = 35$.
 While the curvature formula $R = d\nabla + \nabla \wedge \nabla$ is algebraically determined by a connection, the \emph{elimination rules} it generates (Bianchi identity, holonomy, Chern--Weil theory) require the curvature as a first-class object with its own structural rules.
 These rules expand the derivation logic in ways not accessible from the connection alone.
 
-\subsection{\texorpdfstring{Step 13: Metric ($g : TX \otimes TX \to \R$)}{Step 13: Metric (g : TX otimes TX -> R)}}
+\subsection{\texorpdfstring{Step 13: Endomorphic Operator Bundle (metric-equivalent reading)}{Step 13: Endomorphic Operator Bundle (metric-equivalent reading)}}
 \label{app:metric-spec}
 
-A Riemannian metric is a symmetric, positive-definite bilinear form on the tangent bundle.
-
-\paragraph{How $\R$ is typed (explicit dependency accounting).}
-The metric codomain $\R$ is not available by default.
-We evaluate explicit scalar routes under strict first-use charging: Cauchy-style arithmetic completion, topological arithmetic compression, and synthetic continuum insertion.
-For a route with scalar burden $\kappa_{\mathrm{scalar}}$, Step~13 is scored by
+A direct inspection of the machine-verified MBTT AST for the Step-13 winner (\cref{tab:step13}) shows that the selected syntax for the leading clause is
 \[
-  \rho_{13}^{\mathrm{strict}} = \frac{47 + \Delta \nu_{\mathrm{mech}}}{7 + \kappa_{\mathrm{scalar}}},
-  \qquad
-  \Delta \nu_{\min} = \left\lceil 6.07\,(7+\kappa_{\mathrm{scalar}})-47\right\rceil.
+  \mathtt{AST}_g = \Sigma(\Pi(\mathrm{Var}_1, \mathrm{Var}_1), \Pi(\mathrm{Var}_1, \mathrm{Var}_1)),
 \]
+where $\mathrm{Var}_1$ resolves to the tangent space~$TX$.
+The selected shell is therefore endomorphic and operator-theoretic before it is ever read as ``metric'' in the semantic layer.
+This shell-first reading is the reason Step~13 survives the scalar objection.
+
 \paragraph{Resolution of the Scalar Penalty: The Operator-Theoretic Bypass.}
-A natural and mathematically precise objection to the Step~13 metric package asks how the specification can formulate a symmetric bilinear form $g : TX \otimes_s TX \to \R$ without paying a large scalar penalty $\kappa_{\mathrm{scalar}}$ to discretely axiomatize the continuum and its commutative ring structure.
+A natural and mathematically precise objection to the Step~13 metric reading asks how the specification can formulate a symmetric bilinear form $g : TX \otimes_s TX \to \R$ without paying a large scalar penalty $\kappa_{\mathrm{scalar}}$ to discretely axiomatize the continuum and its commutative ring structure.
 Attempting to extract $\R$ geometrically from the cohesive shape of the circle fails in standard cohesive HoTT: the circle's universal-cover/fundamental-groupoid route classifies $\mathbb{Z}$-torsors rather than supplying a free real field structure \cite{licata-shulman}.
 Obtaining a genuine continuum object along that route requires extra real-cohesive axioms not selected by PEN \cite{shulman-real-cohesive}.
 
@@ -2232,17 +2309,22 @@ Proving $x \cdot y = y \cdot x$ requires propositional equality witnesses, so a 
 Under the $d=2$ Fibonacci constraints, any positive scalar penalty inflates the denominator and drives the Step-13 efficiency below the survival bar.
 
 This objection is type-theoretically decisive, but it attacks an anthropomorphic reading that the engine itself did not adopt.
-A direct inspection of the machine-verified MBTT AST for the metric bundle (\cref{tab:step13}) shows that the selected syntax for the metric tensor is
-\[
-  \mathtt{AST}_g = \Sigma(\Pi(\mathrm{Var}_1, \mathrm{Var}_1), \Pi(\mathrm{Var}_1, \mathrm{Var}_1)),
-\]
-where $\mathrm{Var}_1$ resolves to the tangent space~$TX$.
 The winning shell therefore bypasses the commutative-continuum penalty entirely: the engine selected an operator-theoretic, endomorphic encoding rather than a literal scalar-valued bilinear form.
 
 Within the semantic-interpretation layer of this appendix, such an endomorphic pair can be read as the forward and inverse musical maps that mediate metric behavior operationally.
 The classical gloss ``$g : TX \otimes_s TX \to \R$'' is therefore a readability translation of the selected operator bundle, not a literal claim that PEN imported a commutative scalar field into the AST.
 Consequently, $\kappa_{\mathrm{scalar}} = 0$ is not a claim of magical arithmetic deduction.
 It is the narrower statement that the machine-selected MBTT shell pays no separate scalar-field import because the winning Step-13 syntax formalizes metric behavior endomorphically rather than through a discretely axiomatized continuum.
+
+\paragraph{How $\R$ is typed (explicit dependency accounting).}
+For completeness, if one nevertheless insists on a literal scalar-valued metric presentation, the metric codomain $\R$ is not available by default.
+We evaluate explicit scalar routes under strict first-use charging: Cauchy-style arithmetic completion, topological arithmetic compression, and synthetic continuum insertion.
+For a route with scalar burden $\kappa_{\mathrm{scalar}}$, Step~13 is scored by
+\[
+  \rho_{13}^{\mathrm{strict}} = \frac{47 + \Delta \nu_{\mathrm{mech}}}{7 + \kappa_{\mathrm{scalar}}},
+  \qquad
+  \Delta \nu_{\min} = \left\lceil 6.07\,(7+\kappa_{\mathrm{scalar}})-47\right\rceil.
+\]
 
 \paragraph{Axioms ($\kappa = 7$ clauses).}
 The following display is the classical semantic reading of the seven selected clauses, not a claim that the raw MBTT syntax literally contains an explicit scalar-field object.
@@ -2372,7 +2454,7 @@ Library pointers use 1-based indexing: $\textsc{Lib}(1)$ references the first li
 \scriptsize
 \begin{tabular}{@{}cr lrr >{\raggedright\arraybackslash}p{3.4cm}@{}}
 \toprule
-$n$ & $\kappa$ & Structure & Clauses & MBTT (bits) & Selected specification \\
+$n$ & $\kappa$ & Selected AST skeleton & Clauses & MBTT (bits) & Selected specification \\
 \midrule
 1  & 2 & Universe           & 1 & 4   & $\U$-formation \\
 2  & 1 & Unit               & 1 & 10  & $\mathbf{1}$-formation \\
@@ -2383,12 +2465,12 @@ $n$ & $\kappa$ & Structure & Clauses & MBTT (bits) & Selected specification \\
 7  & 3 & $S^2$              & 3 & 23  & base + surf$^\dagger$ \\
 8  & 5 & $S^3$              & 5 & 66  & H-space: base, 3-cell, $\mu$, unit$^\dagger$ \\
 9  & 4 & Hopf               & 4 & 78  & $h : S^3 \to S^2$ + fiber + section \\
-10 & 4 & Cohesion           & 4 & 45  & $\flat, \sharp, \mathrm{Disc}, \Pi_\mathrm{coh}$ \\
-11 & 5 & Connections        & 5 & 79  & $\nabla$, transport, covariant lift, Leibniz \\
-12 & 6 & Curvature          & 6 & 121 & $R$, Bianchi, holonomy, Chern--Weil, char.\ class \\
-13 & 7 & Metric             & 7 & 138 & See \cref{tab:step13} \\
-14 & 9 & Hilbert            & 9 & 169 & See \cref{tab:step14} \\
-15 & 8 & DCT                & 8 & 229 & See \cref{tab:step15} \\
+10 & 4 & Modal shell        & 4 & 45  & $\flat, \sharp, \mathrm{Disc}, \Pi_\mathrm{coh}$ \\
+11 & 5 & Connection shell   & 5 & 79  & $\nabla$, transport, covariant lift, Leibniz \\
+12 & 6 & Curvature shell    & 6 & 121 & $R$, Bianchi, holonomy, Chern--Weil, char.\ class \\
+13 & 7 & Endomorphic bundle & 7 & 138 & See \cref{tab:step13} \\
+14 & 9 & Hilbert-functional shell & 9 & 169 & See \cref{tab:step14} \\
+15 & 8 & Temporal-cohesive shell & 8 & 229 & See \cref{tab:step15} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2406,14 +2488,14 @@ We now provide the explicit AST and bit-cost for the three steps with the tighte
 
 \begin{table}[tbp]
 \centering
-\caption{Step 13: Metric + frame bundle ($\kappa = 7$ clauses, 138~bits total).  Library references: Connections at index 11 ($\textsc{Lib}(11) = 10$~bits), Curvature at index 12 ($\textsc{Lib}(12) = 10$~bits).}
+\caption{Step 13 selected AST skeleton: endomorphic operator bundle ($\kappa = 7$ clauses, 138~bits total).  Library references: Connections at index 11 ($\textsc{Lib}(11) = 10$~bits), Curvature at index 12 ($\textsc{Lib}(12) = 10$~bits).  The classical metric reading is post-hoc and discussed in \cref{app:metric-spec}.}
 \label{tab:step13}
 \small
 \begin{tabular}{@{}clrl@{}}
 \toprule
 \# & Clause & AST & Bits \\
 \midrule
-1 & Symmetric bilinear form $g$      & $\Sigma(\Pi(\mathrm{Var}_1, \mathrm{Var}_1), \Pi(\mathrm{Var}_1, \mathrm{Var}_1))$ & 26 \\
+1 & Endomorphic pair shell           & $\Sigma(\Pi(\mathrm{Var}_1, \mathrm{Var}_1), \Pi(\mathrm{Var}_1, \mathrm{Var}_1))$ & 26 \\
 2 & Levi-Civita connection           & $\Pi(\Sigma(\mathrm{Var}_1, \mathrm{Var}_2), \textsc{Lib}(11))$ & 27 \\
 3 & Geodesic equation                & $\Pi(\mathrm{Var}_1, \Pi(\mathrm{Var}_1, \mathrm{Var}_1))$ & 18 \\
 4 & Volume form                      & $\mathrm{Lam}(\mathrm{App}(\mathrm{Var}_1, \mathrm{Var}_2))$ & 14 \\
@@ -2428,7 +2510,7 @@ We now provide the explicit AST and bit-cost for the three steps with the tighte
 
 \begin{table}[tbp]
 \centering
-\caption{Step 14: Hilbert functional ($\kappa = 9$ clauses, 169~bits total).  Library references: Connections at index 11, Curvature at index 12, Metric at index 13 ($\textsc{Lib}(13) = 10$~bits).}
+\caption{Step 14: Hilbert-functional shell ($\kappa = 9$ clauses, 169~bits total).  Library references: Connection shell at index 11, Curvature shell at index 12, endomorphic operator bundle at index 13 ($\textsc{Lib}(13) = 10$~bits).}
 \label{tab:step14}
 \small
 \begin{tabular}{@{}clrl@{}}
@@ -2452,7 +2534,7 @@ We now provide the explicit AST and bit-cost for the three steps with the tighte
 
 \begin{table}[tbp]
 \centering
-\caption{Step 15: temporal-cohesive extension (semantic DCT completion) ($\kappa = 8$ clauses, 229~bits total).  Library reference: Cohesion at index 10 ($\textsc{Lib}(10) = 10$~bits).  The audited AST contains temporal operators and exchange clauses only; the infinitesimal reading is derived semantically rather than encoded as a primitive node.}
+\caption{Step 15: temporal-cohesive shell (semantic DCT completion) ($\kappa = 8$ clauses, 229~bits total).  Library reference: modal shell at index 10 ($\textsc{Lib}(10) = 10$~bits).  The audited AST contains temporal operators and exchange clauses only; the infinitesimal reading is derived semantically rather than encoded as a primitive node.}
 \label{tab:step15}
 \small
 \begin{tabular}{@{}clrl@{}}
@@ -2499,6 +2581,7 @@ Because all candidate families are scored in this single grammar, the result is 
 
 A recurring objection is that the MBTT audit lengths (e.g., 138~bits for Metric, 229~bits for DCT) imply an infeasible raw space of $2^{138}$ or $2^{229}$ binary strings.
 That objection would be valid for blind bitstring search; it does not describe the implemented engine.
+The runtime domain is not ``all admissible MBTT ASTs'' at once, but a bounded exact-band search over the current molecular inventory together with atomic fallback.
 
 The runtime search is constrained by construction:
 \begin{enumerate}[nosep]
@@ -2511,7 +2594,8 @@ The runtime search is constrained by construction:
     \item \textbf{Diagnostics separated from canon.} Reference telescopes and older diagnostic lanes may still be evaluated for validation, but they do not set the manuscript's canonical values.
 \end{enumerate}
 
-Hence the implementation is a strict unguided recovery lane over an admissible, bounded, and reproducible candidate manifold---not exhaustive brute-force over the entire binary code space.
+Hence the implementation is a strict bounded molecular-first recovery lane over an admissible, bounded, and reproducible candidate manifold---not exhaustive brute-force over the entire binary code space.
+The executable claim is therefore an objective optimum test over this disclosed basis, not a claim that the engine searched the full binary ambient space or invented its own late-stage semantic vocabulary.
 The MBTT bit-lengths in \cref{tab:mbtt-audit} are post-hoc representation audits of selected specifications, not the dimensionality of the runtime enumeration domain.
 
 \section{A Detailed Proof of the 15-Step Genesis Sequence}
@@ -2554,10 +2638,14 @@ Three conventions govern the proof.
     This is the conceptual/compiled separation described in
     \cref{sec:verification}.
     \item \textbf{Uniqueness.} Every uniqueness claim below means
-    ``unique winner in the current strict unguided lane under admissibility,
+    ``unique winner in the current strict bounded recovery lane under admissibility,
     semantic minimality, and minimal overshoot''.
     It does \emph{not} assert a foundation-independent uniqueness theorem over
     all logics or all search policies.
+    \item \textbf{Shell-first naming.} For steps~10--15, the quantitative claim
+    attaches to the selected AST skeleton first.
+    Human names such as ``metric'' and ``DCT'' are retained only as semantic
+    readings when they help orient the discussion.
 \end{enumerate}
 
 Two further scope boundaries matter for the late stages.
@@ -2623,7 +2711,7 @@ competitor was displayed by the verified strict trace.}
 \setlength{\tabcolsep}{2pt}
 \begin{tabular}{@{}c l r r r r r r l l >{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{1.6cm}@{}}
 \toprule
-Step & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin & cap/bands & raw/dist. & Runner-up & Near miss \\
+Step & Selected AST skeleton & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin & cap/bands & raw/dist. & Runner-up & Near miss \\
 \midrule
 1  & Universe    & 1   & 1  & 2 & 0.50 & 0.50 & 0.00 & 2 / 2   & 2144 / 552 & --- & --- \\
 2  & Unit        & 1   & 1  & 1 & 1.00 & 0.50 & 0.50 & 1 / 1   & 96 / 78    & --- & --- \\
@@ -2634,12 +2722,12 @@ Step & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin & cap/b
 7  & $S^2$       & 13  & 10 & 3 & 3.33 & 3.00 & 0.33 & 4 / 3   & 2 / 2      & --- & $S^1$ (2.33) \\
 8  & $S^3$       & 21  & 18 & 5 & 3.60 & 3.43 & 0.17 & 5 / 5   & 1 / 1      & --- & --- \\
 9  & Hopf        & 34  & 17 & 4 & 4.25 & 4.01 & 0.24 & 5 / 4   & 1 / 1      & --- & --- \\
-10 & Cohesion    & 55  & 19 & 4 & 4.75 & 4.46 & 0.29 & 5 / 4   & 2 / 2      & --- & Hopf (4.25) \\
-11 & Connections & 89  & 27 & 5 & 5.40 & 4.91 & 0.49 & 6 / 5   & 2 / 2      & --- & $S^3$ (3.60) \\
-12 & Curvature   & 144 & 35 & 6 & 5.83 & 5.47 & 0.36 & 6 / 5|6 & 3 / 3      & --- & $S^3$ (3.60) \\
-13 & Metric      & 233 & 47 & 7 & 6.71 & 6.07 & 0.65 & 8 / 7   & 3 / 3      & --- & HIT (2.29) \\
-14 & Hilbert     & 377 & 63 & 9 & 7.00 & 6.78 & 0.22 & 9 / 8|9 & 4 / 4      & --- & HIT (3.00) \\
-15 & DCT         & 610 & 88 & 8 & 11.00 & 7.51 & 3.49 & 9 / 8   & 3 / 3      & --- & HIT (3.00) \\
+10 & Modal shell & 55  & 19 & 4 & 4.75 & 4.46 & 0.29 & 5 / 4   & 2 / 2      & --- & Hopf (4.25) \\
+11 & Connection shell & 89  & 27 & 5 & 5.40 & 4.91 & 0.49 & 6 / 5   & 2 / 2      & --- & $S^3$ (3.60) \\
+12 & Curvature shell & 144 & 35 & 6 & 5.83 & 5.47 & 0.36 & 6 / 5|6 & 3 / 3      & --- & $S^3$ (3.60) \\
+13 & Endomorphic bundle & 233 & 47 & 7 & 6.71 & 6.07 & 0.65 & 8 / 7   & 3 / 3      & --- & HIT (2.29) \\
+14 & Hilbert-functional shell & 377 & 63 & 9 & 7.00 & 6.78 & 0.22 & 9 / 8|9 & 4 / 4      & --- & HIT (3.00) \\
+15 & Temporal-cohesive shell & 610 & 88 & 8 & 11.00 & 7.51 & 3.49 & 9 / 8   & 3 / 3      & --- & HIT (3.00) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -3020,7 +3108,7 @@ The strict trace opens cap/band $5/4$ and the viable set is singleton, so Hopf
 is already the unique strict bar-clearer at $\rho=4.25$ against bar $4.01$; see
 \cref{tab:genesis-sequence-trace}.
 This is the point where the codebase's structural regime shifts from higher
-types to higher maps, but in the canonical strict lane no additional rescue
+types to higher maps, but in the canonical strict bounded recovery lane no additional rescue
 heuristic is needed: the viable set has already collapsed to a single winner.
 \end{proof}
 
@@ -3115,7 +3203,7 @@ The strict trace opens cap/band $6/5$ and the viable set is singleton:
 Connections clears the bar at $\rho=5.40$, while the displayed near miss is only
 the old $S^3$ package at $\rho=3.60$; see
 \cref{tab:genesis-sequence-trace}.
-Thus the strict lane does not need any external steering here: the first
+Thus the strict bounded recovery lane does not need any external steering here: the first
 differential shell is already the unique bar-clearing continuation.
 \end{proof}
 
@@ -3162,18 +3250,19 @@ Thus the switch from differential to curvature structure is not a naming
 convention but a mechanically unique strict continuation.
 \end{proof}
 
-\begin{proposition}[Step 13: Metric plus frame bundle]
+\begin{proposition}[Step 13: Endomorphic operator bundle]
 \label{prop:genesis-step13}
-At Step~13 the strict genesis trace selects the metric package rather than a
+At Step~13 the strict genesis trace selects the endomorphic operator bundle rather than a
 bare tensor or scalar-heavy detour.
 \end{proposition}
 
 \begin{proof}
 \paragraph{What it is.}
-The selected structure is the metric-plus-frame-bundle package described in
-\cref{app:metric-spec,tab:step13}: a symmetric bilinear form together with
-Levi-Civita connection, geodesic, volume, Hodge star, Laplacian, and Ricci
-structure.
+The selected structure is the endomorphic operator bundle described in
+\cref{app:metric-spec,tab:step13}: an endomorphic pair shell together with
+Levi-Civita, geodesic, volume, Hodge, Laplacian, and Ricci operators.
+Its classical metric reading is semantic and post hoc, not a literal claim
+that the raw AST already contains a scalar-valued tensor field.
 This is the first step where PEN selects an explicitly geometric API bundle
 rather than a single operator.
 
@@ -3209,7 +3298,7 @@ The strict trace opens cap/band $8/7$ and the viable set is singleton:
 Metric clears the bar at $\rho=6.71$, whereas the displayed near miss is only an
 unnamed HIT candidate at $\rho=2.29$; see
 \cref{tab:genesis-sequence-trace}.
-Hence the selected metric bundle is uniquely forced by the strict objective, and
+Hence the selected operator bundle is uniquely forced by the strict objective, and
 \cref{def:minimal-api} explains why smaller fragments are excluded.
 \end{proof}
 
@@ -3266,7 +3355,7 @@ The mathematical interpretation as DCT is theorem-level and semantic, but the
 only canonical quantitative claim is the strict total $\nu=88$;
 see \cref{sec:decomposition,rem:automation-scope}.
 
-\begin{proposition}[Step 15: Temporal-cohesive synthesis]
+\begin{proposition}[Step 15: Temporal-cohesive shell]
 \label{prop:genesis-step15}
 At Step~15 the strict genesis trace selects the temporal-cohesive shell whose
 semantic completion is read as DCT.
@@ -3274,7 +3363,7 @@ semantic completion is read as DCT.
 
 \begin{proof}
 \paragraph{What it is.}
-The selected structure is the temporal-cohesive extension audited in
+The selected AST skeleton is the temporal-cohesive shell audited in
 \cref{tab:step15}: next modality, eventually modality, the map
 $\bigcirc\to\Diamond$, and the explicit exchange laws between temporal and
 cohesive structure.
@@ -3309,7 +3398,7 @@ miss is only an unnamed HIT candidate at $\rho=3.00$; see
 \cref{tab:genesis-sequence-trace}.
 This is also the largest absolute overshoot in the entire sequence.
 Thus the temporal-cohesive shell is not merely admissible but uniquely dominant
-within the strict lane at the terminal step.
+within the current strict bounded recovery lane at the terminal step.
 \end{proof}
 
 \subsection{Conclusion of the Step-by-Step Proof}
@@ -3317,14 +3406,14 @@ within the strict lane at the terminal step.
 
 \begin{theorem}[The strict genesis sequence]
 \label{thm:strict-genesis-sequence}
-In the current strict unguided PEN lane, the unique step-by-step sequence of
+In the current strict bounded recovery PEN lane, the unique step-by-step sequence of
 selected structures through Step~15 is
 \[
   \begin{aligned}
     &\U_0,\ \mathbf{1},\ \star,\ \Pi/\Sigma,\ S^1,\ \|{-}\|_0,\ S^2,\ S^3,\\
-    &\mathrm{Hopf},\ \mathrm{Cohesion},\ \mathrm{Connections},\\
-    &\mathrm{Curvature},\ \mathrm{Metric},\ \mathrm{Hilbert},\\
-    &\mathrm{DCT}.
+    &\mathrm{Hopf},\ \mathrm{Modal},\ \mathrm{Connections},\\
+    &\mathrm{Curvature},\ \mathrm{EndoOp},\ \mathrm{HilbertShell},\\
+    &\mathrm{TemporalShell}.
   \end{aligned}
 \]
 For each $1\le n\le 15$, the selected structure has the corresponding values of
@@ -3336,14 +3425,14 @@ $\Delta_n$, $\nu_n$, $\kappa_n$, $\rho_n$, and $\mathrm{Bar}_n$ listed in
 Combine the global bar formula of \cref{lem:genesis-bar-lemma} with the fifteen
 step propositions
 \cref{prop:genesis-step1,prop:genesis-step2,prop:genesis-step3,prop:genesis-step4,prop:genesis-step5,prop:genesis-step6,prop:genesis-step7,prop:genesis-step8,prop:genesis-step9,prop:genesis-step10,prop:genesis-step11,prop:genesis-step12,prop:genesis-step13,prop:genesis-step14,prop:genesis-step15}.
-Each step proposition identifies the selected structure, justifies its charged
+Each step proposition identifies the selected AST skeleton, justifies its charged
 cost and novelty total at the appropriate proof-strength level, and verifies
-that it is the unique strict-lane winner at its step.
+that it is the unique selected winner in the current strict bounded recovery lane at its step.
 \end{proof}
 
-\begin{corollary}[No Step~16 continuation in the current strict lane]
+\begin{corollary}[No Step~16 continuation in the current strict bounded recovery lane]
 \label{cor:genesis-no-step16}
-No Step~16 candidate clears the selection bar in the current strict unguided
+No Step~16 candidate clears the selection bar in the current strict bounded recovery
 lane.
 \end{corollary}
 

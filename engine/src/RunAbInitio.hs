@@ -85,6 +85,13 @@ data AbInitioMode
   | StrictAbInitio    -- ^ Honest strict lane: discovered ν/κ only, no hidden guidance
   deriving (Show, Eq)
 
+-- | Topological bonus calibration for molecular strict evaluation.
+data TopoBonusMode
+  = TopoExact
+  | TopoLinear
+  | TopoNone
+  deriving (Show, Eq)
+
 -- | Configuration for the ab initio run.
 data AbInitioConfig = AbInitioConfig
   { cfgMode            :: !AbInitioMode
@@ -93,6 +100,7 @@ data AbInitioConfig = AbInitioConfig
   , cfgKappaMode       :: !KappaMode        -- ^ Kappa computation mode (default DesugaredKappa)
   , cfgNoCanonPriority :: !Bool             -- ^ Ablation: disable canonical name priority in selection
   , cfgMaxRho          :: !Bool             -- ^ Ablation: select max ρ instead of minimal overshoot
+  , cfgTopoBonusMode   :: !TopoBonusMode    -- ^ Ablation: weaken/disable molecular path bonus
   , cfgMBTTFirst       :: !Bool             -- ^ Phase-1 gate: enumerate via MBTTEnum
   , cfgLegacyGenerator :: !Bool             -- ^ Phase-7 fallback: explicitly use legacy generator path
   , cfgMBTTMaxCand     :: !(Maybe Int)      -- ^ Optional cap for MBTT enumerator candidate count
@@ -328,8 +336,8 @@ main = do
   rejectRetiredAbInitioFlags args
   let cfg = parseArgs args
 
-  when (cfgNoCanonPriority cfg || cfgMaxRho cfg) $
-    error "Ablation rankers (--no-canonical-priority, --max-rho) are disabled in claim-grade discovery."
+  when (cfgNoCanonPriority cfg) $
+    error "Ablation rankers (--no-canonical-priority) are disabled in claim-grade discovery."
 
   putStrLn "============================================"
   putStrLn "PEN Ab Initio Discovery Engine"
@@ -347,10 +355,13 @@ main = do
       putStrLn "  Search:    Exact cost bands under explicit admissibility caps"
   printf   "  Window:    d=%d (%s)\n" (cfgWindow cfg) (windowName (cfgWindow cfg))
   printf   "  Cost:      %s\n" (show (cfgKappaMode cfg))
+  printf   "  Topology:  %s\n" (topoBonusModeLabel (cfgTopoBonusMode cfg))
   when (cfgMBTTFirst cfg) $
     putStrLn "  SEARCH:    MBTT-first default active (typed MBTT enumeration in Phase A)"
   when (cfgLegacyGenerator cfg) $
     putStrLn "  FALLBACK:  --legacy-generator (deprecated template-first generator path)"
+  when (cfgMaxRho cfg) $
+    putStrLn "  ABLATION:  --max-rho (greedy bar-clearer selection instead of minimal overshoot)"
   case cfgMBTTAstDepth cfg of
     Just astDepth ->
       printf   "  SEARCH:    --mbtt-ast-depth %d (manual Phase-A AST depth override)\n" astDepth
@@ -419,6 +430,10 @@ parseArgs args =
                     _ -> DesugaredKappa
       noCanonPriority = "--no-canonical-priority" `elem` args
       maxRho = "--max-rho" `elem` args
+      topoBonusMode = case dropWhile (/= "--topo-bonus-mode") args of
+                        ("--topo-bonus-mode" : "linear" : _) -> TopoLinear
+                        ("--topo-bonus-mode" : "none" : _) -> TopoNone
+                        _ -> TopoExact
       mbttFirstFlag = "--mbtt-first" `elem` args
       legacyGenerator = "--legacy-generator" `elem` args
       mbttMaxCand = case dropWhile (/= "--mbtt-max-candidates") args of
@@ -462,7 +477,7 @@ parseArgs args =
                            Just k  -> Just k
                            Nothing -> Just 20
                          else mbttMaxCand
-  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho mbttFirstFinal legacyGenerator mbttMaxCandFinal mbttAstDepth maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient adaptiveMemory memorySafe seed prefixReport
+  in AbInitioConfig mode window csv kappaMode noCanonPriority maxRho topoBonusMode mbttFirstFinal legacyGenerator mbttMaxCandFinal mbttAstDepth maxStepsFinal skipValidation mbttShadowProfile skipMCTS phase1Shadow noCanonicalQuotient adaptiveMemory memorySafe seed prefixReport
 
 -- | Human-readable name for window depth.
 windowName :: Int -> String
@@ -470,6 +485,12 @@ windowName 1 = "constant — extensional"
 windowName 2 = "Fibonacci — intensional HoTT"
 windowName 3 = "tribonacci"
 windowName d = show d ++ "-bonacci"
+
+topoBonusModeLabel :: TopoBonusMode -> String
+topoBonusModeLabel mode = case mode of
+  TopoExact -> "m + d^2 (strict default)"
+  TopoLinear -> "m + d (ablation)"
+  TopoNone -> "m only (ablation)"
 
 -- ============================================
 -- Reference Telescope Validation
@@ -2226,7 +2247,10 @@ abInitioLoop cfg = do
             ("RUN STOPPED: " ++ show (length orderedRecords) ++ " structures discovered")
             orderedRecords
         else do
-          let sorted = sortOn (honestSelectionKey lib bar) viable
+          let sorted =
+                if cfgMaxRho cfg
+                then sortOn (honestMaxRhoSelectionKey lib) viable
+                else sortOn (honestSelectionKey lib bar) viable
               distinctSorted = distinctCandidatePool sorted
               (bestTele, bestNu, bestKappa, bestRho, bestSource) =
                 case distinctSorted of
@@ -2356,7 +2380,7 @@ abInitioLoop cfg = do
                     foldl'
                       (\(acc, cacheAcc) seed ->
                         let (cand, cacheNext) =
-                              evaluateStrictBandSeedCached emode' seed lib nuDepth' nuHist' cacheAcc
+                              evaluateStrictBandSeedCached (cfgTopoBonusMode cfg) emode' seed lib nuDepth' nuHist' cacheAcc
                         in (cand : acc, cacheNext))
                       ([], hsEvalCache state)
                       unseenSeeds
@@ -3857,6 +3881,30 @@ honestSelectionKey lib bar (tele, _, kappa, rho, _) =
   , stableStructuralHash tele
   )
 
+honestMaxRhoSelectionKey :: Library -> Candidate -> (Down Double, Int, Down Int, Down Int, Down Int, Down Int, Down Int, Down Int, Down Int, Int, String)
+honestMaxRhoSelectionKey lib (tele, _, kappa, rho, _) =
+  let bootstrap = length lib < 3
+      eliminatorScore = if bootstrap then 0 else trueEliminatorScore tele
+      lifecycleScore = if bootstrap then 0 else formerLifecycleScore tele
+      dependentDensity = if bootstrap then 0 else dependentMotiveDensity tele
+      internalAdjoints = if bootstrap then 0 else internalAdjointScore tele
+      densityScore = if bootstrap then 0 else countDistinctLibraryRefs tele
+      genericityScore = if bootstrap then 0 else countPolymorphicBinders tele
+      closureScore' = strictClosureTieBreak lib tele
+  in
+  ( Down rho
+  , kappa
+  , Down eliminatorScore
+  , Down lifecycleScore
+  , Down dependentDensity
+  , Down internalAdjoints
+  , Down densityScore
+  , Down genericityScore
+  , Down closureScore'
+  , teleBitCost tele
+  , stableStructuralHash tele
+  )
+
 evaluateCandidateCached
   :: EvalMode
   -> String
@@ -3923,8 +3971,8 @@ conceptualSeedTelescope seed =
 seedEvaluationTelescope :: StrictBandSeed -> Telescope
 seedEvaluationTelescope = conceptualSeedTelescope
 
-seedTopologicalNu :: StrictBandSeed -> Int
-seedTopologicalNu seed =
+seedTopologicalNu :: TopoBonusMode -> StrictBandSeed -> Int
+seedTopologicalNu topoMode seed =
   case sbsClauseProvenance seed of
     Nothing -> 0
     Just provenance
@@ -3949,9 +3997,15 @@ seedTopologicalNu seed =
               maxDim = if null matchedDims then 0 else maximum matchedDims
           in if null matchedDims
              then 0
-             else length matchedDims + maxDim * maxDim
+             else length matchedDims + topoDimensionBonus topoMode maxDim
   where
     Telescope entries = sbsTelescope seed
+    topoDimensionBonus :: TopoBonusMode -> Int -> Int
+    topoDimensionBonus mode dim = case mode of
+      TopoExact -> dim * dim
+      TopoLinear -> dim
+      TopoNone -> 0
+
     isPathComputationFor :: Int -> MBTTExpr -> Bool
     isPathComputationFor dim expr =
       mentionsPathDim dim expr && hasEqualityWitness expr
@@ -3993,12 +4047,12 @@ seedTopologicalNu seed =
       Eventually a -> hasEqualityWitness a
       _ -> False
 
-hybridStrictSeedNu :: StrictBandSeed -> Library -> [(Int, Int)] -> Int
-hybridStrictSeedNu seed lib nuHist =
+hybridStrictSeedNu :: TopoBonusMode -> StrictBandSeed -> Library -> [(Int, Int)] -> Int
+hybridStrictSeedNu topoMode seed lib nuHist =
   let coreTele = seedEvaluationTelescope seed
       coreNative = computeNativeNu coreTele lib nuHist
       baseNu = nnNuG coreNative + nnNuC coreNative
-      topoNu = seedTopologicalNu seed
+      topoNu = seedTopologicalNu topoMode seed
   in baseNu + topoNu
 
 dedupBandSeedsByCanonicalKey :: [StrictBandSeed] -> [StrictBandSeed]
@@ -4026,14 +4080,15 @@ dedupBandSeedsByCanonicalKey =
       if src == "ENUM_MOLECULAR" then (0 :: Int) else 1
 
 evaluateStrictBandSeedCached
-  :: EvalMode
+  :: TopoBonusMode
+  -> EvalMode
   -> StrictBandSeed
   -> Library
   -> Int
   -> [(Int, Int)]
   -> EvalCache
   -> (Candidate, EvalCache)
-evaluateStrictBandSeedCached evalMode seed lib nuDepth nuHist cache =
+evaluateStrictBandSeedCached topoMode evalMode seed lib nuDepth nuHist cache =
   let tele = sbsTelescope seed
       evalTele = seedEvaluationTelescope seed
       src = sbsSource seed
@@ -4041,7 +4096,7 @@ evaluateStrictBandSeedCached evalMode seed lib nuDepth nuHist cache =
         evalMode == EvalStrictComputed && sbsClauseProvenance seed /= Nothing
       (nuCompiled, kappaCompiled, cache1)
         | molecularStrict =
-            ( hybridStrictSeedNu seed lib nuHist
+            ( hybridStrictSeedNu topoMode seed lib nuHist
             , desugaredKappa evalTele
             , cache
             )
