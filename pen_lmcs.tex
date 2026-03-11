@@ -100,7 +100,7 @@ in Type-Theoretic Library Growth}}
 \maketitle
 
 \begin{abstract}
-We study a metatheoretic invariant of type-theoretic library growth.  When a new type former, modality, or structured API is sealed against an existing library, preserving canonicity forces coherence witnesses against the active interface.  The least historical depth at which these induced obligations stabilize is the \emph{coherence depth} of the foundation.
+We study a metatheoretic invariant of type-theoretic library growth.  When a new type former, modality, or promoted structured API is sealed against an existing library, preserving closure of the global interface forces coherence witnesses against the active interface.  The least historical depth at which these induced obligations stabilize is the \emph{coherence depth} of the foundation.
 
 For extensional type theory with UIP, the coherence depth is $d=1$.  For the fully coupled intensional cubical lane considered here, based on CCHM cubical type theory and univalence, the coherence depth is $d=2$.  We justify the latter by a dimensional upper bound from weak $\omega$-groupoid semantics and cubical Kan filling, a categorical lower bound from adjunction coherence, a homological upper bound via degeneration of the obligation spectral sequence at $E_2$, and an exact topological family provided by clutching constructions for principal bundles over spheres.
 
@@ -108,6 +108,9 @@ Once the coherence depth is fixed, the integration latency of a growing library 
 
 Finally, we analyze the temporal-cohesive package selected at step~15 of the PEN trajectory.  Under a model-theoretic representability hypothesis in a cohesive $\infty$-topos, its temporal modality becomes a synthetic tangent endofunctor, allowing the library to internalize its own guarded evolution on the connected component of the univalent universe.  A combinatorial squeeze then yields local algorithmic halting: internal continuations have zero marginal novelty up to equivalence, while disconnected external axioms cannot amortize the depth-two interface debt.
 \end{abstract}
+
+\tableofcontents
+\clearpage
 
 \section{Introduction}
 \label{sec:introduction}
@@ -120,7 +123,7 @@ The central question of this paper is purely mathematical:
 \emph{When a type-theoretic library is extended by sealing a new structure against the existing interface, how does the cost of integration scale with library depth, and what determines that scaling?}
 \end{quote}
 
-The question arises whenever a foundation is used as a growing mathematical environment rather than as a fixed deductive background.  A new type former, modality, or structured API is not integrated merely by writing down its formation clause.  To preserve normalization, canonicity, and computational closure, the extension must cohere with the eliminators, transports, and computation principles already exported by the library.  These coherence witnesses are part of the metatheory of the type theory itself.
+The question arises whenever a foundation is used as a growing mathematical environment rather than as a fixed deductive background.  A new type former, modality, or promoted structured API is not integrated merely by writing down its formation clause.  To preserve normalization, canonicity, and computational closure, the extension must cohere with the eliminators, transports, and computation principles already exported by the library.  These coherence witnesses are part of the metatheory of the type theory itself.  Ordinary user-level definitions and transparent record packages do not enter this recurrence until they are promoted to opaque exported interface bundles.
 
 We call the least stabilizing historical depth of these obligations the \emph{coherence depth}, or \emph{coherence window}.  In extensional type theories with UIP, higher coherences collapse and the window is $d=1$.  In the fully coupled intensional CCHM cubical lane studied here, the window is $d=2$.  That discrete jump changes the asymptotic law of integration.
 
@@ -206,6 +209,11 @@ where $X_{\mathrm{core}}$ is the definitive mathematical content to be added and
 A \emph{sealed extension} is an admissible candidate whose obligations have all been discharged, after which the resolved witnesses are exported only through an opaque interface.  Future extensions may use those exports but do not inspect the internal derivations that produced them.
 \end{definition}
 
+\begin{definition}[Promoted interface package]
+\label{def:promoted-api}
+A \emph{promoted interface package} over $\B$ is a finite specification of constructively irreducible generators that is sealed as one opaque integration layer and exported to future extensions only through its public interface.  Such a package need not add primitive kernel reduction rules.  What matters is that its generators become global interface entries for later sealing steps rather than remaining transparent user-level code.
+\end{definition}
+
 \subsection{The Dual-Cost Model}
 
 \begin{definition}[Integration latency]
@@ -234,6 +242,20 @@ Fix a prior library $\B$ with operational semantics $\rightsquigarrow_{\B}$.
 \end{enumerate}
 Only the irreducible part contributes to $\kappa$.
 \end{definition}
+
+\begin{proposition}[Ordinary user developments are outside the recurrence]
+\label{prop:ordinary-user}
+Let $U$ be a family of transparent definitions, records, or lemmas over $\B$ whose new symbols are definitionally derivable from $\rightsquigarrow_{\B}$ and are not exported as opaque generators of a new layer.  Then $U$ contributes zero integration latency and does not change the active interface basis $I_n^{(d)}$.
+\end{proposition}
+
+\begin{proof}
+Such a development reduces entirely by the pre-existing operational semantics, so it creates no new irreducible interaction site against the active interface.  Because nothing new is exported opaquely, later extensions still see the same interface telescope.  Thus $U$ is ordinary growth inside one library state, not a state transition $\B_n\leadsto\B_{n+1}$.
+\end{proof}
+
+\begin{remark}[Promotion versus local definition]
+\label{rem:promotion-local}
+A lone user term such as $g:TX\otimes_s TX\to\R$ over the cohesive prelude is ordinary library content unless it is promoted to a sealed exported bundle together with the irreducible operators through which later layers will use it.  The recurrence counts the promoted bundle, not the underlying transparent definition.
+\end{remark}
 
 \begin{definition}[Generative capacity]
 \label{def:novelty}
@@ -300,28 +322,44 @@ The active interface $I_n^{(d)}$ is a context telescope.  Sealing against a tele
 
 \begin{remark}[Modal and axiomatic extensions]
 \label{rem:axiomatic-trace}
-For the HIT and map regime (steps~3--9), the trace principle is directly verified by explicit obligation decomposition and the Cubical Agda abstraction-barrier modules.  For modal or axiomatic packages, one needs an additional semantic argument: the compatibility witnesses of the package must again be indexed by the active interface telescope.
+For the HIT and map regime (steps~3--9), the trace principle is directly verified by explicit obligation decomposition and the Cubical Agda abstraction-barrier modules.  For promoted modal or axiomatic packages, one needs an additional semantic argument: the relevant obligations are not new kernel reduction clauses but generatorwise comparison witnesses showing how the sealed package acts on the active interface telescope.
 \end{remark}
 
 \begin{theorem}[Semantic trace principle for adjoint-style packages]
 \label{thm:semantic-trace}
-Suppose a modal or axiomatic extension is presented in a comprehension-category semantics by a finite telescope of endofunctors, adjunction data, and computation laws whose action on terms is determined generatorwise on the active interface.  Then its sealing obligations are again in bijection with the entries of the active interface telescope.
+Suppose a promoted interface package is presented in a comprehension-category semantics by a finite telescope of endofunctors, adjunction data, distinguished operations, and computation or comparison laws whose action on terms is determined generatorwise on the active interface.  Then its sealing obligations are again in bijection with the entries of the active interface telescope.
 \end{theorem}
 
 \begin{proof}[Proof sketch]
-In such a semantics, every exported schema $s\in I_n^{(d)}$ induces one comparison square expressing the action of the new package on $s$.  Generatorwise determination gives uniqueness: once the action on each generator is fixed, functoriality and adjunction force the action on derived terms.  Canonicity still gives necessity: omitting the comparison square for some $s$ leaves a stuck interaction term.
+In such a semantics, every exported schema $s\in I_n^{(d)}$ induces one comparison square expressing the action of the new package on $s$.  Generatorwise determination gives uniqueness: once the action on each generator is fixed, functoriality and adjunction force the action on derived terms.  Necessity is the library-level analogue of canonicity: omitting the comparison square for some $s$ leaves the promoted package without a defined action on that inherited generator, so future sealing steps cannot treat it as a closed opaque interface.
 \end{proof}
 
 \subsection{Canonicity Preservation under Maximal Interface Density}
 
-\begin{theorem}[Canonicity preservation]
+\begin{theorem}[Closure preservation]
 \label{thm:canonicity}
-Let $\B$ be a fully coupled library and let $X$ be a new type former, modality, or API package sealed against $I_n^{(d)}$.  The extension preserves global computational closure, canonicity, and strong normalization only if every eliminator exported by $I_n^{(d)}$ receives a defining interaction clause.  Hence the sealing cost is exactly $|I_n^{(d)}|$.
+Let $\B$ be a fully coupled library and let $X$ be a new type former, modality, or promoted interface package sealed against $I_n^{(d)}$.  To preserve the global closure discipline of the sealed library, every generator exported by $I_n^{(d)}$ must receive exactly one primitive interaction datum from $X$: for native computational extensions this datum is a defining reduction clause, while for promoted interface packages it is a generatorwise comparison or transport witness.  Hence the sealing cost is exactly $|I_n^{(d)}|$.
 \end{theorem}
 
 \begin{proof}
-If some exported eliminator $e$ has no interaction clause with $X$, then the extended theory contains a well-typed term $e_X(\vec u)$ whose head symbol is neutral relative to the old reduction relation and cannot reduce further.  This yields a stuck neutral term that is not canonical, so canonicity fails.  Conversely, if every exported eliminator receives exactly one defining clause, reduction on the active interface is total and confluent.
+For native type formers, modalities, and HIT-style constructors, the argument is the usual canonicity one: if some exported eliminator $e$ has no interaction clause with $X$, then the extended theory contains a well-typed term $e_X(\vec u)$ whose head symbol is neutral relative to the old reduction relation and cannot reduce further.  This yields a stuck neutral term that is not canonical.
+
+For promoted interface packages, \cref{thm:semantic-trace} supplies the corresponding generatorwise criterion: each inherited interface generator requires one comparison witness describing how the new opaque package acts on it.  Omitting that witness leaves the package undefined on part of the active interface, so later sealing steps cannot use it as a closed exported layer.  In both cases uniqueness follows from confluence or generatorwise determination, so the obligations are in bijection with the entries of $I_n^{(d)}$.
 \end{proof}
+
+\begin{remark}[What is charged at steps~10--14]
+\label{rem:late-packages}
+The late synthetic packages are not claimed to be new cubical kernel primitives.  They are counted as promoted opaque interface bundles over the existing cohesive library.  For example, the isolated field $g:TX\otimes_s TX\to\R$ would be ordinary transparent user structure and so would contribute no new layer by \cref{prop:ordinary-user}.  Step~13 charges instead the promoted metric bundle that exports $g$ together with the irreducible geometric operators by which later layers interact with it.
+\end{remark}
+
+\begin{remark}[Strict first-use scalar provenance]
+\label{rem:scalar-provenance}
+No ambient scalar base type is assumed.  If a candidate first mentions a line object $\R$, its scored denominator is
+\[
+  \kappa_{\mathrm{total}}=\kappa_{\mathrm{local}}+\kappa_{\mathrm{scalar}},
+\]
+where $\kappa_{\mathrm{scalar}}$ is the least clause cost of a scalar construction route not already definitionally derivable from the current library.  Thus late packages receive zero scalar surcharge only if $\R$ has already become a closed term over earlier exports.  This preserves the empty-library accounting discipline of the early steps and rules out off-ledger scalar subsidies.
+\end{remark}
 
 \subsection{Selection Dynamics}
 
@@ -350,6 +388,20 @@ Set
 \]
 \end{definition}
 
+\begin{remark}[Why the bar is multiplicative]
+\label{rem:bar-motivation}
+The factor $\Omega_{n-1}$ is the library's historical baseline of novelty per unit effort, while $\Phi_n$ is the current inflation factor of integration debt.  If the next layer must absorb interface pressure growing by a factor of $\Phi_n$, then merely matching the old average efficiency would let global structural efficiency decay relative to the new debt burden.  To keep pace, the required local efficiency must scale proportionally with both quantities: it must be at least the historical baseline and must be amplified by the current debt growth rate.  This gives the threshold
+\[
+  \SelBar_n=\Phi_n\Omega_{n-1}.
+\]
+The rule is therefore multiplicative because it expresses a proportional compensation law.  An additive threshold would mix quantities with different structural roles and would either underreact to exploding debt or over-penalize early low-baseline stages.
+\end{remark}
+
+\begin{definition}[Constructive primality]
+\label{def:primality}
+A bar-clearing admissible candidate $X$ at step $n$ is \emph{constructively composite} if there exists another admissible candidate $Y$ over $\B_n$ such that $Y$ already satisfies $\rho(Y)\geq \SelBar_n$ and $X$ can be presented as adjoining $Y$ together with further irreducible structure not required for the well-typedness of $Y$.  Otherwise $X$ is \emph{constructively prime}.
+\end{definition}
+
 \begin{axiom}[Selection]
 \label{ax:selection}
 The active bar is
@@ -358,6 +410,16 @@ The active bar is
 \]
 Among admissible candidates with $\rho(X)\geq \SelBar_n$, PEN selects the one with minimal positive overshoot; ties are broken by smaller $\kappa$.
 \end{axiom}
+
+\begin{remark}[Minimal overshoot]
+\label{rem:minimal-overshoot}
+The minimal-overshoot criterion is not raw greed and does not attempt to maximize $\rho$.  The bar $\SelBar_n$ already encodes the minimum efficiency demanded by the accumulated integration debt.  Among candidates that clear it, maximizing $\rho$ would reward packages that import surplus inferential power earlier than needed or that pack several independently viable ideas into one update.  PEN instead chooses the least supercritical candidate, which is the MDL-style analogue of selecting the least sufficient model above a fixed adequacy threshold.  In this sense minimal overshoot is a conservative continuation rule: it filters for constructively prime updates rather than for globally largest reward.
+\end{remark}
+
+\begin{remark}[Why an early $S^1$ can beat $S^2$]
+\label{rem:s1-s2-overshoot}
+At the step-5 bar $\SelBar_5=2.14$, the circle has $\rho(S^1)=7/3\approx 2.33$ and overshoot $0.19$, whereas the $2$-sphere has $\rho(S^2)=10/3\approx 3.33$ and overshoot $1.19$.  If both are admitted to the comparison set, PEN selects $S^1$ because it is the closer supercritical update: it introduces the first nontrivial path structure without also importing the additional $2$-dimensional coherence carried by $S^2$.  The extra structure is not rejected; it is deferred.  When the bar later rises to $\SelBar_7=3.00$, the same trajectory table shows that $S^2$ then becomes the least-supercritical geometric continuation.
+\end{remark}
 
 \begin{axiom}[Coherent integration]
 \label{ax:integration}
@@ -763,6 +825,11 @@ A \emph{temporal-cohesive extension} consists of:
 
 The selected step~15 package has $\kappa=8$ clauses.  It contains temporal operators and exchange laws only.  No primitive infinitesimal object appears syntactically.
 
+\begin{remark}[Infinitesimal provenance]
+\label{rem:infinitesimal-provenance}
+The infinitesimal object $\D$ is not part of the library before step~15, and it is not charged as a primitive at step~15 either.  The selected syntax contains only $\bigcirc$, $\Diamond$, and their exchange and guardedness laws.  The object $\D$ enters only later, through the semantic representability hypothesis of \cref{ass:representability}, as the semantic shadow of the already selected temporal operator $\bigcirc$.
+\end{remark}
+
 \begin{table}[tbp]
 \centering
 \caption{A semantic reading of the eight step-15 clauses.}
@@ -979,7 +1046,7 @@ Under PEN's fixed efficiency policy, the depth-two regime favors geometric and c
 \section{Formal Type Signatures for Steps 10--15}
 \label{app:signatures}
 
-This appendix records the semantic reading of the late-stage clauses.  The point is not that the engine manipulates these names directly, but that each selected package admits a standard typed presentation.
+This appendix records the semantic reading of the late-stage clauses.  The point is not that the engine manipulates these names directly, but that each selected package admits a standard typed presentation as a promoted sealed interface bundle.  For steps~10--14, these are not asserted to be new kernel primitives of cubical type theory.  A transparent user record with the same fields would remain ordinary user code and, by \cref{prop:ordinary-user}, would not create a new layer; the charged object is the irreducible opaque bundle exported to future steps.
 
 \subsection{Step 10: Cohesion}
 
@@ -1000,8 +1067,16 @@ Derived maps include
   \Disc(A)\to A.
 \]
 
+\paragraph{Derived continuum after Step~10.}
+Under the strict first-use policy of \cref{rem:scalar-provenance}, later appearances of $\R$ are not free unless the line object is already derivable from the library.  In the present trajectory, by Step~10 the library already exports the circle $S^1$ and the cohesive shape modality.  We therefore take the scalar line to be the homotopy fiber of the shape unit of the circle:
+\[
+  \R \;:=\; \Sigma_{x:S^1}\bigl(\eta_{\Shape}(x)=\mathsf{base}_{\Shape(S^1)}\bigr).
+\]
+This is a closed term built entirely from prior exports.  Hence, by \cref{def:derivable}, it contributes zero new clauses as a scalar prerequisite.  The continuum is extracted top-down from the geometric library rather than introduced as a new primitive or reconstructed bottom-up from discrete arithmetic.
+
 \subsection{Step 11: Connections}
 
+The selected candidate is the five-clause promoted differential bundle
 \[
   \nabla:\flat(TX)\to TX,
   \qquad
@@ -1009,47 +1084,77 @@ Derived maps include
   \qquad
   \mathrm{cov}_\nabla:\flat(A)\to A.
 \]
+\[
+  \mathrm{lift}_\nabla:\flat(TX)\to TX,
+  \qquad
+  \mathrm{Leibniz}_\nabla:\nabla(f\cdot s)=df\otimes s + f\cdot \nabla s.
+\]
 
 \subsection{Step 12: Curvature}
 
+The selected candidate is the six-clause curvature bundle
 \[
   R:\nabla\to \Omega^2(X),
   \qquad
-  dR+[\nabla,R]=0,
-  \qquad
+  \mathrm{Bianchi}:dR+[\nabla,R]=0.
+\]
+\[
   \mathrm{hol}:\Omega(X,x)\to \mathrm{Aut}(F_x),
   \qquad
   \mathrm{CW}:R\to H^*(X).
 \]
+\[
+  \mathrm{char}:\Omega^*(BG)\to H^*(X),
+  \qquad
+  R_{\mathrm{comp}}:(\nabla_1,\nabla_2)\mapsto R(\nabla_1\circ\nabla_2).
+\]
 
 \subsection{Step 13: Metric}
 
+The selected Step~13 object is the full seven-clause metric bundle, not the lone field $g$:
 \[
   g:TX\otimes_s TX\to \R,
   \qquad
-  g\mapsto \nabla_g,
-  \qquad
-  \gamma:[0,1]\to X,
-  \qquad
-  \star_g:\Omega^k(X)\to \Omega^{n-k}(X),
+  \mathrm{LC}(g):g\mapsto \nabla_g.
 \]
 \[
-  \Delta_g:\Omega^*(X)\to \Omega^*(X),
+  \gamma_g:[0,1]\to X,
   \qquad
+  \mathrm{vol}_g:g\mapsto \omega_g\in\Omega^n(X).
+\]
+\[
+  \star_g:\Omega^k(X)\to \Omega^{n-k}(X),
+  \qquad
+  \Delta_g:\Omega^*(X)\to \Omega^*(X).
+\]
+\[
   \mathrm{Ric}_g:g\mapsto (\mathrm{Ric},R_{\mathrm{scal}}).
 \]
+The bare bilinear form by itself would remain an ordinary user definition over the prior library and is not the counted evolution step.  Under \cref{rem:scalar-provenance}, Step~13 pays no additional scalar surcharge because the codomain $\R$ is already available as the derived cohesive continuum from Step~10.  A bottom-up discrete construction of reals would introduce extra scalar clauses while adding only linearly efficient arithmetic structure, and so would run afoul of the same depth-two pressure quantified by \cref{prop:discrete}.
 
 \subsection{Step 14: Hilbert Functional}
 
+The selected candidate is the nine-clause analytic bundle
 \[
   \langle\cdot,\cdot\rangle:V\times V\to \R,
   \qquad
-  \mathrm{complete}:\mathrm{Cauchy}(V)\to V,
-  \qquad
-  \mathrm{spec}:\mathrm{Op}(V)\to \Sigma(\lambda:\R).\,V_\lambda,
+  \mathrm{complete}:\mathrm{Cauchy}(V)\to V.
 \]
 \[
-  C^*\text{-alg}:(V\to V)\times (V\to V)\to (V\to V),
+  \perp\mathrm{Dec}:V\to V_1\oplus V_2,
+  \qquad
+  \mathrm{spec}:\mathrm{Op}(V)\to \Sigma(\lambda:\R).\,V_\lambda.
+\]
+\[
+  C^*\text{-alg}:(V\to V)\times (V\to V)\to (V\to V).
+\]
+\[
+  \mathrm{gCompat}:\mathrm{Metric}\to \langle\cdot,\cdot\rangle,
+  \qquad
+  \mathrm{ROp}:\mathrm{Curv}\to \mathrm{Op}(V).
+\]
+\[
+  \mathrm{nablaOp}:\mathrm{Conn}\to \mathrm{Op}(V),
   \qquad
   \delta/\delta\phi:(V\to \R)\to V.
 \]
@@ -1103,6 +1208,25 @@ Temporal-cohesive step & 8 & 229 \\
 
 \section{Rejected Candidates}
 \label{app:rejected}
+
+\subsection{Why PEN Does Not Maximize \texorpdfstring{$\rho$}{rho}}
+
+PEN does not optimize for the largest efficiency ratio in the admissible pool.  The bar is already a lower bound determined by historical debt, so the correct analogue of MDL is not ``maximize fit'' but ``choose the least sufficient update that clears the threshold.''  This is why minimal positive overshoot is part of the definition rather than a post-hoc tie-break.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrrrl@{}}
+\toprule
+Candidate & $\rho$ & Bar & Overshoot & Step & Status \\
+\midrule
+$S^1$ & 2.33 & 2.14 & 0.19 & 5 & selected \\
+$S^2$ & 3.33 & 2.14 & 1.19 & 5 & deferred \\
+$S^2$ & 3.33 & 3.00 & 0.33 & 7 & selected \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The point of this example is that ``higher $\rho$'' means ``more compressed inferential power,'' not ``better next step.''  At step~5 the extra $2$-dimensional structure of $S^2$ is supercritical slack, so PEN takes the constructively prime $S^1$ update first.  Once the bar has risen and that additional path algebra is actually demanded, the same $S^2$ package becomes the correct continuation.
 
 \begin{table}[tbp]
 \centering
