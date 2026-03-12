@@ -177,7 +177,7 @@ The model produces several structural results:
     \item The \textbf{Terminal Fixed-Point Analysis} shows that the temporal-cohesive endpoint is selected with a large deterministic overshoot in the current strict recovery lane and realizes the unique high-interaction structural fixed point available inside the connected component explored by the engine.
 \end{itemize}
 Computational verification is provided by an open Haskell synthesis engine that recovers the 15-step sequence in its current strict bounded molecular-first recovery lane.
-The main machine-verified values in this paper come from that strict run; older structural-AST and type-inhabitation diagnostics are retained only as secondary checks where they do not contradict the strict canon.
+The manuscript's canonical values come from that strict run; auxiliary audits are used only as consistency checks and never override the strict canon.
 Formal proofs in Cubical Agda verify the Fibonacci recurrence and the abstraction barrier at steps 8--9.
 
 \paragraph{Scope and limitations.}
@@ -208,9 +208,9 @@ For late API specifications, the same burden is enforced by an economic-topologi
 \Cref{sec:scaling} derives the Complexity Scaling Theorem ($\Delta_n = F_n$).
 \Cref{sec:exponentiality} establishes superlinear novelty growth, the DCT synthesis mechanism, and the Univalent Horizon.
 \Cref{sec:decomposition} consolidates the DCT fixed-point evidence and the mathematical properties that make DCT the terminal endpoint under PEN.
-\Cref{sec:verification} describes the computational verification: the Haskell engine, the strict molecular evaluation loop, legacy diagnostics, rejected candidates, and Cubical Agda mechanization.
+\Cref{sec:verification} describes the computational verification: the Haskell engine, the strict molecular evaluation loop, auxiliary diagnostics, rejected candidates, and Cubical Agda mechanization.
 \Cref{sec:discussion} assesses what is proved, what is assumed, and what remains open.
-\Cref{sec:boundaries} collects four boundary clarifications---algorithmic criticality, the inefficiency of discrete structures, the Univalent Horizon, and the status of the DCT novelty accounting---that are useful for reviewer-facing scope control but not needed in the main proof spine.
+\Cref{sec:boundaries} collects three boundary clarifications---algorithmic criticality, the Univalent Horizon, and the status of the DCT novelty accounting---plus a short supplementary note linking back to the main-text discrete rejection argument.
 
 % ============================================
 % SECTION 2: RELATED WORK
@@ -332,7 +332,6 @@ The fifteenth selected shell is temporal-cohesive; DCT is its semantic completio
 Syntactically, the selected AST combines spatial logic (cohesion) with temporal logic (LTL~\cite{nakano}) and explicit exchange laws only; the infinitesimal reading is derived later as a semantic consequence rather than postulated as a primitive clause.
 Its strict machine-verified efficiency is $\rho = 11.00$, clearing the Step-15 bar of $7.51$ by an absolute overshoot of $3.49$, the largest in the sequence.
 The current strict evaluator reaches this value by scoring the conceptual temporal shell at conceptual cost $\kappa = 8$ and measuring its mechanically available temporal-cohesive interaction payload against the existing library.
-Unlike earlier drafts, we do not treat a separate structural-AST count of $103$ as canonical.
 The manuscript canon is the strict machine value reported in \cref{tab:genesis}; explanatory rule-group reconstructions later in the paper are subordinate to that total.
 We define the Step-15 AST and its semantic DCT reading in \S\ref{sec:exponentiality} and detail the computational verification in \S\ref{sec:verification}.
 
@@ -649,7 +648,7 @@ PEN evaluates the optimal \emph{mathematical library} to build within a type the
 For steps~1--9, the library grows by adding foundational primitives (new type formers, inductive types, fibrations); each primitive directly enlarges the set of inference rules.
 For steps~10--14, the library grows by adding \emph{API specifications}: packages of types, operations, and axioms (e.g., a metric $g : TX \otimes_s TX \to \R$ with its associated Levi-Civita connection, geodesics, and curvature operators) that are not derivable from prior structures but are stated within the existing logic.
 The candidate's $\kappa$ is the Kolmogorov complexity (clause count) of the API specification; $\nu$ is the combinatorial explosion of derivation schemas the specification natively unlocks.
-The scoring methodology is uniform: the Uniform Algorithm (\S\ref{sec:uniform-nu}) computes $\nu$ by brute-force before/after comparison of inhabited types, applying the same procedure to both foundational steps and library extensions.
+A uniform before/after inhabitation diagnostic is also available (\S\ref{sec:uniform-nu}) and is informative on the foundational steps, but the manuscript's canonical totals are set by the strict hybrid evaluator described in \S\ref{sec:verification}.
 \paragraph{Scalar provenance policy (strict first-use).}
 Any API that mentions $\R$ must include an explicit construction route or explicit scalar axiom in the candidate specification; no ambient scalar base type is assumed.
 Under the strict V1 policy used in this manuscript, scalar prerequisites are charged at first use: if a local API has cost $\kappa_{\mathrm{local}}$ and introduces scalar burden $\kappa_{\mathrm{scalar}}$, the scored denominator is $\kappa' = \kappa_{\mathrm{local}} + \kappa_{\mathrm{scalar}}$.
@@ -686,7 +685,7 @@ Specifically:
 This is the categorical content of Lawvere's adjointness thesis~\cite{lawvere-adjoint}: the unit/counit of the adjunction determine the $\beta$- and $\eta$-laws via the triangle identities.
 Because elimination rules are term-level operations rather than new inhabited types, they are invisible to pure inhabitation counts.
 The Adjoint Completion Principle closes that observational gap categorically, so counting the induced eliminators is required by the semantics of the logical framework itself.
-The Uniform Algorithm (\S\ref{sec:uniform-nu}) applies this principle at exactly two bootstrap steps (Witness and $\Pi/\Sigma$) to recover the correct $\nu$ values.
+The uniform diagnostic (\S\ref{sec:uniform-nu}) matches these two bootstrap steps exactly.
 \end{lemma}
 
 \begin{theorem}[Telescopic elimination capacity for API bundles]
@@ -907,8 +906,7 @@ At the signature level it contains exactly three ambient activators (\texttt{Pi}
 Availability is determined procedurally from the current library state: e.g.\ the temporal shell is opened only once modal and Hilbert capabilities are already present, while the metric shell is opened only once differential and curvature capabilities are present.
 The executable claim is therefore not that the engine invents its own late-stage vocabulary from scratch, but that it objectively filters this disclosed basis under one fixed admissibility and selection rule.
 
-The current strict canon does not rely on the older MCTS-guided claim-grade lane.
-Instead, later-stage structures are reached by exact-band molecular compilation together with hybrid strict evaluation:
+The manuscript canon is fixed by exact-band molecular compilation together with hybrid strict evaluation:
 \[
   \nu_{\mathrm{strict}} = (\nu_G+\nu_C)_{\mathrm{native}} + \nu_{H,\mathrm{explicit}},
 \]
@@ -1329,7 +1327,6 @@ When a synthesis candidate introduces $k$ new unary type formers into a library 
 \noindent \textbf{Application.}
 The selected temporal-cohesive shell introduces temporal modalities ($\bigcirc$, $\Diamond$) into a library of 14~structures already equipped with spatial modalities ($\flat$, $\sharp$, $\Disc$, $\Pi_{\mathrm{coh}}$).
 In the current strict bounded recovery lane, this shell is evaluated at conceptual cost $\kappa=8$ and yields the canonical machine value $\nu = 88$, hence $\rho = 11.00$.
-The manuscript no longer treats the older uniform and structural-AST tallies as canonical here.
 What matters for the present theorem is that the temporal shell clears the active bar by a wide margin and acts as a library-wide endofunctor over the already selected cohesive and differential layers.
 
 \subsection{Divergence of Efficiency}
@@ -1374,6 +1371,45 @@ Under the stated hypothesis, novelty grows at most linearly in specification siz
 By \cref{thm:scaling,thm:divergence}, the active geometric frontier can sustain efficiencies that continue to outpace the Fibonacci-governed bar, while purely discrete families cannot.
 Hence once the bar rises past the bounded discrete efficiency ceiling, all later members of the family remain subcritical.
 \end{proof}
+
+\subsection{Why Discrete Families Lose}
+\label{sec:discrete-frontier}
+
+\Cref{prop:discrete-asymptote-main} gives the asymptotic statement. The same mechanism is already visible at first admissibility, so the rejection of arithmetic and classical set-level packages is a main prediction of the objective rather than an appendix-only afterthought.
+
+At Step~5 the active bar is already $\mathrm{Bar}_5 = 2.14$. Natural numbers enter with $\kappa=3$ and $\nu \le 4$, hence $\rho \le 1.33$; classical logic and power-set style axioms are even lower. By the time the library reaches the geometric API regime, candidates whose novelty remains essentially discrete are farther below the frontier. \Cref{tab:rejected} summarizes representative losing branches under the same fixed evaluator and shared vocabulary.
+
+\begin{table}[tbp]
+\centering
+\caption{Rejected candidates at first admissibility under the same fixed evaluator and vocabulary. Rejection here means ``not an efficient frontier point under PEN,'' not ``mathematically invalid.''}
+\label{tab:rejected}
+\small
+\begin{tabular}{@{}l rrrrl@{}}
+\toprule
+Candidate & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin \\
+\midrule
+Natural numbers $\N$ & $\leq 4$ & 3 & $\leq 1.33$ & 2.14 (step 5) & $\leq -0.81$ \\
+Classical logic (LEM) & $\leq 1$ & 1 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
+Power set axiom & $\leq 2$ & 2 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
+Ordinal arithmetic & $\leq 6$ & 5 & $\leq 1.20$ & 2.14 (step 5) & $\leq -0.94$ \\
+Measure theory & $\approx 12$ & 6 & $\approx 2.0$ & 4.46 (step 10) & $\approx -2.5$ \\
+Elementary topos axioms & $\approx 15$ & 8 & $\approx 1.9$ & 4.46 (step 10) & $\approx -2.6$ \\
+Lie groups Lie$(S^3)$ & 9 & 6 & 1.50 & 4.46 (step 10) & $-2.96$ \\
+Scheme theory & $\approx 18$ & 7 & $\approx 2.6$ & 5.47 (step 12) & $\approx -2.9$ \\
+Galois theory & $\approx 10$ & 5 & $\approx 2.0$ & 5.47 (step 12) & $\approx -3.5$ \\
+Symplectic geometry & $\approx 25$ & 5 & $\approx 5.0$ & 6.07 (step 13) & $\approx -1.1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Structural reading.}
+$\N$, classical logic, power-set style axioms, and ordinal arithmetic are all trapped by the same mechanism: they remain 0-groupoid or near-0-groupoid structures, so $\nu_H=0$ and novelty grows at most linearly in specification size. For $\N$ in particular, addition and multiplication do not create new $\kappa$-worthy novelty because they are definitionally derivable from $\mathsf{rec}_\N$.
+
+\paragraph{Generous bundling still loses.}
+Even an intentionally over-generous arithmetic package with metric-scale clause count $\kappa=7$ still lacks the homotopy term. Its best-case efficiency remains subcritical once the bar reaches the geometric regime, so geometry wins by topology-driven interaction growth rather than by curated bundling.
+
+\paragraph{Higher but losing packages.}
+Measure theory, elementary toposes, scheme theory, and Galois theory generate genuine structure but remain too discrete in the present scoring regime. Symplectic geometry comes closest to survival, but by Step~13 it still falls below the bar cleared by metric structure.
 
 \begin{remark}[Divergence vs.\ termination]
 \label{rem:divergence-vs-termination}
@@ -1535,8 +1571,7 @@ The canonical Step-15 count is now the machine value produced by the strict hybr
 \]
 Operationally, the strict engine evaluates the conceptual temporal shell at conceptual cost $\kappa = 8$, computes native novelty on that conceptual shell, and then adds only those topological witness credits whose framework-derived computation payload is explicitly present in the compiled telescope.
 
-This is a narrower claim than earlier drafts.
-We no longer treat a separate structural-AST total of $103$ as manuscript canon.
+This is the only Step-15 value used in the manuscript.
 The current paper value is the strict machine result that actually drives selection in the executable artifact.
 Explanatory decompositions are retained only when they agree with that value and can be defended from the current code path.
 
@@ -1658,11 +1693,11 @@ at conceptual costs
 \[
   (2,1,1,3,3,3,3,5,4,4,5,6,7,9,8).
 \]
-The late-stage values differ from the manuscript's older hand-estimated canon; throughout this paper, the strict machine values now take precedence.
+These strict machine values are the manuscript's canonical totals.
 
 \paragraph{Rejected candidates.}
 To verify that the trajectory is selective rather than merely permissive, the engine also evaluates natural but losing alternatives spanning arithmetic, classical logic, measure theory, scheme theory, elementary topos axioms, and symplectic geometry.
-All of them fall below the active bar at first admissibility; the comparison table is deferred to \cref{app:rejections}.
+All of them fall below the active bar at first admissibility; the summary table appears in \cref{sec:discrete-frontier,tab:rejected}, with supplementary notes deferred to \cref{app:rejections}.
 
 \subsection{Schema Canonicality Verification}
 
@@ -1673,16 +1708,15 @@ This supports \cref{prop:grammar-canonical}: after schematization, depth-1 schem
 This diagnostic is not the manuscript's canonical novelty measure.
 At depth~2 the schema count explodes combinatorially, so the exact-oracle mode is now treated only as an early-step consistency check rather than as a late-stage proof of $\nu$.
 
-\subsection{Uniform Nu Verification}
+\subsection{Uniform Diagnostic}
 \label{sec:uniform-nu}
 
-Earlier drafts used a type-inhabitation comparison procedure as a uniform diagnostic.
-That algorithm remains useful as a historical cross-check on the foundational steps, but it is no longer the manuscript's canonical novelty source.
-Its late-stage counts over-amplify API and temporal shells, so the present paper does not use it to set any value in \cref{tab:genesis}.
+A type-inhabitation comparison procedure remains useful as an auxiliary diagnostic on the foundational steps.
+Its late-stage counts over-amplify API and temporal shells, so the manuscript does not use it to set any value in \cref{tab:genesis}.
 
-The categorical point behind that older diagnostic remains valid:
+The categorical point behind the diagnostic remains valid:
 Adjoint Completion (\cref{lem:adjoint-completion}) explains why introduction data forces elimination data even when pure inhabitation counts cannot see it directly.
-In the current manuscript this principle is realized operationally by molecular compilation plus the strict hybrid evaluator, not by the old uniform table.
+In this manuscript that principle is realized operationally by molecular compilation plus the strict hybrid evaluator.
 
 \subsection{Meta-Theoretic Rule Audit}
 \label{sec:inference-nu}
@@ -1719,9 +1753,8 @@ $n$ & Selected AST skeleton & $\nu_{\mathrm{strict}}$ & Audit status \\
 \end{center}
 
 \begin{remark}[Status of the DCT decomposition]
-The current manuscript makes a narrower claim than earlier drafts.
 For DCT the machine-verified total $\nu = 88$ is canonical, but the paper does not elevate any finer three-way split to theorem status unless it is exposed by the current strict evaluator itself.
-This keeps the manuscript aligned with the executable artifact rather than with older structural diagnostics.
+This keeps the manuscript aligned with the executable artifact.
 \end{remark}
 
 \begin{remark}[Automation scope of the verification]
@@ -1864,8 +1897,7 @@ The DCT's canonical Generative Capacity is the strict machine value
 \[
   \nu(\mathrm{DCT}) = 88.
 \]
-That value is produced by the current hybrid strict evaluator from the conceptual temporal shell plus any explicit topological witness payload preserved by compilation.
-The older $103$ structural-AST total is no longer used as a theorem-level value in this manuscript.
+That value is produced by the current hybrid strict evaluator from the conceptual temporal shell plus any explicit topological witness payload preserved by compilation, and it is the only theorem-level DCT novelty value used in this manuscript.
 
 \subsection{Mathematical Implications}
 
@@ -1908,14 +1940,14 @@ and two structural results:
 \begin{enumerate}[nosep, start=4]
     \item \textbf{Terminal DCT Fixed Point.} In PEN's current strict bounded recovery lane, the temporal-cohesive Step-15 AST is selected with $\nu=88$, $\kappa=8$, and maximal absolute overshoot; its semantic completion is read as DCT, and Step~16 then halts by the internal/external combinatorial squeeze.
     This identifies the terminal fixed point of PEN within the connected component explored by the engine.
-    \item \textbf{Mechanical Verification.} The strict bounded recovery engine recovers the full 15-step sequence with the machine values reported in \cref{tab:genesis}.  Explanatory rule audits and older type-inhabitation diagnostics remain secondary and do not override those totals.
+    \item \textbf{Mechanical Verification.} The strict bounded recovery engine recovers the full 15-step sequence with the machine values reported in \cref{tab:genesis}. Auxiliary audits validate portions of that computation but do not override those totals.
 \end{enumerate}
 
 The paper's final claim splits in two.
 \emph{Conjecture:} with sufficiently powerful search over the same admissible MBTT space, the same PEN trajectory and same semantic identifications would emerge without the current tractability guidance.
 \emph{Finding:} the present executable artifact recovers that trajectory in a strict bounded molecular-first lane using exact-band admissibility, a finite disclosed shell inventory, hybrid novelty evaluation, and semantic minimality filtering.
 Taken together, these results support a conditional metatheory of typed library growth rather than an anthropomorphic discovery claim: under PEN's fixed MBTT vocabulary, disclosed finite shell inventory, admissibility policy, minimal-overshoot rule, and maximal-interface-density requirement, the fully coupled CCHM/HoTT $d=2$ coherence regime forces Fibonacci integration debt, superlinear novelty, asymptotic rejection of purely discrete families, and convergence to a temporal-cohesive Step-15 fixed point whose semantic completion is DCT and whose external continuation is halted inside the connected component of $\U_0$ explored by the engine.
-Reproducibility details, rejected-candidate arithmetic, boundary-case clarifications, and full MBTT audits are deferred to the appendices.
+Reproducibility details, extended arithmetic checks, boundary-case clarifications, and full MBTT audits are deferred to the appendices.
 
 % ============================================
 % APPENDIX: DCT DETAILS
@@ -1925,7 +1957,7 @@ Reproducibility details, rejected-candidate arithmetic, boundary-case clarificat
 \section{Boundary Cases and Algorithmic Limits}
 \label{sec:boundaries}
 
-This appendix records four scope clarifications deferred from the main text.
+This appendix records three scope clarifications deferred from the main text, plus a short supplementary note linking back to the main-text discrete rejection argument.
 They address reviewer-facing boundary questions, but are logically downstream of the core derivation.
 
 \subsection{Algorithmic Criticality}
@@ -1950,21 +1982,8 @@ The 0.11 margin is therefore the exact phase transition at which geometry first 
 \subsection{The Algorithmic Inefficiency of the Discrete}
 \label{sec:discrete}
 
-The model does not ignore arithmetic and set-theoretic candidates; it rejects them because, in a $d=2$ intensional regime, purely discrete structures have no homotopy bonus and only linear schema growth.
-
-\begin{proposition}[Inefficiency of Discrete Structures]
-\label{prop:discrete-inefficiency}
-Let $X$ be a candidate with $\nu_H(X)=0$ and $\nu_G(X)=O(\kappa(X))$.
-In a $d=2$ system, $X$ eventually fails the selection bar.
-\end{proposition}
-
-\begin{proof}[Proof sketch]
-By \cref{thm:scaling,thm:divergence}, the integration bar grows with Fibonacci-governed history and diverges.
-If $X$ has no higher-path contribution, its novelty remains bounded by linear growth in specification size, so $\rho(X)=\nu(X)/\kappa(X)$ stays bounded while the bar increases.
-Thus only candidates with nontrivial homotopy interaction can survive indefinitely.
-\end{proof}
-
-This is the structural reason that $\N$, classical logic, power-set style axioms, and ordinal arithmetic fail in \cref{tab:rejected}: they are valid mathematics, but not efficient frontier points under the PEN objective.
+The main proof spine already establishes the discrete frontier in \cref{prop:discrete-asymptote-main,sec:discrete-frontier} and tabulates representative losing candidates in \cref{tab:rejected}.
+This appendix records only the boundary-level reading: arithmetic and set-theoretic packages are not ignored by the evaluator, but rejected because in the fully coupled $d=2$ regime they lack the homotopy bonus and remain confined to linear novelty growth.
 
 \subsection{The Univalent Horizon}
 \label{sec:godelian}
@@ -1999,7 +2018,7 @@ That total is the one used throughout the manuscript and in the executable selec
 Likewise, Adjoint Completion (\cref{lem:adjoint-completion}) is not a retrofitted scoring bonus.
 It is a measurement principle forced by adjoint structure in categorical logic: introduction data determines corresponding elimination structure.
 For bootstrap types that eliminative payload appears in $\nu_C$; for bare HITs it is absorbed into $\nu_H$ by dimensional orthogonality, which is why the HIT rows can have $\nu_C=0$ without contradicting adjoint completion.
-In the current manuscript that principle is realized through molecular compilation and strict evaluation rather than through the older uniform diagnostic.
+In the current manuscript that principle is realized through molecular compilation and strict evaluation.
 
 \section{Artifact Map and Reproduction Checklist}
 \label{app:artifact-map}
@@ -2041,31 +2060,8 @@ If PropTrunc required one extra clause, its efficiency would fall to $2.00$ and 
 
 \subsection{Rejected candidates}
 
-The candidates in \cref{tab:rejected} are evaluated at their first admissible step.
-They are included to show that PEN does not merely favor one hand-picked branch; it scores and rejects multiple mathematically natural alternatives under the same objective.
-
-\begin{table}[tbp]
-\centering
-\caption{Rejected candidates at first admissibility under the same fixed evaluator and vocabulary.  Rejection here means ``not an efficient frontier point under PEN,'' not ``mathematically invalid.''}
-\label{tab:rejected}
-\small
-\begin{tabular}{@{}l rrrrl@{}}
-\toprule
-Candidate & $\nu$ & $\kappa$ & $\rho$ & Bar & Margin \\
-\midrule
-Natural numbers $\N$ & $\leq 4$ & 3 & $\leq 1.33$ & 2.14 (step 5) & $\leq -0.81$ \\
-Classical logic (LEM) & $\leq 1$ & 1 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
-Power set axiom & $\leq 2$ & 2 & $\leq 1.00$ & 2.14 (step 5) & $\leq -1.14$ \\
-Ordinal arithmetic & $\leq 6$ & 5 & $\leq 1.20$ & 2.14 (step 5) & $\leq -0.94$ \\
-Measure theory & $\approx 12$ & 6 & $\approx 2.0$ & 4.46 (step 10) & $\approx -2.5$ \\
-Elementary topos axioms & $\approx 15$ & 8 & $\approx 1.9$ & 4.46 (step 10) & $\approx -2.6$ \\
-Lie groups Lie$(S^3)$ & 9 & 6 & 1.50 & 4.46 (step 10) & $-2.96$ \\
-Scheme theory & $\approx 18$ & 7 & $\approx 2.6$ & 5.47 (step 12) & $\approx -2.9$ \\
-Galois theory & $\approx 10$ & 5 & $\approx 2.0$ & 5.47 (step 12) & $\approx -3.5$ \\
-Symplectic geometry & $\approx 25$ & 5 & $\approx 5.0$ & 6.07 (step 13) & $\approx -1.1$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+The summary table now appears in the main text (\cref{sec:discrete-frontier,tab:rejected}).
+This appendix records only the supplementary interpretation notes used by the implementation discussion.
 
 \paragraph{Discrete candidates.}
 $\N$, classical logic, power-set style axioms, and ordinal arithmetic are all trapped by the same mechanism: they remain 0-groupoid or near-0-groupoid structures, so $\nu_H=0$ and novelty grows at most linearly in specification size, exactly as in \cref{prop:discrete-asymptote-main}.
@@ -2147,7 +2143,7 @@ The current manuscript canon is the strict machine value
   \nu(\text{DCT}) = 88.
 \]
 This value is produced by the current strict hybrid evaluator and is the only DCT novelty total used in the main text.
-The earlier structural-AST total of $103$ is retained only as a historical diagnostic and is not treated as a theorem-level quantity here.
+No finer DCT novelty total is elevated to theorem status unless it is exposed by the current evaluator.
 
 \paragraph{What the current code supports.}
 The selected temporal shell still justifies the same qualitative construction families:
@@ -2591,7 +2587,7 @@ The runtime search is constrained by construction:
     \item \textbf{Structural pruning.} Ill-typed and inadmissible telescopes are removed by type checks, derivability checks, and semantic minimality before final selection.
     \item \textbf{Conceptual/compiled separation.} Conceptual $\kappa$ is charged on the signature while the compiled payload is evaluated for novelty, sharply shrinking the search burden for later steps.
     \item \textbf{Atomic fallback only when needed.} Raw MBTT enumeration remains available, but only as a fallback when no molecular candidate inhabits the active band.
-    \item \textbf{Diagnostics separated from canon.} Reference telescopes and older diagnostic lanes may still be evaluated for validation, but they do not set the manuscript's canonical values.
+    \item \textbf{Diagnostics separated from canon.} Auxiliary diagnostics may still be evaluated for validation, but the manuscript's canonical values are set by the strict hybrid evaluator.
 \end{enumerate}
 
 Hence the implementation is a strict bounded molecular-first recovery lane over an admissible, bounded, and reproducible candidate manifold---not exhaustive brute-force over the entire binary code space.
