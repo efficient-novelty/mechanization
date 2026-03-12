@@ -1,0 +1,541 @@
+\documentclass[pdflatex,sn-mathphys,Numbered]{sn-jnl}
+
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{cleveref}
+
+\theoremstyle{thmstyleone}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{thmstylethree}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{thmstyletwo}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\raggedbottom
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\Bcal}{\mathcal{B}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Scal}{\mathcal{S}}
+\newcommand{\MBTT}{\ensuremath{\mathsf{MBTT}}}
+\newcommand{\PEN}{\ensuremath{\mathsf{PEN}}}
+\newcommand{\DCT}{\ensuremath{\mathsf{DCT}}}
+\newcommand{\Sone}{S^1}
+\newcommand{\Stwo}{S^2}
+\newcommand{\Sthree}{S^3}
+\newcommand{\nuG}{\nu_G}
+\newcommand{\nuC}{\nu_C}
+\newcommand{\nuH}{\nu_H}
+\DeclareMathOperator{\BarOp}{Bar}
+\DeclareMathOperator{\argminp}{argmin}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  showstringspaces=false,
+  breaklines=true
+}
+
+\title[Automated Theory Synthesis]{Automated Theory Synthesis via Typed Structural Optimization}
+
+\author*[1]{\fnm{Halvor} \sur{Lande}}\email{hsl@awc.no}
+
+\affil*[1]{\orgname{Draft affiliation to be supplied}, \orgaddress{\country{Norway}}}
+
+\abstract{Automated reasoning systems usually optimize a user-supplied theorem or a fixed program specification. This paper studies a different task: selecting which typed theory fragment should be added next to a growing foundational library. Taking Fibonacci-scaled integration debt and schema-based generative calculus as fixed external constraints, we present a large Haskell synthesis engine that evaluates candidate type-theoretic extensions by structural efficiency alone. Candidates are generated as typed abstract syntax trees in a Minimal Base Type Theory grammar, filtered by conservative typing and interface checks, and ranked by minimal positive overshoot above a history-dependent efficiency bar. The scoring path contains no target theorem. In a guided claim-grade lane, the engine recovers a nontrivial 15-step trajectory from the bootstrap of dependent logic through the geometric phase of higher inductive spheres and the Hopf fibration to a temporal-cohesive endpoint. The repository also provides rejected-candidate evidence, ablation runs, and an independent uniform-nu evaluator that confirms the stability of the geometric ordering under a second measurement discipline. The resulting picture is an executable form of automated theory synthesis: symbolic optimization over typed structure rather than proof search for externally given goals.}
+
+\keywords{automated reasoning, theory synthesis, type theory, Monte Carlo tree search, program synthesis, homotopy type theory}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+\subsection{The target-theorem bottleneck}
+
+Most successful automated-reasoning systems are driven by a local goal. In theorem proving, the goal is an explicit conjecture or proof state. In theory exploration, the user fixes a background theory and the system searches for equations, lemmas, or conjectures internal to that theory. In type-directed synthesis, the user supplies a type or refinement type and the engine searches for a term inhabiting it. This family resemblance covers many of the strongest current systems in automated reasoning, from theory-exploration tools to retrieval-augmented or neural proof search \cite{quickspec,isacosy,hipster,synquid,leandojo,alphageometry}.
+
+The present paper is about a different optimization problem. The target is not a theorem. The target is the \emph{growth of the library itself}. Starting from a current library state, the engine must decide which typed extension should be admitted next. The search objects are not lemmas but candidate theory fragments: anonymous telescopes describing new type formers, constructors, eliminators, boundary laws, maps, or promoted interface packages. The output is not a proof object but the next accepted library entry and, over time, a trajectory of theory growth.
+
+This reframing matters because it changes both the scoring function and the failure modes. A system can discover many correct lemmas inside a weak theory while still failing to grow the theory in a structurally sustainable direction. Conversely, a candidate extension may be valuable even if it is not immediately tied to a famous human theorem, provided it creates enough future derivational structure to offset its own integration cost. The core question is therefore one of \emph{typed structural optimization}.
+
+\begin{table}[t]
+\centering
+\caption{PEN compared with nearby automated-reasoning paradigms.}
+\label{tab:comparison}
+\footnotesize
+\begin{tabular}{@{}p{2.55cm}p{2.35cm}p{2.5cm}p{2.6cm}p{2.1cm}@{}}
+\toprule
+Family & Input & Search object & Acceptance signal & Output \\
+\midrule
+Goal-conditioned proving & Conjecture or proof state & Proof steps, premises, proof states & Goal solved & Proof or script \\
+Theory exploration & Fixed signature or theory & Equations, lemmas, conjectures & Interestingness or provability inside that theory & Lemma set \\
+Type-directed synthesis & Type or refinement type & Programs inhabiting the target & Type/refinement satisfied & Program term \\
+\PEN{} & Current library state and structural history & Typed library extensions & Bar clearance under $\rho=\nu/\kappa$ & Next library entry \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Theoretical inputs as system constraints}
+
+This paper is the systems component of a larger PEN program. The heavy metatheoretic inputs are imported rather than reproved. In companion manuscripts, framework extension is shown to incur a coherence-sensitive integration debt whose depth-two form is Fibonacci, and structural novelty is defined by exact schema difference with a tripartite split into generative, cross-interface, and homotopical components \cite{lande-coherence,lande-generative}. The later temporal-cohesive endpoint is analyzed separately as a companion semantic structure \cite{lande-dct}. The present paper treats those results as black-box constraints and asks the computational question: given those constraints, can an executable system recover the predicted trajectory by optimizing typed structure alone?
+
+This division of labor is deliberate. The present contribution is not a new proof of Fibonacci scaling. It is the implementation of a large Haskell engine that computes the corresponding objective over typed ASTs, manages the combinatorial search space, and records positive and negative evidence about what survives the bar.
+
+\subsection{The core thesis}
+
+The central claim of the paper is the following.
+
+\begin{quote}
+\emph{A typed structural optimization engine with no target theorem in its scoring path recovers a nontrivial geometric trajectory, computationally verifying the theoretical predictions and demonstrating a new paradigm for automated mathematical discovery.}
+\end{quote}
+
+The phrase ``no target theorem in its scoring path'' is the crucial boundary condition. It does not mean the whole system is free of guidance. It means that the \emph{score} assigned to a candidate is computed from structural quantities only: novelty $\nu$, irreducible effort $\kappa$, and the history-sensitive bar induced by integration debt. Human mathematical taste does not appear in the evaluator. Search-control heuristics still matter, and we discuss them explicitly in \Cref{sec:discussion}.
+
+\subsection{Scope and methodology}
+
+The paper is written for a JAR audience and therefore emphasizes what the engine computes, how the search surface is controlled, and where the artifact evidence is strongest. The main repository contains two mechanized pillars: a Cubical Agda proof layer and a Haskell synthesis and verification engine \cite{pen-artifact}. The Haskell side generates candidates, checks them conservatively, computes novelty and effort, applies bar-based selection, and emits replay telemetry. The Agda side mechanizes recurrence facts, abstraction barriers, and bridge contracts. Our methodology is to treat the codebase itself as the primary systems source and to document the strongest artifact-supported claims while keeping conjectural claims clearly separated.
+
+\section{Formal optimization over typed ASTs}\label{sec:formal}
+
+\subsection{The state and action space}
+
+\begin{definition}[Library state]
+A library state at time $n$ is a pair
+\[
+  S_n=(\Bcal_n,H_n),
+\]
+where $\Bcal_n$ is the current sequence of sealed library entries and $H_n=((\nu_1,\kappa_1),\dots,(\nu_n,\kappa_n))$ is the realized score history used to compute the next bar. In the implementation, $\Bcal_n$ is represented by a list of \texttt{LibraryEntry} values carrying constructors, path dimensions, and capability flags required by subsequent search.
+\end{definition}
+
+\begin{definition}[Action space]
+An action at state $S_n$ is a typed candidate extension $T$ written as an anonymous \MBTT{} telescope over the active library. The admissible action set $A(S_n)$ consists of those telescopes that pass the conservative telescope checker, remain connected to the current library, and satisfy the current coherence-window reference discipline.
+\end{definition}
+
+The important implementation fact is that the search surface is not the untyped space of arbitrary bitstrings. The basic search objects are typed ASTs in a restricted grammar. The module \texttt{MBTTEnum.hs} enumerates candidates by budget-splitting over this grammar, while \texttt{TelescopeCheck.hs} rejects malformed telescopes, disconnected candidates, and obvious definitional junk. Each candidate carries multiple cost views, including bit cost, clause count, and AST node count.
+
+\subsection{The PEN algorithm as an executable objective}
+
+The evaluator follows the companion mathematics closely enough that it is useful to state the objective formally.
+
+\begin{definition}[Dual costs]
+For a candidate $T$ over library $\Bcal$:
+\begin{enumerate}[label=(\roman*),nosep]
+\item $\kappa(T\mid\Bcal)$ is its irreducible construction effort, computed in the default lane by desugared clause count and exposed additionally in entry-count and bit-cost variants.
+\item $\nu(T\mid\Bcal)$ is its structural novelty, computed either from the AST rule extractor (structural lane) or from the independent uniform evaluator (verification lane).
+\end{enumerate}
+The efficiency of $T$ is
+\[
+  \rho(T\mid\Bcal)=\frac{\nu(T\mid\Bcal)}{\kappa(T\mid\Bcal)}.
+\]
+\end{definition}
+
+\begin{definition}[History-sensitive bar]
+Let $\Delta_n$ be the integration latency at step $n$, computed from the chosen coherence-window recurrence. Define
+\[
+  \Phi_n=\frac{\Delta_n}{\Delta_{n-1}},
+  \qquad
+  \Omega_{n-1}=\frac{\sum_{i=1}^{n-1}\nu_i}{\sum_{i=1}^{n-1}\kappa_i},
+  \qquad
+  \BarOp_n=\Phi_n\Omega_{n-1}.
+\]
+In the default window $d=2$, the recurrence is Fibonacci-based via the executable function \texttt{dBonacciDelta}.
+\end{definition}
+
+\begin{definition}[Executable PEN objective]
+Given a state $S_n=(\Bcal_n,H_n)$, the engine selects
+\[
+  T^* \in \argminp\Bigl\{\rho(T\mid\Bcal_n)-\BarOp_{n+1}
+  \;\Bigm|\; T\in A(S_n),\; \rho(T\mid\Bcal_n)\geq \BarOp_{n+1}\Bigr\},
+\]
+with deterministic tie-breaks by smaller $\kappa$, then stronger interface density, then a stable canonical key.
+\end{definition}
+
+Minimal positive overshoot, rather than raw maximization of $\rho$, is a substantive part of the objective. The engine is not asked to find the candidate with the largest instantaneous novelty-to-effort ratio. It is asked to find the least supercritical candidate that clears the current bar.
+
+\begin{proposition}[Target-free scoring]
+\label{prop:targetfree}
+The score assigned to a candidate in the structural and strict claim-grade lanes depends only on the candidate telescope, the current library state, and realized history. It contains no parameter representing a target theorem, proof state, conjecture, or external utility label.
+\end{proposition}
+
+\begin{proof}
+In the current codebase, the evaluation path factors through the telescope checker, the structural or uniform novelty evaluator, the selected $\kappa$ mode, and the bar function computed from prior realized $(\nu,\kappa)$ pairs and the chosen window depth. The claim-grade source guards in \texttt{RunAbInitio.hs} reject \texttt{REF} and \texttt{PAPER} sources for strict and structural discovery. Search guidance may still narrow the candidate frontier, but the acceptance score itself is structural.
+\end{proof}
+
+\begin{algorithm}[t]
+\caption{Executable PEN selection loop}
+\label{alg:pen}
+\begin{algorithmic}[1]
+\Require library state $S_n=(\Bcal_n,H_n)$, enumeration config $E$, optional MCTS config $M$
+\State $C \gets \textsc{EnumerateMBTT}(\Bcal_n,E)$
+\State $C \gets \textsc{CheckAndPrune}(C,\Bcal_n)$
+\State $C \gets \textsc{CanonicalDeduplicate}(C)$
+\ForAll{$T \in C$}
+  \State compute $\kappa(T)$, $\nuG(T)$, $\nuC(T)$, $\nuH(T)$, $\nu(T)$, and $\rho(T)$
+\EndFor
+\State compute $\BarOp_{n+1}$ from $H_n$ and the active window depth
+\State $V \gets \{T \in C : \rho(T) \geq \BarOp_{n+1}\}$
+\If{$V = \varnothing$ and $M$ is enabled}
+  \State $V \gets \textsc{MCTSFallback}(\Bcal_n,H_n,M)$
+\EndIf
+\State return the least-supercritical candidate in $V$ under deterministic tie-breaks
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Target-free scoring versus guided search}
+
+Because the phrase ``target-free'' is easy to overread, we make the distinction explicit already here. The current engine is target-free at the level of \emph{evaluation}. It is not entirely unguided at the level of \emph{search control}. The claim-grade lane still uses agenda mechanisms, bounded frontiers, canonical quotienting, and late-phase ranking controls. This distinction is not a weakness of the paper; it is part of the scientific result. The system is already strong enough to separate a structurally defined reward from a pragmatically guided traversal of the candidate manifold.
+
+\section{System architecture: the Haskell engine}\label{sec:architecture}
+
+\subsection{Engine design and scale}
+
+The current repository is an executable research artifact rather than a single-purpose script. The repository README describes two primary pillars: a proof pillar in Cubical Agda and a computation pillar in Haskell \cite{pen-artifact}. The architecture document summarizes the same split at maintainer level. The JAR draft already present in the codebase reports roughly 50 Haskell modules and about 19.5k lines under \texttt{engine/src}, together with a parallel Agda mechanization, scripts, and run artifacts; that is the scale at which the present manuscript should be read.
+
+\begin{table}[t]
+\centering
+\caption{Main architectural groups in the current codebase.}
+\label{tab:modules}
+\footnotesize
+\begin{tabular}{@{}p{2.6cm}p{3.2cm}p{5.7cm}@{}}
+\toprule
+Group & Representative modules & Role \\
+\midrule
+Search-space generation & \texttt{MBTTEnum}, \texttt{AgendaSearch}, \texttt{Generator}, \texttt{MCTS} & Typed candidate generation under budgets; fallback or portfolio exploration when enumeration is insufficient. \\
+Checking and canonicalization & \texttt{TelescopeCheck}, \texttt{MBTTCanonical}, \texttt{Telescope} & Conservative well-formedness checks, connectedness tests, canonical keys, telescope utilities, and structural classification. \\
+Scoring and selection & \texttt{StructuralNu}, \texttt{UniformNu}, \texttt{TelescopeEval}, \texttt{RunAbInitio} & Computation of $\nu$, $\kappa$, $\rho$, the bar, and final deterministic selection. \\
+Search guidance & \texttt{ProofState}, \texttt{ProofRank}, \texttt{CoherenceWindow} & Goal profiles, debt graphs, capability signatures, premise buckets, and coherence-derived budgets. \\
+Reporting and bridge & \texttt{MBTTDecode}, \texttt{AgdaExport} & Post-hoc semantic labels, bridge payloads, Agda stubs, and non-interfering reporting channels. \\
+Validation & \texttt{AcceptanceSuite} and replay scripts & Golden-sequence tests, invariants, regression checks, and benchmark harnesses. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{MBTT-first candidate generation}
+
+The most important architectural evolution relative to early PEN manuscripts is the move toward MBTT-first search. The module \texttt{MBTTEnum.hs} implements exhaustive budget-split enumeration over the typed \MBTT{} grammar rather than relying exclusively on template-first generation. Its default configuration is explicit in the code:
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Parameter & Default value \\
+\midrule
+bit budget per candidate & 40 \\
+maximum telescope entries & 8 \\
+maximum AST depth & 5 \\
+maximum returned candidates & 5000 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Each \texttt{MBTTCandidate} carries four relevant pieces of metadata: the anonymous telescope itself, bit cost, desugared clause count, and total AST node count. This is the implementation bridge between formal novelty and ordinary systems telemetry.
+
+The enumeration itself is typed and structural. Pi-types are generated by budget splitting over domain and codomain; identity forms split budget over three arguments; library gating reuses the current library interface; and the resulting telescopes are filtered by the conservative checker, connectedness, and the active reference window. This is already far from brute-force term enumeration in an untyped grammar.
+
+\subsection{Type checking, normalization, and canonical quotienting}
+
+\texttt{TelescopeCheck.hs} is conservative rather than complete. It aims to reject obviously malformed telescopes without pretending to solve full equivalence or full dependent type checking for the entire search surface. The checks enforce library-reference bounds, variable-scope discipline, binder sanity, and certain term-form restrictions. A candidate must also be structurally connected to the recent library and respect the active window references.
+
+Canonicalization is similarly explicit about its limits. The current quotient is deterministic and intentionally modest: recursive structural normalization, hashed canonical encodings, and stable canonical keys. It does not attempt alpha-normalization, beta-eta equivalence, or symmetry quotients. This is a sensible engineering compromise for reproducibility. The phase-2 differential report cited in the repository records a 48.33\% candidate reduction on a bounded differential gate after canonical quotienting, which is strong enough to matter operationally while remaining simple enough to audit.
+
+\section{The search controller: MCTS}\label{sec:mcts}
+
+\subsection{Why a search controller is needed}
+
+Even a typed AST manifold becomes combinatorially heavy as the library grows. The reason is not mysterious: the admissible surface expands with the active interface, candidate well-formedness is history sensitive, and the reward is computed only after conservative checking, canonicalization, and novelty evaluation. Exhaustive enumeration is therefore strongest in early and mid phases, whereas later phases motivate a portfolio or fallback controller.
+
+The codebase addresses this with a Monte Carlo Tree Search layer. Conceptually, MCTS explores partial telescopes as states of a finite-horizon Markov decision process. Selection uses UCT-style optimism, expansion adds structurally valid next actions, rollouts estimate the downstream efficiency ratio, and backpropagation updates utility estimates \cite{kocsis,browne}. In PEN, however, MCTS is not the main scientific novelty; it is a scaling mechanism attached to a structural evaluator.
+
+\subsection{The implemented MCTS layer}
+
+The module \texttt{MCTS.hs} exposes the controller with transparent defaults:
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Parameter & Default value \\
+\midrule
+iterations & 10,000 \\
+maximum candidate $\kappa$ & 5 \\
+maximum AST depth & 2 \\
+UCT exploration constant & 1.414 \\
+reported top-$K$ candidates & 10 \\
+progressive widening coefficient & 1.0 \\
+progressive widening exponent & 0.5 \\
+random seed & 42 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A node in the MCTS tree is a partial telescope. The action set consists of valid structural extensions produced by \texttt{validActions}. Reward is tied to efficiency on completed telescopes, with viability measured against the current bar and deterministic post-checking before insertion into the candidate pool. In the current \texttt{RunAbInitio.hs} code path, MCTS serves as a fallback or portfolio lane when the expected relevant $\kappa$ exceeds the enumeration horizon or when enumeration yields no viable candidate.
+
+An important empirical point is that the currently documented full strict replay used for telemetry does \emph{not} exercise MCTS. That is valuable rather than embarrassing. It shows that the available 15-step recovery can already be obtained by typed enumeration, agenda narrowing, and structural scoring. The MCTS layer is therefore part of the intended scaling story, but not necessary for the strongest present replay claim.
+
+\begin{algorithm}[t]
+\caption{MCTS fallback over partial telescopes}
+\label{alg:mcts}
+\begin{algorithmic}[1]
+\Require current library $\Bcal_n$, MCTS configuration $M$
+\State initialize root at the empty or seeded partial telescope
+\For{$i=1$ to \texttt{mctsIterations}$ $}
+  \State select a node using UCT with progressive widening
+  \State expand by one structurally valid action
+  \State simulate a bounded rollout using valid telescope actions
+  \State evaluate completed candidates by the same $\nu/\kappa$ and bar criteria as in Algorithm~\ref{alg:pen}
+  \State backpropagate rollout utility to the selected path
+\EndFor
+\State return top-ranked viable completions for deterministic post-selection
+\end{algorithmic}
+\end{algorithm}
+
+\section{Experimental results: recovering the trajectory}\label{sec:results}
+
+\subsection{The guided claim-grade lane}
+
+The main experimental lane is deliberately narrower than the full conceptual search space. The codebase distinguishes between benchmark-style replay modes and claim-grade discovery modes. In the latter, the evaluator rejects \texttt{REF} and \texttt{PAPER} sources, computes $\nu$ and $\kappa$ from structural information only, and builds the bar from discovered history. The source guards are visible in \texttt{RunAbInitio.hs}; names are attached post hoc by the reporting decoder and are kept non-interfering.
+
+A minimal reproduction path, directly supported by the repository README and pseudo-code notes, is:
+
+\begin{lstlisting}
+cd engine
+cabal build all
+cabal run ab-initio -- --strict --max-steps 15 --skip-validation --skip-mcts
+cabal run acceptance
+\end{lstlisting}
+
+The same repository also supports benchmark harnesses and shorter shadow-prefix runs, for example through \texttt{./scripts/benchmark.sh quickstart\_benchmark} and the \texttt{--phase1-shadow} preset. The point of the claim-grade lane is not that it searches everything. The point is that within a constrained but auditable lane, the engine selects and rejects candidates by structural score rather than by theorem targeting.
+
+\subsection{The exact step-5 audit as a worked example}
+
+The first genuinely geometric acceptance event is step~5. At this point the active library contains exactly the bootstrap deductive core recovered in steps~1--4: Universe, Unit, Witness, and $\Pi/\Sigma$-types. In the baseline structural lane the bar is then $\BarOp_5=2.14$, and the circle candidate satisfies
+\[
+  \kappa(S^1)=3, \qquad \nu(S^1)=7, \qquad \rho(S^1)=\frac{7}{3}\approx 2.33.
+\]
+The imported generative-calculus account explains the homotopical part of this score: for the circle, $m=1$ boundary reduction and maximal path dimension $d=1$, so the topological projection theorem gives $\nu_H = m+d^2 = 2$. The remaining five schema families arise from formation, introduction, and the dependent elimination or mixed-interface consequences unlocked by adding the first non-trivial path object.
+
+This makes step~5 a useful systems-level sanity check because it already separates geometric from discrete candidates. Bare naturals have $\rho \leq 4/3$, classical excluded middle has $\rho \leq 1$, and power-set style axioms also remain near $1$ in the companion audits. All of them fall below the same bar that the circle clears. The engine therefore does not need a semantic preference for topology to choose $S^1$ at step~5; the choice is already forced by the structural objective imported from the companion theory.
+
+\subsection{Computational recovery of the 15 steps}
+
+\Cref{tab:trajectory} records the main structural-discovery trajectory from the repository's baseline structural $d=2$ artifact. It recovers the full sequence from the empty library to the temporal-cohesive endpoint.
+
+\begin{table}[p]
+\centering
+\caption{Structural-discovery trajectory in the baseline $d=2$ lane.}
+\label{tab:trajectory}
+\footnotesize
+\begin{tabular}{@{}r l r r r r r@{}}
+\toprule
+Step & Structure & $\nu$ & $\kappa$ & $\rho$ & Bar & $\Delta_n$ \\
+\midrule
+1 & Universe & 1 & 2 & 0.50 & 0.50 & 1 \\
+2 & Unit & 1 & 1 & 1.00 & 0.50 & 1 \\
+3 & Witness & 2 & 1 & 2.00 & 1.33 & 2 \\
+4 & $\Pi/\Sigma$ & 5 & 3 & 1.67 & 1.50 & 3 \\
+5 & $\Sone$ & 7 & 3 & 2.33 & 2.14 & 5 \\
+6 & Trunc & 8 & 3 & 2.67 & 2.56 & 8 \\
+7 & $\Stwo$ & 10 & 3 & 3.33 & 3.00 & 13 \\
+8 & $\Sthree$ & 18 & 5 & 3.60 & 3.43 & 21 \\
+9 & Hopf & 17 & 4 & 4.25 & 4.01 & 34 \\
+10 & Cohesion & 19 & 4 & 4.75 & 4.46 & 55 \\
+11 & Connections & 26 & 5 & 5.20 & 4.91 & 89 \\
+12 & Curvature & 34 & 6 & 5.67 & 5.43 & 144 \\
+13 & Metric & 46 & 7 & 6.57 & 5.99 & 233 \\
+14 & Hilbert & 62 & 9 & 6.89 & 6.68 & 377 \\
+15 & \DCT{} & 103 & 8 & 12.88 & 7.40 & 610 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The resulting totals are $\sum \nu_i = 359$ and $\sum \kappa_i = 64$ in the structural lane. Two details are particularly important for a systems audience. First, the trajectory is not recovered by maximizing raw $\rho$. At step~4, $\Pi/\Sigma$ with $\rho=1.6667$ is preferred to a competing candidate at $\rho=1.75$ because Pi is the smaller positive overshoot above the bar $1.50$. Likewise, step~14 prefers Hilbert with $\rho=6.8889$ to a candidate around $7.11$ because the former is closer to the bar. Second, the recovered labels are reporting names attached after structural selection; they are not part of the score path.
+
+\subsection{Telemetry, runtime envelope, and AST evaluations}
+
+The repository's strongest telemetry is in the strict MBTT-first replay traces. These record raw frontier sizes, canonical survivors, viable candidates, and source provenance. They also expose memory guards and shorter CI-oriented runtime gates.
+
+\begin{table}[t]
+\centering
+\caption{Resource and search telemetry reported by the current artifact trail.}
+\label{tab:resources}
+\footnotesize
+\begin{tabular}{@{}p{3.7cm}p{2.1cm}p{4.6cm}@{}}
+\toprule
+Signal & Value & Comment \\
+\midrule
+Raw candidate ASTs on the winning strict replay path & 123 & Total number of raw candidate telescopes evaluated across the 15 accepted steps. \\
+Canonical/viable candidate ASTs & 77 & Post-quotient survivors; average dedupe ratio reported as 0.8184 in the existing draft. \\
+Peak memory in an early strict replay log & around 1\,GiB & Reported in the current JAR-draft artifact notes. \\
+CI shadow-prefix wall-clock envelope & 30 seconds through step 7 & Provisioned-runner target noted in the artifact documentation. \\
+Adaptive search budgets & enabled & Enumeration and MCTS budgets are memory aware in the current controller. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[p]
+\centering
+\caption{Per-step frontier telemetry from a full strict MBTT-first replay.}
+\label{tab:telemetry}
+\footnotesize
+\begin{tabular}{@{}r l r r r l@{}}
+\toprule
+Step & Structure & Raw & Canonical & Viable & Source \\
+\midrule
+1 & Universe & 12 & 11 & 11 & ENUM\_MBTT \\
+2 & Unit & 11 & 11 & 11 & ENUM\_MBTT \\
+3 & Witness & 7 & 3 & 3 & ENUM\_MBTT \\
+4 & Pi & 32 & 22 & 22 & AGENDA \\
+5 & $\Sone$ & 4 & 2 & 2 & AGENDA \\
+6 & Trunc & 37 & 9 & 9 & AGENDA \\
+7 & $\Stwo$ & 5 & 5 & 5 & AGENDA \\
+8 & $\Sthree$ & 2 & 2 & 2 & AGENDA \\
+9 & Hopf & 2 & 1 & 1 & AGENDA \\
+10 & Cohesion & 1 & 1 & 1 & AGENDA \\
+11 & Connections & 2 & 2 & 2 & AGENDA \\
+12 & Curvature & 2 & 2 & 2 & AGENDA \\
+13 & Metric & 1 & 1 & 1 & AGENDA \\
+14 & Hilbert & 3 & 3 & 3 & AGENDA \\
+15 & \DCT{} & 2 & 2 & 2 & AGENDA \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The engineering message of \Cref{tab:telemetry} is that the recovered path is narrow. Later steps do not arise from scanning a huge undifferentiated frontier; they arise after typing, agenda pruning, and quotienting have already compressed the candidate surface. This is also why the current artifact trail should be described as a \emph{guided claim-grade lane} rather than as a theorem about exhaustive unguided search.
+
+\section{Empirical validation}\label{sec:validation}
+
+\subsection{Rejected candidates analysis}
+
+Positive recovery is only half of the evidence. The other half is the systematic discard pile. The repository and companion manuscripts both emphasize that representative discrete and classical packages are generated and then rejected for structural reasons. \Cref{tab:rejected} gives a compact summary.
+
+\begin{table}[t]
+\centering
+\caption{Representative rejected candidates in the current PEN artifact narrative.}
+\label{tab:rejected}
+\footnotesize
+\begin{tabular}{@{}p{2.55cm}r r r p{4.3cm}@{}}
+\toprule
+Candidate & $\nu$ & $\kappa$ & $\rho$ & Reason for rejection \\
+\midrule
+Natural numbers $\N$ & $\leq 4$ & 3 & $\leq 1.33$ & Too little cross-interface growth once higher-path candidates are admissible. \\
+Classical LEM & $\leq 1$ & 1 & $\leq 1.00$ & Minimal novelty, no higher-path or modal amplification. \\
+Power-set style axiom & $\leq 2$ & 2 & $\leq 1.00$ & Weak interaction per clause relative to the dynamic bar. \\
+Ordinal arithmetic & $\leq 6$ & 5 & $\leq 1.20$ & Discrete novelty remains subcritical. \\
+Measure theory & $\approx 12$ & 6 & $\approx 2.0$ & Arrives too late with insufficient efficiency. \\
+Elementary topos axioms & $\approx 15$ & 8 & $\approx 1.9$ & High cost, modest local amplification in this objective. \\
+Symplectic geometry & $\approx 25$ & 5 & $\approx 5.0$ & Closest geometric near miss; still below the relevant late bar. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two kinds of negative evidence are worth distinguishing. Domain-level rejections show that many mathematically respectable packages simply do not clear the bar. Policy ablations show that changing the selector destroys the trajectory. In the repository, disabling canonical priority or switching from minimal overshoot to pure max-$\rho$ leads to immediate degeneration toward unnamed fragments or one-clause artifacts. The sequence is therefore not robust to arbitrary objective choices; it depends on the specific PEN objective.
+
+\subsection{Independent confirmation via the uniform-\texorpdfstring{$\nu$}{nu} algorithm}
+
+The repository contains a second evaluator, implemented in \texttt{UniformNu.hs}, whose job is not to drive the main selector but to test whether the ordering survives a distinct measurement discipline. The uniform evaluator computes novelty in three stages:
+\begin{equation}
+\label{eq:uniformnu}
+  \nu^{\mathrm{unif}}_h(X\mid\Bcal)
+  = s_h(X\mid\Bcal) + f(X\mid\Bcal) + a(X\mid\Bcal),
+\end{equation}
+where $s_h$ is the number of distinct non-trivial schema families induced by newly inhabited types up to depth $h$, $f$ counts genuinely new type formers, and $a$ adds adjoint-completion credit for eliminative consequences exposed by the candidate. The module-level record \texttt{UniformNuResult} stores the raw new-type count, schema count, per-depth profile, and adjoint credit explicitly.
+
+\begin{remark}[Role of the uniform evaluator]
+In structural discovery mode, \texttt{UniformNu} is not on the scoring path. It is used as a verification lane. This design choice is important because it makes agreement across lanes scientifically meaningful: the structural selector is not being retrofitted to match the uniform audit.
+\end{remark}
+
+\subsection{Verifying ordering constraints}
+
+The strongest stable empirical conclusion is not that every late-step absolute novelty value is frozen. It is that the \emph{order} of the trajectory is stable across lanes more often than the magnitudes are. The current repository contains several such lanes.
+
+\begin{table}[t]
+\centering
+\caption{Replay and verification lanes visible in the current repository state.}
+\label{tab:lanes}
+\footnotesize
+\begin{tabular}{@{}p{3.35cm}p{1.4cm}p{1.45cm}p{5.0cm}@{}}
+\toprule
+Lane & 15-step order & Total $\nu$ & Comment \\
+\midrule
+Paper-calibrated replay & Yes & 356 & Legacy comparison lane; late steps use $(43,60,105)$ for Metric/Hilbert/DCT. \\
+Structural discovery ($d=2$) & Yes & 359 & Primary publication-grade structural baseline; late steps use $(46,62,103)$. \\
+Strict MBTT-first replay & Yes & artifact drift & Current notes report the same order, with late-step strict magnitudes varying across artifacts (for example DCT recorded as 77 in one snapshot and 88 in a later strict note). \\
+Window sweep $d=1$ & Yes in benchmark artifact & 347 & Inferior to $d=2$ under benchmark total novelty. \\
+Window sweep $d=3$ & Yes in benchmark artifact & 195 & Much weaker than $d=2$ under the same benchmark metric. \\
+Uniform-$\nu$ audit & Geometric phase order preserved & not directly comparable & Independent verification lane based on inhabited-type density plus adjoint-completion credits. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The honest reading of \Cref{tab:lanes} is the following. Order stability is the main success. Late-step absolute magnitudes still drift across replay harnesses and should be treated as engineering debt, not swept away by rhetoric. For a JAR paper this is a virtue: it shows exactly where the executable evidence is strongest and where the measurement stack still needs consolidation.
+
+\section{Related work and systems comparison}\label{sec:related}
+
+\subsection{Conjecture generation and theory exploration}
+
+QuickSpec, Hipster, and IsaCoSy are the closest neighboring systems conceptually because they also operate without a single user-supplied theorem at the front of the pipeline \cite{quickspec,isacosy,hipster}. The key difference is that their background theory is fixed. They explore facts inside a user-provided signature. PEN instead changes the signature itself. Its search objects are theory fragments, not equations. The distinction is not cosmetic: it changes the objective from ``find latent equalities'' to ``choose the next library extension under rising integration debt.''
+
+Historical automated theory-formation systems such as AM and Colton's work also matter as intellectual background \cite{lenat,colton}. What PEN adds is a typed structural objective tied to an explicit bar dynamics and a concrete mechanized connection to type-theoretic library growth.
+
+\subsection{Type-driven synthesis}
+
+Systems such as Synquid solve a sharply posed synthesis task: given a target type or refinement type, construct a term satisfying it \cite{synquid}. That is a powerful and successful paradigm, but it differs from the present task in two ways. First, the target remains external to the synthesized artifact. Second, success is local to the requested specification. PEN instead evaluates the impact of a candidate on the \emph{future topology of the library}. The system is therefore not a competitor to refinement-type synthesis so much as a different level of optimization.
+
+\subsection{Neural theorem proving and proof-guided learning}
+
+Modern neural or language-model-based reasoning systems have made rapid progress on premise selection, tactic generation, and formal proof search \cite{leandojo,alphageometry}. They remain overwhelmingly target directed: the system is trained or prompted to prove a conjecture, finish a proof state, or solve a specific benchmark family. PEN is different in two directions. It is symbolic rather than learned in its main score path, and its objective is theory growth rather than proof completion. This is precisely why the phrase ``no target theorem in its scoring path'' matters.
+
+\section{Discussion: autonomy versus guidance}\label{sec:discussion}
+
+\subsection{A clear-eyed boundary analysis}
+
+The right way to describe the system's agency is neither dismissive nor grandiose.
+
+What is already autonomous is substantial. The engine combines typed AST fragments, filters them by conservative structural constraints, computes novelty and effort exactly in the active lane, evaluates bar clearance, rejects large families of classical or discrete candidates, and chooses winners by deterministic minimal overshoot. The recovered ordering, the discard pile, and the post-hoc reporting tables are all downstream of that machinery.
+
+What remains guided is also substantial. The search manifold is deliberately restricted by the \MBTT{} grammar seed, bounded frontiers, agenda search, canonical quotienting, and late-phase ranking controls. MCTS exists as a scaling controller, but the strongest currently documented full replay does not depend on it. The correct claim is therefore not ``fully autonomous mathematics.'' It is ``an executable symbolic engine whose evaluation is target free and whose present search is guided enough to be tractable and auditable.''
+
+\subsection{Scalability limits}
+
+Several engineering limits should remain prominent in any serious JAR version.
+
+First, canonicalization is intentionally weak. The current quotient collapses only deterministic structural duplicates; it does not solve alpha, beta, eta, or symmetry equivalence. Second, late-step novelty magnitudes drift across replay lanes. Third, the repository still lacks a direct head-to-head executable benchmark against tools such as QuickSpec or Hipster on a controlled overlapping domain. Fourth, claims beyond step 15 would currently require stronger pruning, broader MCTS use, or both. For these reasons the paper should avoid vague claims of broad scalability and instead emphasize the existing artifact contracts: full 15-step replays, shadow-prefix CI gates, rejection evidence, and explicit barriers against name leakage into the evaluator.
+
+\section{Conclusion}\label{sec:conclusion}
+
+This paper has presented PEN as a system for automated theory synthesis rather than theorem proving. The search objects are typed library extensions; the score is structural efficiency under a coherence-sensitive bar; and the recovered output is a trajectory of theory growth. Within a guided claim-grade lane, the engine recovers a highly nontrivial 15-step sequence from the bootstrap of dependent logic through the geometric core of homotopy theory to a temporal-cohesive endpoint. It simultaneously rejects large families of discrete or classical alternatives for the same structural reasons predicted by the companion mathematics.
+
+The strongest contribution is conceptual and executable at once: it is possible to build an automated-reasoning system whose scoring path contains no target theorem and yet which discovers mathematically recognizable structure by optimizing typed theory fragments. That does not settle the broader problem of autonomous mathematical discovery, but it opens a new and concrete paradigm for it.
+
+\clearpage
+
+\section*{Availability of artifacts}
+
+The mechanization, Haskell engine, replay scripts, and companion manuscripts are available in the public PEN repository \cite{pen-artifact}. The repository README also documents basic build commands, environment requirements, and the split between the Agda proof pillar and the Haskell computation pillar.
+
+\bibliography{automated_theory_synthesis_jar_refs}
+
+\end{document}
