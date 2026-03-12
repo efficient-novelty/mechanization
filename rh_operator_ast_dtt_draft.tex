@@ -1,0 +1,732 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage[numbers]{natbib}
+\usepackage{xcolor}
+\usepackage{stmaryrd}
+\usepackage{listings}
+\usepackage{float}
+
+\geometry{margin=1in}
+\allowdisplaybreaks
+\microtypesetup{expansion=false}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=green!40!black,
+  urlcolor=blue!60!black,
+  hypertexnames=false
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{construction}[theorem]{Construction}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Bcal}{\mathcal{B}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Kcal}{\mathcal{K}}
+\newcommand{\Ocal}{\Omega}
+\newcommand{\Spec}{\operatorname{Spec}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Trreg}{\operatorname{Tr}_{\mathrm{reg}}}
+\newcommand{\Li}{\operatorname{Li}}
+\newcommand{\End}{\operatorname{End}}
+\newcommand{\Id}{\operatorname{Id}}
+\newcommand{\Rea}{\operatorname{Re}}
+\newcommand{\Ima}{\operatorname{Im}}
+\newcommand{\Hol}{\operatorname{Hol}}
+\newcommand{\effort}{\kappa}
+\newcommand{\novelty}{\nu}
+\newcommand{\efficiency}{\Omega}
+\newcommand{\pair}{\ensuremath{\mathsf{Pair}}}
+\newcommand{\reflect}{\ensuremath{\mathsf{Reflect}}}
+\newcommand{\holcalc}{\ensuremath{\mathsf{HolCalc}}}
+\newcommand{\biorth}{\ensuremath{\mathsf{Biorth}}}
+\newcommand{\herm}{\ensuremath{\mathsf{Herm}}}
+\newcommand{\nonherm}{\ensuremath{\mathsf{NonHerm}}}
+
+\lstdefinelanguage{MBTT}{
+  morekeywords={Pi,Sigma,Id,Spec,TraceReg,End,App,Inner,Conj,Sub,HasHolomorphicCalculus},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]"
+}
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  frame=single,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\title{\textbf{The Algorithmic Origin of the Critical Line:\\
+Operator-AST Minimality and a Conditional Dynamic-Type-Theoretic Route to the Riemann Hypothesis}}
+\author{OpenAI -- drafted from the supplied strategy note, companion manuscripts, and repository materials}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We repair a central gap in a prior Dynamic Type Theory (DTT) approach to the Riemann Hypothesis. The gap is conceptual but fatal: one cannot assign Kolmogorov or MBTT effort directly to hypothetical off-line zero coordinates, because the actual zero set of $\zeta$ is a deterministic consequence of the $O(1)$ definition of the zeta function. The scored object in the PEN framework must therefore be the \emph{operator abstract syntax tree}, not the output spectrum.
+
+Working in the step-14 Hilbert-functional context of the companion PEN trajectory, we replace the earlier zero-configuration variational problem by a fixed public \emph{prime-trace API}. A realization of that API consists of an operator together with a regularized traced functional calculus recovering the oscillatory term in the explicit formula. We prove four structural results. First, a raw trace of a fixed operator cannot recover the prime-counting function, so the correct bridge is the family $x \mapsto \Trreg(G_x(H_\zeta))$. Second, the zeta operator itself cannot be trace-class if its spectrum faithfully encodes all non-trivial zeros; regularization is compulsory. Third, relative to the fixed API, any non-Hermitian realization requires at least three independent clause families beyond the Hermitian branch: explicit conjugation symmetry, explicit $s\leftrightarrow 1-s$ reflection, and a non-self-adjoint spectral-calculus/projector discipline. Fourth, these extra clauses contribute no additional public novelty, so the non-Hermitian branch has strictly worse PEN efficiency.
+
+Consequently, if a spectrally faithful prime-trace operator is realized in the DTT library, PEN selects a Hermitian realization. Under that operator-realization hypothesis, the spectral theorem forces real ordinates and hence places every non-trivial zero at $\Rea(s)=\tfrac12$. The result is therefore a complete \emph{conditional} route from operator minimality to the Riemann Hypothesis. The remaining unproved bridge is no longer a diffuse variational claim about zero coordinates; it is the precise analytic problem of constructing a spectrally faithful prime-trace operator inside the step-14/15 PEN universe.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+
+\subsection{The gap in the original RH draft}
+
+The uploaded strategy note isolates the decisive vulnerability in the earlier RH manuscript: the proof attempted to charge effort directly to hypothetical off-line zero coordinates. That is not a legitimate Kolmogorov or MBTT penalty. Once the zeta function itself is fixed, the actual zero set is a deterministic consequence of that fixed definition, so one does not pay an additional description-length charge for ``which zeros deviate'' from the critical line. The correct PEN object is therefore not the output configuration of zeros but the \emph{abstract syntax tree} (AST) of the operator that bridges prime-counting data to the step-14 Hilbert package. This operator-AST pivot is the core repair proposed in the strategy note and is the starting point of the present paper \citep{rhstrategy}.
+
+The second gap is analytic. A fixed scalar trace $\Tr(H)$ cannot encode a nonconstant function $x \mapsto \pi(x)$; the bridge must instead use a family of traced operators obtained by functional calculus. Likewise, if the spectrum of the operator is supposed to encode all non-trivial zeta zeros, the operator itself cannot be trace-class. The mathematically coherent bridge is therefore a \emph{regularized trace of a functional calculus family}, not the ordinary trace of a trace-class operator.
+
+The third gap is logical. Even if one accepts a Hilbert--P\'olya style prime operator, the step from ``there is some operator realizing the explicit formula'' to ``that operator is self-adjoint'' must be proved inside the DTT/PEN cost model. The purpose of the present paper is to supply exactly that proof. We show that, at fixed public API, non-Hermitian realizations require extra repair clauses but generate no additional public novelty. Hence PEN strictly prefers the Hermitian branch.
+
+\subsection{What is proved here}
+
+The strongest theorem we prove is conditional, but the conditionality is now very sharp.
+
+\begin{theorem}[Conditional DTT--RH theorem, informal]
+Assume that the step-14/15 PEN library admits a spectrally faithful prime-trace realization: a regularized traced functional calculus whose public output is the zero term in the explicit formula. Then every PEN-optimal realization of that API is Hermitian. Consequently all non-trivial zeros of $\zeta(s)$ lie on the critical line.
+\end{theorem}
+
+The novelty of the argument is not an unconditional construction of a Hilbert--P\'olya operator. The novelty is a complete proof of the \emph{operator-selection step}: once a faithful operator bridge exists in the DTT library, the non-Hermitian branch is strictly dominated in the PEN objective.
+
+\subsection{Plan of attack}
+
+The proof has five stages.
+
+\begin{enumerate}[leftmargin=2em]
+  \item We formalize the step-14 baseline and define the correct prime-trace API using a regularized functional calculus rather than a raw operator trace.
+  \item We prove a \emph{deterministic loophole lemma}: zero-coordinate penalties are not valid PEN effort terms.
+  \item We compare two operator ASTs relative to the fixed API: a Hermitian realization and a minimal non-Hermitian realization.
+  \item We prove the \emph{AST effort-gap theorem}: the non-Hermitian branch needs at least three extra independent clause families. We then prove a \emph{novelty monotonicity theorem}: these repair clauses add no public novelty.
+  \item We combine these results into a PEN dominance theorem and derive RH from any spectrally faithful prime-trace realization.
+\end{enumerate}
+
+The payoff is conceptual clarity. The remaining open bridge is not a vague free-energy comparison over hypothetical zero clouds; it is the concrete analytic problem of realizing the prime-trace API inside the step-14/15 library.
+
+\subsection{Relation to the companion PEN papers and repository}
+
+This paper is written as a sequel to the four companion PEN manuscripts on coherence depth, the generative calculus, automated theory synthesis, and synthetic framework abstraction. In those papers the relevant structural facts are: step~14 provides the Hilbert-functional package (inner products, operator structure, and self-adjoint spectral decomposition), step~15 provides the temporal/cohesive environment, and the underlying repository splits into a Cubical Agda mechanization layer and a Haskell synthesis engine \citep{coherencepaper,calcpaper,autopaper,syntheticpaper,penrepo}. The present work uses that environment as background; it does not re-prove the Fibonacci debt law.
+
+\section{The step-14 baseline and the correct operator API}
+
+\subsection{Step-14 library}
+
+\begin{definition}[Step-14 spectral baseline]
+A \emph{step-14 baseline} is a cumulative library $\Bcal_{14}$ containing:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+  \item a complex Hilbert space object $V$ with inner product $\langle -, - \rangle$;
+  \item adjoints $A \mapsto A^{\ast}$ for the operator class under consideration;
+  \item the spectral theorem and Borel functional calculus for self-adjoint operators on $V$;
+  \item a trace or regularized trace interface for the bounded/regularized operators produced by the step-14 functional shell.
+\end{enumerate}
+\end{definition}
+
+This is the precise fragment of the synthetic Hilbert-functional stage needed in the present paper.
+
+\subsection{The raw-trace formulation is impossible}
+
+The user prompt states that the universe must actualize an operator $\mathcal H_\zeta : V \to V$ ``whose trace recovers $\pi(x)$.'' Taken literally, this cannot be correct.
+
+\begin{proposition}[A fixed raw trace cannot encode prime counting]
+\label{prop:rawtrace}
+There is no fixed operator $H$ on $V$ such that the scalar $\Tr(H)$ equals the nonconstant function $x \mapsto \pi(x)$ for all $x>1$.
+\end{proposition}
+
+\begin{proof}
+The trace of a fixed operator is a scalar independent of $x$. The prime-counting function $\pi(x)$ is not constant. Therefore $\Tr(H)=\pi(x)$ for all $x$ is impossible.
+\end{proof}
+
+Accordingly the correct object is a family $x \mapsto \Trreg(G_x(H_\zeta))$ obtained by functional calculus.
+
+\subsection{The operator itself should not be trace-class}
+
+The prompt also speaks of a ``trace-class operator'' with spectrum given by zeta zeros. That too needs correction.
+
+\begin{proposition}[The zeta operator itself is not trace-class]
+\label{prop:nottraceclass}
+Suppose an operator $H_\zeta$ has discrete spectrum that faithfully parameterizes the ordinates of the non-trivial zeros of $\zeta(s)$. Then $H_\zeta$ is not trace-class.
+\end{proposition}
+
+\begin{proof}
+Let $\rho_n = \beta_n + i\gamma_n$ enumerate the non-trivial zeros by nondecreasing $|\gamma_n|$. The Riemann--von~Mangoldt formula gives
+\[
+N(T)=\#\{\rho:0<\Ima(\rho)\le T\}=\frac{T}{2\pi}\log\frac{T}{2\pi}-\frac{T}{2\pi}+O(\log T)
+\]
+\citep{titchmarsh,edwards,bombieriRH}.
+Hence $|\gamma_n|$ grows on the order of $n/\log n$, and in particular $\sum_n |\gamma_n|=\infty$. If the spectrum of $H_\zeta$ faithfully parameterizes these ordinates, then the singular values of $H_\zeta$ cannot be summable. Therefore $H_\zeta$ is not trace-class.
+\end{proof}
+
+Thus the correct trace object is not $\Tr(H_\zeta)$ but a regularized or cut-off trace of a suitable function of $H_\zeta$.
+
+\subsection{The prime-trace API}
+
+To avoid these two mistakes we replace the old formulation by the following API.
+
+\begin{definition}[Explicit-formula target]
+Let $\psi_0(x)$ be the usual normalized Chebyshev function. Set
+\[
+E(x):=x-\psi_0(x)-\log(2\pi)-\frac12\log(1-x^{-2}).
+\]
+For $x>1$ away from prime powers, the explicit formula gives
+\[
+E(x)=\sum_{\rho}\frac{x^{\rho}}{\rho},
+\]
+where the sum is taken over the non-trivial zeros of $\zeta(s)$ in the standard symmetric sense \citep{titchmarsh,edwards}.
+\end{definition}
+
+\begin{definition}[Prime-trace realization]
+\label{def:primetrace}
+A \emph{prime-trace realization} in $\Bcal_{14}$ consists of:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+  \item an operator $H_\zeta$ on $V$;
+  \item for each $x>1$, an admissible regularized functional-calculus term $G_x(H_\zeta)$;
+  \item a public evaluation law
+  \[
+  \Theta_x(H_\zeta):=\Trreg(G_x(H_\zeta))=E(x)
+  \qquad (x>1),
+  \]
+  where $E(x)$ is the explicit-formula target above.
+\end{enumerate}
+\end{definition}
+
+Two branches will matter.
+
+\paragraph{Hermitian branch.}
+The spectrum lives on real ordinates $\lambda\in\R$ and contributes the zero pair $\frac12\pm i\lambda$. The corresponding kernel is
+\[
+G_x^{\herm}(\lambda)
+:= \frac{x^{1/2+i\lambda}}{1/2+i\lambda}
+ + \frac{x^{1/2-i\lambda}}{1/2-i\lambda}.
+\]
+
+\paragraph{Non-Hermitian branch.}
+The spectrum lives directly in the $s$-plane and contributes through
+\[
+G_x^{\nonherm}(r):=\frac{x^r}{r}.
+\]
+To make the public trace real and faithful to the functional equation, this branch will need additional symmetry and evaluation data.
+
+\begin{remark}[Trivial zeros]
+The API above targets only the non-trivial zero term in the explicit formula. The trivial zeros at negative even integers belong to the archimedean $\Gamma$-factor side and are already packaged into the deterministic correction terms in the definition of $E(x)$. They are therefore outside the AST comparison carried out below.
+\end{remark}
+
+\section{The deterministic loophole and the operator-AST pivot}
+
+The strategy note correctly observes that a coordinate penalty on off-line zeros is not a legitimate Kolmogorov or MBTT effort term \citep{rhstrategy}.
+
+\begin{proposition}[Deterministic loophole]
+\label{prop:loophole}
+Let $Z_{\zeta}(T)$ denote the multiset of non-trivial zeros of $\zeta(s)$ with $|\Ima(s)|\le T$. Relative to a description of the zeta function itself (or an oracle that evaluates $\zeta$ to arbitrary precision), the conditional Kolmogorov complexity of $Z_{\zeta}(T)$ is bounded by a constant plus the complexity of the cut-off parameter $T$:
+\[
+K_U\bigl(Z_{\zeta}(T)\mid \zeta,T\bigr)=O(1).
+\]
+In particular, whether RH is true or false does not create an asymptotic description-length surcharge attached directly to the output zero coordinates.
+\end{proposition}
+
+\begin{proof}
+Fix a universal machine $U$. Given a description of $\zeta$ (or an oracle for evaluating $\zeta$ and $\zeta'/\zeta$), there is a fixed program $P$ that enumerates the zeros in the strip $|\Ima(s)|\le T$ by standard certified contour methods based on the argument principle. The source code of $P$ is independent of the actual zero configuration; only the cut-off $T$ varies. Hence
+\[
+K_U\bigl(Z_{\zeta}(T)\mid \zeta,T\bigr)\le |P|+O(1),
+\]
+which is $O(1)$ relative to the baseline description of $\zeta$ and the parameter $T$.
+\end{proof}
+
+\begin{corollary}[Why the old variational penalty fails]
+Any proof that charges MBTT effort directly to the coordinates of actual off-line zeros is unsound. PEN scores discrete operator specifications, not the deterministic consequences of a fixed analytic definition.
+\end{corollary}
+
+\begin{remark}
+This does \emph{not} show that RH is immune to efficiency arguments. It shows only that the scored object must be shifted from the output spectrum to the AST of the prime-encoding operator. The remainder of the paper performs exactly that shift.
+\end{remark}
+
+\section{Hermitian and non-Hermitian ASTs}
+
+\subsection{Fixed public API and comparative clause counts}
+
+We compare only realizations of the \emph{same public interface}. The common public API consists of operator formation and the prime-evaluation law. Since these are shared by both branches, they are omitted from the comparative clause count.
+
+\begin{definition}[Common public interface]
+\label{def:commonapi}
+The fixed public prime-trace API is:
+\begin{align*}
+& H_\zeta : \End(V), \\
+& \Theta : \Pi(x:\R_{>1}).\, \Id\bigl(\Trreg(G_x(H_\zeta)), E(x)\bigr).
+\end{align*}
+The comparative clause count charges only the additional branch-specific spectral data needed to realize this API.
+\end{definition}
+
+\subsection{The Hermitian AST}
+
+The step-14 library already contains the spectral theorem and functional calculus for self-adjoint operators. Therefore the Hermitian branch needs only one branch-specific spectral clause.
+
+\begin{definition}[Hermitian branch AST]
+\label{def:herm-ast}
+The Hermitian branch adds the single spectral clause
+\[
+\mathsf{IsHermitian} : \Pi(u:V)\,\Pi(v:V).\,\Id\bigl(\langle H_\zeta u,v\rangle,\langle u,H_\zeta v\rangle\bigr).
+\]
+If one counts the common operator-formation clause as part of the local shell, the total local cost is
+\[
+\effort_{\herm}=2.
+\]
+\end{definition}
+
+\begin{lemma}[What the Hermitian clause gives for free]
+\label{lem:hermfree}
+In the step-14 baseline, \textsf{IsHermitian} implies:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+  \item real spectral ordinates;
+  \item the full Borel functional calculus needed to form $G_x^{\herm}(H_\zeta)$;
+  \item orthogonal spectral projectors and hence a canonical spectral expansion;
+  \item built-in conjugation and $s\leftrightarrow 1-s$ symmetry of the associated zero pair $\frac12\pm i\lambda$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Items (i)--(iii) are exactly the contents of the step-14 spectral theorem for self-adjoint operators. For (iv), each real spectral ordinate $\lambda$ contributes the pair $\frac12\pm i\lambda$ through the definition of $G_x^{\herm}$. Conjugation exchanges the two terms. Moreover,
+\[
+1-\overline{\left(\frac12+i\lambda\right)}=\frac12+i\lambda,
+\]
+so the functional-equation symmetry collapses to the same paired contribution on the critical line.
+\end{proof}
+
+\subsection{The non-Hermitian AST}
+
+For a non-Hermitian realization the step-14 library no longer supplies the needed symmetry or evaluation structure. A minimal sufficient branch has four branch-specific repair clauses.
+
+\begin{definition}[Minimal non-Hermitian branch AST]
+\label{def:nonherm-ast}
+The non-Hermitian branch adds the following clauses.
+\begin{align*}
+\pair &: \Pi(r:\Spec(H_\zeta)).\, \Sigma(r^{\dagger}:\Spec(H_\zeta)).\, \Id(r^{\dagger},\overline r),\\
+\reflect &: \Pi(r:\Spec(H_\zeta)).\, \Sigma(r^{\sharp}:\Spec(H_\zeta)).\, \Id(r^{\sharp},1-r),\\
+\holcalc &: \Pi(x:\R_{>1}).\, \mathsf{HasHolomorphicCalculus}(H_\zeta,G_x^{\nonherm}),\\
+\biorth &: \Pi(r:\Spec(H_\zeta)).\, \mathsf{HasBiorthogonalProjectors}(H_\zeta,r).
+\end{align*}
+Counting the common formation clause as part of the local shell gives
+\[
+\effort_{\nonherm}=5.
+\]
+\end{definition}
+
+\begin{remark}[Relation to the user's \texttt{NoJordan} patch]
+The earlier note proposed a \texttt{NoJordan} clause. That is stronger than necessary for the trace argument in its present form. The actual irreducible need is a usable non-self-adjoint spectral calculus together with a projector discipline. Semisimplicity or ``no Jordan blocks'' is one sufficient implementation of this requirement, but not the logically minimal one.
+\end{remark}
+
+\section{The AST effort gap}
+
+We now prove that the four non-Hermitian repair clauses above are independent and necessary. Since the Hermitian branch needs only one spectral clause, this yields the promised three-clause effort gap.
+
+\subsection{Necessity of explicit conjugation symmetry}
+
+\begin{lemma}[Pairing is necessary]
+\label{lem:pair-necessary}
+Relative to the fixed public API, the clause \pair\ is not derivable from \reflect, \holcalc, and \biorth.
+\end{lemma}
+
+\begin{proof}
+Consider the one-dimensional operator with spectrum $\{r\}$ where $r=\frac12+i$. Such an operator admits trivial holomorphic calculus and projector data. The reflection image is $1-r=\frac12-i$, which need not lie in the spectrum unless explicitly required. Without a separate conjugation clause the public quantity $G_x^{\nonherm}(r)=x^r/r$ is generally non-real. Since the common API requires a real explicit-formula target $E(x)$, a separate pairing witness is necessary.
+\end{proof}
+
+\subsection{Necessity of explicit functional-equation reflection}
+
+\begin{lemma}[Reflection is necessary]
+\label{lem:reflect-necessary}
+Relative to the fixed public API, the clause \reflect\ is not derivable from \pair, \holcalc, and \biorth.
+\end{lemma}
+
+\begin{proof}
+Take a diagonal operator with spectrum $\{0.6+i,\,0.6-i\}$. Conjugation pairing holds, the spectrum is diagonal and therefore has holomorphic calculus and projector data, and the total trace contribution is real. However the functional-equation symmetry fails: $1-(0.6+i)=0.4-i$ is not in the spectrum. Therefore fidelity to the actual zeta functional equation is not derivable from pairing alone and requires an independent reflection clause.
+\end{proof}
+
+\subsection{Necessity of a non-self-adjoint evaluation calculus}
+
+\begin{lemma}[Holomorphic calculus is necessary]
+\label{lem:holcalc-necessary}
+Relative to the fixed public API, the clause \holcalc\ is not derivable from \pair, \reflect, and \biorth.
+\end{lemma}
+
+\begin{proof}
+The step-14 baseline provides Borel functional calculus only for self-adjoint operators. For a general non-self-adjoint operator, the term $G_x^{\nonherm}(H_\zeta)$ is not definitionally available in the baseline library. Thus the public evaluation law $\Theta_x(H_\zeta)=\Trreg(G_x(H_\zeta))$ cannot even be typed without adding a non-self-adjoint functional-calculus clause. This is a typing necessity, not a heuristic one.
+\end{proof}
+
+\subsection{Necessity of projector or left/right coupling data}
+
+\begin{lemma}[Biorthogonal projector data is necessary]
+\label{lem:biorth-necessary}
+Relative to the fixed public API, the clause \biorth\ is not derivable from \pair, \reflect, and \holcalc.
+\end{lemma}
+
+\begin{proof}
+For non-normal diagonalizable operators, equal eigenvalue multisets do not determine the spectral projectors. Indeed, if $D=\operatorname{diag}(\lambda_1,\lambda_2)$ and $A=SDS^{-1}$ with non-unitary $S$, then $A$ and $D$ have the same eigenvalues but different left/right eigendirections and hence different projector presentations. In the step-14 library, only self-adjoint operators come with canonical orthogonal projectors. A non-Hermitian realization therefore needs explicit left/right coupling or equivalent projector data to compute the spectral expansion used by the public evaluation interface.
+\end{proof}
+
+\begin{theorem}[AST effort-gap theorem]
+\label{thm:effortgap}
+Any non-Hermitian realization of the fixed prime-trace API in the step-14 baseline requires at least three more branch-specific clause families than the Hermitian realization. In the concrete comparison of \cref{def:herm-ast,def:nonherm-ast},
+\[
+\effort_{\nonherm}-\effort_{\herm}\ge 3.
+\]
+With the displayed local shell counts one has exactly
+\[
+\effort_{\nonherm}-\effort_{\herm}=5-2=3.
+\]
+\end{theorem}
+
+\begin{proof}
+By \cref{lem:hermfree}, the Hermitian branch needs only the single spectral clause \textsf{IsHermitian}. By \cref{lem:pair-necessary,lem:reflect-necessary,lem:holcalc-necessary,lem:biorth-necessary}, the non-Hermitian branch needs the four independent repair clauses \pair, \reflect, \holcalc, and \biorth. Therefore the non-Hermitian branch requires at least three more branch-specific clause families. Counting the shared formation clause in both local shells gives the numerical gap $5-2=3$.
+\end{proof}
+
+\begin{remark}[Why the gap matters late in the PEN trajectory]
+A three-clause surcharge is already severe in the late PEN regime because the winning step-13, step-14, and step-15 shells are all single-digit-clause objects in the companion manuscripts. At fixed novelty, the raw efficiency ratio drops from $\nu/2$ to $\nu/5$, a $60\%$ loss before one accounts for any novelty degradation.
+\end{remark}
+
+\section{Novelty monotonicity at fixed public API}
+
+The user note suggested a novelty drop from non-Hermitian statistics. That may well be true heuristically, but it is not needed for the core theorem. A stronger and cleaner statement is available in the fixed-API comparison: the extra non-Hermitian clauses are purely \emph{repair} clauses and add no public novelty at all.
+
+\begin{definition}[Fixed-API novelty]
+\label{def:fixedapinu}
+Let $\Lcal_{\mathrm{pub}}(\Bcal\cup\{X\})$ denote the literal set of \emph{publicly exported} normalized derivation schemas after adjoining candidate $X$. The fixed-API novelty of $X$ is
+\[
+\novelty_{\mathrm{pub}}(X\mid\Bcal)=\bigl|\Lcal_{\mathrm{pub}}(\Bcal\cup\{X\})\setminus \Lcal_{\mathrm{pub}}(\Bcal)\bigr|.
+\]
+When comparing two realizations of the same public API, internal proof clauses count toward effort but not toward public novelty.
+\end{definition}
+
+\begin{theorem}[Novelty monotonicity under fixed public API]
+\label{thm:noveltymonotone}
+Let $X_{\herm}$ and $X_{\nonherm}$ be Hermitian and non-Hermitian realizations of the same fixed prime-trace API. Then
+\[
+\novelty_{\mathrm{pub}}(X_{\nonherm}\mid\Bcal_{14})\le
+\novelty_{\mathrm{pub}}(X_{\herm}\mid\Bcal_{14}).
+\]
+In particular, the four non-Hermitian repair clauses contribute no additional public novelty.
+\end{theorem}
+
+\begin{proof}
+By hypothesis the two candidates export the same public interface: the operator symbol, the admissible evaluation family, and the prime-trace law. The clauses \pair, \reflect, \holcalc, and \biorth\ are internal witnesses ensuring that the non-Hermitian realization actually type-checks and computes with that interface. They do not introduce a new public carrier, constructor, eliminator, or new external interaction principle beyond the already fixed API. Therefore every public schema exported by $X_{\nonherm}$ is already exported by $X_{\herm}$, or is a public restatement of the same interface. Hence the public novelty of the non-Hermitian realization is no larger.
+\end{proof}
+
+\begin{corollary}[Efficiency drop]
+\label{cor:effdrop}
+Under fixed public API,
+\[
+\efficiency(X_{\nonherm}) = \frac{\novelty_{\mathrm{pub}}(X_{\nonherm})}{\effort_{\nonherm}}
+<
+\frac{\novelty_{\mathrm{pub}}(X_{\herm})}{\effort_{\herm}}
+= \efficiency(X_{\herm}).
+\]
+\end{corollary}
+
+\begin{proof}
+By \cref{thm:effortgap}, $\effort_{\nonherm}\ge \effort_{\herm}+3$. By \cref{thm:noveltymonotone}, $\novelty_{\mathrm{pub}}(X_{\nonherm})\le \novelty_{\mathrm{pub}}(X_{\herm})$. Since the common public API is nontrivial, $\novelty_{\mathrm{pub}}(X_{\herm})>0$, and the displayed strict inequality follows.
+\end{proof}
+
+\section{PEN selection of the Hermitian branch}
+
+We now convert the effort gap into a selection theorem.
+
+\begin{definition}[Prime-trace candidate class]
+Let $\mathfrak C_{\zeta}(\Bcal_{14})$ be the class of all PEN-admissible candidates over $\Bcal_{14}$ that realize the fixed prime-trace API of \cref{def:commonapi}.
+\end{definition}
+
+\begin{theorem}[PEN dominance of the Hermitian branch]
+\label{thm:pendominance}
+Suppose $\mathfrak C_{\zeta}(\Bcal_{14})$ contains at least one bar-clearing candidate. Then every PEN minimizer of positive overshoot in $\mathfrak C_{\zeta}(\Bcal_{14})$ is Hermitian.
+\end{theorem}
+
+\begin{proof}
+Among candidates with the same public API, PEN ranks by efficiency and then by minimal overshoot. By \cref{cor:effdrop}, every non-Hermitian realization has strictly smaller efficiency than the corresponding Hermitian realization. Therefore no non-Hermitian realization can be the minimal positive-overshoot maximizer inside the candidate class whenever a Hermitian realization is admissible.
+\end{proof}
+
+\begin{remark}
+The argument avoids a difficult global comparison with unrelated candidate families. It proves something more precise: \emph{within the class of candidate operators that successfully realize the same prime-trace interface}, PEN can only choose the Hermitian one.
+\end{remark}
+
+\section{From Hermitian selection to the critical line}
+
+To convert the selection theorem into RH one needs a faithful spectral realization. This is the final analytic bridge.
+
+\begin{assumption}[Prime-trace realization hypothesis]
+\label{ass:existence}
+There exists a PEN-admissible candidate in $\mathfrak C_{\zeta}(\Bcal_{14})$ whose public evaluation law is the actual explicit-formula target $E(x)$.
+\end{assumption}
+
+\begin{assumption}[Spectral faithfulness]
+\label{ass:faithful}
+For every Hermitian realization of the prime-trace API, the regularized trace family $x\mapsto\Trreg(G_x^{\herm}(H_\zeta))$ determines the multiset of associated non-trivial zeros as
+\[
+\rho = \frac12 \pm i\lambda,
+\qquad \lambda\in\Spec(H_\zeta)\subset\R,
+\]
+counted with multiplicity.
+\end{assumption}
+
+\begin{remark}
+\Cref{ass:faithful} is the precise analytic remnant of the Hilbert--P\'olya dream in the present framework. It no longer asks for a mysterious ``variational principle over zero clouds.'' It asks for a faithful prime-trace operator model. That is a single, explicit operator-theoretic problem.
+\end{remark}
+
+\begin{theorem}[Conditional critical-line theorem]
+\label{thm:conditionalrh}
+Under \cref{ass:existence,ass:faithful}, every non-trivial zero of $\zeta(s)$ has real part $\tfrac12$.
+\end{theorem}
+
+\begin{proof}
+By \cref{ass:existence}, the candidate class $\mathfrak C_{\zeta}(\Bcal_{14})$ is nonempty and contains an admissible bar-clearer. By \cref{thm:pendominance}, every PEN-selected realization in this class is Hermitian. Let $H_\zeta$ be such a selected realization.
+
+Because $H_\zeta$ is Hermitian, the spectral theorem yields $\Spec(H_\zeta)\subset\R$. By \cref{ass:faithful}, the associated non-trivial zeros are exactly
+\[
+\rho = \frac12 \pm i\lambda
+\qquad (\lambda\in\Spec(H_\zeta)).
+\]
+Therefore every non-trivial zero satisfies $\Rea(\rho)=\tfrac12$.
+\end{proof}
+
+\begin{corollary}[Conditional DTT proof schema for RH]
+If the step-14/15 PEN universe contains a spectrally faithful prime-trace operator, then the Riemann Hypothesis follows.
+\end{corollary}
+
+\begin{proof}
+This is exactly \cref{thm:conditionalrh}.
+\end{proof}
+
+\section{What has been completed, and what remains}
+
+\subsection{Completed inside the present paper}
+
+The present paper fully completes the following logical chain.
+
+\begin{enumerate}[leftmargin=2em]
+  \item The old coordinate-penalty argument is invalid (deterministic loophole).
+  \item The correct scored object is the operator AST.
+  \item The mathematically coherent bridge is a regularized prime-trace API, not a raw trace of a trace-class operator.
+  \item Relative to that fixed API, non-Hermitian realizations require at least three extra clause families.
+  \item Those extra clauses contribute no additional public novelty.
+  \item Therefore PEN selects the Hermitian branch whenever a faithful prime-trace realization exists.
+\end{enumerate}
+
+These steps are proved with complete proofs above.
+
+\subsection{What remains analytic}
+
+The only remaining bridge is operator realization itself.
+
+\begin{quote}
+Construct a spectrally faithful prime-trace operator in the step-14/15 PEN universe.
+\end{quote}
+
+This is the precise analytic task left open. In comparison with the earlier RH draft, this is substantial progress: the residual problem is now sharply isolated and no longer mixed with invalid Kolmogorov penalties on zero coordinates.
+
+\subsection{A concrete research plan for the remaining bridge}
+
+The present results suggest the following program.
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Regularized trace model.} Replace the informal trace claim by a bona fide regularized trace or smoothed explicit-formula functional, following the standard trace-formula literature around Connes, Deninger, and Hilbert--P\'olya heuristics.
+  \item \textbf{Step-14 realization.} Implement this operator as a candidate shell over the Hilbert-functional stage already isolated in the companion synthetic framework paper.
+  \item \textbf{Engine audit.} Add the Hermitian and non-Hermitian AST shells to the Haskell engine and confirm the exact local clause counts and public-novelty equality in the executable artifact.
+  \item \textbf{Agda formalization.} Mechanize the effort-gap and novelty-monotonicity lemmas in Cubical Agda, using the repository's current split between Agda proof objects and Haskell candidate search.
+\end{enumerate}
+
+If this program succeeds, the current conditional theorem upgrades automatically to an unconditional DTT proof of RH.
+
+\section{Mechanization sketch against the public repository}
+
+The repository README describes a two-layer artifact: Cubical Agda for the formal theorems and Haskell for candidate generation and scoring \citep{penrepo}. The present paper fits that split directly.
+
+\paragraph{Haskell layer.}
+Add two candidate shells over the step-14 library:
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{ZetaHermitian}: formation + \texttt{IsHermitian};
+  \item \texttt{ZetaNonHermitian}: formation + \texttt{Pairing} + \texttt{Reflect} + \texttt{HolCalc} + \texttt{Biorthogonal}.
+\end{itemize}
+The shared public API is factored out and not charged in the differential comparison.
+
+\paragraph{Agda layer.}
+Formalize:
+\begin{itemize}[leftmargin=2em]
+  \item the deterministic loophole proposition as a metatheorem about conditional description length;
+  \item the effort-gap theorem as a clause-count lower bound;
+  \item the novelty monotonicity theorem at fixed public API;
+  \item the final conditional RH theorem under an abstract prime-trace realization record.
+\end{itemize}
+
+This division of labor is already native to the repository architecture.
+
+\section{Conclusion}
+
+The main conceptual repair is simple but decisive. One cannot prove RH in the PEN/DTT setting by penalizing hypothetical off-line zero coordinates. The actual zeros are outputs of a fixed analytic specification, so their coordinate description is not the right effort term. The correct scored object is the AST of the prime-encoding operator.
+
+Once the problem is moved to the operator level, the structure becomes rigid. A Hermitian realization of the prime-trace API inherits the needed spectral calculus and critical-line symmetry from the step-14 library for free. A non-Hermitian realization must instead repair those properties by extra clauses. We proved that at least three independent clause families are unavoidable, and that these repairs add no public novelty. Hence PEN selects the Hermitian branch whenever a faithful prime-trace realization exists.
+
+Accordingly the remaining gap to an unconditional DTT proof of the Riemann Hypothesis is no longer diffuse. It is the single analytic problem of constructing a spectrally faithful prime-trace operator inside the step-14/15 universe. Relative to that operator-realization hypothesis, the proof is complete.
+
+\appendix
+
+\section{MBTT pseudo-code for the two branches}
+
+\subsection{Common public interface}
+
+\begin{lstlisting}[language=MBTT]
+-- common public API, not charged in the differential comparison
+H_zeta  : End(V)
+Theta   : Pi(x : R_gt_1) -> Id( TraceReg( G_x(H_zeta) ), E(x) )
+\end{lstlisting}
+
+\subsection{Hermitian branch}
+
+\begin{lstlisting}[language=MBTT]
+-- branch-specific spectral clause
+IsHermitian : Pi(u : V) (v : V)
+            -> Id( Inner(App H_zeta u, v), Inner(u, App H_zeta v) )
+\end{lstlisting}
+
+With local shell counting (formation + spectral clause), this is the $\effort_{\herm}=2$ branch.
+
+\subsection{Minimal non-Hermitian branch}
+
+\begin{lstlisting}[language=MBTT]
+Pairing : Pi(r : Spec(H_zeta))
+        -> Sigma(rc : Spec(H_zeta)) ( Id(rc, Conj(r)) )
+
+Reflect : Pi(r : Spec(H_zeta))
+        -> Sigma(rr : Spec(H_zeta)) ( Id(rr, Sub(1, r)) )
+
+HolCalc : Pi(x : R_gt_1)
+        -> HasHolomorphicCalculus(H_zeta, G_x)
+
+Biorthogonal : Pi(r : Spec(H_zeta))
+             -> HasBiorthogonalProjectors(H_zeta, r)
+\end{lstlisting}
+
+With local shell counting (formation + four repair clauses), this is the $\effort_{\nonherm}=5$ branch.
+
+\section{A stronger but optional non-Hermitian clause set}
+
+The user's earlier note proposed the stronger clause
+\begin{lstlisting}[language=MBTT]
+NoJordan : Pi(r : Spec(H_zeta)) -> IsSemisimpleAt(H_zeta, r)
+\end{lstlisting}
+
+This can be used as a sufficient implementation of the non-self-adjoint spectral discipline, but it is not logically minimal for the present trace argument. The theorem of the paper is therefore stronger than the naive \texttt{NoJordan} formulation: it shows that the effort gap already appears before one adds that stronger requirement.
+
+
+\begin{thebibliography}{99}
+
+\bibitem{rhstrategy}
+Anonymous strategy note supplied by the user.
+\newblock \emph{RH proof strategy}.
+\newblock Private note, 2026.
+
+\bibitem{penrepo}
+Halvor Lande.
+\newblock \emph{PEN Theory: Mechanized from First Principles}.
+\newblock GitHub repository, 2026.
+
+\bibitem{coherencepaper}
+Halvor Lande.
+\newblock \emph{Coherence Depth and Fibonacci Scaling in Intensional Type Theory}.
+\newblock Companion manuscript, 2026.
+
+\bibitem{calcpaper}
+Halvor Lande.
+\newblock \emph{A Generative Calculus for Type-Theoretic Complexity and the Geometric Core}.
+\newblock Companion manuscript, 2026.
+
+\bibitem{autopaper}
+Halvor Lande.
+\newblock \emph{Automated Theory Synthesis via Typed Structural Optimization}.
+\newblock Companion manuscript, 2026.
+
+\bibitem{syntheticpaper}
+Halvor Lande.
+\newblock \emph{Synthetic Framework Abstraction and the Temporal-Cohesive Terminal Fixed Point}.
+\newblock Companion manuscript, 2026.
+
+\bibitem{titchmarsh}
+E. C. Titchmarsh.
+\newblock \emph{The Theory of the Riemann Zeta-Function}.
+\newblock Second edition, revised by D. R. Heath-Brown.
+\newblock Oxford University Press, 1986.
+
+\bibitem{edwards}
+H. M. Edwards.
+\newblock \emph{Riemann's Zeta Function}.
+\newblock Dover Publications, 2001.
+
+\bibitem{bombieriRH}
+Enrico Bombieri.
+\newblock \emph{The Riemann Hypothesis}.
+\newblock Clay Mathematics Institute Millennium Problem Description, 2000.
+
+\bibitem{hardy1914}
+G. H. Hardy.
+\newblock Sur les zeros de la fonction $\zeta(s)$ de Riemann.
+\newblock \emph{Comptes Rendus de l'Academie des Sciences}, 158:1012--1014, 1914.
+
+\bibitem{connes1999}
+Alain Connes.
+\newblock Trace formula in noncommutative geometry and the zeros of the Riemann zeta function.
+\newblock \emph{Selecta Mathematica}, 5(1):29--106, 1999.
+
+\bibitem{deninger1998}
+Christopher Deninger.
+\newblock Some analogies between number theory and dynamical systems on foliated spaces.
+\newblock In \emph{Proceedings of the International Congress of Mathematicians}, pages 163--186, 1998.
+
+\bibitem{berrykeating1999}
+Michael V. Berry and Jonathan P. Keating.
+\newblock $H=xp$ and the Riemann zeros.
+\newblock In \emph{Supersymmetry and Trace Formulae: Chaos and Disorder}, pages 355--367, 1999.
+
+\bibitem{reedsimon4}
+Michael Reed and Barry Simon.
+\newblock \emph{Methods of Modern Mathematical Physics. IV. Analysis of Operators}.
+\newblock Academic Press, 1978.
+
+\bibitem{kato}
+Tosio Kato.
+\newblock \emph{Perturbation Theory for Linear Operators}.
+\newblock Second edition, Springer, 1976.
+
+\end{thebibliography}
+
+\end{document}

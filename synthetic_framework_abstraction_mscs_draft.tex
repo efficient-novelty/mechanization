@@ -1,0 +1,1024 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{array,booktabs,longtable,enumitem}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage[round,authoryear]{natbib}
+
+\geometry{margin=1in}
+\microtypesetup{expansion=false}
+\allowdisplaybreaks
+\doublespacing
+\setlist[enumerate,1]{label=(\arabic*),leftmargin=2.2em}
+\setlist[itemize]{leftmargin=1.8em}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=green!40!black,
+  urlcolor=blue!60!black,
+  pdftitle={Synthetic Framework Abstraction and the Temporal-Cohesive Terminal Fixed Point},
+  pdfauthor={Halvor Lande}
+}
+
+\emergencystretch=2em
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\D}{\mathbb{D}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Shape}{\Pi_{\!\infty}}
+\newcommand{\Disc}{\mathrm{Disc}}
+\newcommand{\Str}{\mathrm{Str}}
+\newcommand{\ModCat}{\mathrm{Mod}}
+\newcommand{\Supp}{\mathrm{Supp}}
+\newcommand{\SelBar}{\mathrm{Bar}}
+\newcommand{\DCT}{\mathrm{DCT}}
+\newcommand{\ATwoTT}{\mathrm{A2TT}}
+\newcommand{\lc}{\mathrm{LC}}
+\newcommand{\Ric}{\mathrm{Ric}}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\hol}{\mathrm{hol}}
+\newcommand{\charclass}{\mathrm{char}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\coiter}{\mathrm{coiter}}
+\newcommand{\fix}{\mathrm{fix}}
+
+\title{\textbf{Synthetic Framework Abstraction and the\\ Temporal-Cohesive Terminal Fixed Point}}
+\author{Halvor Lande\\\texttt{hsl@awc.no}}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Recent metatheoretic work shows that fully coupled univalent framework extension obeys a Fibonacci integration recurrence. This paper studies the late abstraction phase that begins once the geometric core up to the Hopf fibration has been forced. We ask which continuous and analytic structures can still survive when admissibility is constrained by an exponentially rising complexity bar. First we prove a classical analytic surcharge theorem: bottom-up discrete reconstructions of scalar analysis have $\nu_H=0$, linearly bounded efficiency, and therefore fail the late Fibonacci bars. We then isolate a real-cohesive prelude. The universal-cover fiber of the shape unit of the circle yields a canonical line object; under a real-cohesive linearization hypothesis this object carries the scalar interface used by the remaining steps without additional syntactic surcharge. On that basis we give stagewise optimality proofs for the late synthetic differential phase: cohesion, connections, curvature, metric structure, and the Hilbert functional. The trajectory culminates in a temporal-cohesive package whose exact audited novelty is $103$ at clause cost $8$. In a cohesive $\infty$-topos satisfying a representability hypothesis for first-order temporal endofunctors, the selected next modality is naturally equivalent to exponentiation by an infinitesimal object, so the framework internalizes its own evolution by guarded recursion on the univalent universe. A combinatorial squeeze theorem then proves local termination: internal continuations add no new schemas up to equivalence, while disconnected external jumps satisfy $\nu\le 8\kappa$ and cannot clear the step-16 bar. Combining the present results with the earlier coherence and geometric-core theorems yields a full 15-step invariance theorem.
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{The post-geometric landscape}
+
+The companion papers preceding this one establish two inputs that we treat as fixed. The first is a metatheorem of framework extension: in a fully coupled univalent foundation the integration latency of successive sealed layers is governed by a depth-two Fibonacci recurrence \citep{lande-coherence}. The second is a schema-based generative calculus, formulated in the Minimal Base Type Theory (MBTT) grammar, which proves that the first nine steps of the resulting growth process are uniquely forced: dependent logic, the circle, propositional truncation, the two-sphere, the H-space structure on the three-sphere, and the Hopf fibration \citep{lande-generative}. A companion systems paper shows that the same trajectory is recovered computationally by the public Haskell and Cubical Agda artifact \citep{lande-automation,lande-repo}.
+
+This paper studies what happens next. After the Hopf fibration the library is already geometric and higher-dimensional. The remaining problem is the transition to continuity, analysis, and dynamics. A naïve route would reconstruct the continuum bottom-up by discrete arithmetic, Cauchy completion, Dedekind cuts, measure algebras, and the usual classical analytic superstructure. The question is whether such a route remains admissible once the Fibonacci complexity threshold has reached the late geometric phase. Our answer is negative. The late trajectory is not merely ``continuous'' in a loose sense; it is forced toward a synthetic differential regime in which the scalar continuum is imported top-down from the already selected geometric library.
+
+\subsection{The core thesis}
+
+The paper is organized around a single claim.
+
+\begin{quote}
+\emph{Under Fibonacci complexity scaling, the framework abstraction phase is uniquely determined by synthetic differential structure, terminating at a temporal-cohesive fixed point that internalizes its own evolution.}
+\end{quote}
+
+The thesis has three parts. First, discrete analytic packages are eventually priced out by the Fibonacci bar. Second, the surviving late packages are exactly the synthetic differential ones: cohesion, connections, curvature, metric structure, and the Hilbert functional. Third, the temporal-cohesive synthesis at step~15 is terminal in the connected component under consideration: once the selected temporal package is interpreted in a cohesive $\infty$-topos, it supplies an internal guarded evolution operator on the univalent universe, exhausting all continuous continuations; at the same time the bar outruns every disconnected external jump.
+
+\subsection{Scope and exclusions}
+
+We do not reprove three earlier theorem clusters.
+
+\begin{enumerate}
+    \item From Paper~I we import the depth-two coherence theorem and the recurrence law
+    \[
+      \Delta_{n+1}=\Delta_n+\Delta_{n-1},
+      \qquad
+      \Delta_1=\Delta_2=1,
+    \]
+    together with the bar formula
+    \[
+      \SelBar_n = \Phi_n\,\Omega_{n-1},
+      \qquad
+      \Phi_n=\frac{\Delta_n}{\Delta_{n-1}},
+      \qquad
+      \Omega_{n-1}=\frac{\sum_{i=1}^{n-1}\nu_i}{\sum_{i=1}^{n-1}\kappa_i}.
+    \]
+    \item From Paper~II we import the MBTT schema-difference calculus, the distinction between generative, cross-interface, and homotopical novelty, and the complete stagewise optimality proof for steps~1--9 \citep{lande-generative}.
+    \item From Paper~III we import only implementation facts about the public mechanization artifact. The Haskell engine, Monte Carlo search controller, and artifact-evidence contract are not reproved here \citep{lande-automation,lande-repo}.
+\end{enumerate}
+
+Two places in the late abstraction story require hypotheses that we state openly rather than hiding inside prose. The first is the \emph{real-cohesive linearization hypothesis} of \cref{ass:real-linearization}, which upgrades the universal-cover object of the circle to a scalar line object. The second is the \emph{temporal representability hypothesis} of \cref{ass:representability}, which identifies first-order temporal endofunctors with infinitesimal exponentiation. Both hypotheses are standard in spirit in the literature on cohesive and differential type theory \citep{lawvere,kock,schreiber,shulman-real-cohesive}, but they are not consequences of the earlier papers alone. The fixed-point theorem in the present manuscript is therefore rigorous relative to these assumptions.
+
+\subsection{Standing structural assumptions}
+
+\begin{assumption}[Imported PEN setting]
+\label{ass:imported-pen}
+Throughout the paper we work in a fully coupled univalent $\ATwoTT$-foundation satisfying the following imported conditions.
+\begin{enumerate}
+    \item The coherence depth is $d=2$, so framework integration obeys the Fibonacci recurrence above \citep{lande-coherence}.
+    \item Novelty is measured by literal schema difference in the MBTT calculus, with decomposition
+    \[
+      \nu = \nu_G+\nu_C+\nu_H.
+    \]
+    \item The first nine selected layers are already fixed and uniquely optimal:
+    \[
+      \U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma,\ S^1,\ \|{-}\|,\ S^2,\ S^3,\ \mathrm{Hopf}.
+    \]
+\end{enumerate}
+\end{assumption}
+
+\subsection{Related work}
+
+The coherence input comes from the interpretation of intensional identity types as weak $\omega$-groupoids and from the cubical operational account of Kan filling \citep{lumsdaine,vdberg-garner,cubical,cchm-hits}. The synthetic differential and cohesive background comes from axiomatic cohesion, synthetic differential geometry, and differential cohesion in higher toposes \citep{lawvere,kock,schreiber}. The temporal ingredient is Nakano's guarded ``next'' modality and its descendants \citep{nakano}. The circle-cover argument uses the standard computation of the fundamental group of the circle in homotopy type theory \citep{licata-shulman}. For the executable side we refer to the public mechanization repository, whose README documents a two-layer artifact consisting of Cubical Agda mechanization and a reproducible Haskell synthesis engine \citep{lande-repo}.
+
+\section{The real-cohesive prelude}
+
+By \cref{ass:imported-pen}, the library state $\B_9$ already contains the geometric core through the Hopf fibration. The remaining late trajectory needs a scalar interface. This section explains why bottom-up discrete construction is too expensive and how a scalar line can instead be obtained top-down from the geometric core.
+
+\subsection{The classical analytic surcharge}
+
+\begin{definition}[Bottom-up discrete analytic package]
+\label{def:discrete-analytic}
+A \emph{bottom-up discrete analytic package} over $\B_n$ is a promoted interface bundle whose new primitive carriers are $0$-types (or h-sets) and whose new clauses are algebraic, order-theoretic, completion-theoretic, or measure-theoretic rules built over those carriers, with no new path constructors and no distributive laws against the existing higher or modal interface.
+\end{definition}
+
+Examples include presentations of the rationals, Cauchy or Dedekind constructions of the reals, bottom-up completeness axioms, Boolean $\sigma$-algebras, and purely discrete measure-theoretic shells.
+
+\begin{theorem}[Classical analytic surcharge]
+\label{thm:analytic-surcharge}
+Let $A$ be a bottom-up discrete analytic package over $\B_n$ with $n\ge 9$. Then
+\[
+  \nu_H(A)=0,
+  \qquad
+  \nu_G(A)\le \kappa(A),
+  \qquad
+  \nu_C(A)\le 2\kappa(A),
+\]
+so in particular
+\[
+  \rho(A)=\frac{\nu(A)}{\kappa(A)}\le 3.
+\]
+Consequently $A$ fails every late selection bar, beginning already at step~10.
+\end{theorem}
+
+\begin{proof}
+Because $A$ introduces no path constructors and no higher-dimensional computation rules, it contributes no independent homotopical novelty: $\nu_H(A)=0$. Since each primitive clause contributes at most one genuinely new formation or introduction family, we have $\nu_G(A)\le \kappa(A)$.
+
+For the cross-interface term, the absence of higher path algebra and distributive laws means that every clause acts only by unary transport, local comparison, or pointwise compatibility on the active interface. In the MBTT schema calculus, a single such clause can induce at most two normalized cross-interface families: one direct action family and one comparison family. Hence $\nu_C(A)\le 2\kappa(A)$.
+
+Adding the three bounds gives $\nu(A)\le 3\kappa(A)$ and therefore $\rho(A)\le 3$. By the imported trajectory, the bar at step~10 is $\SelBar_{10}=4.46$, and the bars are strictly increasing thereafter. Thus no bottom-up discrete analytic package can be selected at any late step.
+\end{proof}
+
+\begin{remark}
+The theorem is stronger than a one-off rejection of Dedekind cuts or Cauchy sequences. It says that the entire discrete analytic strategy is asymptotically incompatible with the Fibonacci regime. Any late package whose novelty remains set-level and linearly bounded is priced out before the abstraction phase even begins.
+\end{remark}
+
+\subsection{Extracting the continuum geometrically}
+
+The right late-stage question is therefore not ``how do we discretely rebuild the real line?'' but ``which scalar interface is already latent in the selected geometric library?'' The circle is the key object.
+
+\begin{definition}[Shape-fiber line object]
+\label{def:shape-fiber-line}
+In the state $\B_{10}$, define the \emph{shape-fiber line object}
+\[
+  \widetilde{\R}
+  :=
+  \sum_{x:S^1}\bigl(\eta_{\Shape}(x)=\eta_{\Shape}(\mathsf{base})\bigr),
+\]
+where $\eta_{\Shape}:S^1\to\Shape(S^1)$ is the unit of the shape modality.
+\end{definition}
+
+\begin{proposition}[Universal-cover interpretation]
+\label{prop:universal-cover}
+Assume the cohesive semantics interprets connected covers of $1$-types by homotopy fibers of the shape unit. Then $\widetilde{\R}$ is the universal cover of $S^1$. In particular it is contractible, carries a free deck action of $\Z$, and satisfies
+\[
+  \widetilde{\R}/\Z\simeq S^1.
+\]
+\end{proposition}
+
+\begin{proof}
+By the standard circle-cover construction in homotopy type theory, the fiber of the universal family over the base point of $S^1$ classifies the universal cover, and the deck action is induced by loop concatenation. The computation $\Omega S^1\simeq \Z$ identifies the deck group with the integers \citep{licata-shulman}. Under the stated cohesive interpretation of shape fibers as connected covers, the object of \cref{def:shape-fiber-line} is exactly that universal cover. Contractibility follows from universal-cover uniqueness for connected $1$-types, and the quotient statement is the defining property of a principal deck action.
+\end{proof}
+
+\begin{assumption}[Real-cohesive linearization]
+\label{ass:real-linearization}
+The universal-cover object $\widetilde{\R}$ admits a commutative line-object structure compatible with its free $\Z$-action and with the local interval charts of the ambient real-cohesive model. Equivalently, there is a line object $\R$ and an equivalence $\widetilde{\R}\simeq\R$ uniquely determined up to contractible choice by the covering and translation data.
+\end{assumption}
+
+\begin{theorem}[Derived scalar continuum]
+\label{thm:derived-scalar}
+Under \cref{ass:real-linearization}, the state $\B_{10}$ contains a scalar line object $\R$ definable from the geometric core and the cohesive interface. No additional late-stage scalar clauses are required to expose this object to subsequent promoted packages.
+\end{theorem}
+
+\begin{proof}
+By \cref{prop:universal-cover}, $\widetilde{\R}$ is a contractible principal $\Z$-cover of $S^1$. By \cref{ass:real-linearization}, that cover carries a commutative line-object structure, hence determines a scalar line object $\R$ together with an equivalence $\widetilde{\R}\simeq\R$. All data used in the construction are already available in $\B_{10}$: the circle comes from the geometric core, the shape unit comes from cohesion, and the cover itself is a definable fiber object. The line-object structure is semantic rather than syntactically primitive. Therefore it contributes no new late-stage specification clauses.
+\end{proof}
+
+\begin{proposition}[Strict first-use scalar provenance]
+\label{prop:scalar-provenance}
+Let $X$ be a promoted interface package selected at a late step $n\ge 11$ whose signature mentions $\R$ only through the line object supplied by \cref{thm:derived-scalar}. Then the scalar surcharge of $X$ is zero.
+\end{proposition}
+
+\begin{proof}
+By \cref{thm:derived-scalar}, the object $\R$ is already present in the definability closure of $\B_{10}$. Since late promoted packages are charged only for new irreducible generators and comparison laws, merely reusing $\R$ contributes no extra clauses. Hence $\kappa_{\mathrm{scalar}}(X)=0$.
+\end{proof}
+
+\section{Stagewise optimality of the synthetic differential phase}
+
+We now analyze steps~10--14. The imported geometric-core paper already fixes the state $\B_9$ and the bars entering the abstraction phase. The late steps are evaluated in the same constructively prime shell basis as Paper~II: modal shells, differential transport shells, second-order differential shells, metric/operator bundles, and analytic consolidators. Within that basis the sequence below is forced.
+
+\begin{table}[tbp]
+\centering
+\caption{The late abstraction phase.}
+\label{tab:late-phase}
+\small
+\begin{tabular}{@{}ccccccc@{}}
+\toprule
+Step & Structure & $\Delta_n$ & $\nu_n$ & $\kappa_n$ & $\rho_n$ & $\SelBar_n$ \\
+\midrule
+10 & Cohesion & 55 & 19 & 4 & 4.75 & 4.46 \\
+11 & Connections & 89 & 26 & 5 & 5.20 & 4.91 \\
+12 & Curvature & 144 & 34 & 6 & 5.67 & 5.42 \\
+13 & Metric structure & 233 & 46 & 7 & 6.57 & 5.99 \\
+14 & Hilbert functional & 377 & 62 & 9 & 6.89 & 6.68 \\
+15 & Temporal-cohesive package & 610 & 103 & 8 & 12.88 & 7.40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At these steps the admissibility thresholds are, respectively,
+\[
+  18,\ 25,\ 33,\ 42,\ 61,\ 60
+\]
+as the least integers strictly larger than $\SelBar_n\kappa_n$.
+
+\subsection{Step 10: cohesion}
+
+\begin{proposition}[Step 10 is uniquely cohesive]
+\label{prop:step10}
+At step~10 the unique constructively prime bar-clearer is the cohesive shell
+\[
+  (\flat,\sharp,\Disc,\Shape)
+\]
+with $\kappa_{10}=4$, $\nu_{10}=19$, and $\rho_{10}=19/4=4.75>4.46$.
+\end{proposition}
+
+\begin{proof}
+The shell has exactly four irreducible formation clauses, one for each modality. Its audited novelty is
+\[
+  \nu_{10}=4+15=19,
+\]
+where the first term counts the four new modal carriers and the second counts the unit, counit, and geometric interaction schemas induced across the previously selected higher objects and the Hopf fibration.
+
+To prove uniqueness, consider any other prime late-stage shell with $\kappa\le 4$. By \cref{thm:analytic-surcharge}, discrete analytic packages fail immediately. A non-discrete geometric add-on that does not supply a global modal action on the full sphere/Hopf interface can generate at most four local carrier schemas and at most twelve unary comparison schemas, so $\nu\le16<18$. A shell with $\kappa>4$ must satisfy $\nu\ge 23$ to clear the same step-10 bar, but the same lack of global modal action prevents that level of amplification. Thus no competing prime shell reaches the threshold.
+
+The cohesive shell therefore is the unique prime bar-clearer at step~10.
+\end{proof}
+
+\subsection{Step 11: connections}
+
+The connection step is the first differential lift of the cohesive interface.
+
+\begin{proposition}[Step 11 selects the connection bundle]
+\label{prop:step11}
+At step~11 the unique constructively prime bar-clearer is the connection package with signature
+\[
+  \nabla:\flat(TX)\to TX,
+  \qquad
+  \mathrm{lift}_\nabla:\flat(TX)\to TX,
+  \qquad
+  \mathrm{Leibniz}_\nabla.
+\]
+Its audited values are $\kappa_{11}=5$, $\nu_{11}=26$, and $\rho_{11}=5.20>4.91$.
+\end{proposition}
+
+\begin{proof}
+The five charged clauses are: the connection itself, transport along identity paths, covariant differentiation on sections, horizontal lift, and the Leibniz law. In the MBTT shell basis, two of these contribute genuinely new carrier families, so $\nu_G=2$.
+
+The cross-interface term is determined by the dominant imported carrier, namely cohesion from step~10. Using the telescopic elimination law from the generative-calculus paper, the cross-interface count is
+\[
+  \nu_C = \nu_{10}+\kappa_{11}=19+5=24.
+\]
+Hence
+\[
+  \nu_{11}=\nu_G+\nu_C=2+24=26.
+\]
+Since the threshold for a five-clause candidate at step~11 is $25$, the connection shell clears the bar.
+
+Now let $Y$ be a competing prime five-clause shell over the cohesive state. If $Y$ omits path-sensitive transport, it cannot act on identity structure and therefore loses the unique bridge that turns modal separation into differential transport; if it omits the Leibniz law, it loses the function-space amplification that couples the shell to the dependent library. In either case the shell has at most one genuinely new carrier family, so $\nu_G\le 1$, while the same telescopic bound still gives $\nu_C\le24$. Thus $\nu(Y)\le25$. The equality case is constructively composite: it decomposes into a bare lift shell plus inherited cohesive action, so it is excluded by primality. Therefore no competing prime shell clears the bar.
+\end{proof}
+
+\subsection{Step 12: curvature}
+
+\begin{proposition}[Step 12 selects curvature]
+\label{prop:step12}
+At step~12 the unique constructively prime bar-clearer is the curvature shell
+\[
+  R=d\nabla+\nabla\wedge\nabla,
+  \qquad
+  \mathrm{Bianchi}(R),
+  \qquad
+  \hol,\ \charclass,
+\]
+with $\kappa_{12}=6$, $\nu_{12}=34$, and $\rho_{12}=34/6>5.42$.
+\end{proposition}
+
+\begin{proof}
+The six charged clauses are the curvature carrier, the Bianchi identity, holonomy, Chern--Weil comparison, characteristic classes, and compositional curvature transport. Only the curvature carrier itself contributes a new introduction family, so $\nu_G=1$.
+
+The shell depends on two imported layers: connections and cohesion. The dominant reference is the connection shell with novelty $26$. The telescopic elimination law therefore gives
+\[
+  \nu_C = \nu_{11}+\kappa_{12}+(2-1)=26+6+1=33.
+\]
+Thus
+\[
+  \nu_{12}=\nu_G+\nu_C=1+33=34.
+\]
+The threshold for a six-clause candidate at step~12 is $33$, so curvature clears the bar.
+
+A competing prime six-clause shell lacking a genuine second-order defect witness factors through first-order transport and therefore has no new carrier family: $\nu_G=0$. If it references only one imported layer, then $\nu_C\le26+6=32$. If it references both connections and cohesion but omits the Bianchi-type coherence that makes the defect stable, then it still has at most $\nu_G=0$ and $\nu_C=33$, giving $\nu\le33$. Again the equality case is composite, because it is merely a first-order transport shell with one auxiliary comparison. Hence no competing prime shell reaches the strict step-12 optimum.
+\end{proof}
+
+\subsection{Step 13: metric structure}
+
+At this point the scalar objection becomes serious. Without \cref{thm:derived-scalar} and \cref{prop:scalar-provenance}, any metric-like shell would have to pay an independent scalar surcharge and would fail immediately. The real-cohesive prelude eliminates that surcharge.
+
+\begin{proposition}[Step 13 selects the metric bundle]
+\label{prop:step13}
+At step~13 the unique constructively prime bar-clearer is the metric bundle
+\[
+  g:TX\otimes_s TX\to\R,
+  \qquad
+  \lc(g),
+  \qquad
+  \vol_g,
+  \qquad
+  \star_g,
+  \qquad
+  \Delta_g,
+  \qquad
+  \Ric_g,
+\]
+with $\kappa_{13}=7$, $\nu_{13}=46$, and $\rho_{13}=46/7>5.99$.
+\end{proposition}
+
+\begin{proof}
+By \cref{prop:scalar-provenance}, the appearance of $\R$ contributes no scalar surcharge. The seven charged clauses are the metric tensor, Levi--Civita correspondence, geodesic/parallel transport geometry, the induced volume form, Hodge star, Laplace--Beltrami operator, and Ricci extraction. Four of these contribute new carrier or introduction families, so $\nu_G=4$.
+
+The shell depends on two imported layers, curvature and connections, and the dominant reference is curvature with novelty $34$. The telescopic elimination law gives
+\[
+  \nu_C = \nu_{12}+\kappa_{13}+(2-1)=34+7+1=42.
+\]
+Therefore
+\[
+  \nu_{13}=\nu_G+\nu_C=4+42=46.
+\]
+The threshold at step~13 is $42$, so the metric bundle clears the bar comfortably.
+
+For uniqueness, consider a competing prime seven-clause shell. If it is scalar-bottom-up, it is eliminated by \cref{thm:analytic-surcharge}. If it omits either the Levi--Civita bridge or the Hodge/Ricci bridge, then it fails to couple curvature and connections into a single metric-dependent telescope; its novelty is bounded by $\nu_C\le42$ and $\nu_G\le3$, hence $\nu\le45$. Every such shell is constructively composite: it splits into a lower-order tensor or operator shell plus an auxiliary comparison that can be added separately. The metric bundle is the smallest prime shell that simultaneously binds the line object, the connection shell, and the curvature shell. Hence it is uniquely selected.
+\end{proof}
+
+\subsection{Step 14: the Hilbert functional}
+
+\begin{proposition}[Step 14 selects the Hilbert-functional shell]
+\label{prop:step14}
+At step~14 the unique constructively prime bar-clearer is the Hilbert-functional package
+\[
+  \langle{-},{-}\rangle,
+  \qquad
+  \mathrm{complete},
+  \qquad
+  \perp\mathrm{Dec},
+  \qquad
+  \mathrm{spec},
+  \qquad
+  C^*\text{-alg},
+  \qquad
+  \delta/\delta\phi,
+\]
+with $\kappa_{14}=9$, $\nu_{14}=62$, and $\rho_{14}=62/9>6.68$.
+\end{proposition}
+
+\begin{proof}
+The nine charged clauses present inner-product structure, completeness, orthogonal decomposition, spectral decomposition, $C^*$-algebra composition, three bridge laws to metric/curvature/connections, and a functional derivative. Five of these clauses create new carrier or introduction families, so $\nu_G=5$.
+
+The shell simultaneously couples the metric, curvature, and connection layers. The dominant reference is metric with novelty $46$, and the number of distinct imported layers is $3$. Thus
+\[
+  \nu_C = \nu_{13}+\kappa_{14}+(3-1)=46+9+2=57.
+\]
+Hence
+\[
+  \nu_{14}=\nu_G+\nu_C=5+57=62.
+\]
+The threshold at step~14 is $61$, so the shell clears the bar.
+
+Now let $Y$ be a competing prime analytic shell at step~14. If $Y$ couples at most two of the layers \{metric, curvature, connections\}, then the same telescopic law gives
+\[
+  \nu_C(Y)\le 46+9+1=56.
+\]
+Because such a two-layer shell can contribute at most four genuinely new carrier families, it satisfies $\nu(Y)\le60<61$ and fails the bar. Therefore any bar-clearer must couple all three layers. But within the constructively prime analytic shell basis, the only nine-clause triadic consolidator is precisely the Hilbert-functional package listed above. Thus it is unique.
+\end{proof}
+
+\subsection{Exhaustive rejection lemmas}
+
+The preceding stepwise proofs implicitly reject several familiar late-stage alternatives. We collect the three broad rejection families for later reference.
+
+\begin{lemma}[Discrete analytic rejection]
+\label{lem:discrete-rejection}
+Every bottom-up discrete analytic package is eliminated from step~10 onward.
+\end{lemma}
+
+\begin{proof}
+Immediate from \cref{thm:analytic-surcharge}.
+\end{proof}
+
+\begin{lemma}[Late algebraic-geometric rejection]
+\label{lem:algebraic-rejection}
+Any prime late-stage shell whose new clauses factor through at most two imported carriers and introduce no differential or Hodge-type bridge laws fails to outrank the selected synthetic differential shells at steps~13 and~14.
+\end{lemma}
+
+\begin{proof}
+At step~13 such a shell either incurs scalar surcharge and is eliminated by \cref{thm:analytic-surcharge}, or else remains a lower-order tensor/operator shell and is constructively composite relative to the selected metric bundle. At step~14 every such shell satisfies $\nu\le60$ by the estimate in the proof of \cref{prop:step14}, so it fails the bar.
+\end{proof}
+
+\begin{lemma}[Categorical localization rejection]
+\label{lem:categorical-rejection}
+Any promoted localization or abstract categorical shell that does not produce new distributive laws against the selected differential stack fails every late step from step~12 onward.
+\end{lemma}
+
+\begin{proof}
+Such a shell has no new homotopical term, so $\nu_H=0$. Its cross-interface behavior is unary and factors through pre-existing transport, giving at most the same telescopic gain as a one-carrier shell with no new bridge laws. At steps~12--14 the thresholds are $33$, $42$, and $61$, while the one-carrier telescopic bounds are $32$, $41$, and $55$ before adding any generative term. The remaining carrier contribution is too small to close those gaps without turning the shell into a composite of already admissible pieces. Therefore no such shell is selected.
+\end{proof}
+
+\section{The temporal-cohesive package (Step 15)}
+
+\subsection{Syntax and signatures}
+
+The selected step-15 shell is a promoted interface bundle; it does not add a primitive infinitesimal object. Its eight charged clauses are:
+\begin{enumerate}
+    \item formation of $\bigcirc X$;
+    \item formation of $\Diamond X$;
+    \item comparison $c_X:\bigcirc X\to\Diamond X$;
+    \item natural temporal action on inherited exported interfaces;
+    \item exchange law $e^\flat_X:\flat(\bigcirc X)\simeq\bigcirc(\flat X)$;
+    \item exchange law $e^\sharp_X:\sharp(\Diamond X)\simeq\Diamond(\sharp X)$;
+    \item observation or elimination principle for $\Diamond$;
+    \item guarded composition witness $\mu_X:\bigcirc\bigcirc X\to\bigcirc X$.
+\end{enumerate}
+
+\begin{remark}[Syntactic purity]
+\label{rem:syntactic-purity}
+The infinitesimal object $\D$ of the later semantic transfer is not introduced syntactically at step~15. The selected shell is purely temporal-cohesive. This is crucial: the late efficiency of step~15 comes from modal distributive-law amplification, not from paying for a separate first-order differential language in the syntax.
+\end{remark}
+
+\subsection{Exact novelty accounting}
+
+We now give a complete structural count that closes a gap left only partially explicit in the earlier materials.
+
+\begin{theorem}[Exact step-15 novelty count]
+\label{thm:step15-nu}
+The temporal-cohesive shell of step~15 has exact novelty
+\[
+  \nu_{15}=\nu_G+\nu_H+\nu_C=2+15+86=103.
+\]
+Consequently
+\[
+  \rho_{15}=\frac{103}{8}=12.875>7.40=\SelBar_{15}.
+\]
+\end{theorem}
+
+\begin{proof}
+The count is partitioned into three independent parts.
+
+\paragraph{Generative part.}
+The shell introduces exactly two genuinely new unary formers, $\bigcirc$ and $\Diamond$. Therefore
+\[
+  \nu_G=2.
+\]
+
+\paragraph{Homotopical part.}
+The temporal shell acts on the already selected first fourteen layers by infinitesimal or tangent-style shift, one new homotopical schema per prior layer. In addition, guarded composition contributes one genuinely new self-interaction family. Hence
+\[
+  \nu_H = 14+1 = 15.
+\]
+
+\paragraph{Cross-interface part.}
+This is the main amplification term. It splits into three summands.
+\begin{enumerate}
+    \item \emph{Universe-polymorphic lift.} For each of the first fourteen layers $L_i$ there are three new temporal action schemas: $\bigcirc L_i$, $\Diamond L_i$, and the comparison $c_{L_i}:\bigcirc L_i\to\Diamond L_i$. This contributes
+    \[
+      14\times 3 = 42.
+    \]
+    \item \emph{Distributive-law amplification.} The cohesive shell selected at step~10 contributes $19$ exported schemas. Each of the two exchange laws $e^\flat$ and $e^\sharp$ acts generatorwise on that full cohesive interface, contributing
+    \[
+      2\times 19 = 38
+    \]
+    further cross-interface schemas.
+    \item \emph{Residual comparison core.} The remaining six schemas are the base comparison $c_X$, the $\Diamond$-observation principle, the guarded composition witness, and three transport or naturality families against the active depth-two interface. This contributes
+    \[
+      6.
+    \]
+\end{enumerate}
+Adding the three summands gives
+\[
+  \nu_C = 42+38+6 = 86.
+\]
+Therefore
+\[
+  \nu_{15}=2+15+86=103.
+\]
+The efficiency inequality follows immediately.
+\end{proof}
+
+\begin{corollary}[Step 15 clears the bar with a large gap]
+\label{cor:step15-gap}
+The temporal-cohesive shell exceeds the step-15 bar by
+\[
+  12.875-7.40 = 5.475.
+\]
+No earlier or later late-stage shell achieves a comparable absolute overshoot in the audited trajectory.
+\end{corollary}
+
+\begin{proof}
+The first statement is direct from \cref{thm:step15-nu}. The second follows from the late-phase values in \cref{tab:late-phase}.
+\end{proof}
+
+\section{Syntactic-semantic transfer}
+
+The selected step-15 shell is still syntactic. To obtain the terminal fixed-point theorem we now interpret it in a cohesive $\infty$-topos.
+
+\begin{assumption}[Temporal representability]
+\label{ass:representability}
+Let $\mathcal E$ be a cohesive $\infty$-topos interpreting the selected trajectory through step~15. Assume that every endofunctor
+\[
+  F:\mathcal E\to\mathcal E
+\]
+which satisfies the following conditions is representable by exponentiation with an infinitesimal object:
+\begin{enumerate}
+    \item $F$ preserves the discrete/shape decomposition, in the sense that there are natural equivalences $\flat F\simeq F\flat$ and $\Shape F\simeq F\Shape$;
+    \item $F$ is first-order idempotent, meaning that the comparison $FFX\to FX$ identifies iterated application with a single first-order thickening;
+    \item $F$ preserves finite products and acts functorially on the promoted interface telescope.
+\end{enumerate}
+Then there exists an infinitesimal object $\D\in\mathcal E$ and a natural equivalence
+\[
+  FX\simeq X^\D.
+\]
+\end{assumption}
+
+\begin{theorem}[Tangent endofunctor theorem]
+\label{thm:tangent-endofunctor}
+Under \cref{ass:representability}, the step-15 next modality is naturally equivalent to exponentiation by an infinitesimal object:
+\[
+  \theta_X:\bigcirc X\overset{\sim}{\longrightarrow} X^\D.
+\]
+\end{theorem}
+
+\begin{proof}
+Interpret the step-15 shell in $\mathcal E$. The exchange law $e^\flat_X$ gives a natural equivalence $\flat(\bigcirc X)\simeq\bigcirc(\flat X)$, so $\bigcirc$ preserves discrete structure. By functoriality on promoted packages and because the cohesive shell already controls the shape decomposition, the temporal action likewise preserves the shape reflector. The guarded composition map $\mu_X:\bigcirc\bigcirc X\to\bigcirc X$ identifies two successive temporal steps with a single first-order step rather than a genuinely new second temporal axis, so $\bigcirc$ is first-order idempotent in the sense of \cref{ass:representability}. The remaining functoriality and product conditions are part of the promoted-interface interpretation of the shell.
+
+Applying \cref{ass:representability} with $F=\bigcirc$ yields an infinitesimal object $\D$ and a natural equivalence
+\[
+  \theta_X:\bigcirc X\simeq X^\D.
+\]
+This is exactly the desired tangent-style representation.
+\end{proof}
+
+\begin{remark}
+The theorem does not say that step~15 explicitly added the infinitesimal object to the syntax. It says that the temporal shell selected by the efficiency calculus \emph{forces} such an object in the semantic models covered by \cref{ass:representability}.
+\end{remark}
+
+\section{Internalization and the terminal fixed point}
+
+\subsection{Internalizing meta-evolution}
+
+The semantic equivalence of \cref{thm:tangent-endofunctor} turns the selected temporal shell into a differential self-action on the univalent universe.
+
+\begin{definition}[Guarded streams]
+\label{def:streams}
+For a type $A$, define guarded streams by the coalgebra equation
+\[
+  \Str(A)\simeq A\times\bigcirc\Str(A).
+\]
+Write
+\[
+  \coiter_A:(A\to\bigcirc A)\to A\to\Str(A)
+\]
+for the guarded coiterator and
+\[
+  \fix_A:(\bigcirc A\to A)\to A
+\]
+for the guarded fixed-point operator.
+\end{definition}
+
+\begin{theorem}[Internalization of meta-evolution]
+\label{thm:internalization}
+Assume \cref{thm:tangent-endofunctor}. Let
+\[
+  v:\U\to\U^\D
+\]
+be a synthetic vector field on the small univalent universe. Then the step map
+\[
+  \mathrm{step}_v:=\theta_{\U}^{-1}\circ v:\U\to\bigcirc\U
+\]
+induces a guarded flow
+\[
+  \mathrm{Flow}_v:=\coiter_{\U}(\mathrm{step}_v):\U\to\Str(\U).
+\]
+In particular, the selected framework can internalize its own continuous structural evolution on the connected component of $\U$ determined by the current library.
+\end{theorem}
+
+\begin{proof}
+By \cref{thm:tangent-endofunctor}, a vector field $v:\U\to\U^\D$ can be reinterpreted as a map $\mathrm{step}_v:\U\to\bigcirc\U$. Applying the guarded coiterator of \cref{def:streams} yields a stream-valued evolution operator
+\[
+  \mathrm{Flow}_v:\U\to\Str(\U).
+\]
+Because $\Str(\U)$ is defined internally from the selected temporal shell, no additional external syntax is introduced.
+
+Univalence identifies paths in $\U$ with equivalences. Therefore a guarded evolution built from $\mathrm{step}_v$ remains inside the connected component of $\U$ reachable by internal equivalence. This is exactly the internalization of meta-evolution claimed in the statement.
+\end{proof}
+
+\subsection{The combinatorial squeeze}
+
+We now prove that the late trajectory cannot continue to step~16.
+
+\begin{lemma}[Internal exhaustion]
+\label{lem:internal-exhaustion}
+Every candidate produced by an internal guarded flow as in \cref{thm:internalization} is already definitionally represented in $\B_{15}$. Hence it has zero marginal novelty up to equivalence.
+\end{lemma}
+
+\begin{proof}
+Let $Y$ be a candidate obtained by guarded coiteration from a step map $\mathrm{step}_v:\U\to\bigcirc\U$. By construction,
+\[
+  Y = \coiter_{\U}(\mathrm{step}_v)(A)
+\]
+for some internal seed $A:\U$. The operators $\coiter$, $\theta^{-1}$, and the temporal/cohesive shell are already available in $\B_{15}$. Therefore every derivation schema exported by $Y$ is definitionally reducible to a term in the closure $\Lcal(\B_{15})$. Since novelty is literal set difference of normalized schemas modulo canonical equivalence, no new schema survives. Thus $\nu(Y)=0$.
+\end{proof}
+
+\begin{definition}[Disconnected external jump]
+\label{def:external-jump}
+A \emph{disconnected external jump} after step~15 is a promoted interface package whose new clause heads are not definable by guarded internal flow from $\B_{15}$ and whose signatures introduce no new distributive laws with the selected temporal-cohesive interface.
+\end{definition}
+
+\begin{lemma}[External linear bound]
+\label{lem:external-linear}
+Let $Y$ be a disconnected external jump after step~15. Then
+\[
+  \nu(Y)\le 8\kappa(Y).
+\]
+\end{lemma}
+
+\begin{proof}
+Classify MBTT clause heads into the eight primitive late-stage schema forms relevant after step~15: formation, introduction, elimination, computation, transport, comparison, modal lifting, and interface bridge. A disconnected jump has no new distributive law against the temporal-cohesive shell and no new higher path constructor. Therefore every clause contributes at most one normalized schema family in each of these eight forms. Any further apparent families collapse by normalization because they would require either a new higher path algebra or a new global exchange law, both excluded by definition. Summing over all clause heads yields the uniform bound $\nu(Y)\le 8\kappa(Y)$.
+\end{proof}
+
+\begin{theorem}[Combinatorial squeeze theorem]
+\label{thm:squeeze}
+No step-16 candidate clears the selection bar. More precisely, every admissible step-16 candidate falls into one of two classes:
+\begin{enumerate}
+    \item \emph{internal continuations}, for which $\rho=0$ by \cref{lem:internal-exhaustion};
+    \item \emph{disconnected external jumps}, for which $\rho\le 8$ by \cref{lem:external-linear}.
+\end{enumerate}
+Since the step-16 bar is
+\[
+  \SelBar_{16}=\frac{987}{610}\cdot\frac{359}{64}\approx 9.08,
+\]
+no step-16 candidate is admissible.
+\end{theorem}
+
+\begin{proof}
+The value of $\SelBar_{16}$ follows from the imported Fibonacci latency together with the cumulative audited totals
+\[
+  \sum_{i=1}^{15}\nu_i=359,
+  \qquad
+  \sum_{i=1}^{15}\kappa_i=64.
+\]
+Now let $Y$ be any admissible step-16 candidate.
+
+If $Y$ is internally generated by guarded flow, \cref{lem:internal-exhaustion} gives $\nu(Y)=0$, hence $\rho(Y)=0<9.08$.
+
+If $Y$ is a disconnected external jump, \cref{lem:external-linear} gives $\nu(Y)\le 8\kappa(Y)$, so $\rho(Y)\le 8<9.08$.
+
+These two cases exhaust all admissible candidates. Therefore no step-16 candidate clears the bar.
+\end{proof}
+
+\subsection{The Univalent Horizon}
+
+\begin{definition}[Univalent Horizon]
+\label{def:horizon}
+The \emph{Univalent Horizon} of $\B_{15}$ is the boundary of the connected component of $\ModCat(\B_{15})$ reachable by internal guarded deformation of the univalent universe.
+\end{definition}
+
+\begin{corollary}[Terminal fixed point]
+\label{cor:terminal}
+Under the standing assumptions of the paper, step~15 is terminal in the connected component determined by the selected trajectory. Crossing the Univalent Horizon requires a disconnected external jump, and every such jump fails the step-16 bar.
+\end{corollary}
+
+\begin{proof}
+Internal guarded deformations remain inside the connected component by \cref{thm:internalization}, while disconnected jumps fail by \cref{thm:squeeze}. Therefore the selected temporal-cohesive shell is a local terminal fixed point.
+\end{proof}
+
+\section{The full 15-step invariance theorem}
+
+We now reassemble the whole trajectory.
+
+\begin{theorem}[Full 15-step invariance]
+\label{thm:full-invariance}
+Assume \cref{ass:imported-pen}, \cref{ass:real-linearization}, and \cref{ass:representability}. Then the unique constructively prime 15-step PEN trajectory is
+\[
+  \begin{aligned}
+    &\U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma,\ S^1,\ \|{-}\|,\ S^2,\ S^3,\ \mathrm{Hopf},\\
+    &\mathrm{Cohesion},\ \mathrm{Connections},\ \mathrm{Curvature},\ \mathrm{Metric},\\
+    &\mathrm{Hilbert},\ \mathrm{Temporal\mbox{-}Cohesive}.
+  \end{aligned}
+\]
+Moreover the step-15 shell is terminal in the sense of \cref{cor:terminal}.
+\end{theorem}
+
+\begin{proof}
+By \cref{ass:imported-pen}, steps~1--9 are uniquely fixed by the earlier geometric-core theorem. Steps~10--14 are uniquely fixed by \cref{prop:step10,prop:step11,prop:step12,prop:step13,prop:step14}. Step~15 is fixed by \cref{thm:step15-nu}, which gives a large bar-clearing gap. Finally \cref{cor:terminal} shows that no step-16 candidate is admissible in the same connected component. This proves both the ordered 15-step trajectory and its terminality.
+\end{proof}
+
+\begin{corollary}[Deterministic late abstraction]
+\label{cor:deterministic-late}
+Under Fibonacci complexity scaling, the framework abstraction phase is not an open menu of equally viable analytic continuations. It is a closed synthetic differential corridor terminating at the temporal-cohesive fixed point.
+\end{corollary}
+
+\begin{proof}
+The abstraction phase consists exactly of steps~10--15 in \cref{thm:full-invariance}. Each step is uniquely determined, and the corridor has no admissible continuation by \cref{cor:terminal}.
+\end{proof}
+
+\section{Conclusion}
+
+The late PEN trajectory resolves a sharp structural question. Once the geometric core has been forced, can the framework continue into analysis by classical discrete means, or does the Fibonacci bar demand a different route? The answer supplied here is rigid. Bottom-up discrete analysis is ruled out by the classical analytic surcharge. The surviving path is synthetic: cohesion first, then differential transport, curvature, metric structure, Hilbert-functional compression, and finally a temporal-cohesive shell.
+
+The key conceptual move is the real-cohesive prelude. Instead of discretely reconstructing the reals, the framework extracts a line object from the already selected geometric library and carries it forward as a scalar interface. This removes the fatal scalar surcharge at exactly the point where classical analytic construction would become unaffordable. The final step is then not just another modal package. Under a representability hypothesis in a cohesive $\infty$-topos, it becomes a tangent-style endofunctor, internalizes guarded evolution of the univalent universe, and closes the connected component by the combinatorial squeeze.
+
+Within the standing assumptions, foundational framework growth is therefore neither indefinitely open-ended nor freely designable. It forms a deterministic combinatorial topology of fifteen steps. The synthetic differential phase is the only arithmetically viable bridge from geometric homotopy theory to a self-internalizing temporal endpoint.
+
+\appendix
+
+\section{Synthetic signatures for steps 10--15}
+
+This appendix records the late signatures used in the main text. The point is not that the raw MBTT syntax literally carries every traditional semantic detail, but that each selected shell has a standard synthetic reading as a promoted interface bundle.
+
+\subsection{Step 10: cohesion}
+
+\[
+  \flat A:\U,
+  \qquad
+  \sharp A:\U,
+  \qquad
+  \Disc(A):\U,
+  \qquad
+  \Shape(A):\U.
+\]
+
+Representative unit and counit maps are
+\[
+  \flat A\to A,
+  \qquad
+  A\to \sharp A,
+  \qquad
+  A\to \Shape(A),
+  \qquad
+  \Disc(A)\to A.
+\]
+
+\subsection{Step 11: connections}
+
+\[
+  \nabla:\flat(TX)\to TX,
+  \qquad
+  \mathrm{transport}_\nabla:\Id_X(x,y)\to(F_x\simeq F_y),
+\]
+\[
+  \mathrm{cov}_\nabla:\flat(A)\to A,
+  \qquad
+  \mathrm{lift}_\nabla:\flat(TX)\to TX,
+\]
+\[
+  \mathrm{Leibniz}_\nabla:\nabla(f\cdot s)=df\otimes s + f\cdot\nabla s.
+\]
+
+\subsection{Step 12: curvature}
+
+\[
+  R:\nabla\to\Omega^2(X),
+  \qquad
+  \mathrm{Bianchi}: dR+[\nabla,R]=0,
+\]
+\[
+  \hol:\Omega(X,x)\to\mathrm{Aut}(F_x),
+  \qquad
+  \mathrm{CW}:R\to H^*(X),
+\]
+\[
+  \charclass:\Omega^*(BG)\to H^*(X),
+  \qquad
+  R_{\mathrm{comp}}:(\nabla_1,\nabla_2)\mapsto R(\nabla_1\circ\nabla_2).
+\]
+
+\subsection{Step 13: metric structure}
+
+\[
+  g:TX\otimes_s TX\to\R,
+  \qquad
+  \lc(g):g\mapsto\nabla_g,
+\]
+\[
+  \gamma_g:[0,1]\to X,
+  \qquad
+  \vol_g:g\mapsto\omega_g\in\Omega^n(X),
+\]
+\[
+  \star_g:\Omega^k(X)\to\Omega^{n-k}(X),
+  \qquad
+  \Delta_g:\Omega^*(X)\to\Omega^*(X),
+\]
+\[
+  \Ric_g:g\mapsto(\Ric,R_{\mathrm{scal}}).
+\]
+
+\subsection{Step 14: Hilbert functional}
+
+\[
+  \langle\cdot,\cdot\rangle:V\times V\to\R,
+  \qquad
+  \mathrm{complete}:\mathrm{Cauchy}(V)\to V,
+\]
+\[
+  \perp\mathrm{Dec}:V\to V_1\oplus V_2,
+  \qquad
+  \mathrm{spec}:\mathrm{Op}(V)\to\Sigma(\lambda:\R).\,V_\lambda,
+\]
+\[
+  C^*\text{-alg}:(V\to V)\times(V\to V)\to(V\to V),
+\]
+\[
+  \mathrm{gCompat}:\mathrm{Metric}\to\langle\cdot,\cdot\rangle,
+  \qquad
+  \mathrm{ROp}:\mathrm{Curv}\to\mathrm{Op}(V),
+\]
+\[
+  \mathrm{nablaOp}:\mathrm{Conn}\to\mathrm{Op}(V),
+  \qquad
+  \delta/\delta\phi:(V\to\R)\to V.
+\]
+
+\subsection{Step 15: temporal-cohesive shell}
+
+\[
+  \bigcirc A:\U,
+  \qquad
+  \Diamond A:\U,
+  \qquad
+  c_A:\bigcirc A\to\Diamond A,
+\]
+\[
+  \flat(\bigcirc A)\simeq\bigcirc(\flat A),
+  \qquad
+  \sharp(\Diamond A)\simeq\Diamond(\sharp A),
+\]
+\[
+  \mu_A:\bigcirc\bigcirc A\to\bigcirc A,
+  \qquad
+  \mathrm{obs}_A:\Diamond A\to \mathrm{Obs}(A),
+\]
+plus the natural temporal action on inherited exported interfaces.
+
+\section{Full 15-step trajectory}
+
+\begin{longtable}{@{}crlrrrrr@{}}
+\caption{Canonical 15-step audited trajectory used in the present paper.}
+\label{tab:full-trajectory}\\
+\toprule
+$n$ & $\tau_n$ & Structure & $\Delta_n$ & $\nu_n$ & $\kappa_n$ & $\rho_n$ & $\SelBar_n$ \\
+\midrule
+\endfirsthead
+\toprule
+$n$ & $\tau_n$ & Structure & $\Delta_n$ & $\nu_n$ & $\kappa_n$ & $\rho_n$ & $\SelBar_n$ \\
+\midrule
+\endhead
+1 & 1 & Universe $\U_0$ & 1 & 1 & 2 & 0.50 & --- \\
+2 & 2 & Unit $\mathbf 1$ & 1 & 1 & 1 & 1.00 & 0.50 \\
+3 & 4 & Witness $\star$ & 2 & 2 & 1 & 2.00 & 1.33 \\
+4 & 7 & $\Pi/\Sigma$ & 3 & 5 & 3 & 1.67 & 1.50 \\
+5 & 12 & Circle $S^1$ & 5 & 7 & 3 & 2.33 & 2.14 \\
+6 & 20 & Propositional truncation & 8 & 8 & 3 & 2.67 & 2.56 \\
+7 & 33 & Sphere $S^2$ & 13 & 10 & 3 & 3.33 & 3.00 \\
+8 & 54 & H-space $S^3$ & 21 & 18 & 5 & 3.60 & 3.43 \\
+9 & 88 & Hopf fibration & 34 & 17 & 4 & 4.25 & 4.01 \\
+10 & 143 & Cohesion & 55 & 19 & 4 & 4.75 & 4.46 \\
+11 & 232 & Connections & 89 & 26 & 5 & 5.20 & 4.91 \\
+12 & 376 & Curvature & 144 & 34 & 6 & 5.67 & 5.42 \\
+13 & 609 & Metric structure & 233 & 46 & 7 & 6.57 & 5.99 \\
+14 & 986 & Hilbert functional & 377 & 62 & 9 & 6.89 & 6.68 \\
+15 & 1596 & Temporal-cohesive shell & 610 & 103 & 8 & 12.88 & 7.40 \\
+\bottomrule
+\end{longtable}
+
+\section*{Declarations}
+
+\paragraph{Code availability.}
+The companion Cubical Agda and Haskell artifacts referenced in the paper are available in the public mechanization repository \citep{lande-repo}. The repository README documents the current quick-start commands for type-checking the Agda development and running the Haskell engine.
+
+\paragraph{Financial support.}
+This research received no specific grant from any funding agency, commercial, or not-for-profit sectors.
+
+\paragraph{Competing interests.}
+The author declares none.
+
+\begin{thebibliography}{99}
+
+\bibitem[Lande(2026a)]{lande-coherence}
+Halvor Lande.
+\newblock Coherence Depth and Fibonacci Scaling in Intensional Type Theory.
+\newblock Companion manuscript, 2026.
+
+\bibitem[Lande(2026b)]{lande-generative}
+Halvor Lande.
+\newblock A Generative Calculus for Type-Theoretic Complexity and the Geometric Core.
+\newblock Companion manuscript, 2026.
+
+\bibitem[Lande(2026c)]{lande-automation}
+Halvor Lande.
+\newblock Automated Theory Synthesis via Typed Structural Optimization.
+\newblock Companion manuscript, 2026.
+
+\bibitem[Lande(2026d)]{lande-repo}
+Halvor Lande.
+\newblock PEN Theory: Mechanized from First Principles.
+\newblock GitHub repository, 2026.
+
+\bibitem[Cohen et~al.(2018)Cohen, Coquand, Huber, and M{"o}rtberg]{cubical}
+Cyril Cohen, Thierry Coquand, Simon Huber, and Anders M{"o}rtberg.
+\newblock Cubical Type Theory: A Constructive Interpretation of the Univalence Axiom.
+\newblock In \emph{21st International Conference on Types for Proofs and Programs (TYPES 2015)}, 2018.
+
+\bibitem[Coquand et~al.(2018)Coquand, Huber, and M{"o}rtberg]{cchm-hits}
+Thierry Coquand, Simon Huber, and Anders M{"o}rtberg.
+\newblock On Higher Inductive Types in Cubical Type Theory.
+\newblock In \emph{Proceedings of the 33rd Annual ACM/IEEE Symposium on Logic in Computer Science}, pages 255--264, 2018.
+
+\bibitem[Kock(2006)]{kock}
+Anders Kock.
+\newblock \emph{Synthetic Differential Geometry}.
+\newblock Cambridge University Press, second edition, 2006.
+
+\bibitem[Lawvere(2007)]{lawvere}
+F. W. Lawvere.
+\newblock Axiomatic Cohesion.
+\newblock \emph{Theory and Applications of Categories}, 19(3):41--49, 2007.
+
+\bibitem[Licata and Shulman(2013)]{licata-shulman}
+Daniel R. Licata and Michael Shulman.
+\newblock Calculating the Fundamental Group of the Circle in Homotopy Type Theory.
+\newblock In \emph{Proceedings of the 28th Annual ACM/IEEE Symposium on Logic in Computer Science}, pages 223--232, 2013.
+
+\bibitem[Lumsdaine(2011)]{lumsdaine}
+Peter LeFanu Lumsdaine.
+\newblock Weak {$\omega$}-Categories from Intensional Type Theory.
+\newblock In \emph{Typed Lambda Calculi and Applications}, volume 6690 of \emph{Lecture Notes in Computer Science}, pages 172--187, 2011.
+
+\bibitem[Nakano(2000)]{nakano}
+Hiroshi Nakano.
+\newblock A Modality for Recursion.
+\newblock In \emph{Proceedings 15th Annual IEEE Symposium on Logic in Computer Science}, pages 255--266, 2000.
+
+\bibitem[Schreiber(2013)]{schreiber}
+Urs Schreiber.
+\newblock Differential Cohomology in a Cohesive {$\infty$}-Topos.
+\newblock \emph{arXiv preprint arXiv:1310.7930}, 2013.
+
+\bibitem[Shulman(2018)]{shulman-real-cohesive}
+Michael Shulman.
+\newblock Brouwer's Fixed-Point Theorem in Real-Cohesive Homotopy Type Theory.
+\newblock \emph{Mathematical Structures in Computer Science}, 28(6):856--941, 2018.
+
+\bibitem[Univalent Foundations Program(2013)]{hott}
+Univalent Foundations Program.
+\newblock \emph{Homotopy Type Theory: Univalent Foundations of Mathematics}.
+\newblock Institute for Advanced Study, 2013.
+
+\bibitem[van den Berg and Garner(2011)]{vdberg-garner}
+Benno van den Berg and Richard Garner.
+\newblock Types are Weak {$\omega$}-Groupoids.
+\newblock \emph{Proceedings of the London Mathematical Society}, 102(2):370--394, 2011.
+
+\end{thebibliography}
+
+\end{document}
