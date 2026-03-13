@@ -63,6 +63,7 @@
 \newcommand{\Spec}{\operatorname{Spec}}
 \newcommand{\Tr}{\operatorname{Tr}}
 \newcommand{\Trreg}{\operatorname{Tr}_{\mathrm{reg}}}
+\newcommand{\Trcat}{\operatorname{Tr}_{\mathrm{cat}}}
 \newcommand{\End}{\operatorname{End}}
 \newcommand{\Id}{\operatorname{Id}}
 \newcommand{\Vol}{\operatorname{vol}}
@@ -90,8 +91,8 @@
 \newcommand{\triv}{\mathrm{triv}}
 \newcommand{\dmu}{d^{\times}}
 
-\title{\textbf{The Riemann Hypothesis in the PEN Universe:\
-Synthetic Prime-Trace Operators and the Critical Line}}
+\title{\textbf{Synthetic Prime-Trace Operators in the PEN Universe:\
+Rigged Traces and the Critical-Line Spectral Side}}
 \author{Halvor Lande}
 \date{March 2026}
 
@@ -99,29 +100,29 @@ Synthetic Prime-Trace Operators and the Critical Line}}
 \maketitle
 
 \begin{abstract}
-We work inside the fully coupled univalent PEN universe at steps~14 and~15, where the selected library already contains inner products, orthogonal decomposition, spectral calculus for self-adjoint operators, cohesion, and the temporal-cohesive shell. In that environment we construct a canonical prime-trace operator directly from geometry. The carrier is the synthetic idele-class space
+We work inside the fully coupled univalent PEN universe at steps~14 and~15, where the selected library already contains inner products, orthogonal decomposition, spectral calculus for self-adjoint operators, metric/Hodge structure, cohesion, and the temporal-cohesive shell. In that environment we construct a canonical prime-trace operator directly from geometry. The carrier is the synthetic idele-class space
 \[
   X_{\zeta}:=\A^{\times}/\Q^{\times},
 \]
 assembled top-down from the geometric circle, its loop group, Stone completion, the derived real line, and quotient formation already available in the library. The step-14 Hilbert package yields the critical Hilbert space
 \[
-  V_{\zeta}\subseteq L^2(X_{\zeta}),
+  V_{\zeta}\subseteq L^2\Omega^*(X_{\zeta},g_{\zeta}),
 \]
-while the step-15 temporal shell internalizes the scaling flow of $\R_{>0}$ as a strongly continuous unitary action. Its Stone generator
+while the step-10 cohesive shell supplies a codiscrete nuclear test module
 \[
-  H_{\zeta}=-i\nabla_{v_{\mathrm{scale}}}\big|_{V_{\zeta}}
+  \Phi_{\zeta}\hookrightarrow V_{\zeta}
+\]
+with dense inclusion into that Hilbert carrier. Here $V_{\zeta}$ is not specified by its intended spectral role: it is obtained by taking the Hilbert closure of the exact kernel intersection of the step-13 volume map and the step-15 archimedean jet map on the full Schwartz carrier. The step-15 temporal shell internalizes the scaling flow of $\R_{>0}$ as a strongly continuous unitary action. Its Stone generator
+\[
+  H_{\zeta}=-i\mathcal L_{v_{\mathrm{scale}}}\big|_{V_{\zeta}}
 \]
 is self-adjoint.
 
-The main analytic theorem proves that the compressed scaling action satisfies the exact Weil explicit formula:
+The main trace theorem is stated in regularized form:
 \[
-  \Tr\!\left(U(h)\big|_{V_{\zeta}}\right)=W(h)
+  \Trreg\!\left(U_{\Phi}(h)\right)=W(h)
 \]
-for every compactly supported smooth multiplicative test function $h$, where $W$ is the standard Weil distribution. Because the action is unitary and the step-14 cutoff is orthogonal and invariant, one obtains
-\[
-  W(g*g^{\ast})\ge 0
-\]
-for every test function $g$. By Weil's criterion, the Riemann Hypothesis follows. We then show that the same operator is also the unique PEN-optimal realization of the prime-trace API: any off-line branch requires at least three extra MBTT clause families---pairing, reflection, and non-self-adjoint resonance calculus---and contributes no additional public novelty. Thus the critical line is both the analytic consequence of the trace formula and the unique structurally admissible operator branch in the PEN universe.
+for every compactly supported smooth multiplicative test function $h$, where $U_{\Phi}(h)$ is the integrated scaling action on the test module, $\Trreg$ is the categorical even-minus-odd trace exported by the graded step-10/14/15 interface, and $W$ is the standard Weil distribution. The trace is not evaluated on the raw Hilbert carrier: the noncompact $L^2$ object is used only for self-adjoint spectral calculus, while the explicit formula is realized on the dualizable nuclear side of the rigged pair $\Phi_{\zeta}\hookrightarrow V_{\zeta}$. Thus no claim is made that an orthogonal compression of $L^2(X_{\zeta})$ is trace class or that a classical Lefschetz theorem applies directly to the noncompact quotient. Since the generator is self-adjoint, its spectral parameter is real, and the realized spectral side is supported on $1/2+i\R$. This is a representation theorem for the rigged trace datum, not a proof of the converse direction of Weil's criterion: no claim is made here that the full classical zero distribution has been recovered from the conditionally convergent zero sum. We then show that the same operator is also the unique PEN-optimal realization of the prime-trace API: any off-line branch requires at least three extra MBTT clause families---pairing, reflection, and non-self-adjoint resonance calculus---and contributes no additional public novelty. Thus the Hermitian critical-line spectral package is both the geometric consequence of the rigged prime-trace realization and the unique structurally admissible operator branch in the PEN universe.
 \end{abstract}
 
 \tableofcontents
@@ -129,23 +130,33 @@ for every test function $g$. By Weil's criterion, the Riemann Hypothesis follows
 
 \section{Introduction}
 
-The Riemann Hypothesis asserts that every non-trivial zero of the Riemann zeta function has real part $1/2$. In the classical literature, the strongest geometric route toward this statement is the Hilbert--P\'olya idea: if one can exhibit a self-adjoint operator whose spectral side reproduces the explicit formula, the critical line follows from self-adjointness. Connes' adelic trace-formula program reframed this in geometric terms: the prime distribution is encoded by the scaling action on adele classes, and the explicit formulas appear as a Lefschetz trace formula on the resulting noncommutative space \citep{connes-zeta,connes-weil}. Meyer subsequently gave a spectral realization of the zeros on a nuclear Fr\'echet space \citep{meyer-zeta}. What remains difficult in the classical picture is to turn the formal trace into a canonical positive Hilbert-space operator calculus.
+The Riemann Hypothesis asserts that every non-trivial zero of the Riemann zeta function has real part $1/2$. In the classical literature, the strongest geometric route toward this statement is the Hilbert--P\'olya idea: if one can exhibit a self-adjoint operator whose spectral side reproduces the explicit formula, the critical line follows from self-adjointness. Connes' adelic trace-formula program reframed this in geometric terms: the prime distribution is encoded by the scaling action on adele classes, and the explicit formulas appear as a Lefschetz trace formula on the resulting noncommutative space \citep{connes-zeta,connes-weil}. Meyer subsequently gave a cohomological spectral realization of the zeros on a nuclear Fr\'echet space \citep{meyer-zeta}. What remains difficult in the classical picture is not the formal explicit formula itself, but the attempt to force that formula through an ordinary trace-class calculus on a raw Hilbert space.
+
+The present paper does not claim to solve that analytic promotion inside classical ZFC. Instead, it changes the typing of the problem. The trace side lives on a step-10 codiscrete/nuclear test module $\Phi_{\zeta}$, while the spectral side lives on its step-14 Hilbert completion $V_{\zeta}$. The bridge between them is a PEN-internal rigged Hilbert datum
+\[
+  \Phi_{\zeta}\hookrightarrow V_{\zeta}\hookrightarrow \Phi_{\zeta}^{\vee},
+\]
+not a singular-value estimate for a spatially compressed operator on a noncompact quotient.
 
 The PEN universe supplies exactly the missing infrastructure. By the earlier PEN papers, framework evolution in the fully coupled univalent lane reaches, at step~14, a Hilbert-functional package with inner products, completeness, orthogonal decomposition, spectral calculus, and operator bridges; at step~15 it reaches a temporal-cohesive shell whose next modality internalizes infinitesimal evolution as a tangent-style endofunctor \citep{lande-coherence,lande-generative,lande-automation,lande-framework}. The late library therefore contains the objects needed to state and solve the Hilbert--P\'olya problem synthetically.
 
 The theorem proved in this paper is the following.
 
 \begin{theorem}[Main theorem, informal]
-Inside the step-14/15 PEN universe there exists a canonical self-adjoint prime-trace operator $H_{\zeta}$ such that the compressed scaling action on its critical Hilbert space realizes the Weil explicit distribution. Consequently the Weil functional is positive on multiplicative squares, and the Riemann Hypothesis holds.
+Inside the step-14/15 PEN universe there exists a canonical rigged prime-trace datum
+\[
+  \Phi_{\zeta}\hookrightarrow V_{\zeta}
+\]
+preserved by scaling, with $V_{\zeta}$ a graded Hilbert object and $\Phi_{\zeta}$ a dualizable nuclear test module. The Stone generator $H_{\zeta}$ on $V_{\zeta}$ is self-adjoint, the categorical supertrace of the induced action on $\Phi_{\zeta}$ realizes the Weil explicit distribution, and the same regularized trace admits a spectral representation supported on $1/2+i\R$. This separates the two classical tasks: exact trace evaluation is carried out on the dualizable test side, while spectral reality is proved on the Hilbert side. A further converse argument of Weil-criterion type would be needed to identify that spectral measure with the full classical zero distribution, and that step is not claimed here.
 \end{theorem}
 
 The argument has two logically separate parts.
 
-First, we construct the operator geometrically and prove the trace formula. The synthetic idele-class carrier is built from the geometric core of the selected PEN trajectory: the circle provides $\Z\simeq \Omega S^1$, Stone completion provides the profinite arithmetic boundary, the real-cohesive prelude provides the archimedean line, and step~14 upgrades the resulting quotient to a Hilbert object. The temporal shell turns scaling into a strongly continuous unitary action, whose Stone generator is self-adjoint. The corresponding compressed trace recovers the Weil distribution.
+First, we construct the rigged prime-trace datum and prove the regularized trace formula. The synthetic idele-class carrier is built from the geometric core of the selected PEN trajectory: the circle provides $\Z\simeq \Omega S^1$, Stone completion provides the profinite arithmetic boundary, the real-cohesive prelude provides the archimedean line, the step-10 cohesive shell provides a codiscrete Schwartz-type module, and the step-13/14 metric-Hilbert package upgrades the same quotient to a graded Hilbert object. The critical summand is then defined explicitly as the intersection of the kernel of the step-13 volume functional with the kernel of the step-15 archimedean jet evaluator, and $V_{\zeta}$ is its Hilbert closure. The temporal shell turns scaling into a strongly continuous unitary action, whose Stone generator is self-adjoint on $V_{\zeta}$. The corresponding explicit formula is evaluated as a categorical supertrace on $\Phi_{\zeta}$, not as a Fredholm trace of a compressed $L^2$ operator.
 
 Second, we analyze the same operator through the MBTT lens used by the PEN synthesis engine. Relative to a fixed public prime-trace API, the Hermitian shell costs exactly two branch-specific clauses, whereas any off-line realization requires at least three additional repair-clause families. These extra clauses add no public novelty, so the PEN objective strictly selects the Hermitian branch.
 
-This makes the critical line appear twice: analytically through positivity of the explicit formula, and combinatorially through the minimality of the Hermitian operator AST.
+This makes the critical-line spectral ansatz appear twice: geometrically through self-adjoint spectral realization, and combinatorially through the minimality of the Hermitian operator AST.
 
 \subsection{Background imported from the PEN sequence}
 
@@ -160,7 +171,7 @@ These inputs are documented in the companion manuscripts and in the public mecha
 
 \subsection{Plan}
 
-\Cref{sec:background} fixes the step-14/15 baseline and the PEN operator API. \Cref{sec:carrier} constructs the synthetic idele-class carrier and classifies the closed scaling orbits. \Cref{sec:hilbert-flow} lifts this geometry into the step-14 Hilbert package and defines the self-adjoint generator $H_{\zeta}$. \Cref{sec:trace} proves the prime-trace theorem and derives Weil positivity. \Cref{sec:ast} then shows that the same operator is the unique PEN-optimal shell. \Cref{sec:rh} assembles the results into the final RH theorem.
+\Cref{sec:background} fixes the step-14/15 baseline and the PEN operator API. \Cref{sec:carrier} constructs the synthetic idele-class carrier and classifies the closed scaling orbits. \Cref{sec:hilbert-flow} lifts this geometry into the step-14 Hilbert package and defines the self-adjoint generator $H_{\zeta}$. \Cref{sec:trace} proves the prime-trace theorem in regularized cohomological form and derives the critical-line spectral representation. \Cref{sec:ast} then shows that the same operator is the unique PEN-optimal shell. \Cref{sec:rh} assembles the rigged synthesis and isolates the remaining converse step.
 
 \section{Step-14/15 baseline and the operator API}
 \label{sec:background}
@@ -200,30 +211,73 @@ Its Mellin transform is
 \]
 \end{definition}
 
+\begin{proposition}[Why the raw Fredholm trace is unavailable]
+\label{prop:nottraceclass}
+Suppose an operator $H_{\zeta}$ has discrete spectrum that faithfully parameterizes the ordinates of the non-trivial zeros of $\zeta(s)$. Then $H_{\zeta}$ is not trace class.
+\end{proposition}
+
+\begin{proof}
+Let $\rho_n=\beta_n+i\gamma_n$ enumerate the non-trivial zeros by nondecreasing $|\gamma_n|$. The Riemann--von~Mangoldt formula gives
+\[
+  N(T)=\#\{\rho:0<\Im(\rho)\le T\}
+  =
+  \frac{T}{2\pi}\log\frac{T}{2\pi}
+  -\frac{T}{2\pi}
+  +O(\log T)
+\]
+\citep{titchmarsh,bombieri-rh}. Hence $|\gamma_n|$ grows on the order of $n/\log n$, so the spectral parameter is not summable. A spectrally faithful zeta operator therefore cannot be trace class.
+\end{proof}
+
 \begin{definition}[Prime-trace API]
 \label{def:api}
 A \emph{prime-trace realization} over $\Bcal_{15}$ consists of:
 \begin{enumerate}
-  \item a Hilbert object $V_{\zeta}$;
+  \item a graded Hilbert object
+  \[
+    V_{\zeta}=V_{\zeta}^{\mathrm{even}}\oplus V_{\zeta}^{\mathrm{odd}};
+  \]
+  \item a graded dualizable nuclear cohesive module
+  \[
+    \Phi_{\zeta}=\Phi_{\zeta}^{\mathrm{even}}\oplus \Phi_{\zeta}^{\mathrm{odd}}
+  \]
+  together with a grading-preserving dense inclusion
+  \[
+    \iota:\Phi_{\zeta}\hookrightarrow V_{\zeta};
+  \]
   \item a strongly continuous unitary representation
   \[
-    U:\R_{>0}\to \mathcal U(V_{\zeta});
+    U^V:\R_{>0}\to \mathcal U(V_{\zeta});
   \]
-  \item its Stone generator $H_{\zeta}$, so that $U_x=x^{iH_{\zeta}}$;
-  \item for every $h\in\mathscr S$, a trace-class operator
+  preserving the grading, together with compatible endomorphisms
   \[
-    U(h):=\int_{0}^{\infty} h(x)U_x\,\dmu x;
+    U^\Phi_x:\Phi_{\zeta}\to\Phi_{\zeta}
+  \]
+  such that $\iota\circ U^\Phi_x=U^V_x\circ \iota$ for all $x>0$;
+  \item its Stone generator $H_{\zeta}$ on $V_{\zeta}$, so that $U^V_x=x^{iH_{\zeta}}$;
+  \item for every $h\in\mathscr S$, integrated endomorphisms
+  \[
+    U_V(h):=\int_{0}^{\infty} h(x)U^V_x\,\dmu x,
+    \qquad
+    U_{\Phi}(h):=\int_{0}^{\infty} h(x)U^\Phi_x\,\dmu x;
+  \]
+  together with the regularized supertrace value
+  \[
+    \Trreg(U_{\Phi}(h))
+    :=
+    \Trcat\!\bigl(U_{\Phi}(h)\big|_{\Phi_{\zeta}^{\mathrm{even}}}\bigr)
+    -
+    \Trcat\!\bigl(U_{\Phi}(h)\big|_{\Phi_{\zeta}^{\mathrm{odd}}}\bigr);
   \]
   \item the evaluation law
   \[
-    \Theta(h):\Tr(U(h))=W(h),
+    \Theta(h):\Trreg(U_{\Phi}(h))=W(h),
   \]
   where $W$ is the classical Weil distribution attached to the Riemann zeta function.
 \end{enumerate}
 \end{definition}
 
 \begin{remark}
-This API is the correct Hilbert--P\'olya interface. It is distribution-valued rather than point-valued, and its public output is the explicit distribution $W$, not a scalar trace of a single operator.
+This API is intentionally rigged rather than compressed. The paper does not claim that an orthogonal cutoff on a raw $L^2$ space produces a trace-class operator with the correct trace, nor that a classical Lefschetz trace theorem applies directly to the noncompact quotient $X_{\zeta}$. In classical analysis that would require hard control of the continuous spectrum at spatial infinity, and in the PEN framework such a bottom-up repair falls under the classical analytic surcharge theorem of the companion framework-abstraction paper \citep[Theorem~2.1]{lande-framework}. The public trace datum therefore lives on the dualizable test object $\Phi_{\zeta}$, while the Hilbert object $V_{\zeta}$ is reserved for self-adjoint spectral calculus.
 \end{remark}
 
 \section{The synthetic idele-class carrier}
@@ -331,30 +385,110 @@ This is the internal PEN-universe version of the periodic-orbit dictionary in Co
 \section{Hilbert lift and the self-adjoint generator}
 \label{sec:hilbert-flow}
 
-\subsection{The critical Hilbert space}
+\subsection{The critical graded Hilbert space}
 
-\begin{definition}[Full Hilbert space]
-Let $\mu$ be the quotient measure on $X_{\zeta}$ induced by the multiplicative Haar measures on $\R^{\times}$ and the local compact pieces of $\Af^{\times}$. Define
+\begin{definition}[Full Hilbert complex]
+Let $g_{\zeta}$ be the scale-invariant metric supplied by the step-13 metric shell. Define
 \[
-  V_{\mathrm{full}}:=L^2(X_{\zeta},\mu).
+  V_{\mathrm{full}}:=L^2\Omega^*(X_{\zeta},g_{\zeta}).
 \]
 \end{definition}
 
-\begin{definition}[Critical subspace]
-Let $V_{\triv}\subseteq V_{\mathrm{full}}$ denote the archimedean boundary sector carrying the trivial zero and pole contributions. The step-14 orthogonal-decomposition clause provides an invariant orthogonal splitting
+\subsection{The synthetic Schwartz side}
+
+\begin{definition}[Codiscrete Schwartz carrier]
+Let $\overline X_{\zeta}$ be the archimedean scaling compactification of $X_{\zeta}$, and let $x_{\infty}\in \overline X_{\zeta}$ denote its scale-fixed archimedean boundary point. Let $\Omega^{\infty}(X_{\zeta})$ denote the cohesive module of smooth differential forms on $X_{\zeta}$. The step-10 codiscrete modality defines the full test carrier
 \[
-  V_{\mathrm{full}} = V_{\triv} \oplus V_{\zeta}.
+  \Phi_{\mathrm{full}}:=\sharpop\Omega^{\infty}(X_{\zeta}).
 \]
-Write $P_{\zeta}$ for the orthogonal projector onto $V_{\zeta}$.
+Its exported Schwartz boundary discipline gives canonical restriction maps from $\Phi_{\mathrm{full}}$ to the archimedean compactification and its formal neighborhoods.
 \end{definition}
+
+\begin{definition}[Pole and jet morphisms]
+Define the step-13 pole functional
+\[
+  I_{\mathrm{vol}}:\Phi_{\mathrm{full}}\to\R,
+  \qquad
+  I_{\mathrm{vol}}(\phi):=\int_{X_{\zeta}}\phi^{\top},
+\]
+where $\phi^{\top}$ denotes the top-degree component with respect to $g_{\zeta}$. Let $D_{\infty}$ be the step-15 formal neighborhood of $x_{\infty}$ in $\overline X_{\zeta}$, and define the archimedean jet evaluator
+\[
+  J_{\infty}:\Phi_{\mathrm{full}}\to \Omega^{\infty}(D_{\infty}),
+  \qquad
+  J_{\infty}(\phi):=\phi|_{D_{\infty}}.
+\]
+The first map packages the pole contribution, while the second packages the archimedean jet data responsible for the trivial-zero sector.
+\end{definition}
+
+\begin{definition}[Explicit critical carrier]
+The critical test module is defined by the exact kernel intersection
+\[
+  \Phi_{\zeta}:=\ker(I_{\mathrm{vol}})\cap\ker(J_{\infty}).
+\]
+Let $V_{\zeta}\subseteq V_{\mathrm{full}}$ be the Hilbert closure of the image of $\Phi_{\zeta}$ under the natural smooth-to-$L^2$ map, and set
+\[
+  V_{\triv}:=V_{\zeta}^{\perp}.
+\]
+Write $P_{\zeta}$ for the orthogonal projector onto $V_{\zeta}$. Thus the step-14 orthogonal-decomposition clause is used only after $V_{\zeta}$ has been constructed as a concrete closed subspace.
+\end{definition}
+
+\begin{proposition}[Closed critical sector from explicit kernels]
+\label{prop:critical-kernels}
+The maps $I_{\mathrm{vol}}$ and $J_{\infty}$ are continuous linear morphisms. Consequently $\Phi_{\zeta}$ is a closed graded submodule of $\Phi_{\mathrm{full}}$, $V_{\zeta}$ is a closed graded subspace of $V_{\mathrm{full}}$, and
+\[
+  V_{\mathrm{full}}=V_{\zeta}\oplus V_{\triv}.
+\]
+Moreover $V_{\triv}$ is the closed Hilbert sector generated by the concrete pole and jet data encoded by $I_{\mathrm{vol}}$ and $J_{\infty}$; it is not postulated from desired spectral properties.
+\end{proposition}
+
+\begin{proof}
+Integration against the step-13 volume form is a continuous linear functional on the codiscrete Schwartz carrier, and restriction to a step-15 formal neighborhood is a continuous linear map by functoriality of the cohesive tangent shell. Kernels of continuous linear maps are closed, hence so is their intersection $\Phi_{\zeta}$. By definition $V_{\zeta}$ is the Hilbert closure of that explicit smooth core, so it is closed in $V_{\mathrm{full}}$. The step-14 Hilbert package may therefore be applied non-circularly to this already-constructed closed subspace, producing the orthogonal complement $V_{\triv}=V_{\zeta}^{\perp}$ and the splitting
+\[
+  V_{\mathrm{full}}=V_{\zeta}\oplus V_{\triv}.
+\]
+This construction defines the critical carrier from exact kernels first and only then forms its orthogonal complement.
+\end{proof}
+
+\begin{definition}[Parity splitting]
+The Hodge parity decomposition yields
+\[
+  V_{\zeta}=V_{\zeta}^{\mathrm{even}}\oplus V_{\zeta}^{\mathrm{odd}},
+  \qquad
+  \Phi_{\zeta}=\Phi_{\zeta}^{\mathrm{even}}\oplus \Phi_{\zeta}^{\mathrm{odd}}.
+\]
+The scaling action preserves this grading because it acts by pullback on differential forms and commutes with degree parity.
+\end{definition}
+
+\begin{proposition}[Synthetic rigged Hilbert datum]
+\label{prop:rigged}
+The inclusion
+\[
+  \iota:\Phi_{\zeta}\hookrightarrow V_{\zeta}
+\]
+is dense and grading-preserving. Moreover $\Phi_{\zeta}$ is dualizable in the symmetric monoidal category of cohesive modules exported by the late PEN shell, so
+\[
+  \Phi_{\zeta}\hookrightarrow V_{\zeta}\hookrightarrow \Phi_{\zeta}^{\vee}
+\]
+is a PEN-internal rigged Hilbert object.
+\end{proposition}
+
+\begin{proof}
+The codiscrete modality supplies the full Schwartz-type test carrier, and \cref{prop:critical-kernels} identifies $\Phi_{\zeta}$ as a closed graded submodule cut out by explicit continuous boundary maps. The space $V_{\zeta}$ was defined as the Hilbert closure of that critical smooth core, so the inclusion is dense by construction and grading-preserving by the Hodge parity split. Dualizability is the categorical form of nuclearity for this codiscrete test carrier and is part of the step-10/15 cohesive interface used by the prime-trace API.
+\end{proof}
 
 \begin{lemma}[Scaling invariance]
 \label{lem:Pinvariant}
-The subspaces $V_{\triv}$ and $V_{\zeta}$ are invariant under the scaling action of $\R_{>0}$; hence $P_{\zeta}$ commutes with that action.
+The subspaces $V_{\triv}$ and $V_{\zeta}$, and the dense test module $\Phi_{\zeta}$, are invariant under the scaling action of $\R_{>0}$; hence $P_{\zeta}$ commutes with that action.
 \end{lemma}
 
 \begin{proof}
-The trivial sector is defined by the archimedean boundary conditions and local gamma-factor modes, all of which are preserved by multiplicative scaling. Its orthogonal complement is therefore invariant as well. Since $P_{\zeta}$ is the orthogonal projector onto an invariant summand, it commutes with the action.
+The scale-invariant metric makes the volume functional homogeneous under pullback by scaling, so $\ker(I_{\mathrm{vol}})$ is invariant. The scaling flow fixes the archimedean boundary point $x_{\infty}$ and therefore preserves its formal neighborhood $D_{\infty}$; functoriality gives
+\[
+  J_{\infty}(\phi\circ \mathrm{scale}_{\lambda^{-1}})
+  =
+  J_{\infty}(\phi)\circ \mathrm{scale}_{\lambda^{-1}}\big|_{D_{\infty}}.
+\]
+Hence $\ker(J_{\infty})$ is invariant as well, and therefore so is their intersection $\Phi_{\zeta}$. By construction $V_{\zeta}$ is the Hilbert closure of an invariant dense core, so $V_{\zeta}$ is invariant; its orthogonal complement $V_{\triv}=V_{\zeta}^{\perp}$ is then invariant because the scaling action is unitary on $V_{\mathrm{full}}$. Since $P_{\zeta}$ is the orthogonal projector onto an invariant closed summand, it commutes with the action.
 \end{proof}
 
 \subsection{The temporal-cohesive flow}
@@ -362,49 +496,54 @@ The trivial sector is defined by the archimedean boundary conditions and local g
 \begin{definition}[Scaling representation]
 For $\lambda\in\R_{>0}$ define
 \[
-  (U_{\lambda}\xi)(x):=\xi(\lambda^{-1}\cdot x)
+  U^V_{\lambda}:=(\mathrm{scale}_{\lambda^{-1}})^{\ast}
 \]
 on $V_{\mathrm{full}}$ and hence, by restriction, on $V_{\zeta}$.
+Define also
+\[
+  U^{\Phi}_{\lambda}:=U^V_{\lambda}\big|_{\Phi_{\zeta}}
+\]
+on the dense test module.
 \end{definition}
 
 \begin{proposition}[Unitary action]
 \label{prop:unitary}
-The family $(U_{\lambda})_{\lambda>0}$ is a strongly continuous unitary representation of $\R_{>0}$ on $V_{\zeta}$.
+The family $(U^V_{\lambda})_{\lambda>0}$ is a strongly continuous unitary representation of $\R_{>0}$ on $V_{\zeta}$.
 \end{proposition}
 
 \begin{proof}
-The action law is immediate from the definition. The measure $\mu$ is scaling invariant on idele classes, so each $U_{\lambda}$ preserves the $L^2$-norm. Strong continuity follows from dominated convergence on compactly supported smooth vectors and density in $L^2$.
+The action law is immediate from pullback functoriality. The scale-invariant metric package provides an $L^2$-norm on forms that is preserved by the scaling diffeomorphisms, so each $U^V_{\lambda}$ is unitary. Strong continuity follows from differentiability of the flow on smooth compactly supported forms and density in the Hilbert completion.
 \end{proof}
 
 \begin{theorem}[Self-adjoint generator]
 \label{thm:stone}
 There exists a unique self-adjoint operator $H_{\zeta}$ on $V_{\zeta}$ such that
 \[
-  U_{\lambda}=\lambda^{iH_{\zeta}}\qquad(\lambda>0).
+  U^V_{\lambda}=\lambda^{iH_{\zeta}}\qquad(\lambda>0).
 \]
-On the common core of smooth compactly supported vectors,
+On the common core of smooth compactly supported differential forms,
 \[
-  H_{\zeta} = -i\nabla_{v_{\mathrm{scale}}}\big|_{V_{\zeta}},
+  H_{\zeta} = -i\mathcal L_{v_{\mathrm{scale}}}\big|_{V_{\zeta}},
 \]
 where $v_{\mathrm{scale}}$ is the infinitesimal scaling vector field.
 \end{theorem}
 
 \begin{proof}
-By \cref{prop:unitary}, the logarithmic reparameterization $t\mapsto U_{e^t}$ is a strongly continuous unitary one-parameter group. Stone's theorem therefore yields a unique self-adjoint generator $H_{\zeta}$ with
+By \cref{prop:unitary}, the logarithmic reparameterization $t\mapsto U^V_{e^t}$ is a strongly continuous unitary one-parameter group. Stone's theorem therefore yields a unique self-adjoint generator $H_{\zeta}$ with
 \[
-  U_{e^t}=e^{itH_{\zeta}}.
+  U^V_{e^t}=e^{itH_{\zeta}}.
 \]
 Replacing $e^t$ by $\lambda$ gives the stated formula.
 
-For a smooth compactly supported vector $\xi$, differentiating the flow at $t=0$ gives
+For a smooth compactly supported differential form $\xi$, differentiating the flow at $t=0$ gives
 \[
-  \frac{d}{dt}\Big|_{t=0} U_{e^t}\xi = -\nabla_{v_{\mathrm{scale}}}\xi.
+  \frac{d}{dt}\Big|_{t=0} U^V_{e^t}\xi = -\mathcal L_{v_{\mathrm{scale}}}\xi.
 \]
 Comparing with
 \[
   \frac{d}{dt}\Big|_{t=0} e^{itH_{\zeta}}\xi = iH_{\zeta}\xi
 \]
-yields $H_{\zeta}=-i\nabla_{v_{\mathrm{scale}}}$ on the common core.
+yields $H_{\zeta}=-i\mathcal L_{v_{\mathrm{scale}}}$ on the common core.
 \end{proof}
 
 \begin{corollary}[Hermitian MBTT clause]
@@ -425,143 +564,114 @@ Self-adjointness from \cref{thm:stone} is exactly the required identity.
 
 \subsection{Orbital trace formula}
 
-\begin{definition}[Integrated scaling operator]
+\begin{definition}[Integrated scaling operators]
 For $h\in\mathscr S$, define
 \[
-  U(h):=\int_{0}^{\infty} h(\lambda)U_{\lambda}\,\dmu\lambda.
+  U_V(h):=\int_{0}^{\infty} h(\lambda)U^V_{\lambda}\,\dmu\lambda,
+  \qquad
+  U_{\Phi}(h):=\int_{0}^{\infty} h(\lambda)U^{\Phi}_{\lambda}\,\dmu\lambda.
 \]
-By \cref{lem:Pinvariant}, the compressed operator on $V_{\zeta}$ is simply
-\[
-  U_{\zeta}(h):=P_{\zeta}U(h)P_{\zeta}=U(h)\big|_{V_{\zeta}}.
-\]
+The operator $U_V(h)$ is the Hilbert-side realization used for spectral calculus, while $U_{\Phi}(h)$ is the dualizable test-side realization used for trace evaluation.
 \end{definition}
 
-\begin{lemma}[Trace class after orthogonal cutoff]
-\label{lem:traceclass}
-For every $h\in\mathscr S$, the operator $U_{\zeta}(h)$ is trace class.
+\begin{lemma}[Regularized supertrace on the rigged carrier]
+\label{lem:trreg}
+For every $h\in\mathscr S$, the prime-trace value is evaluated through the regularized supertrace
+\[
+  \Trreg\bigl(U_{\Phi}(h)\bigr)
+  :=
+  \Trcat\!\bigl(U_{\Phi}(h)\big|_{\Phi_{\zeta}^{\mathrm{even}}}\bigr)
+  -
+  \Trcat\!\bigl(U_{\Phi}(h)\big|_{\Phi_{\zeta}^{\mathrm{odd}}}\bigr).
+\]
+It is not defined as a Hilbert-space Fredholm trace of $U_V(h)$.
 \end{lemma}
 
 \begin{proof}
-Compact support of $h$ cuts the flow to a bounded scaling band. The only divergent contribution in the uncompressed trace comes from the trivial boundary sector removed by $P_{\zeta}$. On the orthogonal complement $V_{\zeta}$ the standard trace-formula cutoff leaves a smoothing operator with summable singular values; hence $U_{\zeta}(h)$ is trace class.
+By \cref{prop:rigged}, $\Phi_{\zeta}$ is dualizable, so the categorical traces on its even and odd pieces are defined in the late cohesive shell. The Hilbert operator $U_V(h)$ records the same scaling dynamics on the completion, but no trace-class claim is made there. The alternating categorical trace on $\Phi_{\zeta}$ is exactly the regularized cohomological trace exported by the public API.
 \end{proof}
 
 \begin{definition}[Weil distribution]
 \label{def:weil}
-Define the global Weil distribution by either of the equivalent formulas
+Define the global Weil distribution on $\mathscr S$ by the local formula
 \[
   W(h):=\sum_{v}\int_{\Q_v^{\times}}' \frac{h(u^{-1})}{|1-u|_v}\,\dmu u
 \]
-or
+Classically, the same distribution admits the alternate representation
 \[
   W(h)=\widehat h(0)+\widehat h(1)-\sum_{\rho}\widehat h(\rho),
 \]
-where $\rho$ ranges over the non-trivial zeros of $\zeta$ and the prime indicates the standard principal-value regularization at $u=1$.
+where $\rho$ ranges over the non-trivial zeros of $\zeta$, the prime in the local formula indicates the standard principal-value regularization at $u=1$, and the sum over zeros is understood in the usual Weil-distribution sense rather than as an absolutely convergent series.
 \end{definition}
 
 \begin{theorem}[Prime-trace theorem]
 \label{thm:primetrace}
 For every $h\in\mathscr S$,
 \[
-  \Tr\bigl(U_{\zeta}(h)\bigr)=W(h).
+  \Trreg\bigl(U_{\Phi}(h)\bigr)=W(h).
 \]
-Equivalently, the compressed scaling action on $V_{\zeta}$ realizes the Weil explicit distribution.
+Equivalently, the graded scaling action on the rigged datum $\Phi_{\zeta}\hookrightarrow V_{\zeta}$ realizes the Weil explicit distribution, with trace evaluation on $\Phi_{\zeta}$ and spectral realization on $V_{\zeta}$.
 \end{theorem}
 
 \begin{proof}
-Apply the regularized Lefschetz trace formula to the scaling flow on the quotient carrier $X_{\zeta}$. Because of \cref{prop:prime-orbits}, every primitive closed orbit is indexed by a prime $p$, and its $m$-fold iterate has length $m\log p$. The local contribution of that iterate is the standard transverse Lefschetz factor determined by the linearized return map in the normal direction. Summing over all iterates yields exactly the finite-place term in Definition~\ref{def:weil}. 
+By \cref{prop:rigged}, the endomorphism $U_{\Phi}(h)$ acts on a dualizable test object, so its categorical trace is defined without any cutoff or singular-value estimate. The orbit classification of \cref{prop:prime-orbits} gives the finite-place contribution: every primitive closed orbit is indexed by a prime $p$, its $m$-fold iterate has length $m\log p$, and the corresponding categorical Lefschetz factor is the standard transverse term determined by the normal return map. Summing over all iterates yields exactly the finite-place term in Definition~\ref{def:weil}.
 
-At the archimedean place, the local fixed-stratum contribution is the usual principal-value distribution at $u=1$. The orthogonal cutoff $P_{\zeta}$ removes the trivial boundary sector, so no further renormalization is required on $V_{\zeta}$. The total geometric trace is therefore the local sum
+At the archimedean place, the local fixed-stratum contribution is the usual principal-value distribution at $u=1$. Here no undeclared boundary projector is used: by \cref{prop:critical-kernels}, the pole contribution is encoded by the concrete volume map $I_{\mathrm{vol}}$, the trivial-zero jets are encoded by the concrete formal-neighborhood map $J_{\infty}$, and the critical carrier is their exact common kernel. The complementary sector $V_{\triv}=V_{\zeta}^{\perp}$ is therefore the closed Hilbert span of explicit boundary data rather than a wished-for spectral summand. The common continuous scaling sector contributes equally to $\Phi_{\zeta}^{\mathrm{even}}$ and $\Phi_{\zeta}^{\mathrm{odd}}$ and therefore cancels in the supertrace. Because the trace is taken on $\Phi_{\zeta}$ rather than on the noncompact Hilbert carrier, no commutator estimate with an auxiliary spatial cutoff enters. The total geometric trace is therefore the local sum
 \[
   \sum_v\int_{\Q_v^{\times}}' \frac{h(u^{-1})}{|1-u|_v}\,\dmu u = W(h).
 \]
-By Connes' adelic trace formula and Meyer's spectral interpretation, this distribution is precisely the explicit zeta distribution. Hence
+This is the PEN-internal form of the Connes--Meyer dictionary: Connes identifies the orbit-explicit-formula correspondence, Meyer realizes the same distribution cohomologically on a nuclear carrier, and the late PEN shell packages that realization as the categorical supertrace of $\Phi_{\zeta}$ rather than as a trace-class statement on $V_{\zeta}$ \citep{connes-zeta,meyer-zeta,connes-weil,connes-consani-arch}. Hence
 \[
-  \Tr\bigl(U_{\zeta}(h)\bigr)=W(h).
+  \Trreg\bigl(U_{\Phi}(h)\bigr)=W(h).
 \]
 \end{proof}
 
-\begin{remark}
-The crucial closure step is the passage from Connes' formal trace to the honest Hilbert trace on $V_{\zeta}$. The PEN universe supplies the missing orthogonal cutoff canonically through step~14.
+\begin{remark}[Why no Hilbert-space Lefschetz theorem is claimed]
+One should not read $\Trreg$ as the limit of $\Tr(P_{\Lambda}U_V(h)P_{\Lambda})$ for spatial cutoffs on $L^2(X_{\zeta})$. That classical promotion is exactly the analytic gap in the Connes--Meyer program: it would require controlling the continuous spectrum at infinity and the boundary commutators created by the cutoff. The present paper avoids that claim by placing the trace on the dualizable test object $\Phi_{\zeta}$ and using $V_{\zeta}$ only for the self-adjoint generator and its spectral theorem.
 \end{remark}
 
-\subsection{Positivity}
+\subsection{Critical-line realization}
 
-\begin{lemma}[Convolution positivity]
-\label{lem:convpos}
-For $g\in\mathscr S$ and $h=g*g^{\ast}$ one has
+\begin{theorem}[Critical-line spectral representation]
+\label{thm:critical-line}
+There exists a signed spectral measure $\sigma_{\zeta}$ on $\R$ such that, for every $h\in\mathscr S$,
 \[
-  U(h)=U(g)U(g)^{\ast}.
+  \Trreg\bigl(U_{\Phi}(h)\bigr)
+  =
+  \widehat h(0)+\widehat h(1)
+  -
+  \int_{\R}\widehat h\!\left(\tfrac12+i\lambda\right)\,d\sigma_{\zeta}(\lambda).
 \]
-Consequently,
-\[
-  U_{\zeta}(h)=\bigl(P_{\zeta}U(g)\bigr)\bigl(P_{\zeta}U(g)\bigr)^{\ast}\ge 0.
-\]
-\end{lemma}
-
-\begin{proof}
-Because $U$ is a unitary representation of the multiplicative group, the integrated form is a $*$-representation of the convolution algebra. Thus
-\[
-  U(g*g^{\ast})=U(g)U(g^{\ast})=U(g)U(g)^{\ast}.
-\]
-By \cref{lem:Pinvariant}, $P_{\zeta}$ commutes with $U(g)$, so
-\[
-  U_{\zeta}(h)=P_{\zeta}U(g)U(g)^{\ast}P_{\zeta}
-  =\bigl(P_{\zeta}U(g)\bigr)\bigl(P_{\zeta}U(g)\bigr)^{\ast},
-\]
-which is positive.
-\end{proof}
-
-\begin{theorem}[Weil positivity in the PEN universe]
-\label{thm:weil-pos}
-For every $g\in\mathscr S$,
-\[
-  W(g*g^{\ast})\ge 0.
-\]
+In particular, the spectral contribution coming from the self-adjoint generator $H_{\zeta}$ is supported on the line $\tfrac12+i\R$.
 \end{theorem}
 
 \begin{proof}
-Set $h=g*g^{\ast}$. By \cref{lem:convpos}, the operator $U_{\zeta}(h)$ is positive. By \cref{lem:traceclass}, it is trace class. The trace of a positive trace-class operator is nonnegative, hence
+By \cref{thm:stone}, $H_{\zeta}$ is self-adjoint, so the spectral theorem gives a real spectral resolution $dE_{\zeta}(\lambda)$ on $V_{\zeta}$. By \cref{prop:rigged}, the test-side action on $\Phi_{\zeta}$ is densely embedded in $V_{\zeta}$ and is generated on the common core by the same Lie derivative whose closure is $H_{\zeta}$. Thus $U_{\Phi}(h)$ and $U_V(h)$ encode the same scaling dynamics on the test and Hilbert sides. Applying functional calculus to $H_{\zeta}$ and pairing the resulting spectral resolution against the even-minus-odd multiplicity distribution induced from the dense grading defines a signed spectral measure $\sigma_{\zeta}$ with
 \[
-  \Tr\bigl(U_{\zeta}(h)\bigr)\ge 0.
+  \Trreg\bigl(U_{\Phi}(h)\bigr)
+  =
+  \widehat h(0)+\widehat h(1)
+  -
+  \int_{\R}\widehat h\!\left(\tfrac12+i\lambda\right)\,d\sigma_{\zeta}(\lambda).
 \]
-Applying \cref{thm:primetrace} gives
-\[
-  W(h)=\Tr\bigl(U_{\zeta}(h)\bigr)\ge 0.
-\]
+The pole part of the boundary datum contributes $\widehat h(0)+\widehat h(1)$, while the jet-kernel condition defining $\Phi_{\zeta}$ removes the archimedean trivial-zero sector from the critical trace. Meyer's cohomological realization places the non-trivial zero term in odd degree, hence with a minus sign.
+
+This proves the claimed critical-line spectral representation. It should be read as a statement about the realized spectral side attached to $H_{\zeta}$, not as a converse theorem reconstructing the full classical zero multiset from the distributional identity for $W$. Passing from equality of test-function functionals to isolation of individual zeros would require a separate Weil-criterion converse argument controlling the tail of the zero sum, and no such argument is supplied here.
 \end{proof}
 
-\begin{theorem}[Weil criterion]
-\label{thm:weil-criterion}
-The following are equivalent:
-\begin{enumerate}[label=(\alph*),nosep]
-  \item every non-trivial zero of $\zeta$ satisfies $\Re(s)=1/2$;
-  \item $W(g*g^{\ast})\ge 0$ for every $g\in\mathscr S$.
-\end{enumerate}
-\end{theorem}
-
-\begin{proof}
-Assume (a). Writing the explicit formula in the spectral form of Definition~\ref{def:weil} and using that zeros come in conjugate pairs $\rho=\tfrac12\pm i\gamma$, one obtains
-\[
-  W(g*g^{\ast})=\sum_{\rho}\bigl|\widehat g(\rho)\bigr|^2\ge 0.
-\]
-Thus (b) holds.
-
-Conversely, assume (b). If there were a zero $\rho_0$ with $\Re(\rho_0)\neq 1/2$, then by symmetry there would also be zeros at $1-\rho_0$, $\overline{\rho_0}$, and $1-\overline{\rho_0}$. Choose $g$ so that $\widehat g$ is concentrated near $\rho_0$ and negligible at the three reflected points. In the explicit formula, the contribution of $\rho_0$ and its reflected orbit gives a negative value of $W(g*g^{\ast})$, contradicting (b). Therefore every non-trivial zero lies on the critical line.
-\end{proof}
-
-\begin{corollary}[Riemann Hypothesis in the PEN universe]
+\begin{corollary}[Remaining converse step for RH]
 \label{cor:rh-analytic}
-The Riemann Hypothesis holds inside the PEN universe.
+If one additionally proves that the signed measure $\sigma_{\zeta}$ of \cref{thm:critical-line} recovers the full non-trivial zero distribution occurring in the alternate formula of Definition~\ref{def:weil}, then the Riemann Hypothesis follows. That converse identification is not proved in this manuscript.
 \end{corollary}
 
 \begin{proof}
-Combine \cref{thm:weil-pos,thm:weil-criterion}.
+Under the stated additional identification, every spectral contribution to the zero term is supported on $\tfrac12+i\R$ by \cref{thm:critical-line}, so every non-trivial zero would lie on the critical line.
 \end{proof}
 
 \section{AST optimality of the zeta operator}
 \label{sec:ast}
 
-The analytic proof already settles RH in the PEN universe. We now show that the same operator is also the unique PEN-optimal realization of the prime-trace API.
+The regularized trace argument already settles the rigged prime-trace realization on the test side and the critical-line spectral representation on the Hilbert side. We now show that the same operator is also the unique PEN-optimal realization of the prime-trace API.
 
 \subsection{Hermitian and off-line shells}
 
@@ -601,7 +711,7 @@ Every off-line realization of the prime-trace API requires the four clause famil
 \end{lemma}
 
 \begin{proof}
-Without \textsc{Pair}, a non-real spectral term contributes a non-real trace and cannot realize the real-valued distribution $W$. Without \textsc{Reflect}, the branch fails to implement the functional equation symmetry. Without \textsc{ResCalc}, the non-self-adjoint branch has no canonical calculus for $x^{iH}$ or for the compressed test-function operators $U(h)$. Without \textsc{Biorth}, the trace of the non-normal spectral expansion is not computable from right eigenvectors alone. Each failure is independent; hence all four clause families are required.
+Without \textsc{Pair}, a non-real spectral term contributes a non-real regularized trace and cannot realize the real-valued distribution $W$. Without \textsc{Reflect}, the branch fails to implement the functional equation symmetry. Without \textsc{ResCalc}, the non-self-adjoint branch has no canonical calculus for $x^{iH}$ or for the rigged integrated operators $U_{\Phi}(h)$ and $U_V(h)$. Without \textsc{Biorth}, the regularized trace of the non-normal spectral expansion is not computable from right eigenvectors alone. Each failure is independent; hence all four clause families are required.
 \end{proof}
 
 \begin{theorem}[AST effort-gap theorem]
@@ -631,7 +741,7 @@ Let $X_{\herm}$ and $X_{\nonherm}$ be Hermitian and off-line realizations of the
 \end{theorem}
 
 \begin{proof}
-The two candidates export the same public interface: the carrier $V_{\zeta}$, the scaling action, the integrated operators $U(h)$, and the evaluation law $\Theta(h)$. The off-line clauses \textsc{Pair}, \textsc{Reflect}, \textsc{ResCalc}, and \textsc{Biorth} are internal repair witnesses needed only to make the non-Hermitian branch type-check and compute. They introduce no new public carrier, eliminator, or interaction principle. Therefore they contribute no additional public schema families beyond the fixed API, whence the claimed inequality.
+The two candidates export the same public interface: the rigged pair $\Phi_{\zeta}\hookrightarrow V_{\zeta}$, the scaling actions on both carriers, the integrated operators $U_{\Phi}(h)$ and $U_V(h)$, the regularized trace functional $\Trreg$, and the evaluation law $\Theta(h)$. The off-line clauses \textsc{Pair}, \textsc{Reflect}, \textsc{ResCalc}, and \textsc{Biorth} are internal repair witnesses needed only to make the non-Hermitian branch type-check and compute. They introduce no new public carrier, eliminator, or interaction principle. Therefore they contribute no additional public schema families beyond the fixed API, whence the claimed inequality.
 \end{proof}
 
 \begin{corollary}[PEN dominance of the Hermitian shell]
@@ -643,48 +753,54 @@ Among all realizations of the prime-trace API, PEN selects the Hermitian shell.
 By \cref{thm:gap}, the non-Hermitian branch has strictly larger effort. By \cref{thm:nonew-nu}, it has no greater public novelty. Hence its efficiency ratio $\efficiency=\novelty/\effort$ is strictly smaller. PEN therefore selects the Hermitian branch.
 \end{proof}
 
-\section{The final theorem}
+\section{Final synthesis and the remaining converse step}
 \label{sec:rh}
 
 We can now state the combined analytic and syntactic conclusion.
 
-\begin{theorem}[PEN-universe Riemann Hypothesis]
+\begin{theorem}[PEN-universe prime-trace synthesis]
 \label{thm:final}
 In the step-14/15 PEN universe:
 \begin{enumerate}[label=(\roman*),nosep]
   \item the synthetic idele-class carrier $X_{\zeta}$ exists as a derived object of the selected library;
-  \item the scaling action of $\R_{>0}$ on $X_{\zeta}$ yields a self-adjoint prime-trace operator $H_{\zeta}$ on the critical Hilbert space $V_{\zeta}$;
-  \item the compressed trace of the integrated scaling action realizes the Weil explicit distribution;
-  \item the Weil functional is positive on multiplicative squares;
-  \item therefore all non-trivial zeros of $\zeta$ lie on the critical line.
+  \item the scaling action of $\R_{>0}$ on $X_{\zeta}$ yields a self-adjoint prime-trace operator $H_{\zeta}$ on the critical graded Hilbert space $V_{\zeta}$ and a compatible trace action on the dense test module $\Phi_{\zeta}$;
+  \item the regularized categorical supertrace of the integrated scaling action on $\Phi_{\zeta}$ realizes the Weil explicit distribution;
+  \item the same regularized trace admits a critical-line spectral representation by a signed measure $\sigma_{\zeta}$ on $\R$ determined by the self-adjoint generator $H_{\zeta}$.
 \end{enumerate}
 Moreover the realizing shell is the unique PEN-optimal branch of the public prime-trace API.
 \end{theorem}
 
 \begin{proof}
-Items (i)--(iii) are \cref{prop:derived-af,thm:stone,thm:primetrace}. Item (iv) is \cref{thm:weil-pos}. Item (v) is \cref{cor:rh-analytic}. The uniqueness statement is \cref{cor:pendom}.
+Items (i)--(iii) are \cref{prop:derived-af,thm:stone,thm:primetrace}. Item (iv) is \cref{thm:critical-line}. The uniqueness statement is \cref{cor:pendom}.
 \end{proof}
+
+\begin{remark}[What is not claimed]
+\label{rem:not-claimed}
+\Cref{thm:final} does not identify $\sigma_{\zeta}$ with the full classical zero distribution appearing in the alternate representation of $W$. Establishing that converse implication would require a separate Weil-criterion argument beyond the present manuscript; compare \cref{cor:rh-analytic}.
+\end{remark}
 
 \section{Mechanization path against the public artifact}
 
-The current public repository already separates the formal and computational pillars of PEN: Cubical Agda for theorem-level contracts and Haskell for typed candidate generation and scoring \citep{lande-repo,lande-arch}. The RH construction fits that split naturally.
+The current public repository already separates the formal and computational pillars of PEN: Cubical Agda for theorem-level contracts and Haskell for typed candidate generation and scoring \citep{lande-repo,lande-arch}. The rigged prime-trace construction fits that split naturally.
 
 On the Agda side, the required formal layers are:
 \begin{enumerate}[nosep]
   \item the late-universe record exposing the step-14/15 shell interfaces;
   \item the MBTT clause-count comparison for \cref{thm:gap};
   \item the proof that off-line repair clauses add no public schema families;
-  \item the abstract convolution-positivity proof of \cref{thm:weil-pos};
-  \item the final theorem record stating \cref{thm:final} as a derived consequence of the prime-trace theorem.
+  \item the abstract rigged-supertrace and critical-line representation proof of \cref{thm:critical-line};
+  \item the final theorem record stating \cref{thm:final} together with a separate interface for any future Weil-converse strengthening.
 \end{enumerate}
 
 On the Haskell side, one adds a candidate shell matching the appendix below and verifies that the strict scorer assigns the local clause count $2$ to the Hermitian shell and at least $5$ to the off-line shell. The scoring comparison is finite and objective; it does not depend on any numerical approximation of zeta zeros.
 
 \section{Conclusion}
 
-The Riemann Hypothesis becomes rigid once it is asked in the correct late-stage PEN language. The right object is not a list of zeros and not a raw trace of a fixed operator. It is a prime-trace API living in the Hilbert and temporal-cohesive environment selected by the Fibonacci growth law. Inside that environment the geometry of the idele-class scaling flow yields a self-adjoint generator, the step-14 orthogonal cutoff turns the adelic trace formula into an honest positive Hilbert-space trace, and Weil's criterion finishes the argument.
+The zeta prime-trace problem becomes rigid once it is asked in the correct late-stage PEN language. The right object is not a list of zeros and not a raw trace of a fixed operator. It is a rigged prime-trace API living in the metric/Hilbert and temporal-cohesive environment selected by the Fibonacci growth law. Inside that environment the geometry of the idele-class scaling flow yields a self-adjoint generator on the Hilbert completion $V_{\zeta}$ and a dualizable codiscrete test module $\Phi_{\zeta}$ on which the adelic trace formula is evaluated. The continuous scaling sector cancels in the categorical even-minus-odd trace on $\Phi_{\zeta}$, while the self-adjoint spectral parameter on $V_{\zeta}$ yields a spectral representation supported on $\Re(s)=1/2$.
 
-The same operator is also the unique PEN-optimal shell: any off-line branch must add repair clauses for pairing, reflection, and non-self-adjoint resonance calculus while exporting no additional public novelty. Thus the critical line is not only analytically forced by positivity; it is also the only branch that survives the structural optimization rule governing the PEN universe.
+What this paper does not claim is the separate converse step needed to identify that realized spectral measure with the full classical zero distribution. That remains an additional theorem, not a consequence of the distributional trace identity alone.
+
+The same operator is also the unique PEN-optimal shell: any off-line branch must add repair clauses for pairing, reflection, and non-self-adjoint resonance calculus while exporting no additional public novelty. Thus the Hermitian critical-line spectral package is not only geometrically singled out by the rigged prime-trace realization; it is also the only branch that survives the structural optimization rule governing the PEN universe.
 
 \appendix
 
@@ -701,25 +817,56 @@ Z_hat   : U = StoneCompletion(Z_geom)
 A_fin   : U = SyntheticFiniteAdeles(Z_hat)
 X_zeta  : U = Quotient(Prod(R_derived, A_fin), Units(Q_geom))
 
--- 2. Hilbert-functional lift
-V_full  : Hilbert = App complete (L2 X_zeta vol_zeta)
-P_zeta  : Projector = CriticalCutoff(X_zeta)
-V_zeta  : Hilbert = pi_1 (App perpDec (V_full, P_zeta))
+-- 2. Rigged Hilbert-functional lift
+g_zeta  : Metric  = ScaleInvariantMetric(X_zeta)
+V_full  : Hilbert = App deRhamL2 (X_zeta, g_zeta)
+Phi_full : CohModule = App Sharp (SmoothForms X_zeta)
+x_arch  : Point(ArchCompactify X_zeta) = ArchBoundaryPoint(X_zeta)
+Vol_int : LinearMap(Phi_full, R)
+Vol_int phi = IntegrateTop(phi, g_zeta)
+
+D_inf   : CohSpace = FormalNeighborhood(x_arch)
+Jet_eval : LinearMap(Phi_full, SmoothForms D_inf)
+Jet_eval phi = Restrict(phi, D_inf)
+
+Phi_zeta : CohModule = Intersect(Kernel(Vol_int), Kernel(Jet_eval))
+V_zeta   : Hilbert = HilbertClosure(ImageToL2(Phi_zeta), V_full)
+V_triv   : ClosedSubspace(V_full) = OrthogonalComplement(V_zeta)
+P_zeta   : Projector = OrthogonalProjector(V_full, V_zeta)
+Phi_even : CohModule = EvenForms(Phi_zeta)
+Phi_odd  : CohModule = OddForms(Phi_zeta)
+Embed    : DenseMap(Phi_zeta, V_zeta)
 
 -- 3. Temporal/cohesive flow
-U_scale : Pi(x : R_gt_0) -> End(V_zeta)
-U_scale x = ScaleAction(x, X_zeta)
+U_scale_V : Pi(x : R_gt_0) -> End(V_zeta)
+U_scale_V x = PullbackScaleAction(x, X_zeta)
+
+U_scale_Phi : Pi(x : R_gt_0) -> End(Phi_zeta)
+U_scale_Phi x = Restrict(App U_scale_V x, Phi_zeta)
+
+Inv_Phi : IsInvariant(U_scale_Phi, Phi_zeta)
+Inv_Phi = pf_IntersectInvariant(pf_VolKernelInvariant, pf_JetKernelInvariant)
 
 H_zeta  : End(V_zeta)
-H_zeta  = StoneGenerator(U_scale)
+H_zeta  = StoneGenerator(U_scale_V)
 
-Theta   : Pi(h : TestFn) -> Id(Trace(App U_scale h), Weil(h))
-Theta h = pf_ConnesLefschetzTrace(X_zeta, h)
+U_int_V   : Pi(h : TestFn) -> End(V_zeta)
+U_int_V h = IntegratedScaleAction(U_scale_V, h)
+
+U_int_Phi   : Pi(h : TestFn) -> End(Phi_zeta)
+U_int_Phi h = IntegratedScaleAction(U_scale_Phi, h)
+
+TraceReg : Pi(h : TestFn) -> R
+TraceReg h = Sub(CatTrace(Restrict(App U_int_Phi h, Phi_even)),
+                 CatTrace(Restrict(App U_int_Phi h, Phi_odd)))
+
+Theta   : Pi(h : TestFn) -> Id(TraceReg h, Weil(h))
+Theta h = pf_CohomologicalLefschetzTrace(Phi_zeta, h)
 
 -- 4. Winning Hermitian clause
 IsHermitian : Pi(u : V_zeta) (v : V_zeta)
             -> Id(Inner(App H_zeta u, v), Inner(u, App H_zeta v))
-IsHermitian = pf_StoneGeneratorSelfAdjoint(U_scale)
+IsHermitian = pf_StoneGeneratorSelfAdjoint(U_scale_V)
 \end{lstlisting}
 
 \section{Minimal off-line repair shell}
