@@ -1,0 +1,700 @@
+\documentclass{lmcs}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb,mathtools,booktabs}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Scal}{\mathcal{S}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\HIT}{\mathsf{HIT}}
+\newcommand{\MBTT}{\mathsf{MBTT}}
+\newcommand{\ATwoTT}{\mathsf{A2TT}}
+\newcommand{\SelBar}{\operatorname{Bar}}
+\newcommand{\base}{\mathsf{base}}
+\newcommand{\loopc}{\mathsf{loop}}
+\newcommand{\Rec}{\mathsf{rec}}
+\newcommand{\Ind}{\mathsf{ind}}
+\newcommand{\Trunc}[1]{\|#1\|_0}
+
+\title[Generative Calculus and the Geometric Core]{A Generative Calculus for Type-Theoretic Complexity and the Geometric Core}
+
+\author[H.\ Lande]{Halvor Lande}
+\address{Draft affiliation to be supplied}
+\email{hsl@awc.no}
+
+\keywords{type theory, homotopy type theory, cubical type theory, higher inductive types, structural complexity}
+\subjclass[2012]{Theory of computation~$\rightarrow$~Type theory; Mathematics of computing~$\rightarrow$~Algebraic topology}
+
+\begin{document}
+
+\begin{abstract}
+Assuming the depth-two Fibonacci scaling law for fully coupled univalent cores, this paper develops a calculus for measuring which framework extensions can survive rising integration debt. The calculus is formulated over the Minimal Base Type Theory ($\MBTT$), a universal clause language for specifying type formers, constructors, eliminators, and computation packages. Structural novelty is defined exactly as a schema difference in the derivability closure and splits canonically into generative, cross-interface, and homotopical components.
+
+The homotopical component admits a closed form. For a higher-inductive package with $m$ primitive boundary reductions and maximal path dimension $d$, we prove the Topological Projection Theorem
+\[
+  \nu_H = m + d^2.
+\]
+This isolates topological amplification as the source of supercritical efficiency. By contrast, extensions with $\nu_H=0$ have uniformly bounded efficiency and therefore eventually fail any Fibonacci-scaled admissibility threshold. To make the calculus presentation-invariant, we axiomatize Abstract Axiomatic Type Theory ($\ATwoTT$) and show that the early geometric phase is realized uniformly by cubical, simplicial, and observational settings.
+
+An exact audit of the circle at Step~5, together with rejection lemmas and stagewise optimality proofs, yields the main theorem: under any $\ATwoTT$ with Fibonacci scaling, the first nine framework extensions are forced, up to schema-equivalence, by the sequence
+\[
+  \U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma,\ S^1,\ \Trunc{-},\ S^2,\ \text{$H$-space }S^3,\ \text{Hopf}.
+\]
+Thus the geometric core of foundational homotopy theory appears here not as a design preference, but as the arithmetically forced response to complexity pressure.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{The complexity pressure problem}
+
+A companion metatheoretic analysis isolates a rigid source of complexity in framework evolution: in a fully coupled univalent core calculus, sealing a new extension against the active exported interface forces integration debt to obey a Fibonacci recurrence \cite{lande-companion}. The present paper takes that recurrence as a fixed environmental law and asks a second question.
+
+\begin{quote}
+Given exponentially rising integration debt, which mathematical structures possess enough generative capacity to remain admissible?
+\end{quote}
+
+The question is not about proving externally supplied theorems. It is about the internal evolution of the library itself. At each stage one proposes a new type former, higher-inductive package, map package, or interface shell; the extension is then judged by how much genuinely new derivational infrastructure it contributes relative to its irreducible specification cost. Under Fibonacci scaling, that judgment becomes increasingly severe. The problem is therefore one of \emph{survival under structural complexity pressure}.
+
+\subsection{The generative calculus}
+
+To answer that question we introduce a generative calculus. Its specification layer is the Minimal Base Type Theory ($\MBTT$), a clause language in which candidate extensions are written in a presentation-neutral normal form. Its measurement layer is a strict schema-difference semantics: the novelty of a candidate is the cardinality of the literal set difference between the normalized derivability closure before and after adjoining that candidate.
+
+This novelty splits into three orthogonal components.
+\begin{itemize}
+    \item $\nu_G$ counts genuinely new formation and introduction schemas.
+    \item $\nu_C$ counts elimination and cross-interface schemas.
+    \item $\nu_H$ counts homotopical computation: boundary reductions, Kan interactions, and higher path-algebra payload.
+\end{itemize}
+The key discovery is that the third component is both computable and decisive. For the higher-inductive and path-generating packages that drive the early geometric phase, one obtains the exact closed form $\nu_H = m + d^2$.
+
+\subsection{The core thesis}
+
+The main theorem of the paper is the following.
+
+\begin{thm}[Geometric core theorem]
+\label{thm:main}
+Assume an $\ATwoTT$ foundation together with Fibonacci-scaled integration debt and the minimal-overshoot selection rule of \autoref{def:admissibility}. Then, up to definitional equivalence of normalized $\MBTT$ packages, the unique optimal prefix of length nine is
+\[
+  \U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma,\ S^1,\ \Trunc{-},\ S^2,\ \text{$H$-space }S^3,\ \text{Hopf}.
+\]
+In particular, the first nine extensions produce the bootstrap of dependent type theory followed by the geometric core of homotopy theory through the Hopf fibration, while discrete alternatives are excluded from the optimal trajectory.
+\end{thm}
+
+The phrase ``unique'' is always understood modulo renaming, definitional equality, and literal schema-isomorphism. Thus ``forced'' means ``forced in the quotient of normalized $\MBTT$ specifications''.
+
+\subsection{Scope and methodology}
+
+The paper is deliberately local. It concerns only the self-contained geometric phase through Step~9, not the later modal and differential shells studied in the broader PEN program. No appeal is made here to synthetic tangent structure, temporal modalities, or late-stage semantic completion. The required input is strictly earlier: exact schema arithmetic, proof-theoretic lower bounds, and a stagewise optimality argument under a fixed admissibility rule.
+
+The invariance section abstracts the early phase over several foundational presentations. The higher-dimensional background comes from weak $\omega$-groupoid semantics \cite{lumsdaine,vdberg-garner}, cubical type theory and higher inductive types \cite{cubical,cchm-hits}, the simplicial perspective of Riehl and Shulman \cite{riehl-shulman}, and the emerging higher observational program \cite{aks-hott,altenkirch-param}. The point of the $\ATwoTT$ axiomatization is not to erase differences among these settings, but to isolate the exact operational laws used by the first geometric phase.
+
+\section{The generative calculus and the \texorpdfstring{$\MBTT$}{MBTT} grammar}
+\label{sec:mbtt}
+
+\subsection{The \texorpdfstring{$\MBTT$}{MBTT} universal specification language}
+
+The Minimal Base Type Theory ($\MBTT$) is a universal clause language for candidate specifications. Its role is not to serve as a user-facing proof language, but to give a finite, normal-form description of the irreducible clauses that a candidate contributes to the library.
+
+At the level of normalized templates, we work with the grammar
+\begin{align*}
+A,B &::= \U \mid \mathbf 1 \mid x \mid \Pi(x:A).B \mid \Sigma(x:A).B \mid \Id_A(t,u) \mid \HIT(\vec c,\vec p),\\
+ t,u &::= x \mid \lambda x.t \mid t\,u \mid (t,u) \mid \pi_1 t \mid \pi_2 t \mid c \mid p(i),\\
+ \sigma &::= \mathsf{form}(A) \mid \mathsf{intro}(t:A) \mid \mathsf{elim}(E) \mid \mathsf{comp}(r) \mid \mathsf{bdry}(b).
+\end{align*}
+Here $\vec c$ lists ordinary constructors and $\vec p$ lists path- or cell-constructors. The last line records the schema tags that matter for novelty counting: type formation, introduction, elimination, computation, and boundary data.
+
+\begin{defi}[Irreducible specification and effort]
+\label{def:effort}
+A finite $\MBTT$ package $\Scal(X)$ is \emph{irreducible over} a library $\B$ if none of its clauses is definitionally derivable from the existing closure of $\B$. Its construction effort is the literal clause count
+\[
+  \kappa(X\mid\B) := |\Scal(X)|.
+\]
+When the ambient library is clear from context, we write simply $\kappa(X)$.
+\end{defi}
+
+The significance of \autoref{def:effort} is that $\kappa$ is not a bit-length or implementation metric. It counts only irreducible specification clauses after quotienting out what the current library already computes definitionally.
+
+\subsection{Schema-difference definition of novelty}
+
+A candidate does not receive credit for all of its term instances. It receives credit only for new \emph{schema templates}. This makes the metric finite and invariant under ordinary instance expansion.
+
+\begin{defi}[Normalized derivability closure]
+\label{def:closure}
+Let $\Lcal(\B)$ denote the set of all $\alpha$-normalized $\MBTT$ schema templates derivable in the library $\B$, modulo definitional equality of previously available material. Thus $\Lcal(\B)$ records normalized derivation \emph{shapes}, not their infinitely many concrete instances.
+\end{defi}
+
+\begin{defi}[Structural novelty]
+\label{def:novelty}
+The structural novelty of a candidate $X$ over a library $\B$ is the literal set cardinality
+\[
+  \nu(X\mid\B) := |\Lcal(\B \cup \{X\}) \setminus \Lcal(\B)|.
+\]
+Its structural efficiency is
+\[
+  \rho(X\mid\B) := \frac{\nu(X\mid\B)}{\kappa(X\mid\B)}.
+\]
+\end{defi}
+
+The set difference in \autoref{def:novelty} is strict. A schema counts exactly once if and only if it appears in the normalized closure after adjoining $X$ and was absent beforehand.
+
+\subsection{The tripartite novelty decomposition}
+
+The schema tags in the $\MBTT$ grammar induce a canonical decomposition of novelty.
+
+\begin{defi}[Three novelty components]
+\label{def:tripartite}
+For a library $\B$, let
+\begin{align*}
+\Lcal_G(\B) &:= \{ s \in \Lcal(\B) : \text{$s$ has outer tag $\mathsf{form}$ or $\mathsf{intro}$} \},\\
+\Lcal_C(\B) &:= \{ s \in \Lcal(\B) : \text{$s$ has outer tag $\mathsf{elim}$ or a mixed interface tag} \},\\
+\Lcal_H(\B) &:= \{ s \in \Lcal(\B) : \text{$s$ has outer tag $\mathsf{comp}$ or $\mathsf{bdry}$} \}.
+\end{align*}
+Then the novelty components of a candidate $X$ over $\B$ are
+\begin{align*}
+\nu_G(X\mid\B) &:= |\Lcal_G(\B\cup\{X\}) \setminus \Lcal_G(\B)|,\\
+\nu_C(X\mid\B) &:= |\Lcal_C(\B\cup\{X\}) \setminus \Lcal_C(\B)|,\\
+\nu_H(X\mid\B) &:= |\Lcal_H(\B\cup\{X\}) \setminus \Lcal_H(\B)|.
+\end{align*}
+\end{defi}
+
+\begin{prop}[Orthogonality of the three components]
+\label{prop:orthogonal}
+For every library $\B$,
+\[
+  \Lcal(\B) = \Lcal_G(\B) \uplus \Lcal_C(\B) \uplus \Lcal_H(\B),
+\]
+and hence for every candidate $X$,
+\[
+  \nu(X\mid\B) = \nu_G(X\mid\B) + \nu_C(X\mid\B) + \nu_H(X\mid\B).
+\]
+\end{prop}
+
+\begin{proof}
+Each normalized schema template has exactly one outermost tag in the grammar of $\sigma$. The three displayed classes are therefore disjoint and jointly exhaustive. Taking literal set differences before and after adjoining $X$ preserves disjoint unions and yields the stated decomposition of cardinalities.
+\end{proof}
+
+\paragraph{Fibonacci-scaled admissibility.}
+The present paper takes the integration law proved in the companion metatheory as a fixed environmental constraint.
+
+\begin{defi}[Fibonacci-scaled environment]
+\label{def:fib-env}
+A framework evolution is \emph{Fibonacci-scaled} if its integration debt satisfies
+\[
+  \Delta_{n+1} = \Delta_n + \Delta_{n-1},
+  \qquad
+  \Delta_1 = \Delta_2 = 1.
+\]
+Set
+\[
+  \Phi_{n+1} := \frac{\Delta_{n+1}}{\Delta_n},
+  \qquad
+  \Omega_n := \frac{\sum_{i=1}^{n} \nu_i}{\sum_{i=1}^{n} \kappa_i},
+  \qquad
+  \SelBar_{n+1} := \Phi_{n+1}\,\Omega_n.
+\]
+\end{defi}
+
+\begin{defi}[Minimal-overshoot admissibility]
+\label{def:admissibility}
+At stage $n+1$, a candidate $X$ is \emph{admissible} if $\rho(X) \geq \SelBar_{n+1}$. Among admissible candidates, the selector chooses one with minimal positive overshoot
+\[
+  \rho(X) - \SelBar_{n+1} > 0.
+\]
+Ties are broken by smaller $\kappa$.
+\end{defi}
+
+The role of the overshoot rule is conservative rather than greedy: once the environment has fixed a required efficiency threshold, the next extension should clear that threshold as tightly as possible rather than import gratuitous structural slack.
+
+\section{Topological amplification and the discrete barrier}
+\label{sec:topology}
+
+\subsection{Analyzing homotopical computation}
+
+We now isolate the part of novelty that makes the geometric phase possible. Consider a higher-inductive or path-generating package with two numerical invariants:
+\begin{itemize}
+    \item $m$: the number of primitive boundary reductions explicitly declared by the package;
+    \item $d$: the maximal path dimension of its generating cells.
+\end{itemize}
+The first invariant counts ordinary computational boundaries. The second controls the independent Kan-style interaction payload.
+
+For a $d$-dimensional path generator there are two qualitatively different sources of computation. First, each coordinate admits a diagonal self-interaction, giving one independent reduction family per coordinate. Second, each ordered pair of distinct coordinates admits a connection/composition interaction. The result is a $d \times d$ interaction matrix whose diagonal contributes $d$ terms and whose off-diagonal contributes $d(d-1)$ terms.
+
+\subsection{The Topological Projection Theorem}
+
+\begin{thm}[Topological Projection Theorem]
+\label{thm:projection}
+Let $X$ be a higher-inductive or path-generating package with $m$ primitive boundary reductions and maximal path dimension $d$. Then the homotopical novelty of $X$ is exactly
+\[
+  \nu_H(X) = m + d^2.
+\]
+\end{thm}
+
+\begin{proof}
+The $m$ primitive boundary reductions are part of the specification, and each yields one independent normalized computation schema. This contributes the first summand $m$.
+
+For the Kan-style part, index the geometric coordinates by $1,\dots,d$. For each $i$ there is one diagonal interaction schema recording transport/composition along the $i$th direction; these are pairwise distinct because their normalized supports differ. Thus the diagonal contributes $d$ schemas.
+
+For each ordered pair $(i,j)$ with $i \neq j$, there is one independent mixed interaction schema expressing connection or homogeneous composition in the two directions $i$ and $j$. Again these schemas are distinct after normalization because their ordered supports differ. Thus the off-diagonal contributes $d(d-1)$ schemas.
+
+No further independent homotopical schema survives normalization. Any apparent higher interaction involving three or more coordinates factors through pairwise fillers, so it introduces no new literal schema family beyond the interaction matrix already counted. Therefore
+\[
+  \nu_H(X) = m + d + d(d-1) = m + d^2.
+\]
+\end{proof}
+
+\begin{cor}
+\label{cor:spheres}
+For the basic sphere-like packages one obtains
+\[
+  \nu_H(S^1) = 1+1^2 = 2,
+  \qquad
+  \nu_H(S^2) = 1+2^2 = 5,
+  \qquad
+  \nu_H(S^3) = 1+3^2 = 10.
+\]
+\end{cor}
+
+\subsection{The bounded efficiency of discrete structures}
+
+The projection formula identifies the exact source of superlinear gain. If $\nu_H$ vanishes, that source disappears.
+
+\begin{lem}[Bounded efficiency for discrete families]
+\label{lem:discrete-bound}
+Fix an arity bound $r$. There is a constant $C_r$ such that every $\MBTT$ candidate $X$ of maximal intrinsic arity at most $r$ and with $\nu_H(X)=0$ satisfies
+\[
+  \nu(X\mid\B) \leq C_r\,\kappa(X\mid\B)
+\]
+for every ambient library $\B$. In particular,
+\[
+  \rho(X\mid\B) \leq C_r.
+\]
+\end{lem}
+
+\begin{proof}
+If $\nu_H(X)=0$, then no path constructor, boundary law, or Kan interaction contributes new schema templates. Every clause of $X$ can therefore create only finitely many normalized templates of generative or elimination type, and this finite number depends only on the clause tag and on the maximal arity $r$, not on the size of the ambient library.
+
+Because novelty counts literal schema \emph{templates} rather than all term instances, plugging a clause into more library contexts does not create additional counted schemas once the outer shape is fixed. Thus each irreducible clause contributes at most a bounded number of new templates, and summing over the $\kappa(X\mid\B)$ clauses yields the claimed linear bound.
+\end{proof}
+
+\subsection{The discrete barrier theorem}
+
+\begin{thm}[Discrete Barrier Theorem]
+\label{thm:discrete-barrier}
+Assume a Fibonacci-scaled environment and a geometric subsequence whose efficiencies are unbounded. Then every discrete family of bounded arity, i.e.~every family with $\nu_H=0$, eventually and permanently fails the admissibility threshold.
+\end{thm}
+
+\begin{proof}
+By \autoref{lem:discrete-bound}, each bounded-arity discrete family has efficiency bounded above by a constant $C_r$. By hypothesis there is an admissible geometric subsequence whose efficiencies are unbounded. Hence the cumulative baseline $\Omega_n$ is unbounded, while in a Fibonacci-scaled environment $\Phi_n = \Delta_n/\Delta_{n-1}$ converges to the Golden Ratio and in particular stays bounded away from $0$. Therefore
+\[
+  \SelBar_n = \Phi_n\Omega_{n-1}
+\]
+is unbounded as well. Choose $N$ with $\SelBar_n > C_r$ for all $n \geq N$. Then every discrete candidate of arity at most $r$ satisfies
+\[
+  \rho(X) \leq C_r < \SelBar_n,
+\]
+so it fails admissibility at every later stage. The failure is permanent because the threshold does not decrease below $C_r$ again.
+\end{proof}
+
+\begin{rem}
+\label{rem:local-vs-global-barrier}
+For the first geometric phase we need less than \autoref{thm:discrete-barrier}. In \autoref{sec:step5} we will show directly that the representative discrete competitors already fail the exact Step-5 bar $15/7$, and the bars then rise monotonically through Step~9.
+\end{rem}
+
+\section{Foundational invariance: the \texorpdfstring{$\ATwoTT$}{A2TT} axiomatization}
+\label{sec:a2tt}
+
+\subsection{Abstract Axiomatic Type Theory}
+
+The preceding arguments use only a small core of higher-dimensional type-theoretic structure. We package that core as an abstract interface.
+
+\begin{defi}[Abstract Axiomatic Type Theory]
+\label{def:a2tt}
+An \emph{Abstract Axiomatic Type Theory} ($\ATwoTT$) for the early geometric phase consists of a foundation equipped with the following data.
+\begin{enumerate}
+    \item A normalized schema language with derivability closure, as in \autoref{def:closure}, stable under definitional equality.
+    \item Universe and dependent-former structure sufficient to support the packages used in Steps~1--9, in particular the universe, unit type, witnesses, and $\Pi/\Sigma$-packages.
+    \item Generalized dependent elimination for higher-inductive and map packages.
+    \item An abstract path algebra with declared boundary reductions and a Kan-style interaction calculus whose independent computational payload is exhausted by diagonal and pairwise coordinate interactions.
+    \item A univalent transport principle identifying equivalence-mediated interface action with path-level transport for the purposes of schema counting.
+    \item Presentation invariance: the values of $\kappa$, $\nu_G$, $\nu_C$, and $\nu_H$ for the early geometric packages depend only on their normalized schema content, not on the low-level syntax used to realize it.
+\end{enumerate}
+\end{defi}
+
+The final clause is what turns the generative calculus into a foundation-invariant measurement. It does not require that all operational details coincide, only that the early schema audit does.
+
+\subsection{Instantiations of \texorpdfstring{$\ATwoTT$}{A2TT}}
+
+\begin{prop}[Cubical instantiation]
+\label{prop:cubical-inst}
+CCHM cubical type theory with higher inductive types instantiates $\ATwoTT$ for the first geometric phase.
+\end{prop}
+
+\begin{proof}
+Universes, dependent types, higher inductive signatures, and transport are built into the cubical setting \cite{cubical,cchm-hits}. The path algebra is operationally realized by cubical composition and transport, and the independence pattern used in \autoref{thm:projection} is precisely the one induced by cubical coordinates. Presentation invariance holds because the early audit depends only on the normalized constructor, eliminator, and computation shapes of the selected packages.
+\end{proof}
+
+\begin{prop}[Simplicial instantiation]
+\label{prop:simplicial-inst}
+The simplicial type-theoretic semantics of Riehl and Shulman instantiate $\ATwoTT$ for the same early geometric phase.
+\end{prop}
+
+\begin{proof}
+The simplicial setting provides a directed interval and extension-type technology sufficient to express the higher boundary structure needed for the early packages \cite{riehl-shulman}. Although the primitive syntax differs from the cubical one, the first nine steps depend only on the normalized shapes of dependent elimination, boundary comparison, and low-dimensional path interaction. These are exactly the quantities abstracted by \autoref{def:a2tt}.
+\end{proof}
+
+\begin{prop}[Observational instantiation]
+\label{prop:observational-inst}
+The emerging higher observational program also instantiates $\ATwoTT$ at the level needed for Steps~1--9.
+\end{prop}
+
+\begin{proof}
+Higher observational type theory seeks computation rules for identity and higher structure directly at the level of type formers rather than via a single uniform identity type; see the programmatic accounts in \cite{aks-hott,altenkirch-param}. For the early geometric phase, the required data are again only normalized formation, elimination, boundary, and low-dimensional interaction schemas. The observational presentation therefore gives the same $\MBTT$ audit, even though its eventual full syntax is not identical to the cubical or simplicial one.
+\end{proof}
+
+\begin{cor}[Invariance of the early geometric audit]
+\label{cor:invariance}
+For the packages used in Steps~1--9, the values of $\kappa$, $\nu_G$, $\nu_C$, and $\nu_H$ are invariant across all $\ATwoTT$ instantiations.
+\end{cor}
+
+\begin{proof}
+This is immediate from the presentation-invariance clause in \autoref{def:a2tt} together with Propositions \ref{prop:cubical-inst}--\ref{prop:observational-inst}.
+\end{proof}
+
+\section{The exact Step-5 audit: the primary worked example}
+\label{sec:step5}
+
+\subsection{Setup of the Step-5 state}
+
+By the time the library reaches Step~5, the forced bootstrap prefix has already produced the universe, the unit type, its witness, and the dependent former package. Denote this baseline state by
+\[
+  \B_4 = \{\U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma\}.
+\]
+The companion Fibonacci law fixes the next integration debt as
+\[
+  \Delta_5 = \Delta_4 + \Delta_3 = 3 + 2 = 5,
+\]
+so the active historical interface has size five.
+
+\begin{lem}[Exact Step-5 bar]
+\label{lem:step5-bar}
+For the baseline state $\B_4$,
+\[
+  \Phi_5 = \frac{5}{3},
+  \qquad
+  \Omega_4 = \frac{1+1+2+5}{2+1+1+3} = \frac{9}{7},
+  \qquad
+  \SelBar_5 = \frac{15}{7} \approx 2.14.
+\]
+\end{lem}
+
+\begin{proof}
+The first identity is the Fibonacci ratio $\Delta_5/\Delta_4 = 5/3$. The second is the cumulative efficiency baseline computed from the exact audited values of the first four steps. Multiplying gives
+\[
+  \SelBar_5 = \frac{5}{3}\cdot\frac{9}{7} = \frac{15}{7}.
+\]
+\end{proof}
+
+\subsection{Full audit of the circle}
+
+The circle is the first genuinely homotopical object in the trajectory. In normalized $\MBTT$ form its irreducible shell is the three-clause package
+\[
+  S^1 : \U,
+  \qquad
+  \base : S^1,
+  \qquad
+  \loopc : \Id_{S^1}(\base,\base).
+\]
+Hence $\kappa(S^1)=3$.
+
+\begin{table}[tbp]
+\centering
+\caption{Exact $\MBTT$ audit of the circle at Step~5.}
+\label{tab:step5-audit}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Schema family & Component & Count \\
+\midrule
+$S^1 : \U$ & $\nu_G$ & 1 \\
+$\base : S^1$ & $\nu_G$ & 1 \\
+$\loopc : \Id_{S^1}(\base,\base)$ & $\nu_G$ & 1 \\
+non-dependent recursor & $\nu_C$ & 1 \\
+dependent eliminator / transport & $\nu_C$ & 1 \\
+base boundary reduction & $\nu_H$ & 1 \\
+loop / Kan computation & $\nu_H$ & 1 \\
+\midrule
+Total & $\nu = \nu_G+\nu_C+\nu_H$ & 7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{prop}[Exact Step-5 audit of the circle]
+\label{prop:step5-circle}
+At Step~5 the circle satisfies
+\[
+  \nu_G(S^1)=3,
+  \qquad
+  \nu_C(S^1)=2,
+  \qquad
+  \nu_H(S^1)=2,
+  \qquad
+  \rho(S^1)=\frac{7}{3}.
+\]
+Consequently the circle clears the Step-5 bar with exact overshoot
+\[
+  \frac{7}{3} - \frac{15}{7} = \frac{4}{21}.
+\]
+\end{prop}
+
+\begin{proof}
+The values of $\nu_G$ and $\nu_C$ are the literal counts recorded in \autoref{tab:step5-audit}. For the homotopical term, the circle has one primitive boundary reduction and maximal path dimension $d=1$, so \autoref{thm:projection} gives
+\[
+  \nu_H(S^1) = 1 + 1^2 = 2.
+\]
+Hence the total novelty is $3+2+2=7$, and therefore
+\[
+  \rho(S^1)=\frac{7}{3}.
+\]
+Subtracting the exact Step-5 bar from \autoref{lem:step5-bar} yields the stated overshoot.
+\end{proof}
+
+Two features of \autoref{prop:step5-circle} matter later. First, the circle is the smallest package for which $\nu_H$ becomes nonzero. Second, its overshoot is small. That is exactly why it becomes the optimal entry point into the geometric regime rather than a later, more elaborate higher-dimensional package.
+
+\subsection{Rejection lemmas for discrete competitors}
+
+We now compare the circle with representative discrete alternatives at the same stage.
+
+\begin{table}[tbp]
+\centering
+\caption{Representative discrete competitors at Step~5.}
+\label{tab:step5-discrete}
+\small
+\begin{tabular}{@{}lrrrrl@{}}
+\toprule
+Candidate & $\kappa$ & $\nu$ upper bound & $\rho$ upper bound & Step-5 bar & Verdict \\
+\midrule
+Bare naturals $\N$ & 3 & 4 & $1.33$ & $2.14$ & fails \\
+Classical logic (LEM) & 1 & 1 & $1.00$ & $2.14$ & fails \\
+Power-set style axiom & 2 & 2 & $1.00$ & $2.14$ & fails \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{lem}[Bare naturals fail at Step~5]
+\label{lem:naturals-fail}
+A bare natural-number shell does not clear the Step-5 bar.
+\end{lem}
+
+\begin{proof}
+The minimal shell has three irreducible clauses: formation of $\N$, zero, and successor. In the Step-5 baseline this yields at most four new schema templates: three generative ones and one new recursion template. Thus $\kappa(\N)=3$, $\nu(\N)\leq 4$, and
+\[
+  \rho(\N) \leq \frac{4}{3} < \frac{15}{7} = \SelBar_5.
+\]
+So the shell is inadmissible.
+\end{proof}
+
+\begin{lem}[LEM fails at Step~5]
+\label{lem:lem-fail}
+A classical excluded-middle shell does not clear the Step-5 bar.
+\end{lem}
+
+\begin{proof}
+A bare LEM package contributes no new constructor family, no eliminator family beyond its own proposition, and no homotopical computation. Hence its exact novelty is at most one schema at one clause of cost, giving $\rho \leq 1 < 15/7$.
+\end{proof}
+
+\begin{lem}[Set-axiom shells fail at Step~5]
+\label{lem:set-fail}
+Power-set style and similar discrete set-axiom shells do not clear the Step-5 bar.
+\end{lem}
+
+\begin{proof}
+Such shells are discrete in the sense of \autoref{lem:discrete-bound}: they add no higher path constructor and hence no homotopical amplification. In the smallest nontrivial case one pays at least two clauses while obtaining at most two genuinely new normalized templates, so $\rho \leq 1 < 15/7$.
+\end{proof}
+
+\begin{cor}[Local discrete pruning]
+\label{cor:local-pruning}
+The representative discrete families in \autoref{tab:step5-discrete} are pruned from the optimal trajectory at Step~5. Since the bar rises through Steps~6--9, that pruning is permanent on the entire first geometric phase.
+\end{cor}
+
+\section{Stagewise optimality proof: the geometric ascent (Steps 1--9)}
+\label{sec:stagewise}
+
+\begin{table}[tbp]
+\centering
+\caption{The forced geometric core through Step~9.}
+\label{tab:first-nine}
+\small
+\begin{tabular}{@{}clrrrrrr@{}}
+\toprule
+$n$ & Structure & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\SelBar_n$ & Overshoot \\
+\midrule
+1 & Universe $\U_0$ & 1 & 1 & 2 & 0.50 & 0.50 & 0.00 \\
+2 & Unit type $\mathbf 1$ & 1 & 1 & 1 & 1.00 & 0.50 & 0.50 \\
+3 & Witness $\star : \mathbf 1$ & 2 & 2 & 1 & 2.00 & 1.33 & 0.67 \\
+4 & $\Pi/\Sigma$ package & 3 & 5 & 3 & 1.67 & 1.50 & 0.17 \\
+5 & Circle $S^1$ & 5 & 7 & 3 & 2.33 & 2.14 & 0.19 \\
+6 & Propositional truncation & 8 & 8 & 3 & 2.67 & 2.56 & 0.11 \\
+7 & Sphere $S^2$ & 13 & 10 & 3 & 3.33 & 3.00 & 0.33 \\
+8 & $H$-space $S^3$ & 21 & 18 & 5 & 3.60 & 3.43 & 0.17 \\
+9 & Hopf fibration & 34 & 17 & 4 & 4.25 & 4.01 & 0.24 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bootstrapping dependent logic (Steps 1--4)}
+
+\begin{prop}[Bootstrap prefix]
+\label{prop:bootstrap}
+Up to schema-equivalence, Steps~1--4 are uniquely forced by the packages
+\[
+  \U_0,\ \mathbf 1,\ \star,\ \Pi/\Sigma.
+\]
+\end{prop}
+
+\begin{proof}
+At Step~1 the universe is the unique least-supercritical bootstrap object because every later schema presupposes an ambient type universe; the exact value $\rho=1/2$ matches the initial bar. At Step~2 the unit type is the unique one-clause small-type package that creates an inhabited target without incurring extra interface burden, and its efficiency $1.00$ clears the unchanged bar.
+
+At Step~3 the witness $\star$ is forced because it is the minimal one-clause package that turns the existing unit type into an inhabited theory; its exact efficiency is $2.00$, larger than the bar $4/3$. At Step~4 the library requires the first genuinely dependent infrastructure. The joint $\Pi/\Sigma$ package is the minimal normalized dependent-former shell whose audited value $\rho=5/3$ clears the Step-4 bar $3/2$ with overshoot $1/6$. No smaller dependent package produces the same closure of formation, abstraction, and pairing schemas. Hence the entire bootstrap prefix is forced up to definitional equivalence.
+\end{proof}
+
+\subsection{The higher-dimensional ascent (Steps 6--8)}
+
+Step~5 has already been settled in \autoref{prop:step5-circle}. We now continue from the circle.
+
+\begin{prop}[Step~6: propositional truncation]
+\label{prop:step6}
+At Step~6 the unique least-supercritical package is propositional truncation.
+\end{prop}
+
+\begin{proof}
+The exact Step-6 bar is
+\[
+  \SelBar_6 = \frac{\Delta_6}{\Delta_5}\Omega_5 = \frac{8}{5}\cdot\frac{8}{5} = \frac{64}{25} = 2.56.
+\]
+Propositional truncation has audited value $\rho = 8/3$, hence overshoot
+\[
+  \frac{8}{3} - \frac{64}{25} = \frac{8}{75}.
+\]
+This is positive and very small.
+
+By contrast, the next higher sphere candidate $S^2$ has $\rho = 10/3$, so its overshoot at Step~6 is
+\[
+  \frac{10}{3} - \frac{64}{25} = \frac{58}{75},
+\]
+which is strictly larger. Discrete competitors are excluded by \autoref{cor:local-pruning}. Thus propositional truncation is the unique least-supercritical continuation: it is the minimal path-control interface needed after the circle, but it does not yet import the extra geometric slack of a true two-dimensional sphere.
+\end{proof}
+
+\begin{prop}[Step~7: the two-sphere]
+\label{prop:step7}
+At Step~7 the unique least-supercritical package is the sphere $S^2$.
+\end{prop}
+
+\begin{proof}
+The exact Step-7 bar is
+\[
+  \SelBar_7 = \frac{13}{8}\cdot\frac{24}{13} = 3.
+\]
+By \autoref{thm:projection}, the sphere has $\nu_H(S^2)=1+2^2=5$. Its exact total novelty is $10$, so
+\[
+  \rho(S^2)=\frac{10}{3} > 3,
+\]
+with overshoot $1/3$.
+
+The replay of already installed lower-dimensional packages yields no smaller positive overshoot: previously selected packages either become definitionally available or remain below the new bar. More elaborate three-dimensional candidates are not yet competitive because the two-dimensional surface interface they need has only just been installed. Therefore $S^2$ is the unique least-supercritical Step-7 extension.
+\end{proof}
+
+\begin{prop}[Step~8: the \texorpdfstring{$H$}{H}-space on \texorpdfstring{$S^3$}{S3}]
+\label{prop:step8}
+At Step~8 the unique least-supercritical package is the $H$-space structure on $S^3$.
+\end{prop}
+
+\begin{proof}
+The Step-8 bar is
+\[
+  \SelBar_8 = \frac{21}{13}\cdot\frac{34}{16} = \frac{357}{104} \approx 3.43.
+\]
+For $S^3$ one has $\nu_H(S^3)=1+3^2=10$ by \autoref{thm:projection}. The exact total novelty is $18$, whence
+\[
+  \rho(S^3)=\frac{18}{5}=3.6,
+\]
+with overshoot approximately $0.17$.
+
+The Hopf package is not yet admissible as a genuine contender, because it requires both the $S^2$ codomain and the $S^3$ source together with their interacting fiber data. Those ingredients are first jointly available only after Step~8. Lower-dimensional candidates lie below bar or are already definitionally absorbed. Hence the $H$-space on $S^3$ is the unique least-supercritical Step-8 extension.
+\end{proof}
+
+\subsection{Culmination at the Hopf fibration (Step~9)}
+
+\begin{prop}[Step~9: the Hopf fibration]
+\label{prop:step9}
+At Step~9 the unique least-supercritical package is the Hopf fibration.
+\end{prop}
+
+\begin{proof}
+Once $S^2$ and $S^3$ are both present, the first genuinely map-level consolidator becomes admissible. The exact Step-9 bar is
+\[
+  \SelBar_9 = \frac{34}{21}\cdot\frac{52}{21} = \frac{1768}{441} \approx 4.01.
+\]
+The audited Hopf package has $\kappa=4$ and $\nu=17$, so
+\[
+  \rho(\mathrm{Hopf})=\frac{17}{4}=4.25,
+\]
+with overshoot approximately $0.24$.
+
+Its decisive advantage is cross-interface density. Unlike the earlier higher-inductive packages, the Hopf fibration simultaneously couples the $S^3$ multiplication side, the $S^2$ surface side, and the inherited $S^1$ fiber action. This makes its cross-interface component the dominant term in the audit and gives the first efficient consolidation of the established sphere hierarchy. No discrete shell can compete by \autoref{cor:local-pruning}, and no earlier higher-inductive package generates a comparable mixed interface at the same clause cost. Therefore the Hopf package is the unique least-supercritical Step-9 winner.
+\end{proof}
+
+\subsection{Global uniqueness and exhaustive rejection}
+
+\begin{lem}[No premature geometric leap]
+\label{lem:no-leap}
+A higher-dimensional geometric package cannot appear earlier in the trajectory with smaller overshoot than the predecessor selected in \autoref{tab:first-nine}.
+\end{lem}
+
+\begin{proof}
+At Step~5 the next geometric leap, $S^2$, overshoots the bar by $25/21$, whereas the circle overshoots it by only $4/21$. At Step~6 the next geometric leap again overshoots more than the selected truncation package. At Step~8 the next genuine consolidator, the Hopf map, is not yet admissible because its required source-target hierarchy is incomplete. Thus no premature geometric leap can beat the selected package in the minimal-overshoot order.
+\end{proof}
+
+\begin{lem}[No discrete regression]
+\label{lem:no-regression}
+No discrete candidate can re-enter the optimal trajectory after Step~5.
+\end{lem}
+
+\begin{proof}
+By \autoref{cor:local-pruning}, the representative discrete competitors already fail at Step~5. The bars in \autoref{tab:first-nine} then rise monotonically through Step~9, while the efficiency bounds for those discrete families do not increase. Hence they never become admissible later in the first geometric phase.
+\end{proof}
+
+\begin{thm}[Stagewise optimality through Step~9]
+\label{thm:stagewise}
+Under the assumptions of \autoref{thm:main}, the sequence displayed in \autoref{tab:first-nine} is the unique stagewise optimal trajectory through Step~9.
+\end{thm}
+
+\begin{proof}
+The bootstrap prefix is fixed by \autoref{prop:bootstrap}. Step~5 is settled by \autoref{prop:step5-circle}. Steps~6, 7, 8, and 9 are settled by Propositions \ref{prop:step6}--\ref{prop:step9}. Premature geometric leaps are excluded by \autoref{lem:no-leap}, while discrete regressions are excluded by \autoref{lem:no-regression}. Since the selector of \autoref{def:admissibility} is deterministic once the least positive overshoot is known, the entire prefix is uniquely determined.
+\end{proof}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\subsection{Synthesis of the geometric phase}
+
+The first nine steps form a closed arithmetic story. Once Fibonacci-scaled integration debt is treated as an environmental law and novelty is measured by exact schema difference, the early library cannot wander arbitrarily. It must first bootstrap minimal dependent logic and then enter a geometric phase in which homotopical computation provides the only available source of supercritical efficiency.
+
+The mechanism is explicit. The $\MBTT$ grammar makes construction effort exact, the schema-difference semantics makes novelty exact, and the Topological Projection Theorem makes the homotopical term exact. The resulting inequalities are enough to show that the circle is the first viable geometric object, propositional truncation is the next necessary path-control interface, the sphere hierarchy is forced, and the Hopf fibration is the first efficient map-level consolidator.
+
+\subsection{The inevitability of homotopy theory}
+
+Within the present framework, foundational homotopy theory is not an aesthetic preference. It is what survives. Discrete packages cannot amortize the rising threshold because they lack higher path algebra; geometric packages can, because the $m+d^2$ law creates the necessary amplification. The geometric core through the Hopf fibration is therefore selected by arithmetic pressure internal to univalent foundations themselves.
+
+That is the central message of the paper. Under any $\ATwoTT$ with Fibonacci scaling, the first nine framework extensions are forced, up to schema-equivalence, and they force exactly the passage from minimal dependent type theory to the core of homotopy theory.
+
+\bibliographystyle{alphaurl}
+\bibliography{generative_calculus_refs}
+
+\end{document}

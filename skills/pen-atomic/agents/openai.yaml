@@ -1,0 +1,4 @@
+interface:
+  display_name: "PEN Atomic"
+  short_description: "Help with PEN atomic rewrite workflows"
+  default_prompt: "Use the PEN atomic donor references to plan and implement the Rust-first atomic rewrite with Agda sidecar validation."
