@@ -56,6 +56,36 @@ agda/
     └── Fibonacci.agda    # Unit tests
 ```
 
+## Coherence-Depth Track
+
+The repository now has a dedicated coherence-depth track alongside the
+original PEN counting artifact:
+
+- `Core/AffineRecurrence.agda` defines a payload-aware affine recurrence and
+  proves that a constant shift recovers the homogeneous Fibonacci law.
+- `Metatheory/Extensional.agda` packages the extensional/UIP collapse:
+  if `isSet A`, then every binary coherence space `p ≡ q` is contractible.
+- `Metatheory/KanSubsumption.agda` packages the open-box input consumed by
+  cubical composition and, when instantiated at square types, covers the
+  arity-3 obligation case. It proves
+  `arity3-obligation-syntactically-derivable`,
+  `history-beyond-two-algorithmically-subsumed`, and
+  `arity3-open-box-hfilled`.
+- `Metatheory/AdjunctionBarrier.agda` gives the depth-one lower bound by
+  constructing a nontrivial binary coherence witness on a two-point type via
+  the cubical `isoToPath` bridge and proving `depth1-insufficient`.
+- `Saturation/Axiom.agda` is retained as the older combinatorial modeling
+  surface for the payload-free depth-two counting story; it is no longer the
+  main justification for the paper's depth-two theorem.
+- `Saturation/Decomposition.agda`, `Saturation/AbstractionBarrier.agda`, and
+  `Saturation/AbstractionBarrier9.agda` remain as the concrete sealed-interface
+  barrier checks that motivate the counting layer.
+
+`PEN.agda` now re-exports the full coherence-depth theorem package together
+with the recurrence modules, and `Test/MetatheorySmoke.agda` acts as a small
+top-level import regression for the affine, extensional, upper-bound, and
+lower-bound theorems.
+
 ## Implementation Status
 
 ### Phase 1: Complete ✓

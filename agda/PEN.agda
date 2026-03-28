@@ -10,6 +10,7 @@ module PEN where
 -- Core definitions
 open import Core.Nat public
 open import Core.Sequence public
+open import Core.AffineRecurrence public
 
 -- Obligation Graph theory
 open import ObligationGraph.Interface public
@@ -27,6 +28,13 @@ open import Saturation.AbstractionBarrier public
 -- Adjunction depth formalization
 open import Adjunction.AdjunctionDepth public
 open import Adjunction.TriangleIdentity public
+
+-- Coherence-depth metatheory
+open import Metatheory.Extensional public
+open import Metatheory.KanSubsumption public
+open import Metatheory.AdjunctionBarrier public
+  using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
+         binary-coherence-nontrivial; depth1-insufficient)
 
 -- ============================================
 -- Main Results (Phase 1)

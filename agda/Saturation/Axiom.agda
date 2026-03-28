@@ -17,6 +17,13 @@ open import Saturation.ObligationDuality
 
 -- The Saturation Axiom states that every Genesis step
 -- exports exactly Δ k schemas to the interface basis.
+--
+-- Repository note:
+-- This module is kept as the older combinatorial modeling surface for the
+-- payload-free depth-two counting story. The main justification for the
+-- paper's depth-two claim now lives in the metatheory layer
+-- (`Metatheory.KanSubsumption` together with `Metatheory.AdjunctionBarrier`),
+-- not in this axiom module.
 -- It is given by:
 --   (1) Base cases for steps 1 and 2
 --   (2) An inductive step: if steps n and n-1 are

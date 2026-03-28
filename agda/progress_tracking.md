@@ -9,6 +9,56 @@ Mechanization of the Principle of Efficient Novelty (PEN) framework in Cubical A
 
 ---
 
+## Coherence Depth Track
+
+### Status: INTEGRATED
+
+| Task | Status | File |
+|------|--------|------|
+| Add payload-aware affine recurrence | Done | `Core/AffineRecurrence.agda` |
+| Mechanize extensional depth-1 collapse | Done | `Metatheory/Extensional.agda` |
+| Prove uniform syntactic derivability for arity-3 obligations | Done | `Metatheory/KanSubsumption.agda` |
+| Mechanize univalence-based lower bound against depth 1 | Done | `Metatheory/AdjunctionBarrier.agda` |
+| Re-export new coherence-depth modules from `PEN.agda` | Done | `PEN.agda` |
+| Add a top-level theorem-package smoke test | Done | `Test/MetatheorySmoke.agda` |
+
+### Notes
+
+- `Core/AffineRecurrence.agda` upgrades the recurrence story from the old
+  normalized shorthand to an explicit affine law with constant payload.
+  The shifted sequence `U` satisfies the homogeneous Fibonacci recurrence,
+  and the zero-payload specialization recovers the existing `fib`/`Δ`
+  normalization.
+- `Metatheory/Extensional.agda` now exposes the semantic reading of
+  depth one: `isSet` forces contractibility of every binary coherence
+  obligation.
+- `Metatheory/KanSubsumption.agda` packages the actual open-box input
+  consumed by cubical composition and, when instantiated at square types,
+  captures the arity-3 case used by the upper-bound theorem. It proves
+  `arity3-obligation-syntactically-derivable`,
+  `history-beyond-two-algorithmically-subsumed`, and
+  `arity3-open-box-hfilled`.
+- `Metatheory/AdjunctionBarrier.agda` now uses the lighter cubical
+  `isoToPath` bridge from `Cubical.Foundations.Isomorphism`, avoiding the
+  `Univalence` import collision with `Core.Nat` while still giving a
+  concrete obstruction to global depth-1 collapse.
+- `PEN.agda` now re-exports the affine recurrence, the extensional collapse,
+  the cubical upper bound, and the lower bound together as one theorem
+  package, and `Test/MetatheorySmoke.agda` checks that those names remain
+  available from the top level.
+- `ObligationGraph/Recurrence.agda` remains unchanged as the stable
+  payload-free recurrence surface; the strengthened payload-aware statement
+  lives in parallel in `Core/AffineRecurrence.agda`.
+- Verified with:
+  - `agda --transliterate Core/AffineRecurrence.agda`
+  - `agda --transliterate Metatheory/Extensional.agda`
+  - `agda --transliterate Metatheory/KanSubsumption.agda`
+  - `agda --transliterate Metatheory/AdjunctionBarrier.agda`
+  - `agda --transliterate PEN.agda`
+  - `agda --transliterate Test/MetatheorySmoke.agda`
+
+---
+
 ## Phase 0: Environment and Foundations
 
 ### Status: COMPLETE
