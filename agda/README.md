@@ -90,6 +90,14 @@ Current theorem-facing modules:
   `transparent-definitions-preserve-active-interface`,
   `transparent-definitions-have-zero-integration-latency`, and
   `transparent-user-level-code-lies-outside-the-recurrence`.
+- `Metatheory/CanonicityDensity.agda` packages the exact paper-facing
+  maximal-density theorem `thm:canonicity` via
+  `HistoricalInterface`, `FullyCoupledFoundation`,
+  `FoundationalCoreExtension`, `NativeCanonicityPreservingTotality`,
+  `PromotedOperationalExhaustiveness`, `MaximalInterfaceDensity`,
+  `CanonicityDensityTheorem`,
+  `primitive-interaction-counting-normal-form`, and
+  `global-admissibility-forces-maximal-interface-density`.
 - `Metatheory/TracePrinciple.agda` packages the exact paper-facing integration
   trace principle `thm:trace` via `IntegrationTracePrinciple`,
   `public-counting-normal-form`, and `integration-trace-principle`, built on
@@ -166,6 +174,7 @@ What this means in practice:
 - the exact `d = 2` coherence-depth corollary is mechanized
 - the abstract `2`D-foundations wrapper is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
+- the exact maximal-interface-density theorem is now mechanized
 - the exact integration trace principle is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
@@ -173,9 +182,9 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `thm:canonicity`
+  `thm:recurrence`
 - exact paper-level wrappers such as the later
-  canonicity/recurrence/refactoring/clutching results are still pending
+  recurrence/refactoring/clutching results are still pending
 
 ### Counting / Oracle Track
 
@@ -203,6 +212,8 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
 - `Metatheory/InterfaceCalculus.agda`: transparent-vs-sealed interface surface
   plus the explicit counted sealed-layer API
+- `Metatheory/CanonicityDensity.agda`: fully coupled historical-interface and
+  maximal-density package for `thm:canonicity`
 - `Metatheory/TracePrinciple.agda`: exact trace-principle wrapper for sealed
   exports
 - `Metatheory/Extensional.agda`: depth-1 theorem
@@ -236,6 +247,7 @@ Useful additional checks:
 ```bash
 agda --transliterate Metatheory/Obligations.agda
 agda --transliterate Metatheory/InterfaceCalculus.agda
+agda --transliterate Metatheory/CanonicityDensity.agda
 agda --transliterate Metatheory/TracePrinciple.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda

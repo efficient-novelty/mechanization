@@ -82,6 +82,14 @@ These are not part of the remaining backlog below.
   `transparent-definitions-preserve-active-interface`,
   `transparent-definitions-have-zero-integration-latency`, and
   `transparent-user-level-code-lies-outside-the-recurrence`.
+- `thm:canonicity` now has an exact theorem-facing counterpart in
+  `agda/Metatheory/CanonicityDensity.agda` via `HistoricalInterface`,
+  `FullyCoupledFoundation`, `FoundationalCoreExtension`,
+  `NativeCanonicityPreservingTotality`,
+  `PromotedOperationalExhaustiveness`, `MaximalInterfaceDensity`,
+  `CanonicityDensityTheorem`,
+  `primitive-interaction-counting-normal-form`, and
+  `global-admissibility-forces-maximal-interface-density`.
 - `thm:trace` now has an exact theorem-facing counterpart across
   `agda/Metatheory/InterfaceCalculus.agda` and
   `agda/Metatheory/TracePrinciple.agda` via the explicit counted sealed-layer
@@ -98,17 +106,7 @@ These are not part of the remaining backlog below.
 
 ## Remaining Statements, Easy To Hard
 
-1. `thm:canonicity` (`1_coherence_depth.tex`, label `thm:canonicity`)
-
-    Status: missing.
-    This is the first genuinely heavy semantic theorem still absent from the
-    artifact. The paper appeals to canonicity-preserving totality for native
-    extensions and operational exhaustiveness for promoted interface packages,
-    but neither side is yet formalized in Agda.
-    Suggested target: a dedicated module such as
-    `agda/Metatheory/CanonicityDensity.agda`.
-
-2. `thm:recurrence` (`1_coherence_depth.tex`, label `thm:recurrence`)
+1. `thm:recurrence` (`1_coherence_depth.tex`, label `thm:recurrence`)
 
     Status: missing as stated.
     The current code proves the depth-two constant-payload specialization, not
@@ -119,7 +117,7 @@ These are not part of the remaining backlog below.
     interface `I_n^(d)` an explicit finite tagged coproduct over the new
     obligation-language surface.
 
-3. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
+2. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
 
     Status: missing.
     The paper claims invariance under canonical telescope isomorphism,
@@ -129,7 +127,7 @@ These are not part of the remaining backlog below.
     Suggested target: a separate normalization/refactoring module after the
     interface calculus is explicit.
 
-4. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
+3. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
 
     Status: missing.
     This is the hardest remaining statement. The paper's topological exact
@@ -140,10 +138,10 @@ These are not part of the remaining backlog below.
     Suggested target: a dedicated `agda/Metatheory/Clutching.agda` or
     `agda/Geometry/Clutching.agda`.
 
-5. Conclusion-level mechanization claim cleanup
+4. Conclusion-level mechanization claim cleanup
 
     Status: still needed after the theorem work above.
-    Once Items 1-5 are completed, the prose in the abstract, mechanization
+    Once Items 1-4 are completed, the prose in the abstract, mechanization
     section, and conclusion should be tightened so that every cited paper
     theorem points to an exact Agda theorem rather than to a computational
     ingredient or explanatory scaffold.
@@ -156,10 +154,13 @@ These are not part of the remaining backlog below.
   surface.
 - The exact depth-two corollary is now the core theorem-facing wrapper tying
   the upper-bound, chronological-window, and lower-bound packages together.
-- Items 1-3 build on the new explicit interface-calculus surface and extend it
-  from trace accounting to canonicity, universal recurrence, and refactoring
+- The canonicity and trace packages now expose a theorem-facing historical
+  interface and counted sealed-layer surface for later recurrence/refactoring
+  work.
+- Items 1-2 build on that explicit interface-calculus surface and extend it
+  from density/trace accounting to universal recurrence and refactoring
   invariance.
-- Item 4 is the main topological formalization project and should be treated
+- Item 3 is the main topological formalization project and should be treated
   as its own milestone.
 
 ## Suggested Execution Order
@@ -167,7 +168,6 @@ These are not part of the remaining backlog below.
 If the goal is fastest improvement to theorem-to-code fidelity, a good
 implementation order is:
 
-1. Items 1-2 (canonicity through universal recurrence)
-2. Item 3 (refactoring invariance)
-3. Item 4 (clutching family)
-4. Item 5 (paper mechanization claim cleanup)
+1. Items 1-2 (universal recurrence through refactoring invariance)
+2. Item 3 (clutching family)
+3. Item 4 (paper mechanization claim cleanup)

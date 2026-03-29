@@ -33,6 +33,19 @@ open import Adjunction.TriangleIdentity public
 -- Coherence-depth metatheory
 open import Metatheory.Obligations public
 open import Metatheory.InterfaceCalculus public
+open import Metatheory.CanonicityDensity public
+  using ( HistoricalInterface
+        ; FullyCoupledFoundation
+        ; FoundationalCoreExtension
+        ; primitive-interaction-site
+        ; NativeCanonicityPreservingTotality
+        ; PromotedOperationalExhaustiveness
+        ; MaximalInterfaceDensity
+        ; GlobalAdmissibilityDiscipline
+        ; CanonicityDensityTheorem
+        ; primitive-interaction-counting-normal-form
+        ; global-admissibility-forces-maximal-interface-density
+        )
 open import Metatheory.TracePrinciple public
   using ( IntegrationTracePrinciple
         ; public-counting-normal-form
@@ -85,33 +98,40 @@ open import Metatheory.AdjunctionBarrier public
 -- Proof: transparent-user-level-code-lies-outside-the-recurrence in
 --        Metatheory.InterfaceCalculus
 
--- THEOREM 5: The integration trace principle
+-- THEOREM 5: Global admissibility forces maximal interface density
+-- In a fully coupled foundation, a foundational core extension that passes
+-- native totality or promoted operational exhaustiveness contributes exactly
+-- one primitive interaction datum per active historical generator.
+-- Proof: global-admissibility-forces-maximal-interface-density in
+--        Metatheory.CanonicityDensity
+
+-- THEOREM 6: The integration trace principle
 -- An explicit sealed layer packages its public export as the canonical sum
 -- of new core payload and resolved trace, with counting normal forms for the
 -- core, trace, and total public interface.
 -- Proof: integration-trace-principle in Metatheory.TracePrinciple
 
--- THEOREM 6: The explicit adjunction barrier package
+-- THEOREM 7: The explicit adjunction barrier package
 -- The promoted endomap clause const-left on Two leaves a residual
 -- binary sealing obligation along the swap-induced endomap path, and
 -- triangle identities remain depth-2 data.
 -- Proof: explicit-binary-sealing-obstruction / triangle-identity-corollary /
 --        adjunction-barrier in Metatheory.AdjunctionBarrier
 
--- THEOREM 7: The paper-facing chronological-window corollary
+-- THEOREM 8: The paper-facing chronological-window corollary
 -- Primitive sealing data factor through the most recent two exported layers,
 -- and no smaller chronological window suffices.
 -- Proof: two-layer-chronological-window /
 --        chronological-markov-blanket in Metatheory.ChronologicalWindow
 
--- THEOREM 8: The paper-facing exact depth-two corollary
+-- THEOREM 9: The paper-facing exact depth-two corollary
 -- The structural horn language stabilizes exactly at depth 2, and the
 -- two-layer chronological window is itself exact.
 -- Proof: cubical-coherence-depth-exactly-two /
 --        cubical-chronological-window-size-exactly-two in
 --        Metatheory.ExactDepth
 
--- THEOREM 9: The abstract depth-two law for fully coupled 2D foundations
+-- THEOREM 10: The abstract depth-two law for fully coupled 2D foundations
 -- A witness of genuine binary coherence together with depth-two
 -- stabilization/window data forces coherence depth 2, and under constant
 -- payload the same package exposes the affine depth-two recurrence whose

@@ -20,11 +20,21 @@ library-state-surface = LibraryState
 transparent-development-surface = TransparentDevelopment
 sealed-layer-surface = SealedLayer
 explicit-sealed-layer-surface = ExplicitSealedLayer
+higher-interface-surface = HistoricalInterface
+fully-coupled-foundation-surface = FullyCoupledFoundation
+foundational-core-extension-surface = FoundationalCoreExtension
 transparent-state-theorem = transparent-growth-keeps-library-state
 transparent-interface-theorem = transparent-definitions-preserve-active-interface
 transparent-latency-theorem = transparent-definitions-have-zero-integration-latency
 transparent-outside-recurrence-theorem =
   transparent-user-level-code-lies-outside-the-recurrence
+native-totality-surface = NativeCanonicityPreservingTotality
+promoted-exhaustiveness-surface = PromotedOperationalExhaustiveness
+maximal-density-surface = MaximalInterfaceDensity
+canonicity-package-surface = CanonicityDensityTheorem
+canonicity-counting-normal-form = primitive-interaction-counting-normal-form
+canonicity-theorem-available =
+  global-admissibility-forces-maximal-interface-density
 trace-package-surface = IntegrationTracePrinciple
 trace-public-counting-normal-form = public-counting-normal-form
 trace-theorem-available = integration-trace-principle
