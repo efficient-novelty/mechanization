@@ -120,6 +120,61 @@ record HornReductionView {ℓ : Level} {A : Type ℓ} {φ : I}
 
 open HornReductionView public
 
+-- The paper's telescopic lemma iterates the one-step horn reduction:
+-- every additional remote binary comparison is generated from the already
+-- exported adjacent traces and contributes only another derived horn fiber.
+data TelescopicTraceChain {ℓ : Level} {A : Type ℓ} {φ : I}
+  (u : I → Partial φ A) (u0 : A [ φ ↦ u i0 ]) : Nat → Type ℓ where
+  no-remote-traces :
+    TelescopicTraceChain u u0 zero
+  extend-trace-chain :
+    {offset : Nat} →
+    HornExtensionFiber u u0 →
+    TelescopicTraceChain u u0 offset →
+    TelescopicTraceChain u u0 (suc offset)
+
+record TelescopicSubsumptionView {ℓ : Level} {A : Type ℓ} {φ : I}
+  (u : I → Partial φ A) (u0 : A [ φ ↦ u i0 ]) (offset : Nat) : Type ℓ where
+  constructor mkTelescopicSubsumptionView
+  field
+    recentBoundary : StructuralObligation u u0 (suc (suc zero))
+    traceChain     : TelescopicTraceChain u u0 offset
+
+open TelescopicSubsumptionView public
+
+telescopic-subsumption :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  (offset : Nat) →
+  StructuralObligation u u0 (2 + offset) →
+  TelescopicSubsumptionView u u0 offset
+telescopic-subsumption u u0 zero depth2-boundary =
+  mkTelescopicSubsumptionView depth2-boundary no-remote-traces
+telescopic-subsumption u u0 (suc offset) (extend-remote-layer boundary fiber)
+  with telescopic-subsumption u u0 offset boundary
+... | mkTelescopicSubsumptionView recentBoundary traceChain =
+  mkTelescopicSubsumptionView recentBoundary
+    (extend-trace-chain fiber traceChain)
+
+realize-telescopic-subsumption :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  (offset : Nat) →
+  TelescopicSubsumptionView u u0 offset →
+  StructuralObligation u u0 (2 + offset)
+realize-telescopic-subsumption u u0 zero
+  (mkTelescopicSubsumptionView recentBoundary no-remote-traces) =
+  recentBoundary
+realize-telescopic-subsumption u u0 (suc offset)
+  (mkTelescopicSubsumptionView recentBoundary
+    (extend-trace-chain fiber traceChain)) =
+  extend-remote-layer
+    (realize-telescopic-subsumption u u0 offset
+      (mkTelescopicSubsumptionView recentBoundary traceChain))
+    fiber
+
 structural-integration-horn-reduction :
   {ℓ : Level} {A : Type ℓ} {φ : I} →
   (u : I → Partial φ A) →
@@ -159,6 +214,16 @@ structural-primitive-cost :
   StructuralObligation u u0 k → PrimitiveCost
 structural-primitive-cost depth2-boundary = requiresPrimitive
 structural-primitive-cost (extend-remote-layer _ _) = derived
+
+telescopic-remote-comparison-derived :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  (offset : Nat) →
+  (o : StructuralObligation u u0 (3 + offset)) →
+  structural-primitive-cost o ≡ derived
+telescopic-remote-comparison-derived u u0 offset
+  (extend-remote-layer boundary fiber) = refl
 
 structural-weaken :
   {ℓ : Level} {A : Type ℓ} {φ : I} →

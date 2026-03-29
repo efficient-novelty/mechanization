@@ -23,6 +23,10 @@ horn-fiber-surface = HornExtensionFiber
 horn-language-surface = structural-horn-language
 horn-reduction-available = structural-integration-horn-reduction
 horn-derived-cost-available = remote-layer-obligation-derived
+telescopic-trace-surface = TelescopicTraceChain
+telescopic-view-surface = TelescopicSubsumptionView
+telescopic-lemma-available = telescopic-subsumption
+telescopic-derived-available = telescopic-remote-comparison-derived
 upper-bound-equivalence-available = structural-obligation-set-equivalence
 upper-bound-theorem-available = structural-stabilizes-at-two
 

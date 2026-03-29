@@ -89,11 +89,16 @@ Current theorem-facing modules:
 - `Metatheory/Extensional.agda` proves the UIP/extensional collapse via
   `UIP-forces-depth-1` and `history-truncates-to-one`.
 - `Metatheory/KanSubsumption.agda` now packages both the raw arity-3 open-box
-  derivation surface and the exact theorem-facing horn-reduction wrapper via
+  derivation surface, the exact theorem-facing horn-reduction wrapper, and the
+  exact telescopic wrapper for remote binary comparisons via
   `HornExtensionFiber`, `horn-extension-fiber-contractible`,
   `structural-horn-language`,
   `structural-integration-horn-reduction`,
   `remote-layer-obligation-derived`,
+  `TelescopicTraceChain`,
+  `TelescopicSubsumptionView`,
+  `telescopic-subsumption`,
+  `telescopic-remote-comparison-derived`,
   `arity3-obligation-syntactically-derivable`,
   `history-beyond-two-algorithmically-subsumed`, and
   `arity3-open-box-hfilled`.
@@ -115,6 +120,8 @@ What this means in practice:
 - the lower bound against cubical depth-1 collapse is mechanized
 - the exact horn-reduction surface and its arity-3 computational witness are
   mechanized
+- the exact telescopic subsumption wrapper for remote binary comparisons is
+  mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
@@ -122,9 +129,9 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `lem:telescopic`
-- exact paper-level wrappers such as the telescopic corollary,
-  chronological window theorem, exact `d = 2` corollary, and the later
+  `cor:chrono-window`
+- exact paper-level wrappers such as the chronological-window theorem,
+  exact `d = 2` corollary, and the later
   interface/trace/canonicity/clutching results are still pending
 
 ### Counting / Oracle Track
@@ -152,8 +159,8 @@ If you are trying to orient yourself quickly, start here:
 - `PEN.agda`: top-level export surface
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
 - `Metatheory/Extensional.agda`: depth-1 theorem
-- `Metatheory/KanSubsumption.agda`: horn-reduction and arity-3 open-box
-  package
+- `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
+  and arity-3 open-box package
 - `Metatheory/UpperBound.agda`: exact depth-two upper-bound/stabilization
   wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
