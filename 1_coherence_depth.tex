@@ -32,7 +32,7 @@
 \begin{document}
 
 \begin{abstract}
-We study a metatheoretic invariant of framework extension in type theory. The paper models the worst-case scaling of \emph{foundational core extensions}: globally acting sealed additions such as universe hierarchies, global modalities, and heavily promoted generic interfaces whose public behavior must be specified against the active exported interface. We call the least historical depth at which the resulting obligations stabilize the coherence depth of the foundation. We formulate a payload-aware trace principle decomposing each exported interface into new core payload plus resolved coherence trace and, in the cubical case, a telescopic subsumption lemma showing that the depth-two arity bound is realized by a genuine two-layer chronological window. Together these turn coherence depth into an affine recurrence law for integration debt. In extensional systems with UIP the depth is one. In the fully coupled cubical univalent setting considered here the depth is two, and under uniform payload size the resulting integration law is shifted Fibonacci. We also give a Cubical Agda mechanization of both the depth theorem package itself and its affine recurrence consequence.
+We study a metatheoretic invariant of framework extension in type theory. The paper models the worst-case scaling of \emph{foundational core extensions}: globally acting sealed additions such as universe hierarchies, global modalities, and heavily promoted generic interfaces whose public behavior must be specified against the active exported interface. We call the least historical depth at which the resulting normalized obligation types stabilize up to canonical equivalence the coherence depth of the foundation. All payload and latency counts are taken on flattened telescope normal forms of sealed interfaces, so admissible rebundling or interface slicing does not change the metrics. We formulate a payload-aware trace principle decomposing each exported interface into new core payload plus resolved coherence trace and, in the cubical case, a telescopic subsumption lemma showing that the marginal depth-three data form contractible horn extensions and that the resulting depth-two arity bound is realized by a genuine two-layer chronological window. Abstracting that proof pattern yields a general depth-two law for fully coupled $2$D foundations: once genuine binary coherence exists and arity-$3$ extensions are uniformly subsumed without new primitive payload, integration debt obeys the same affine depth-two recurrence. In extensional systems with UIP the depth is one. In the fully coupled cubical univalent setting considered here the depth is two, and under uniform payload size the resulting integration law is shifted Fibonacci. We also give a Cubical Agda mechanization of both the cubical depth theorem package and its affine recurrence consequence.
 \end{abstract}
 
 \maketitle
@@ -62,15 +62,15 @@ We call that invariant the \emph{coherence depth} (or \emph{coherence window}) o
 In any fully coupled univalent core calculus with uniform payload size, framework extension debt exhibits Fibonacci scaling.
 \end{quote}
 
-Here ``fully coupled'' refers only to the foundational-core regime just described: admissible extensions are globally acting payloads whose semantics or promoted action is intended to range over the whole active interface, not orthogonal additions that leave most earlier exports untouched. Within that regime, every admissible extension must provide primitive interaction data against the whole active exported interface rather than against a chosen fragment, and maximal interface density is the canonicity-preserving form of that library-wide action. In extensional systems with UIP, the coherence depth collapses to~$1$, and under uniform payload size the recurrence is first-order affine. In the cubical univalent setting considered here, the coherence depth is~$2$, and after a constant payload shift the recurrence becomes Fibonacci.
+Here ``fully coupled'' refers only to the foundational-core regime just described: admissible extensions are globally acting payloads whose semantics or promoted action is intended to range over the whole active interface, not orthogonal additions that leave most earlier exports untouched. Within that regime, the operative assumption is the scope of the advertised global action, not a prior density axiom. \autoref{thm:canonicity} then shows that admissibility forces maximal interface density: for native core extensions through canonicity-preserving totality, and for promoted interface packages through operational exhaustiveness of the exported global interface. In extensional systems with UIP, the coherence depth collapses to~$1$, and under uniform payload size the recurrence is first-order affine. In the cubical univalent setting considered here, the coherence depth is~$2$, and after a constant payload shift the recurrence becomes Fibonacci.
 
 \subsection{Summary of contributions}
 
 The paper develops one theorem package with three components.
 
 \begin{enumerate}
-    \item We formalize \emph{core framework evolution}: states, sealed extensions, promoted interface packages, active interfaces, integration latency, and the distinction between orthogonal extensions and globally acting foundational core extensions. Within this framework we prove a maximal-interface-density theorem for the fully coupled foundational-core regime and a payload-aware \emph{Integration Trace Principle}, decomposing the exported interface of a sealed layer into its new public payload and the resolved obligations discharged in sealing it.
-    \item We define coherence depth and prove a sharp dichotomy. In extensional type theory with UIP, the depth is~$1$. In the fully coupled cubical univalent setting, the depth is~$2$. The depth-two statement is supported by three convergent arguments: a dimensional upper bound from weak $\omega$-groupoid semantics and cubical Kan filling, a categorical lower bound from adjunction coherence, and a topological lower-bound family supplied by clutching constructions for principal bundles over spheres. The passage from the dimensional bound to a genuine two-step time window is made explicit by a telescopic subsumption lemma using cubical Kan filling.
+    \item We formalize \emph{core framework evolution}: states, sealed extensions, promoted interface packages, active interfaces, integration latency, and the distinction between orthogonal extensions and globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. Within this framework we prove a maximal-interface-density theorem for the fully coupled foundational-core regime and a payload-aware \emph{Integration Trace Principle}, decomposing the exported interface of a sealed layer into its new public payload and the resolved obligations discharged in sealing it.
+    \item We define coherence depth and prove a sharp dichotomy. In extensional type theory with UIP, the depth is~$1$. In the fully coupled cubical univalent setting, the depth is~$2$. The depth-two statement is supported by three convergent arguments: a dimensional upper bound from weak $\omega$-groupoid semantics and cubical Kan filling, stated as an exact obligation-set equivalence because the marginal higher-arity data are normalized as horn extensions rather than closed-sphere fillers; a lower bound from an explicit swap-induced binary sealing obstruction, with adjunction coherence as its categorical manifestation; and a topological lower-bound family supplied by clutching constructions for principal bundles over spheres. The passage from the dimensional bound to a genuine two-step time window is made explicit by a telescopic subsumption lemma using cubical Kan filling.
     \item We combine the trace principle with the coherence-depth theorem to obtain a universal affine recurrence for integration latency. Under constant payload size~$c$, the depth-two case specializes to
     \[
       \Delta_{n+1} = \Delta_n + \Delta_{n-1} + 2c,
@@ -83,7 +83,7 @@ The present version is a first full draft. The Cubical Agda development describe
 \subsection{Related work}
 \label{sec:related}
 
-The higher-dimensional background comes from the interpretation of intensional identity types as weak $\omega$-groupoids, developed by Lumsdaine~\cite{lumsdaine} and van den Berg and Garner~\cite{vdberg-garner}. The operational setting for the intensional side of our depth dichotomy is cubical type theory in the sense of Cohen, Coquand, Huber, and M\"ortberg~\cite{cubical}, together with higher inductive types and Kan composition~\cite{cchm-hits}. For mechanization we use Cubical Agda~\cite{cubical-agda}.
+The higher-dimensional background comes from the interpretation of intensional identity types as weak $\omega$-groupoids, developed by Lumsdaine~\cite{lumsdaine} and van den Berg and Garner~\cite{vdberg-garner}. The operational setting for the intensional side of our depth dichotomy is cubical type theory in the sense of Cohen, Coquand, Huber, and M\"ortberg~\cite{cubical}, together with higher inductive types and Kan composition~\cite{cchm-hits}. For mechanization we use Cubical Agda~\cite{cubical-agda}. For comparison with mixed weak/strict equality foundations, see the two-level presentations of Altenkirch, Capriotti, and Kraus and of Annenkov, Capriotti, Kraus, and Sattler~\cite{altenkirch-strict,annenkov-2ltt}.
 
 The coherence-theoretic side is informed by Mac Lane's coherence theorem~\cite{maclane-coherence}. We also use Stasheff's analysis of higher associativity~\cite{stasheff} and the well-foundedness approach to coherence of Kraus and von Raumer~\cite{kraus-vonraumer}. Our contribution is to turn coherence from a qualitative structural property into a quantitative invariant of extension debt.
 
@@ -115,12 +115,19 @@ A \emph{candidate} over a library state $\B$ is a pair
 \[
   X = (X_{\mathrm{core}}, \Gcal_{\mathrm{obl}}),
 \]
-where $X_{\mathrm{core}}$ is the mathematical content proposed for addition and $\Gcal_{\mathrm{obl}}$ is the family of atomic coherence obligations induced when $X$ is sealed against the active interface of~$\B$.
+where $X_{\mathrm{core}}$ is the mathematical content proposed for addition and $\Gcal_{\mathrm{obl}}$ is the family of normalized atomic coherence obligations induced when $X$ is sealed against the active interface of~$\B$.
+\end{defi}
+
+\begin{defi}[Counting normal form and atomic schemas]
+\label{def:atomic-schema}
+Every public interface in this paper is counted only up to \emph{canonical telescope isomorphism}: reassociation and flattening of iterated dependent sums, splitting or rebundling one single-constructor record into several nested records, and currying or uncurrying iterated function arguments when these preserve the same sealed typing judgment. Concretely, an exported interface is read as a dependent record, equivalently an iterated $\Sigma$-type whose field types may themselves begin with $\Pi$-telescopes. Its \emph{counting normal form} is the fully flattened telescope obtained by reassociating the $\Sigma$-spine and expanding such record wrappers.
+
+An \emph{atomic schema} is one irreducible generating field of this counting normal form. A field is irreducible when its inhabitant is not uniformly synthesized from earlier fields by definitional equality, reflexivity, or the generic structural operations of the ambient calculus.
 \end{defi}
 
 \begin{defi}[Core payload size]
 \label{def:payload}
-For a candidate~$X$, let $P(X)$ be the finite set of public schemas contributed directly by $X_{\mathrm{core}}$ before any coherence witnesses against earlier layers are added. Its cardinality
+For a candidate~$X$, let $P(X)$ be the finite set of atomic payload schemas appearing in the counting normal form of the public interface contributed directly by $X_{\mathrm{core}}$ before any coherence witnesses against earlier layers are added. Its cardinality
 \[
   \kappa(X) := |P(X)|
 \]
@@ -143,10 +150,15 @@ The \emph{integration latency} of a candidate $X$ over~$\B$ is
 \[
   \Delta(X \mid \B) := |\Gcal_{\mathrm{obl}}|,
 \]
-the number of atomic obligations that must be resolved before $X$ can be exported as a sealed layer.
+the number of irreducible atomic obligations that must be resolved before $X$ can be exported as a sealed layer.
 \end{defi}
 
-For a sealed layer $L_k$ obtained from a candidate~$X_k$, we write $S(L_k)$ for its set of exported interface schemas and
+\begin{rem}[Refactoring invariance of the counting notions]
+\label{rem:refactor-invariance}
+Because $\kappa$, $\Delta$, and later historical support are computed on counting normal forms, admissible refactorings such as bundling laws into one record, splitting one interface into several record shells, exporting curried rather than uncurried arguments, or pushing transparently derivable witnesses deeper into an internal term do not change the counts. Only a change in the irreducible primitive fields of the sealed typing judgment changes the metrics.
+\end{rem}
+
+For a sealed layer $L_k$ obtained from a candidate~$X_k$, we write $S(L_k)$ for the set of atomic exported schemas in the counting normal form of its public interface and
 \[
   \kappa_k := \kappa(X_k)
 \]
@@ -163,7 +175,7 @@ Such a development creates no new irreducible interaction site against the expor
 
 \begin{defi}[Foundational core extension]
 \label{def:foundational-core}
-A candidate~$X$ over~$\B_n$ is a \emph{foundational core extension} if its payload is intended to act globally on the currently active interface: each public generator in $P(X)$ is operationally or semantically incomplete until its behavior has been specified against every generator in the designated coupling footprint inside the active exported interface. Typical examples are extensions of a universe-decoding apparatus, global modalities whose action must distribute across existing type formers and transports, and heavily promoted generic interfaces whose exported action is library-wide.
+A candidate~$X$ over~$\B_n$ is a \emph{foundational core extension} if its payload is intended to act globally on the currently active interface: each atomic payload generator in $P(X)$ is operationally or semantically incomplete until its behavior has been specified against every generator in the designated coupling footprint inside the active exported interface. Typical examples are extensions of a universe-decoding apparatus, global modalities whose action must distribute across existing type formers and transports, and heavily promoted generic interfaces whose exported action is library-wide.
 \end{defi}
 
 \begin{rem}
@@ -173,7 +185,7 @@ Not every sealed extension is foundational in the sense of \autoref{def:foundati
 
 This scope restriction is essential for the density theorem below. Ordinary user-level additions typically enlarge a sparse DAG of modules or datatypes and do not force primitive interaction with unrelated earlier exports. The maximal-coupling statement proved here isolates the special foundational-core regime in which the new sealed layer is advertised as a \emph{global} operation on the active interface, so that canonicity and global closure become exhaustiveness requirements rather than bookkeeping conventions.
 
-\subsection{Maximal interface density as a canonicity requirement}
+\subsection{Global action and maximal interface density}
 
 To speak about coupling to historical layers, it is convenient to parameterize the visible interface by depth.
 
@@ -183,7 +195,7 @@ For $k \geq 1$, the \emph{historical interface of depth~$k$} at stage~$n$ is
 \[
   I_n^{(k)} := \biguplus_{j=0}^{k-1} S(L_{n-j}),
 \]
-the tagged coproduct of the schemas exported by the most recent $k$ sealed layers.
+the tagged coproduct of the atomic schemas exported by the most recent $k$ sealed layers in counting normal form.
 \end{defi}
 
 \begin{defi}[Maximal interface density]
@@ -193,14 +205,14 @@ A foundational core candidate sealed against $I_n^{(k)}$ has \emph{maximal inter
 
 \begin{defi}[Fully coupled foundation]
 \label{def:fully-coupled}
-A foundation is \emph{fully coupled} if the admissible sealed extensions under study are foundational core extensions and each such extension is required to satisfy maximal interface density with respect to the active historical interface. Equivalently, the paper's admissible extensions in a fully coupled foundation are globally acting payloads whose coupling footprint is the whole active interface, not orthogonal additions with sparse dependency patterns.
+A foundation is \emph{fully coupled} if the admissible sealed extensions under study are foundational core extensions whose public signatures are advertised as acting on the whole active historical interface. Equivalently, the paper's admissible extensions in a fully coupled foundation are globally acting payloads whose intended coupling footprint is the whole active interface, not orthogonal additions with sparse dependency patterns. This definition fixes only the scope of the action. The density theorem below derives the exact primitive interaction data required to realize that action.
 \end{defi}
 
 The next theorem turns maximal interface density into a metatheoretic necessity for this globally coupled regime rather than a stylistic choice.
 
-\begin{thm}[Canonicity forces maximal interface density for foundational core extensions]
+\begin{thm}[Global admissibility forces maximal interface density for foundational core extensions]
 \label{thm:canonicity}
-Let $\B_n$ be a library state in a fully coupled foundation, and let $X$ be an admissible foundational core extension sealed against the historical interface $I_n^{(k)}$. If the extended theory is to preserve the global closure and canonicity discipline of the sealed library, then every generator of $I_n^{(k)}$ must receive exactly one primitive interaction datum from~$X$. Consequently,
+Let $\B_n$ be a library state in a fully coupled foundation, and let $X$ be an admissible foundational core extension sealed against the historical interface $I_n^{(k)}$. If the extended theory is to pass the sealed library's global admissibility discipline, then every generator of $I_n^{(k)}$ must receive exactly one primitive interaction datum from~$X$. For native core extensions this is enforced by canonicity-preserving totality of the operational semantics, while for promoted interface packages it is enforced by operational exhaustiveness of the exported global interface. Consequently,
 \[
   \Delta(X \mid \B_n) = |I_n^{(k)}|.
 \]
@@ -209,11 +221,14 @@ Let $\B_n$ be a library state in a fully coupled foundation, and let $X$ be an a
 \begin{proof}
 By \autoref{def:fully-coupled}, the admissible candidates considered here are not arbitrary sealed additions but foundational core extensions whose payload is intended to act on the whole active interface. The theorem is therefore about that global regime only; orthogonal extensions of the kind noted in \autoref{rem:orthogonal} are outside its hypotheses.
 
-First consider a native global computational extension. In a Tarski-style universe presentation, suppose the active interface exports a code universe $U$ and a decoding map $\mathsf{El} : U \to \mathsf{Type}$. If the new sealed layer extends the universe with a fresh code but the extended decoding machinery is not given the corresponding new primitive computation clause, then closed terms mentioning that code no longer reduce through $\mathsf{El}$, so canonicity fails on the extended language. More generally, if a new global operator such as a modality, transport schema, or promoted eliminator package is advertised as acting on the whole active interface but omits some generator of $I_n^{(k)}$, then the extended reduction or comparison relation is partial on well-typed terms built from that generator. In compiler terms, the global action has failed the relevant exhaustiveness condition.
+First consider a native global computational extension. In a Tarski-style universe presentation, suppose the active interface exports a code universe $U$ and a decoding map $\mathsf{El} : U \to \mathsf{Type}$. If the new sealed layer extends the universe with a fresh code but the extended decoding machinery is not given the corresponding primitive computation clause, then closed terms mentioning that code no longer reduce through $\mathsf{El}$, so canonicity fails on the extended language. The same phenomenon occurs for any native global operator advertised as acting across the active interface: omitting one prior generator leaves a well-typed term headed by that generator at a stuck neutral or partially defined reduction site. Thus native admissibility forces at least one clause for every generator of $I_n^{(k)}$.
 
-For globally promoted interface packages the same point appears at the level of exported semantics. If the new opaque package is meant to provide a library-wide action but omits the comparison witness for some previously exported generator, then later sealing steps cannot treat it as a closed global operation ranging over the whole library. The public action is only partially defined on the active interface, so the sealed calculus is not globally closed.
+Next consider a promoted interface package. Such a package need not alter kernel reduction, so standard canonicity is not the right notion. What matters instead is operational exhaustiveness of the exported global interface. If the package is advertised as a library-wide action, its public typing judgment is a total dependent map out of the record enumerating the active interface. Omitting one prior generator therefore leaves a well-typed case uncovered: later sealing steps cannot treat the package as a closed global operation because its action is undefined on part of the advertised domain. Thus promoted packages also require at least one primitive witness for every generator of $I_n^{(k)}$.
 
-This proves the ``at least one'' direction for foundational core extensions. For the converse, the issue is not metaphysical uniqueness of higher structure but the single-clause discipline required for computation. For native global extensions, two distinct primitive defining clauses for the same head and the same prior generator would overlap and destroy confluence. For globally promoted packages, once the public source, target, and prior generator are fixed, a second primitive datum would advertise competing basic behavior for the same global action. Hence exactly one primitive clause is forced at each head/generator site, and the number of obligations is precisely the cardinality of the historical interface.
+For the converse direction, the issue is the single-clause discipline forced by admissibility. For native global extensions, two distinct primitive defining clauses for the same head and prior generator would overlap and destroy confluence. For promoted packages, once the public source, target, and prior generator are fixed, a second primitive witness would advertise competing basic behavior for the same global action and would violate the package's own coverage discipline. Hence exactly one primitive clause is forced at each head/generator site. Therefore every generator of the historical interface contributes one and only one primitive interaction datum, so
+\[
+  \Delta(X \mid \B_n) = |I_n^{(k)}|.
+\]
 \end{proof}
 
 \subsection{The integration trace principle}
@@ -222,7 +237,7 @@ In the fully coupled foundational-core regime, the preceding theorem identifies 
 
 \begin{thm}[Integration Trace Principle]
 \label{thm:trace}
-Each sealed integration layer exports a disjoint union of two kinds of public schema: the new payload contributed by its core content and the trace schemas corresponding to its resolved obligations. Equivalently, if $L_k$ is the layer obtained by sealing a candidate of core payload size~$\kappa_k$ and coherence cost~$\Delta_k$, then there is a canonical decomposition
+Each sealed integration layer exports, in counting normal form, a disjoint union of two kinds of public schema: the new payload contributed by its core content and the trace schemas corresponding to its resolved obligations. Equivalently, if $L_k$ is the layer obtained by sealing a candidate of core payload size~$\kappa_k$ and coherence cost~$\Delta_k$, then there is a canonical decomposition
 \[
   S(L_k) \cong S_{\mathrm{core}}(L_k) \uplus S_{\mathrm{tr}}(L_k)
 \]
@@ -239,11 +254,13 @@ Hence
 \end{thm}
 
 \begin{proof}
-There are two logically distinct sources of exported schemas.
+There are two logically distinct sources of atomic exported schemas in the counting normal form.
 
 First, the candidate's core content $X_{k,\mathrm{core}}$ contributes genuinely new public generators: a new type former, modality, promoted interface operator, or other primitive schema that did not previously exist in the library. By definition of core payload size, the number of these newly exported payload schemas is~$\kappa_k$. These form $S_{\mathrm{core}}(L_k)$.
 
-Second, by \autoref{thm:canonicity}, sealing against the active interface requires exactly one primitive interaction datum for each active exported generator. Once such a datum is supplied and the layer is sealed, the datum no longer survives as an internal derivation visible to future extensions. It survives only through the public schema recording how the new payload acts on that older generator. These schemas form $S_{\mathrm{tr}}(L_k)$, and there is one of them for each resolved obligation. Hence $|S_{\mathrm{tr}}(L_k)|=\Delta_k$.
+Second, by \autoref{thm:canonicity}, sealing against the active interface requires exactly one primitive interaction datum for each active exported generator. Formally, a sealed layer is exported as a dependent record, equivalently an iterated $\Sigma$-type, whose fields consist of the new payload together with the coherence cells needed to type that payload against earlier exports. Opacity hides the inhabitants of those fields, but not the field-types occurring in the exported signature. Thus once such a datum is supplied and the layer is sealed, it no longer survives as an inspectable derivation visible to future extensions; it survives as a public trace field recording how the new payload acts on that older generator. These schemas form $S_{\mathrm{tr}}(L_k)$, and there is one of them for each resolved obligation. Hence $|S_{\mathrm{tr}}(L_k)|=\Delta_k$.
+
+Crucially, this decomposition is exact at the level of the sealed typing judgment. Replacing a primitive witness by a deeper internal derivation can change the hidden inhabitant of a trace field, but it cannot remove the corresponding field-type from the exported telescope without changing the public interface against which later layers are checked.
 
 Because the layer is sealed, every public schema of $L_k$ is of one of these two kinds: either it is a newly introduced payload symbol, or it is the exported trace of a resolved obligation attaching that payload to prior interface data. The two kinds are disjoint, since payload symbols are primitive generators introduced by the new layer itself, whereas trace schemas are indexed by the prior interface against which the new layer was sealed. Therefore the public export decomposes canonically as
 \[
@@ -264,15 +281,20 @@ The trace principle counts kernel-level extensions and promoted interface packag
 
 \begin{defi}[Induced obligations]
 \label{def:obligations}
-Let $\Ocal^{(k)}(X)$ be the set of normalized atomic obligations induced when candidate~$X$ is sealed against a historical interface of depth~$k$. Since the interface grows cumulatively, there are inclusions
+Let $\Ocal^{(k)}(X)$ be the set of normalized atomic obligation types induced when candidate~$X$ is sealed against a historical interface of depth~$k$. Each element is read in the counting normal form of \autoref{def:atomic-schema}: we quotient by the same canonical telescope isomorphisms and retain only irreducible generating fields not uniformly synthesized by the ambient calculus. Here normalization retains exactly the developer-visible data not already exported by prior layers. In particular, when a potential higher-dimensional coherence problem appears with one face left free, the corresponding atomic obligation is represented by the horn-extension type of the missing face together with a filler, rather than by the type of fillers for a completely fixed boundary. Since the interface grows cumulatively, there are inclusions
 \[
   \Ocal^{(1)}(X) \subseteq \Ocal^{(2)}(X) \subseteq \Ocal^{(3)}(X) \subseteq \cdots.
 \]
 \end{defi}
 
+\begin{rem}
+\label{rem:present-vs-cost}
+Three notions must be kept distinct. An obligation may be absent; it may be present but contractible; or it may be present and require new primitive payload. \autoref{def:depth} is a statement about exact normalized obligation types. The primitive-cost accounting introduced later in \autoref{def:primitive-cost} asks a different question, namely whether resolving such an obligation forces the developer to contribute new opaque data. Accordingly, ``derivable'', ``contractible'', and ``not present'' are never used interchangeably in this paper.
+\end{rem}
+
 \begin{defi}[Historical support and arity]
 \label{def:arity}
-For a normalized obligation~$o$, let $\Supp(o)$ be the set of sealed layers whose exported schemas occur irreducibly in the typing derivation of~$o$ after each prior layer has been collapsed to its opaque interface. Its \emph{historical arity} is
+For a normalized obligation~$o$, let $\Supp(o)$ be the set of sealed layers whose atomic exported schemas occur irreducibly in the counting normal form of the typing derivation of~$o$ after each prior layer has been collapsed to its opaque interface. Its \emph{historical arity} is
 \[
   a(o) := |\Supp(o)|.
 \]
@@ -303,7 +325,7 @@ A foundation has \emph{coherence depth}~$d$ if $d$ is the least integer such tha
 We also call~$d$ the \emph{coherence window} of the foundation.
 \end{defi}
 
-The point of \autoref{def:depth} is that beyond depth~$d$, deeper historical interaction contributes no new independent obligations. Once that stabilization has been upgraded to a genuine chronological window, the size of the primitive active interface controls the recurrence law for integration debt.
+The point of \autoref{def:depth} is that beyond depth~$d$, the normalized obligation types themselves stop changing up to canonical equivalence. This is stronger than saying merely that deeper history contributes no new primitive cost. Once that exact stabilization has been upgraded to a genuine chronological window, the size of the primitive active interface controls the recurrence law for integration debt.
 
 \begin{rem}
 \label{rem:arity-vs-chronology}
@@ -329,16 +351,43 @@ Since depth~$0$ would mean the absence of any interaction with the current inter
 
 \subsection{\texorpdfstring{Theorem B: fully coupled univalent systems have $d=2$}{Theorem B: fully coupled univalent systems have d=2}}
 
-From now on we work in a fully coupled cubical setting in the style of Cohen, Coquand, Huber, and M\"ortberg~\cite{cubical,cchm-hits}, with univalence and Kan composition available in the ambient operational semantics. The next three ingredients are deliberately complementary: the dimensional argument gives the upper bound, while the categorical and topological families give independent lower bounds. Together they pin down exact depth~$2$, and the telescopic lemma makes explicit how the dimensional bound is realized as a genuine two-step time window.
+From now on we work in a fully coupled cubical setting in the style of Cohen, Coquand, Huber, and M\"ortberg~\cite{cubical,cchm-hits}, with univalence and Kan composition available in the ambient operational semantics. The next three ingredients are deliberately complementary: the dimensional argument gives the upper bound, while the explicit swap obstruction, its categorical adjunction reading, and the topological family give independent lower bounds. Together they pin down exact depth~$2$, and the telescopic lemma makes explicit how the dimensional bound is realized as a genuine two-step time window.
 
-One semantic clarification is important before the cubical argument begins. In univalent foundations, types behave as weak $\omega$-groupoids, so the geometric space of fillers for a fixed higher boundary is not generally contractible; open $3$-boxes can admit many fillers. The recurrence analyzed in this paper does not count that homotopy-theoretic space. It counts only \emph{primitive integration data}: the new opaque generators and defining clauses that a developer must add at sealing time. In cubical type theory, the operational semantics provide generic Kan operations such as $\hcomp$, $\compop$, and $\transp$ that already inhabit many higher boundaries uniformly. The crucial distinction is therefore syntactic: a higher witness contributes to the recurrence only when it must be entered as new domain-specific primitive payload, not when it is synthesized by the ambient calculus.
+One semantic clarification is important before the cubical argument begins. In univalent foundations, types behave as weak $\omega$-groupoids, so the geometric space of fillers for a fixed higher boundary is not generally contractible. The paper therefore does not model a depth-three obligation as the space of fillers for a closed $3$-sphere. After the normalization of \autoref{def:obligations}, the marginal higher-dimensional datum appears instead as a horn-extension problem: an open box with one remote face still free.
+
+It is equally important to delimit the class of obligations under discussion. The paper does not claim that arbitrary internal higher-algebraic structure carried by a candidate becomes primitive-cost-free in cubical type theory. What is measured here is only \emph{structural integration coherence}: the obligations induced by sealing a globally acting foundational candidate against prior opaque layers. Those obligations arise from the chronological dependency graph of exported payload and trace data, not from arbitrary user-specified higher operations internal to the candidate.
+
+Concretely, once the visible unary and binary traces have been fixed, the depth-three fiber has the form
+\[
+  H(\partial)
+  :=
+  \sum_{\gamma : \Gamma_{\mathrm{miss}}(\partial)}
+  \mathsf{Fill}_{\partial}(\gamma),
+\]
+where $\partial$ is the already exported boundary, $\gamma$ is the missing remote binary face, and $\mathsf{Fill}_{\partial}(\gamma)$ is the type of higher fillers completing the open box once~$\gamma$ has been chosen. This is a horn-extension type, not a closed-filler type. In cubical type theory, the operational semantics provide generic Kan operations such as $\hcomp$, $\compop$, and $\transp$ that solve such horn-extension problems uniformly. The recurrence analyzed in this paper counts only \emph{primitive integration data}: the new opaque generators and defining clauses that a developer must add at sealing time. The crucial distinction is therefore syntactic: a higher witness contributes to the recurrence only when it must be entered as new domain-specific primitive payload, not when it is synthesized by the ambient calculus.
 
 \begin{defi}[Primitive cost of an atomic obligation]
 \label{def:primitive-cost}
 Let $o$ be a normalized atomic obligation. We set $\delta(o)=1$ when resolving $o$ requires the candidate being sealed to contribute a new domain-specific opaque generator, defining equation, or pattern-matching clause. We set $\delta(o)=0$ when a witness for $o$ is uniformly synthesized from already exported boundary data using only generic framework term formers.
 
-An obligation is \emph{irreducible} exactly when $\delta(o)=1$. Thus the recurrence for $\Delta_n$ counts primitive obligations only; a zero-cost witness is derived trace rather than new sealing payload.
+An obligation is \emph{irreducible} exactly when $\delta(o)=1$. Thus the recurrence for $\Delta_n$ counts primitive obligations only; a zero-cost witness is derived trace rather than new sealing payload. In particular, $\delta(o)=0$ does not remove $o$ from $\Ocal^{(k)}(X)$; it says only that the corresponding obligation type lies in a contractible, canonically synthesized factor.
 \end{defi}
+
+\begin{lem}[Syntactic horn reduction for structural integration coherence]
+\label{lem:horn-reduction}
+Let $X$ be a foundational core candidate sealed at stage~$n+1$ in the fully coupled cubical univalent setting. For every $k \geq 3$ and every boundary $\partial : \Ocal^{(k-1)}(X)$, the additional data exposed by adjoining the remote layer $L_{n-k+1}$ are canonically represented by a horn-extension fiber
+\[
+  H_k(\partial)
+  :=
+  \sum_{\gamma : \Gamma^{(k)}_{\mathrm{miss}}(\partial)}
+  \mathsf{Fill}_{\partial}(\gamma).
+\]
+Here $\gamma$ is the new remote comparison face between $X$ and $L_{n-k+1}$, while every other face of the box is already exported by the unary and binary traces of the intervening sealed layers.
+\end{lem}
+
+\begin{proof}
+By construction, $\Ocal^{(k)}(X)$ records only structural integration obligations induced by sealing $X$ against opaque prior layers. Earlier layers therefore contribute only their exported payload and trace schemas; arbitrary higher-algebraic structure internal to those layers is invisible at sealing time. Passing from depth $k-1$ to depth~$k$ exposes exactly one additional remote layer, namely $L_{n-k+1}$. By \autoref{thm:canonicity}, the global action of $X$ contributes exactly one interaction site for each newly exposed generator. Meanwhile, because the intermediate layers were already sealed, their exports already contain the unary bridges and binary comparison traces linking that remote layer to the more recent history. After normalization, all visible faces of the resulting comparison cube are therefore fixed except the direct face comparing the action of $X$ with the newly exposed remote layer. The remaining datum is precisely that missing face together with the higher filler certifying compatibility with the already exported boundary. This is exactly the displayed horn-extension fiber.
+\end{proof}
 
 \paragraph{A concrete cubical sketch.}
 The abstract distinction between payload and trace can be made visible in a tiny Agda-shaped example without importing the full PEN framework. Suppose an older sealed layer exports a small Tarski universe with function codes and their decoding equation. A new cohesive layer contributes a genuinely new modal payload \texttt{Flat} together with its unit \texttt{eta}. Everything else needed to make that modality act on the older universe is integration trace: a lifted action on old codes, a comparison between decoding before or after lifting, and the distribution law over old function codes. In the snippet below, the witness \texttt{remote-face} is the point of the example. It is not additional payload. It is exactly the missing comparison face of the open $3$-box determined by the old decoding law together with the new unary and binary trace data, and cubical composition computes it uniformly.
@@ -409,26 +458,44 @@ module _ (L : OldU) (P : Payload) (T : Trace L P) where
 \end{verbatim}
 \end{quote}
 
-Read top-to-bottom, \texttt{Payload} is the human-authored new content, while \texttt{Trace} is the compatibility debt forced by sealing against the old universe. The two routes are the two composites from \texttt{El (FlatU (Arr A B))} to \texttt{Flat (El A) -> Flat (El B)}. The arity-$3$ obligation is precisely the comparison between those composites. In a cubical presentation that comparison is not another primitive clause that must be postulated separately for each old constructor; it is the filler of the open box generated by the already exported boundary.
+Read top-to-bottom, \texttt{Payload} is the human-authored new content, while \texttt{Trace} is the compatibility debt forced by sealing against the old universe. The two routes are the two composites from \texttt{El (FlatU (Arr A B))} to \texttt{Flat (El A) -> Flat (El B)}. The marginal depth-$3$ obligation is not the space of fillers for a closed boundary. It is the horn-extension type whose free component is the remote comparison between those composites and whose second component is the $3$-cell certifying compatibility with the displayed boundary. In a cubical presentation this total extension type is canonically trivial: \texttt{hcomp} computes the missing face and \texttt{hfill} packages the accompanying filler. The extra factor is therefore present but contractible, rather than absent.
 
 \subsubsection{\texorpdfstring{Dimensional upper bound ($d \leq 2$)}{Dimensional upper bound}}
 
 \begin{thm}[Dimensional upper bound]
 \label{thm:upper}
-In the fully coupled cubical univalent setting, every irreducible coherence obligation has historical arity at most~$2$.
+In the fully coupled cubical univalent setting, for every foundational core candidate~$X$ and every $k \geq 2$ there is a canonical equivalence
+\[
+  \Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X).
+\]
+Hence the coherence depth is at most~$2$.
 \end{thm}
 
 \begin{proof}
-Let $o$ be a normalized atomic obligation of historical arity $k \geq 3$. By \autoref{lem:arity-dimension}, its witness has the form of a $k$-dimensional coherence filler: syntactically, one must inhabit a higher identity type whose boundary is an open $k$-box assembled from lower-dimensional traces already exported by prior layers.
+The case $k=2$ is tautological. Let $k=3$. By \autoref{lem:arity-dimension} and \autoref{lem:horn-reduction}, the marginal higher-dimensional datum is a $3$-cell presented pointwise over a depth-two boundary $\partial : \Ocal^{(2)}(X)$ as the horn-extension type
+\[
+  H_3(\partial)
+  :=
+  \sum_{\gamma : \Gamma_{\mathrm{miss}}(\partial)}
+  \mathsf{Fill}_{\partial}(\gamma),
+\]
+where $\gamma$ is the missing remote binary face and $\mathsf{Fill}_{\partial}(\gamma)$ is the type of $3$-cells completing the open box once~$\gamma$ has been chosen.
 
-In a generic intensional theory, such a filler could require an additional postulate or ad hoc clause. In that situation one would have $\delta(o)=1$ in the sense of \autoref{def:primitive-cost}. In the cubical setting considered here, however, Kan composition is part of the ambient syntax. For every well-typed open box boundary of dimension at least~$3$, the term former $\hcomp\, r\, u\, u_0$ computes a canonical inhabitant from the boundary system~$u$ and cap~$u_0$ using only the generic typing rules of the calculus~\cite{cubical,cchm-hits}. No new domain-specific opaque generator, defining equation, or pattern-matching clause is introduced.
+In cubical type theory, Kan composition solves such horn-extension problems uniformly. The operation $\hcomp$ computes a canonical missing face from the visible boundary data, and $\mathsf{hfill}$ supplies the corresponding filler~\cite{cubical,cchm-hits}. Therefore each fiber $H_3(\partial)$ is contractible. Equivalently, $\Ocal^{(3)}(X)$ is a dependent sum over $\Ocal^{(2)}(X)$ with contractible fibers, so
+\[
+  \Ocal^{(3)}(X) \simeq \Ocal^{(2)}(X).
+\]
 
-Hence every arity-$k$ obligation with $k \geq 3$ has primitive cost $\delta(o)=0$. Such an obligation may still have a nontrivial homotopy-theoretic space of fillers, but it contributes no primitive sealing payload and is therefore not irreducible. By contrast, unary and binary obligations may still require genuine developer-supplied data. Therefore every irreducible coherence obligation has historical arity at most~$2$.
+Now let $k>3$. By \autoref{lem:horn-reduction}, passing from depth $k-1$ to depth~$k$ again adjoins only a horn-extension fiber $H_k(\partial)$ over each $\partial : \Ocal^{(k-1)}(X)$: one more remote comparison face together with a filler against boundary data already exported by lower layers. The same cubical Kan operations contract that fiber. Hence
+\[
+  \Ocal^{(k)}(X) \simeq \Ocal^{(k-1)}(X)
+\]
+for every $k \geq 3$, and iterating yields $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$.
 \end{proof}
 
 \begin{lem}[Telescopic subsumption]
 \label{lem:telescopic}
-In the fully coupled cubical univalent setting, primitive sealing against the two most recent layers algorithmically synthesizes all older binary comparisons. More precisely, let $X$ be a candidate added at stage~$n+1$. Once $X$ has supplied its primitive unary and binary data against $L_n$ and $L_{n-1}$, every would-be primitive comparison between $X$ and a layer $L_{n-r}$ with $r \geq 2$ is uniformly derived by iterated cubical Kan filling from the traces already exported by $L_n,\dots,L_{n-r+1}$.
+In the fully coupled cubical univalent setting, primitive sealing against the two most recent layers algorithmically synthesizes all older binary comparison obligations. More precisely, let $X$ be a candidate added at stage~$n+1$. Once $X$ has supplied its primitive unary and binary data against $L_n$ and $L_{n-1}$, every would-be primitive comparison between $X$ and a layer $L_{n-r}$ with $r \geq 2$ is uniformly derived, together with its horn filler, by iterated cubical Kan filling from the traces already exported by $L_n,\dots,L_{n-r+1}$.
 \end{lem}
 
 \begin{proof}
@@ -454,13 +521,20 @@ and a binary coherence square
 \[
   \beta_n : f_n \circ x_n \Rightarrow x_{n-1}.
 \]
-The cells $x_n$, $x_{n-1}$, $f_n$, $g_{n-1}$, $\alpha_n$, and $\beta_n$, together with the evident degenerate composition faces, determine an open $3$-box. Its missing face is precisely a comparison
+The cells $x_n$, $x_{n-1}$, $f_n$, $g_{n-1}$, $\alpha_n$, and $\beta_n$, together with the evident degenerate composition faces, determine an open $3$-box. The marginal obligation is not merely a bare remote face; it is the horn-extension type
+\[
+  H_{n-2}
+  :=
+  \sum_{\gamma_{n-2} : h_n \circ x_n \Rightarrow g_{n-1}\circ x_{n-1}}
+  \mathsf{Fill}(\gamma_{n-2}),
+\]
+whose first component is precisely the comparison
 \[
   \gamma_{n-2} : h_n \circ x_n \Rightarrow g_{n-1}\circ x_{n-1}
 \]
-between the two composites from $X$ to $L_{n-2}$. By \autoref{def:primitive-cost}, this comparison has primitive cost~$0$: cubical Kan filling via $\hcomp$ computes a canonical filler from the displayed boundary data, so no additional domain-specific clause is added when sealing~$X$.
+between the two composites from $X$ to $L_{n-2}$, and whose second component is the $3$-cell filling the box once that face is chosen. Cubical Kan filling makes this horn-extension type contractible: $\hcomp$ computes a canonical center and $\mathsf{hfill}$ the accompanying filler from the displayed boundary data. By \autoref{def:primitive-cost}, no additional domain-specific clause is added when sealing~$X$.
 
-The same argument now iterates. Suppose inductively that a comparison from $X$ to $L_{n-r+1}$ has already been syntactically derived. Since $L_{n-r+1}$ was sealed against $L_{n-r}$ and $L_{n-r-1}$, its exported trace again contains the adjacent unary bridge to $L_{n-r}$ together with the corresponding binary square witnessing the comparison of composites. Combining that previously exported square with the already derived comparison for $X$ forms another open $3$-box, and $\hcomp$ fills it again. The resulting derived face supplies the comparison from $X$ to $L_{n-r}$. At each additional historical step, the older layer contributes boundary data only; it contributes no new primitive cell. Thus layers at distance at least two are telescopically subsumed by the adjacent traces already exported by the recent history.
+The same argument now iterates. Suppose inductively that the comparison obligation from $X$ to $L_{n-r+1}$ has already been algorithmically discharged. Since $L_{n-r+1}$ was sealed against $L_{n-r}$ and $L_{n-r-1}$, its exported trace again contains the adjacent unary bridge to $L_{n-r}$ together with the corresponding binary square witnessing the comparison of composites. Combining that previously exported square with the already derived comparison for $X$ forms another open $3$-box, so one obtains another horn-extension fiber over already available boundary data. Cubical Kan filling contracts that fiber again. The resulting derived face supplies the comparison from $X$ to $L_{n-r}$. At each additional historical step, the older layer contributes boundary data only; it contributes no new primitive cell. Thus layers at distance at least two are telescopically subsumed by the adjacent traces already exported by the recent history.
 \end{proof}
 
 \begin{cor}[Two-layer chronological window]
@@ -469,56 +543,52 @@ In the fully coupled cubical univalent setting, every sealing step at stage~$n+1
 \end{cor}
 
 \begin{proof}
-\autoref{thm:upper} shows that no irreducible obligation has historical arity greater than~$2$. \autoref{lem:telescopic} upgrades that dimensional statement to a temporal one: any binary comparison with a remote layer is induced from the adjacent trace data already exported by the last two layers. Hence primitive sealing data are exhausted by $S(L_n)\uplus S(L_{n-1})$, and all deeper history contributes only derived fillers.
+\autoref{thm:upper} shows the exact obligation-set stabilization $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$. \autoref{lem:telescopic} upgrades that dimensional statement to a temporal one: any binary comparison with a remote layer is induced from the adjacent trace data already exported by the last two layers. Hence primitive sealing data are exhausted by $S(L_n)\uplus S(L_{n-1})$, and all deeper history contributes only derived fillers.
 \end{proof}
 
-\subsubsection{\texorpdfstring{Categorical lower bound: the adjunction barrier ($d \geq 2$)}{Categorical lower bound}}
+\subsubsection{\texorpdfstring{Lower bound: swap obstruction and adjunction barrier ($d \geq 2$)}{Lower bound}}
 
-\begin{thm}[Adjunction barrier]
+\begin{thm}[Explicit binary sealing obstruction]
 \label{thm:adjunction}
-A depth-one system cannot verify the genuine coherence of a nontrivial adjunction. Consequently, any fully coupled univalent setting supporting adjoint structure has coherence depth at least~$2$.
+Let the active interface of a fully coupled univalent foundation export the two-point type $\mathbf{2}$ and the univalent path
+\[
+  p_{\mathsf{swap}} := \mathsf{ua}(\mathsf{swap}) : \mathbf{2} \equiv \mathbf{2}.
+\]
+Then there exists a globally acting promoted interface candidate whose unary clauses do not determine its sealing: sealing induces a genuine binary obligation over~$p_{\mathsf{swap}}$. Consequently the coherence depth is at least~$2$. In particular, the triangle data of a nontrivial adjunction cannot be reconstructed from unary data alone.
 \end{thm}
 
 \begin{proof}
-Assume for contradiction that the ambient univalent foundation collapses to depth~$1$. By \autoref{def:depth}, this means that every binary obligation is already determined by unary boundary data:
+Consider the promoted interface candidate $X$ whose advertised payload is a global endomap package
 \[
-  \Ocal^{(2)}(X) \simeq \Ocal^{(1)}(X)
-  \qquad
-  \text{for all candidates } X.
+  f : \Pi_{A:\U} A \to A.
 \]
-Applied to identity-type coherence, this yields the global contraction principle formalized in \path{Metatheory/AdjunctionBarrier.agda}:
+At the current sealing stage, primitive clauses need only be supplied against the active exported interface. To specify one unary clause of this advertised action, choose
 \[
-  (A\, B : \U)\,(p\, q : A \equiv B) \to \mathsf{isContr}(p \equiv q).
+  f_{\mathbf{2}} := \lambda\_ . \mathsf{left} : \mathbf{2} \to \mathbf{2}.
 \]
-Equivalently, once the endpoints are fixed, any two witnesses of identity are propositionally equal; this is the relevant UIP-style collapse of binary coherence spaces.
+Because $X$ is advertised as globally acting, sealing it against the active interface requires coherence not only on objects but also along exported paths in~$\U$. The path $p_{\mathsf{swap}}$ therefore induces the binary obligation
+\[
+  \alpha_{\mathsf{swap}}
+  :
+  \mathsf{transport}_{\lambda A.\, A \to A}(p_{\mathsf{swap}}, f_{\mathbf{2}})
+  \equiv
+  f_{\mathbf{2}}.
+\]
+Univalence computes transport in the endomorphism family by conjugation with $\mathsf{swap}$, so
+\[
+  \mathsf{transport}_{\lambda A.\, A \to A}(p_{\mathsf{swap}}, f_{\mathbf{2}})
+  =
+  \mathsf{swap} \circ f_{\mathbf{2}} \circ \mathsf{swap}^{-1}
+  =
+  \lambda\_ . \mathsf{right}.
+\]
+Hence $\alpha_{\mathsf{swap}}$ is exactly the type
+\[
+  (\lambda\_ . \mathsf{right}) \equiv (\lambda\_ . \mathsf{left}),
+\]
+which is impossible because evaluation at $\mathsf{left}$ would force $\mathsf{right} = \mathsf{left}$. Thus the passage from depth~$1$ to depth~$2$ introduces a genuine new sealing obligation type: the unary clause $f_{\mathbf{2}}$ does not determine whether $X$ is admissible, because the typechecker must still ask for the binary witness $\alpha_{\mathsf{swap}}$.
 
-Now take the two-point type $\mathbf{2}$ and the nontrivial auto-equivalence
-\[
-  \mathsf{swap} : \mathbf{2} \simeq \mathbf{2}
-\]
-that exchanges the two points. Univalence provides a path
-\[
-  p := \mathsf{ua}(\mathsf{swap}) : \mathbf{2} \equiv \mathbf{2}.
-\]
-If depth~$1$ held, then the binary obligation space between $\mathsf{refl}_{\mathbf{2}}$ and~$p$ would be contractible, so in particular we would obtain
-\[
-  p \equiv \mathsf{refl}_{\mathbf{2}}.
-\]
-But transport along $\mathsf{ua}(\mathsf{swap})$ computes as the action of $\mathsf{swap}$, whereas transport along $\mathsf{refl}$ computes as the identity. Applying the displayed equality to the point $\mathsf{left} : \mathbf{2}$ therefore forces $\mathsf{swap}(\mathsf{left})=\mathsf{left}$, contradicting $\mathsf{swap}(\mathsf{left})=\mathsf{right}$ and $\mathsf{left}\neq\mathsf{right}$. This is exactly the contradiction formalized in the Agda development by proving that \texttt{swap-path} is nontrivial and then deriving \texttt{depth1-insufficient}.
-
-Therefore a univalent system cannot collapse globally to depth~$1$. Binary coherence spaces do not all contract, so a fully coupled setting cannot derive every $2$-cell from unary boundary data alone. In particular, the triangle identities of an adjunction remain genuine binary structure. An adjunction $L \dashv R$ is specified by functors $L$ and $R$, together with a unit and counit
-\[
-  \eta : 1 \to RL,
-  \qquad
-  \varepsilon : LR \to 1,
-\]
-satisfying the triangle identities
-\[
-  \varepsilon L \circ L\eta \simeq \mathrm{id}_L,
-  \qquad
-  R\varepsilon \circ \eta R \simeq \mathrm{id}_R.
-\]
-The triangle identities are genuine $2$-cells, and the preceding contradiction shows that such binary coherence cannot be uniformly collapsed away in the univalent setting. Hence depth one is insufficient, and $d \geq 2$.
+Therefore $\Ocal^{(2)}(X)$ contains a binary obligation not already present in $\Ocal^{(1)}(X)$, so the ambient foundation cannot have coherence depth~$1$. Equivalently, univalence exposes binary sealing sites that are invisible to unary data alone. This is the same obstruction formalized in \path{Metatheory/AdjunctionBarrier.agda} by the nontriviality of \texttt{swap-path} and the contradiction theorem \texttt{depth1-insufficient}. At the categorical level, the triangle identities of an adjunction are another manifestation of the same phenomenon: they compare composites already fixed at the unary level and therefore remain genuine binary structure. Hence $d \geq 2$.
 \end{proof}
 
 \subsubsection{Topological exact family: clutching constructions}
@@ -557,7 +627,7 @@ Now $S^1$ is itself a higher inductive type generated by a point $\mathsf{base}$
 \]
 which is unary data, and second a path over $\mathsf{loop}$ identifying the two transports induced by that equivalence around the circle. That second datum is a genuine binary coherence cell: it compares two unary composites and cannot be recovered from the endpoints alone. Hence depth~$1$ does not suffice.
 
-Crucially, the HIT signature of $S^2$ contains no constructor of dimension~$3$ or higher. Accordingly, the elimination rule for $S^2$ asks for no primitive input beyond the two point data and the path family~$\gamma$ above. Once the binary path-over-loop has been supplied, any further compatibility condition is generated by the ordinary computation and transport rules of the eliminator, not by a new developer-supplied clause. In the sense of \autoref{def:primitive-cost}, every would-be arity-$3$ condition has cost~$0$. Thus the clutching presentation furnishes an exact depth-$2$ witness.
+Crucially, the HIT signature of $S^2$ contains no constructor of dimension~$3$ or higher. Accordingly, the elimination rule for $S^2$ asks for no primitive input beyond the two point data and the path family~$\gamma$ above. Once the binary path-over-loop has been supplied, any further compatibility condition appears only as a horn-extension problem over the already displayed eliminator boundary. By the same cubical filling argument used above, that higher extension type is contractible and therefore contributes no new normalized obligation beyond the depth-two data. In the sense of \autoref{def:primitive-cost}, its cost is also~$0$ because the witness is canonically synthesized rather than postulated as new payload. Thus the clutching presentation furnishes an exact depth-$2$ witness.
 \end{proof}
 
 \begin{cor}
@@ -566,7 +636,7 @@ In the fully coupled cubical univalent setting considered above, the coherence d
 \end{cor}
 
 \begin{proof}
-\autoref{thm:upper} provides the upper bound by showing that no independent obligation survives beyond the $2$-skeleton. \autoref{lem:telescopic} shows that this depth-two upper bound is realized by a genuine two-layer chronological window rather than merely by a bound on cell dimension. \autoref{thm:adjunction} and \autoref{thm:clutching} provide lower bounds by exhibiting genuine depth-two phenomena that do not collapse in the univalent setting. Therefore the least stabilizing depth is~$2$.
+\autoref{thm:upper} provides the upper bound by showing the exact obligation-set equivalence $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$. \autoref{lem:telescopic} shows that this depth-two upper bound is realized by a genuine two-layer chronological window rather than merely by a bound on cell dimension. \autoref{thm:adjunction} and \autoref{thm:clutching} provide lower bounds by exhibiting genuine depth-two phenomena that do not collapse in the univalent setting. Therefore the least stabilizing depth is~$2$.
 \end{proof}
 
 \section{The complexity scaling theorem}
@@ -576,7 +646,7 @@ Let $L_n$ denote the $n$th sealed layer and write
 \[
   \Delta_n := \Delta(L_n \mid \B_{n-1})
 \]
-for its sealing cost, and let $\kappa_n$ be its core payload size. The recurrence theorem counts \emph{primitive} sealing data, so it uses not only the stabilization statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has coherence depth~$d$ realized by a chronological window of size~$d$, the primitive active interface at stage~$n+1$ is the depth-$d$ historical interface built from the \emph{full} exports of the preceding layers:
+for its sealing cost, and let $\kappa_n$ be its core payload size. \autoref{def:depth} gives an exact stabilization statement about normalized obligation types, while \autoref{def:primitive-cost} filters those types by whether they still require developer-supplied payload. The recurrence theorem therefore uses not only the stabilization statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has coherence depth~$d$ realized by a chronological window of size~$d$, the primitive active interface at stage~$n+1$ is the depth-$d$ historical interface built from the \emph{full} exports of the preceding layers:
 \[
   I_n^{(d)} = \biguplus_{j=0}^{d-1} S(L_{n-j}).
 \]
@@ -636,7 +706,7 @@ and therefore
 \[
   \tau_n = c\,\frac{n(n-1)}{2}.
 \]
-In particular, integration latency grows linearly and cumulative integration cost grows quadratically.
+Integration latency therefore grows linearly. The cumulative integration cost grows quadratically.
 \end{cor}
 
 \begin{proof}
@@ -740,6 +810,44 @@ Under the bootstrap assumptions of \autoref{cor:fibonacci},
 The additive constants are asymptotically negligible relative to the Fibonacci growth, so the standard ratio convergence gives $\Phi_n \to \varphi$.
 \end{proof}
 
+\subsection{\texorpdfstring{Metatheoretic robustness and universality across $2$D foundations}{Metatheoretic robustness and universality across 2D foundations}}
+
+The counting notions used above are not source-level line counts. They are dimensions of the sealed typing judgment after passage to the counting normal form of \autoref{def:atomic-schema}. The first corollary records that robustness explicitly.
+
+\begin{cor}[Robustness under admissible refactoring]
+\label{cor:refactoring}
+Let two presentations of the same sealed payload or obligation judgment be related by canonical telescope isomorphism: rebundling or splitting dependent records, reassociation of $\Sigma$-types, currying or uncurrying iterated function arguments, or transparent internal normalization that does not change which fields are primitively inhabited. Then the induced sets of atomic payload schemas, atomic obligations, and historical supports are canonically bijective. In particular, the quantities $\kappa(X)$, $\Delta(X \mid \B)$, and $a(o)$ are unchanged.
+\end{cor}
+
+\begin{proof}
+All of the listed refactorings preserve the same dependent typing judgment and differ only by canonical rebracketing or transparent elaboration of its telescope. After flattening the $\Sigma$-spine and discarding uniformly synthesized fields, both presentations reduce to the same counting normal form of \autoref{def:atomic-schema} and \autoref{def:obligations}. The atomic payload generators, atomic obligations, and their supporting layer indices therefore correspond bijectively. Since the paper's metrics are cardinalities of those normal-form sets, they are invariant under such refactorings.
+\end{proof}
+
+The cubical depth-two theorem can now be separated from the particular implementation mechanism used to prove it. What matters abstractly is only a lower-bound source of genuine binary coherence and an upper-bound mechanism uniformly subsuming arity three and above.
+
+\begin{thm}[\texorpdfstring{Depth-two law for $2$D foundations}{Depth-two law for 2D foundations}]
+\label{thm:2d-foundations}
+Let a fully coupled foundation satisfy the following two properties.
+\begin{enumerate}
+  \item There exists a sealed candidate whose normalized binary obligation set is not canonically equivalent to its unary one:
+  \[
+    \Ocal^{(2)}(X) \not\simeq \Ocal^{(1)}(X).
+  \]
+  \item For every candidate $X$ and every $k \geq 3$, the marginal passage from depth $k-1$ to depth $k$ is a canonically contractible horn-extension fiber over $\Ocal^{(k-1)}(X)$, and the resulting stabilization is realized by a chronological window of size~$2$.
+\end{enumerate}
+Then the foundation has coherence depth~$2$. Under the uniform payload hypothesis $\kappa_n=c$, its integration latency satisfies
+\[
+  \Delta_{n+1} = \Delta_n + \Delta_{n-1} + 2c,
+\]
+so the shifted sequence $U_n := \Delta_n + 2c$ is Fibonacci.
+\end{thm}
+
+\begin{proof}
+Property~(2) gives the exact stabilization $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$ together with a genuine two-layer chronological window, so \autoref{def:depth} and \autoref{thm:recurrence} imply that the depth is at most~$2$ and that the recurrence is the depth-two affine law. Property~(1) excludes depth~$1$. Hence the least stabilizing depth is exactly~$2$, and substituting $d=2$ and $\kappa_n=c$ into \autoref{thm:recurrence} gives the displayed formula. The Fibonacci shift is exactly the argument of \autoref{cor:fibonacci}.
+\end{proof}
+
+Cubical type theory realizes Property~(2) by Kan composition. Two-level type theory offers a different realization of the same architectural pattern: the fibrant equality retains genuine higher path structure, while the strict outer equality supplies a separate level in which higher coherence bookkeeping can be strictified without reintroducing new fibrant primitive payload \cite{altenkirch-strict,annenkov-2ltt}. In the sense isolated by \autoref{thm:2d-foundations}, the implementation mechanism proving stabilization may differ, but the metatheoretic consequence does not: once a foundation has genuine binary coherence together with a uniform rule eliminating new primitive arity-$3$ payload, the worst-case recurrence is forced to be the same depth-two affine law, and therefore the same Fibonacci shift under constant payload.
+
 \section{Cubical Agda mechanization}
 \label{sec:mechanization}
 
@@ -763,7 +871,7 @@ For the purposes of the present paper, the relevant Agda code now splits into th
   \end{itemize}
 \item On the sealing side, the key modules are \path{Saturation/Decomposition.agda}, \path{Saturation/AbstractionBarrier.agda}, and \path{Saturation/AbstractionBarrier9.agda}.
 \end{itemize}
-The metatheory modules implement the semantic dictionary used throughout the paper. In the extensional/UIP case an obligation contributes no new primitive cost because its semantic space collapses to a contractible one. In the cubical case the relevant notion is weaker and computational: an obligation contributes no new primitive cost when a uniform \texttt{hcomp}-style derivation synthesizes a witness from already exported boundary data.
+The metatheory modules implement the semantic dictionary used throughout the paper. In the extensional/UIP case an obligation contributes no new primitive cost because its semantic fiber collapses over the unary boundary. In the cubical case the normalized depth-three datum is an open-box extension problem rather than a closed-sphere filler problem, so the relevant notion is computational: an obligation contributes no new primitive cost when a uniform \texttt{hcomp}/\texttt{hfill}-style derivation synthesizes the missing face and filler from already exported boundary data.
 
 \path{Metatheory/Extensional.agda} defines binary semantic coherence obligations as path-equality types $p \equiv q$ and proves \texttt{UIP-forces-depth-1} together with the paper-facing corollary \texttt{history-truncates-to-one}. This is the exact Agda realization of the extensional statement that UIP collapses binary coherence and forces coherence depth~$1$.
 
@@ -773,7 +881,7 @@ The metatheory modules implement the semantic dictionary used throughout the pap
 \item \texttt{history-beyond-two-algorithmically-subsumed},
 \item \texttt{arity3-open-box-hfilled}.
 \end{itemize}
-This is the mechanized form of the telescopic subsumption claim: once the visible unary and binary faces are fixed, cubical composition uniformly computes a witness for the missing arity-$3$ face. The mechanization therefore establishes inhabitation by a generic derivation scheme, not singletonhood of the full geometric filler space.
+This is the mechanized form of the telescopic subsumption claim: once the visible unary and binary faces are fixed, cubical composition uniformly computes a witness for the missing arity-$3$ face and the accompanying filler. This is exactly the computational ingredient used in the paper's strict obligation-set equivalence after normalization as a horn extension. The mechanization does not assert that the filler space of a fully closed geometric boundary is contractible; it asserts that the open-box extension problem relevant to sealing is algorithmically solved by the ambient cubical operations.
 
 \path{Metatheory/AdjunctionBarrier.agda} supplies the lower bound. It constructs a local two-point type, its swap autoisomorphism, the induced nontrivial path \texttt{swap-path}, and the contradiction theorem \texttt{depth1-insufficient}. Thus the cubical setting does not admit a global depth-one collapse of binary coherence spaces.
 
@@ -801,9 +909,9 @@ The present Agda artifact formalizes both the foundational causes and the combin
 \section{Conclusion}
 \label{sec:conclusion}
 
-The paper isolates \emph{coherence depth} as a metatheoretic invariant of framework extension in type theory. In extensional settings with UIP, higher coherences collapse and the invariant is~$1$. In the fully coupled cubical univalent setting studied here, the invariant is~$2$. The difference between those two cases is not cosmetic: under uniform payload size it changes the recurrence law of integration from one-step affine growth to shifted Fibonacci scaling.
+The paper isolates \emph{coherence depth} as a metatheoretic invariant of framework extension in type theory. The associated payload and latency counts are taken on counting normal forms of sealed interfaces, so they are stable under admissible record rebundling, interface slicing, and other canonical telescope refactorings. In extensional settings with UIP, higher coherences collapse and the invariant is~$1$. In the fully coupled cubical univalent setting studied here, the invariant is~$2$. The difference between those two cases is not cosmetic: under uniform payload size it changes the recurrence law of integration from one-step affine growth to shifted Fibonacci scaling.
 
-The mechanism behind the recurrence is structural. For globally acting foundational extensions, maximal interface density, enforced as a canonicity requirement, identifies sealing cost with the size of the active interface. The Integration Trace Principle decomposes each new public interface into the layer's own payload together with the discharged obligations that make it cohere with prior exports. In the cubical univalent case, telescopic subsumption shows that all older comparisons are algorithmically synthesized from the adjacent exported traces, so the primitive active interface is generated by the previous two layers; under constant payload size this yields an affine depth-two recurrence whose shifted form is Fibonacci.
+The mechanism behind the recurrence is structural. For globally acting foundational extensions, totality and exhaustiveness in the foundational-core regime force maximal interface density. Sealing cost is therefore identified with the size of the active interface. The Integration Trace Principle then follows from the dependent-record form of opaque exports: resolved coherence data disappear as derivations but remain present in the public signature as trace fields. In the cubical univalent case, the marginal higher-arity data are horn extensions rather than closed-sphere fillers. Those extension types are canonically contractible. Telescopic subsumption therefore shows that all older comparisons are algorithmically synthesized from the adjacent exported traces, so the primitive active interface is generated by the previous two layers; under constant payload size this yields an affine depth-two recurrence whose shifted form is Fibonacci.
 
 From this viewpoint the appearance of the Golden Ratio is not an empirical regularity of one implementation and not a matter of aesthetic numerology. It is the characteristic root of the homogeneous recurrence recovered after separating the constant payload contribution from the depth-two coherence memory.
 
