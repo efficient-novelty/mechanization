@@ -1,178 +1,186 @@
 # PEN: Principle of Efficient Novelty in Cubical Agda
 
-Mechanization of the Principle of Efficient Novelty framework for modeling
-mathematical evolution in intensional type theory.
+Mechanization of the PEN framework in Agda. The repository now has two
+connected but distinct centers of gravity:
+
+- the original counting/oracle artifact for recurrence, novelty, and schema
+  enumeration
+- the coherence-depth theorem package used by `1_coherence_depth.tex`
 
 ## Setup
 
 ### Prerequisites
 
-1. **Agda 2.6.4+** with Cubical support
-2. **Cubical library** from https://github.com/agda/cubical
+1. Agda 2.8.0 or newer with Cubical support
+2. The Cubical library from <https://github.com/agda/cubical>
 
 ### Installation
 
 ```bash
-# Clone the cubical library (if not already installed)
+# Clone the cubical library if needed
 git clone https://github.com/agda/cubical.git ~/.agda/cubical
 
-# Add to ~/.agda/libraries:
+# Register it with Agda
 echo "$HOME/.agda/cubical/cubical.agda-lib" >> ~/.agda/libraries
 
-# Navigate to this project
+# Move into the Agda workspace
 cd /mnt/c/dev/pen/agda
 
-# Type-check the main module
-agda PEN.agda
+# Type-check the top-level artifact
+agda --transliterate PEN.agda
 ```
+
+`--transliterate` is useful in this repository because many theorem names and
+comments use Unicode identifiers.
 
 ## Project Structure
 
-```
+The top-level Agda tree currently looks like this:
+
+```text
 agda/
-├── pen.agda-lib          # Agda library file
-├── PEN.agda              # Main module (exports all)
-├── README.md             # This file
-│
-├── Core/
-│   ├── Nat.agda          # Fibonacci, Δ, τ definitions
-│   └── Sequence.agda     # History vectors, windows
-│
-├── ObligationGraph/
-│   ├── Interface.agda    # Schema, Interface definitions
-│   └── Recurrence.agda   # Fibonacci recurrence proof
-│
-├── Oracle/
-│   ├── Kappa.agda        # Effort measure (Phase 2)
-│   ├── Nu.agda           # Novelty measure (Phase 3)
-│   └── Efficiency.agda   # Selection dynamics
-│
-├── Genesis/              # (Phase 4 - TODO)
-│   ├── Candidates.agda
-│   ├── Selection.agda
-│   └── Trace.agda
-│
-└── Test/
-    └── Fibonacci.agda    # Unit tests
+|- pen.agda-lib
+|- PEN.agda
+|- README.md
+|- progress_tracking.md
+|- Core/
+|- Metatheory/
+|- ObligationGraph/
+|- Saturation/
+|- Adjunction/
+|- Oracle/
+|- OpSchema/
+|- Geometry/
+|- Logic/
+|- bridge/
+`- Test/
 ```
 
-## Coherence-Depth Track
+The most important directories are:
 
-The repository now has a dedicated coherence-depth track alongside the
-original PEN counting artifact:
+- `Core/`: arithmetic and paper-facing recurrence packages, including
+  `Nat.agda`, `AffineRecurrence.agda`, and `DepthOneAffine.agda`
+- `Metatheory/`: theorem-facing coherence-depth surface used by the paper
+- `ObligationGraph/` and `Saturation/`: the older counting/barrier model that
+  still supports the recurrence side of the artifact
+- `Adjunction/`: supporting lower-bound scaffolding
+- `Oracle/` and `OpSchema/`: novelty and capability measurement work
+- `Test/`: lightweight regression modules for the main surfaces
 
-- `Core/DepthOneAffine.agda` packages the paper-facing depth-1 corollary
-  `cor:d1`: one-layer affine growth with bootstrap indexing, together with the
-  closed forms for `Δ` and cumulative `τ` in subtraction-free natural-number
-  form.
-- `Core/AffineRecurrence.agda` defines a payload-aware affine recurrence and
-  proves that a constant shift recovers the homogeneous Fibonacci law.
-- `Metatheory/Extensional.agda` packages the extensional/UIP collapse:
-  if `isSet A`, then every binary coherence space `p ≡ q` is contractible.
-- `Metatheory/KanSubsumption.agda` packages the open-box input consumed by
-  cubical composition and, when instantiated at square types, covers the
-  arity-3 obligation case. It proves
-  `arity3-obligation-syntactically-derivable`,
+## Current Status
+
+### Coherence-Depth Track: Integrated
+
+The coherence-depth theorem package is now exposed from `PEN.agda` and has a
+top-level smoke import in `Test/MetatheorySmoke.agda`.
+
+Current theorem-facing modules:
+
+- `Metatheory/Obligations.agda` defines the paper's obligation-language
+  surface:
+  `HistoricalSupport`, `PrimitiveCost`, `ObligationLanguage`,
+  `StabilizesAt`, `HasCoherenceDepth`, `FactorsThroughWindow`, and
+  `HasChronologicalWindowSize`.
+- `Metatheory/Obligations.agda` also now includes the arity-to-dimension
+  surface for `lem:arity-dimension`:
+  `Positive`, `CoherenceCellShape`,
+  `historical-arity-forces-cell-dimension`, and
+  `irreducible-obligation-requires-cell`.
+- `Metatheory/Extensional.agda` proves the UIP/extensional collapse via
+  `UIP-forces-depth-1` and `history-truncates-to-one`.
+- `Metatheory/KanSubsumption.agda` packages the arity-3 open-box derivation
+  surface via `arity3-obligation-syntactically-derivable`,
   `history-beyond-two-algorithmically-subsumed`, and
   `arity3-open-box-hfilled`.
-- `Metatheory/AdjunctionBarrier.agda` gives the depth-one lower bound by
-  packaging the paper's explicit `\mathbf{2}`/swap promoted-interface
-  obstruction: the unary clause `const-left` leaves a residual binary sealing
-  obligation along the swap-induced endomap path, the triangle-identity
-  corollary is exposed as a theorem-facing record, and `depth1-insufficient`
-  / `adjunction-barrier` rule out global depth-1 collapse.
-- `Saturation/Axiom.agda` is retained as the older combinatorial modeling
-  surface for the payload-free depth-two counting story; it is no longer the
-  main justification for the paper's depth-two theorem.
-- `Saturation/Decomposition.agda`, `Saturation/AbstractionBarrier.agda`, and
-  `Saturation/AbstractionBarrier9.agda` remain as the concrete sealed-interface
-  barrier checks that motivate the counting layer.
+- `Metatheory/AdjunctionBarrier.agda` packages the lower bound against global
+  depth-1 collapse via `explicit-binary-sealing-obstruction`,
+  `triangle-identity-corollary`, `depth1-insufficient`, and
+  `adjunction-barrier`.
+- `Core/AffineRecurrence.agda` and `Core/DepthOneAffine.agda` package the
+  payload-aware affine recurrence and the paper-facing depth-1 corollary.
 
-`PEN.agda` now re-exports the full coherence-depth theorem package together
-with the recurrence modules, and `Test/MetatheorySmoke.agda` acts as a small
-top-level import regression for the affine, extensional, upper-bound, and
-lower-bound theorems.
+What this means in practice:
 
-## Implementation Status
+- the extensional depth-1 collapse is mechanized
+- the lower bound against cubical depth-1 collapse is mechanized
+- the arity-3 computational subsumption surface is mechanized
+- the paper's arity-to-dimension dictionary is now mechanized
+- the recurrence side has both the payload-aware affine statement and the
+  depth-1 closed forms
 
-### Phase 1: Complete ✓
+What is still open on the paper-facing coherence-depth plan:
 
-- [x] Fibonacci sequence definition
-- [x] Integration cost Δₙ = Fₙ
-- [x] Realization time τₙ = F_{n+2} - 1
-- [x] Fibonacci sum identity proof
-- [x] Golden Schedule proof
-- [x] Recurrence theorem for d=2
-- [x] Paper-facing affine corollary for d=1
-- [x] Unit tests matching Genesis table
+- the remaining backlog in `mechanization_plan.md` now starts at
+  `lem:horn-reduction`
+- exact paper-level wrappers such as the upper bound, telescopic corollary,
+  chronological window theorem, exact `d = 2` corollary, and the later
+  interface/trace/canonicity/clutching results are still pending
 
-### Phase 2: Stub
+### Counting / Oracle Track
 
-- [ ] Reflection-based constructor counting
-- [ ] Path constructor classification
-- [ ] κ measurement for standard HoTT types
+The original PEN artifact remains active and is no longer just a stub:
 
-### Phase 3: Stub
+- `ObligationGraph/Recurrence.agda` still provides the stable payload-free
+  recurrence surface
+- `Oracle/Kappa.agda`, `Oracle/Nu.agda`, and `Oracle/Efficiency.agda` contain
+  the basic oracle and selection-measure work
+- `OpSchema/` contains the more advanced operation-schema-based novelty track
+  used for the R1-R16 validation work
 
-- [ ] Novelty measure definition
-- [ ] Type enumeration for ν computation
-- [ ] Validation against Genesis table
+### Remaining Large Gap
 
-### Phase 4: TODO
+The end-to-end Genesis selection loop is still not implemented as a completed
+Agda artifact. The repository contains bridge and engine work around that
+direction, but the main unfinished Agda milestone is still the selection-loop
+story rather than the already-integrated theorem package above.
 
-- [ ] Candidate DSL (Genome)
-- [ ] Candidate generator (Mutator)
-- [ ] Selection loop
-- [ ] Trace output
+## Useful Entry Points
 
-## Key Results
+If you are trying to orient yourself quickly, start here:
 
-### Theorem 1: Complexity Scaling
+- `PEN.agda`: top-level export surface
+- `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
+- `Metatheory/Extensional.agda`: depth-1 theorem
+- `Metatheory/KanSubsumption.agda`: arity-3 open-box package
+- `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
+- `Core/AffineRecurrence.agda`: payload-aware recurrence
+- `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem
+  package
+- `progress_tracking.md`: longer historical log for the Agda work
 
-For foundations with Coherence Window d=2 (intensional type theory):
+## Verification Commands
 
-```
-Δ(n+1) = Δ(n) + Δ(n-1)
-```
-
-Given Δ(1) = Δ(2) = 1, this yields Δ(n) = Fₙ.
-
-### Theorem 2: Golden Schedule
-
-Realization time follows:
-
-```
-τₙ = Σᵢ₌₁ⁿ Δᵢ = F_{n+2} - 1
-```
-
-### Theorem 3: Affine One-Step Growth (d=1)
-
-For depth-1 systems with uniform payload `c` and empty bootstrap:
-
-```
-Δ_{n+1} = Δ_n + c
-```
-
-with subtraction-free closed forms packaged in `Core/DepthOneAffine.agda`.
-The older payload-free stagnation surface remains available in
-`ObligationGraph/Recurrence.agda`.
-
-## Running Tests
+For the integrated coherence-depth surface:
 
 ```bash
-# Type-check test file (tests pass if no errors)
-agda Test/Fibonacci.agda
+cd /mnt/c/dev/pen/agda
+agda --transliterate PEN.agda
+agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/Fibonacci.agda
 ```
 
-The tests verify:
-- Fibonacci values match expected sequence
-- Δ and τ match Genesis table exactly
-- Recurrence identities hold
-- Infrastructure correspondence (Φ₄ < φ)
+Useful additional checks:
+
+```bash
+agda --transliterate Metatheory/Obligations.agda
+agda --transliterate Metatheory/Extensional.agda
+agda --transliterate Metatheory/KanSubsumption.agda
+agda --transliterate Metatheory/AdjunctionBarrier.agda
+agda --transliterate Test/OpSchemaTest.agda
+agda --transliterate Test/BlindTest.agda
+```
+
+## Known Issues
+
+1. The repository intentionally defines its own `Nat` surface in
+   `Core/Nat.agda` because some Cubical library data imports trigger Agda
+   2.8.0 compatibility problems in this setup.
+2. Some reflection-heavy oracle work has different ergonomics from the Cubical
+   theorem package; `progress_tracking.md` is the best place to check the
+   current caveats for those modules.
 
 ## References
 
 1. Univalent Foundations Program, *Homotopy Type Theory*, 2013
 2. Cohen et al., "Cubical Type Theory", TYPES 2015
-3. Schreiber, "Differential cohomology in a cohesive infinity-topos", 2013
-4. Vezzosi et al., "Cubical Agda", ICFP 2019
+3. Vezzosi et al., "Cubical Agda", ICFP 2019
