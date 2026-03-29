@@ -112,6 +112,17 @@ Current theorem-facing modules:
   `one-layer-window-insufficient`,
   `two-layer-chronological-window`, and
   `chronological-markov-blanket`.
+- `Metatheory/ExactDepth.agda` packages the exact paper-facing depth-two
+  corollary `cor:d2` via
+  `stabilization-at-zero-impossible`,
+  `stabilization-at-one-impossible`,
+  `structural-coherence-depth-exactly-two`,
+  `structural-chronological-window-size-exactly-two`,
+  `cubical-coherence-depth-exactly-two`, and
+  `cubical-chronological-window-size-exactly-two`, while threading through
+  the lower-bound witnesses
+  `cubical-binary-sealing-obstruction` and
+  `cubical-triangle-identity-corollary`.
 - `Metatheory/AdjunctionBarrier.agda` packages the lower bound against global
   depth-1 collapse via `explicit-binary-sealing-obstruction`,
   `triangle-identity-corollary`, `depth1-insufficient`, and
@@ -129,6 +140,7 @@ What this means in practice:
 - the exact telescopic subsumption wrapper for remote binary comparisons is
   mechanized
 - the exact chronological-window corollary is mechanized
+- the exact `d = 2` coherence-depth corollary is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
@@ -136,8 +148,8 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `cor:d2`
-- exact paper-level wrappers such as the single exact `d = 2` corollary and the later
+  `thm:2d-foundations`
+- exact paper-level wrappers such as the abstract 2D-foundations theorem and the later
   interface/trace/canonicity/clutching results are still pending
 
 ### Counting / Oracle Track
@@ -170,6 +182,7 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/UpperBound.agda`: exact depth-two upper-bound/stabilization
   wrapper
 - `Metatheory/ChronologicalWindow.agda`: exact chronological-window wrapper
+- `Metatheory/ExactDepth.agda`: exact depth-two corollary wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
 - `Core/AffineRecurrence.agda`: payload-aware recurrence
 - `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem
@@ -195,6 +208,7 @@ agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda
 agda --transliterate Metatheory/ChronologicalWindow.agda
+agda --transliterate Metatheory/ExactDepth.agda
 agda --transliterate Metatheory/AdjunctionBarrier.agda
 agda --transliterate Test/OpSchemaTest.agda
 agda --transliterate Test/BlindTest.agda

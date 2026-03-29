@@ -36,6 +36,7 @@ open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
 open import Metatheory.UpperBound public
 open import Metatheory.ChronologicalWindow public
+open import Metatheory.ExactDepth public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
          binary-coherence-nontrivial; depth1-insufficient; const-left;
@@ -82,6 +83,13 @@ open import Metatheory.AdjunctionBarrier public
 -- and no smaller chronological window suffices.
 -- Proof: two-layer-chronological-window /
 --        chronological-markov-blanket in Metatheory.ChronologicalWindow
+
+-- THEOREM 6: The paper-facing exact depth-two corollary
+-- The structural horn language stabilizes exactly at depth 2, and the
+-- two-layer chronological window is itself exact.
+-- Proof: cubical-coherence-depth-exactly-two /
+--        cubical-chronological-window-size-exactly-two in
+--        Metatheory.ExactDepth
 
 -- ============================================
 -- Key Identities

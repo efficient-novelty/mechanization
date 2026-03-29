@@ -32,6 +32,12 @@ upper-bound-theorem-available = structural-stabilizes-at-two
 one-layer-window-insufficient-available = one-layer-window-insufficient
 chrono-window-theorem-available = two-layer-chronological-window
 markov-blanket-theorem-available = chronological-markov-blanket
+exact-depth-zero-impossible = stabilization-at-zero-impossible
+exact-depth-one-impossible = stabilization-at-one-impossible
+exact-depth-theorem-available = cubical-coherence-depth-exactly-two
+exact-window-theorem-available = cubical-chronological-window-size-exactly-two
+exact-depth-binary-obstruction = cubical-binary-sealing-obstruction
+exact-depth-triangle-corollary = cubical-triangle-identity-corollary
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
