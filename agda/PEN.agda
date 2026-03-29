@@ -31,6 +31,7 @@ open import Adjunction.AdjunctionDepth public
 open import Adjunction.TriangleIdentity public
 
 -- Coherence-depth metatheory
+open import Metatheory.Obligations public
 open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
 open import Metatheory.AdjunctionBarrier public

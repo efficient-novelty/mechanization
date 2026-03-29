@@ -8,6 +8,11 @@ affine-shift-available = U-is-fibonacci
 affine-bootstrap-available = tau-bootstrap-closed
 affine-depth1-available = tau-depth1-closed
 
+obligation-language-surface = ObligationLanguage
+historical-support-surface = HistoricalSupport
+coherence-depth-surface = HasCoherenceDepth
+chronological-window-surface = HasChronologicalWindowSize
+
 extensional-available = history-truncates-to-one
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
