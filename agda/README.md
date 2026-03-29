@@ -61,6 +61,10 @@ agda/
 The repository now has a dedicated coherence-depth track alongside the
 original PEN counting artifact:
 
+- `Core/DepthOneAffine.agda` packages the paper-facing depth-1 corollary
+  `cor:d1`: one-layer affine growth with bootstrap indexing, together with the
+  closed forms for `Δ` and cumulative `τ` in subtraction-free natural-number
+  form.
 - `Core/AffineRecurrence.agda` defines a payload-aware affine recurrence and
   proves that a constant shift recovers the homogeneous Fibonacci law.
 - `Metatheory/Extensional.agda` packages the extensional/UIP collapse:
@@ -96,7 +100,7 @@ lower-bound theorems.
 - [x] Fibonacci sum identity proof
 - [x] Golden Schedule proof
 - [x] Recurrence theorem for d=2
-- [x] Stagnation theorem for d=1
+- [x] Paper-facing affine corollary for d=1
 - [x] Unit tests matching Genesis table
 
 ### Phase 2: Stub
@@ -138,9 +142,17 @@ Realization time follows:
 τₙ = Σᵢ₌₁ⁿ Δᵢ = F_{n+2} - 1
 ```
 
-### Theorem 3: Stagnation (d=1)
+### Theorem 3: Affine One-Step Growth (d=1)
 
-For extensional foundations (d=1), costs are constant and time grows linearly.
+For depth-1 systems with uniform payload `c` and empty bootstrap:
+
+```
+Δ_{n+1} = Δ_n + c
+```
+
+with subtraction-free closed forms packaged in `Core/DepthOneAffine.agda`.
+The older payload-free stagnation surface remains available in
+`ObligationGraph/Recurrence.agda`.
 
 ## Running Tests
 

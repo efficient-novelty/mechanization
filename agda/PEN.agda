@@ -11,6 +11,7 @@ module PEN where
 open import Core.Nat public
 open import Core.Sequence public
 open import Core.AffineRecurrence public
+open import Core.DepthOneAffine public
 
 -- Obligation Graph theory
 open import ObligationGraph.Interface public
@@ -51,9 +52,15 @@ open import Metatheory.AdjunctionBarrier public
 -- Equivalently: τₙ = F_{n+2} - 1
 -- Proof: golden-schedule in ObligationGraph.Recurrence
 
--- THEOREM 3: The Stagnation Theorem
--- For d=1 systems, Δ is constant and τ grows linearly.
--- Proof: stagnation-recurrence in ObligationGraph.Recurrence
+-- THEOREM 3: The paper-facing depth-1 affine corollary
+-- For d=1 systems with uniform payload c and empty bootstrap:
+--   Delta-depth1-bootstrap c (suc n) = scale c n
+--   tau-depth1-bootstrap c n = scale c (triangle n)
+-- Proof: depth1-affine-growth / Delta-depth1-closed /
+--        tau-depth1-closed in Core.DepthOneAffine
+--
+-- The older payload-free normalization surface remains available via
+-- stagnation-recurrence in ObligationGraph.Recurrence.
 
 -- ============================================
 -- Key Identities
@@ -100,7 +107,7 @@ open import Metatheory.AdjunctionBarrier public
 --   ✓ Fibonacci definitions and proofs
 --   ✓ Recurrence theorem for d=2
 --   ✓ Golden Schedule identity
---   ✓ Stagnation theorem for d=1
+--   ✓ Paper-facing affine corollary for d=1
 --   ✓ Unit tests matching paper values
 
 -- Phase 2: TODO (Oracle/Kappa.agda)

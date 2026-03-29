@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 
 open import Core.Nat
 open import Core.AffineRecurrence
+open import Core.DepthOneAffine
 open import ObligationGraph.Recurrence
 
 -- ============================================
@@ -278,3 +279,52 @@ _ = U-bootstrap-closed 1 3
 
 _ : tau-bootstrap 1 3 + scale 1 (tauShift 3) ≡ scale 1 (fib 7)
 _ = tau-bootstrap-closed 1 3
+
+-- ============================================
+-- Tests for the paper-facing depth-1 corollary
+-- ============================================
+
+_ : Delta-depth1-bootstrap 1 0 ≡ 0
+_ = refl
+
+_ : Delta-depth1-bootstrap 1 1 ≡ 1
+_ = refl
+
+_ : Delta-depth1-bootstrap 1 2 ≡ 2
+_ = refl
+
+_ : Delta-depth1-bootstrap 1 3 ≡ 3
+_ = refl
+
+_ : Delta-depth1-bootstrap 1 3 ≡ Delta-depth1-bootstrap 1 2 + 1
+_ = depth1-affine-growth 1 2
+
+_ : Delta-depth1-bootstrap 2 3 ≡ scale 2 3
+_ = Delta-depth1-closed 2 3
+
+_ : triangle 0 ≡ 0
+_ = refl
+
+_ : triangle 1 ≡ 1
+_ = refl
+
+_ : triangle 2 ≡ 3
+_ = refl
+
+_ : triangle 3 ≡ 6
+_ = refl
+
+_ : tau-depth1-bootstrap 1 0 ≡ 0
+_ = refl
+
+_ : tau-depth1-bootstrap 1 1 ≡ 1
+_ = refl
+
+_ : tau-depth1-bootstrap 1 2 ≡ 3
+_ = refl
+
+_ : tau-depth1-bootstrap 1 3 ≡ 6
+_ = refl
+
+_ : tau-depth1-bootstrap 2 3 ≡ scale 2 (triangle 3)
+_ = tau-depth1-closed 2 3

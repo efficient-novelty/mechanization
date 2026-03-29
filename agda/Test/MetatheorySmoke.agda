@@ -6,6 +6,7 @@ open import PEN
 
 affine-shift-available = U-is-fibonacci
 affine-bootstrap-available = tau-bootstrap-closed
+affine-depth1-available = tau-depth1-closed
 
 extensional-available = history-truncates-to-one
 
