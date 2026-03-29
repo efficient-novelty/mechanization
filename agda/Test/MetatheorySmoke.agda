@@ -16,6 +16,14 @@ arity-dimension-theorem = historical-arity-forces-cell-dimension
 obligation-arity-theorem = irreducible-obligation-requires-cell
 coherence-depth-surface = HasCoherenceDepth
 chronological-window-surface = HasChronologicalWindowSize
+library-state-surface = LibraryState
+transparent-development-surface = TransparentDevelopment
+sealed-layer-surface = SealedLayer
+transparent-state-theorem = transparent-growth-keeps-library-state
+transparent-interface-theorem = transparent-definitions-preserve-active-interface
+transparent-latency-theorem = transparent-definitions-have-zero-integration-latency
+transparent-outside-recurrence-theorem =
+  transparent-user-level-code-lies-outside-the-recurrence
 
 extensional-available = history-truncates-to-one
 

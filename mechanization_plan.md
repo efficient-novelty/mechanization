@@ -76,6 +76,12 @@ These are not part of the remaining backlog below.
   `agda/Metatheory/Obligations.agda` via `Positive`,
   `CoherenceCellShape`, `historical-arity-forces-cell-dimension`, and
   `irreducible-obligation-requires-cell`.
+- `prop:transparent` now has an exact theorem-facing counterpart in
+  `agda/Metatheory/InterfaceCalculus.agda` via `LibraryState`,
+  `TransparentDevelopment`, `transparent-growth-keeps-library-state`,
+  `transparent-definitions-preserve-active-interface`,
+  `transparent-definitions-have-zero-integration-latency`, and
+  `transparent-user-level-code-lies-outside-the-recurrence`.
 - The recurrence/shift fragment of `cor:fibonacci` is present in
   `agda/Core/AffineRecurrence.agda`, and the full bootstrap-indexed paper
   corollary is now present there via `Delta-bootstrap`, `U-bootstrap-closed`,
@@ -84,17 +90,7 @@ These are not part of the remaining backlog below.
 
 ## Remaining Statements, Easy To Hard
 
-1. `prop:transparent` (`1_coherence_depth.tex`, label `prop:transparent`)
-
-    Status: missing.
-    The paper distinguishes transparent user-level elaboration from sealed
-    layer creation, but the Agda artifact does not yet formalize that
-    distinction as a theorem about unchanged exported interfaces and zero
-    integration latency.
-    Suggested target: a lightweight interface-calculus module building on
-    `agda/Metatheory/Obligations.agda`.
-
-2. `thm:trace` (`1_coherence_depth.tex`, label `thm:trace`)
+1. `thm:trace` (`1_coherence_depth.tex`, label `thm:trace`)
 
     Status: missing.
     The current barrier modules illustrate the idea that resolved obligations
@@ -104,7 +100,7 @@ These are not part of the remaining backlog below.
     Suggested target: add a theorem-facing trace module built over an explicit
     sealed-record interface calculus.
 
-3. `thm:canonicity` (`1_coherence_depth.tex`, label `thm:canonicity`)
+2. `thm:canonicity` (`1_coherence_depth.tex`, label `thm:canonicity`)
 
     Status: missing.
     This is the first genuinely heavy semantic theorem still absent from the
@@ -114,17 +110,18 @@ These are not part of the remaining backlog below.
     Suggested target: a dedicated module such as
     `agda/Metatheory/CanonicityDensity.agda`.
 
-4. `thm:recurrence` (`1_coherence_depth.tex`, label `thm:recurrence`)
+3. `thm:recurrence` (`1_coherence_depth.tex`, label `thm:recurrence`)
 
     Status: missing as stated.
     The current code proves the depth-two constant-payload specialization, not
     the paper's universal depth-`d` affine law
     `Delta_{n+1} = sum_j (Delta_{n-j} + kappa_{n-j})`.
-    Suggested target: prove it after Item 4 by making the historical
+    Suggested target: prove it once the explicit historical-interface
+    calculus is in place by making the historical
     interface `I_n^(d)` an explicit finite tagged coproduct over the new
     obligation-language surface.
 
-5. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
+4. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
 
     Status: missing.
     The paper claims invariance under canonical telescope isomorphism,
@@ -132,9 +129,9 @@ These are not part of the remaining backlog below.
     this principle informally, but does not yet mechanize the quotienting or
     the induced bijections on atomic payloads and obligations.
     Suggested target: a separate normalization/refactoring module after the
-    interface calculus from Item 4 is explicit.
+    interface calculus is explicit.
 
-6. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
+5. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
 
     Status: missing.
     This is the hardest remaining statement. The paper's topological exact
@@ -145,7 +142,7 @@ These are not part of the remaining backlog below.
     Suggested target: a dedicated `agda/Metatheory/Clutching.agda` or
     `agda/Geometry/Clutching.agda`.
 
-7. Conclusion-level mechanization claim cleanup
+6. Conclusion-level mechanization claim cleanup
 
     Status: still needed after the theorem work above.
     Once Items 1-6 are completed, the prose in the abstract, mechanization
@@ -161,9 +158,9 @@ These are not part of the remaining backlog below.
   surface.
 - The exact depth-two corollary is now the core theorem-facing wrapper tying
   the upper-bound, chronological-window, and lower-bound packages together.
-- Items 1-5 require making the current distilled interface calculus explicit
+- Items 1-4 require making the current distilled interface calculus explicit
   enough to support exact paper-level statements.
-- Item 6 is the main topological formalization project and should be treated
+- Item 5 is the main topological formalization project and should be treated
   as its own milestone.
 
 ## Suggested Execution Order
@@ -171,7 +168,7 @@ These are not part of the remaining backlog below.
 If the goal is fastest improvement to theorem-to-code fidelity, a good
 implementation order is:
 
-1. Items 1-4 (transparent/interface calculus through universal recurrence)
-2. Item 5 (refactoring invariance)
-3. Item 6 (clutching family)
-4. Item 7 (paper mechanization claim cleanup)
+1. Items 1-3 (trace/interface calculus through universal recurrence)
+2. Item 4 (refactoring invariance)
+3. Item 5 (clutching family)
+4. Item 6 (paper mechanization claim cleanup)

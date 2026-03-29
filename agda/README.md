@@ -81,6 +81,13 @@ Current theorem-facing modules:
   `HistoricalSupport`, `PrimitiveCost`, `ObligationLanguage`,
   `StabilizesAt`, `HasCoherenceDepth`, `FactorsThroughWindow`, and
   `HasChronologicalWindowSize`.
+- `Metatheory/InterfaceCalculus.agda` now provides the lightweight
+  interface-calculus surface for `prop:transparent` via
+  `LibraryState`, `TransparentDevelopment`, `SealedLayer`,
+  `transparent-growth-keeps-library-state`,
+  `transparent-definitions-preserve-active-interface`,
+  `transparent-definitions-have-zero-integration-latency`, and
+  `transparent-user-level-code-lies-outside-the-recurrence`.
 - `Metatheory/Obligations.agda` also now includes the arity-to-dimension
   surface for `lem:arity-dimension`:
   `Positive`, `CoherenceCellShape`,
@@ -158,7 +165,7 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `prop:transparent`
+  `thm:trace`
 - exact paper-level wrappers such as the later
   interface/trace/canonicity/clutching results are still pending
 
@@ -186,6 +193,7 @@ If you are trying to orient yourself quickly, start here:
 
 - `PEN.agda`: top-level export surface
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
+- `Metatheory/InterfaceCalculus.agda`: transparent-vs-sealed interface surface
 - `Metatheory/Extensional.agda`: depth-1 theorem
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
@@ -216,6 +224,7 @@ Useful additional checks:
 
 ```bash
 agda --transliterate Metatheory/Obligations.agda
+agda --transliterate Metatheory/InterfaceCalculus.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda
