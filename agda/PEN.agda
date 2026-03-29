@@ -51,6 +51,22 @@ open import Metatheory.TracePrinciple public
         ; public-counting-normal-form
         ; integration-trace-principle
         )
+open import Metatheory.UniversalRecurrence public
+  using ( CountedHistoricalLayer
+        ; HistoricalWindow
+        ; layer-trace-principle
+        ; historical-interface
+        ; historical-interface-size
+        ; historical-interface-counting-normal-form
+        ; window-affine-sum
+        ; historical-interface-size-as-affine-sum
+        ; ChronologicalRecurrenceContext
+        ; active-historical-interface
+        ; next-integration-latency
+        ; recent-layer-affine-sum
+        ; UniversalAffineRecurrence
+        ; universal-affine-recurrence
+        )
 open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
 open import Metatheory.UpperBound public
@@ -131,7 +147,14 @@ open import Metatheory.AdjunctionBarrier public
 --        cubical-chronological-window-size-exactly-two in
 --        Metatheory.ExactDepth
 
--- THEOREM 10: The abstract depth-two law for fully coupled 2D foundations
+-- THEOREM 10: The paper-facing universal affine recurrence
+-- Once coherence depth d is realized by a chronological window of size d,
+-- the active historical interface is the tagged coproduct of the last d
+-- counted sealed exports, and its cardinality is the sum of the previous
+-- integration latencies plus core payload sizes.
+-- Proof: universal-affine-recurrence in Metatheory.UniversalRecurrence
+
+-- THEOREM 11: The abstract depth-two law for fully coupled 2D foundations
 -- A witness of genuine binary coherence together with depth-two
 -- stabilization/window data forces coherence depth 2, and under constant
 -- payload the same package exposes the affine depth-two recurrence whose

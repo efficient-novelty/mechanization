@@ -38,6 +38,13 @@ canonicity-theorem-available =
 trace-package-surface = IntegrationTracePrinciple
 trace-public-counting-normal-form = public-counting-normal-form
 trace-theorem-available = integration-trace-principle
+counted-historical-layer-surface = CountedHistoricalLayer
+historical-window-surface = HistoricalWindow
+historical-interface-counting-available =
+  historical-interface-counting-normal-form
+chronological-recurrence-context-surface = ChronologicalRecurrenceContext
+universal-recurrence-package-surface = UniversalAffineRecurrence
+universal-recurrence-theorem-available = universal-affine-recurrence
 
 extensional-available = history-truncates-to-one
 

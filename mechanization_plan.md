@@ -98,6 +98,14 @@ These are not part of the remaining backlog below.
   `explicit-sealed-public-size`, and the theorem-facing package
   `IntegrationTracePrinciple`, `public-counting-normal-form`, and
   `integration-trace-principle`.
+- `thm:recurrence` now has an exact theorem-facing counterpart in
+  `agda/Metatheory/UniversalRecurrence.agda` via
+  `CountedHistoricalLayer`, `HistoricalWindow`, `historical-interface`,
+  `historical-interface-counting-normal-form`,
+  `ChronologicalRecurrenceContext`, `UniversalAffineRecurrence`, and
+  `universal-affine-recurrence`, built on the explicit counted sealed-layer
+  surface from `agda/Metatheory/InterfaceCalculus.agda` and the per-layer
+  trace package from `agda/Metatheory/TracePrinciple.agda`.
 - The recurrence/shift fragment of `cor:fibonacci` is present in
   `agda/Core/AffineRecurrence.agda`, and the full bootstrap-indexed paper
   corollary is now present there via `Delta-bootstrap`, `U-bootstrap-closed`,
@@ -106,18 +114,7 @@ These are not part of the remaining backlog below.
 
 ## Remaining Statements, Easy To Hard
 
-1. `thm:recurrence` (`1_coherence_depth.tex`, label `thm:recurrence`)
-
-    Status: missing as stated.
-    The current code proves the depth-two constant-payload specialization, not
-    the paper's universal depth-`d` affine law
-    `Delta_{n+1} = sum_j (Delta_{n-j} + kappa_{n-j})`.
-    Suggested target: prove it once the explicit historical-interface
-    calculus is in place by making the historical
-    interface `I_n^(d)` an explicit finite tagged coproduct over the new
-    obligation-language surface.
-
-2. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
+1. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
 
     Status: missing.
     The paper claims invariance under canonical telescope isomorphism,
@@ -127,7 +124,7 @@ These are not part of the remaining backlog below.
     Suggested target: a separate normalization/refactoring module after the
     interface calculus is explicit.
 
-3. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
+2. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
 
     Status: missing.
     This is the hardest remaining statement. The paper's topological exact
@@ -138,10 +135,10 @@ These are not part of the remaining backlog below.
     Suggested target: a dedicated `agda/Metatheory/Clutching.agda` or
     `agda/Geometry/Clutching.agda`.
 
-4. Conclusion-level mechanization claim cleanup
+3. Conclusion-level mechanization claim cleanup
 
     Status: still needed after the theorem work above.
-    Once Items 1-4 are completed, the prose in the abstract, mechanization
+    Once Items 1-3 are completed, the prose in the abstract, mechanization
     section, and conclusion should be tightened so that every cited paper
     theorem points to an exact Agda theorem rather than to a computational
     ingredient or explanatory scaffold.
@@ -154,13 +151,12 @@ These are not part of the remaining backlog below.
   surface.
 - The exact depth-two corollary is now the core theorem-facing wrapper tying
   the upper-bound, chronological-window, and lower-bound packages together.
-- The canonicity and trace packages now expose a theorem-facing historical
-  interface and counted sealed-layer surface for later recurrence/refactoring
-  work.
-- Items 1-2 build on that explicit interface-calculus surface and extend it
-  from density/trace accounting to universal recurrence and refactoring
-  invariance.
-- Item 3 is the main topological formalization project and should be treated
+- The canonicity, trace, and universal-recurrence packages now expose a
+  theorem-facing historical interface and counted sealed-layer window surface
+  for later refactoring work.
+- Item 1 builds on that explicit interface-calculus surface and extends it
+  from counted-window recurrence to refactoring invariance.
+- Item 2 is the main topological formalization project and should be treated
   as its own milestone.
 
 ## Suggested Execution Order
@@ -168,6 +164,6 @@ These are not part of the remaining backlog below.
 If the goal is fastest improvement to theorem-to-code fidelity, a good
 implementation order is:
 
-1. Items 1-2 (universal recurrence through refactoring invariance)
-2. Item 3 (clutching family)
-3. Item 4 (paper mechanization claim cleanup)
+1. Item 1 (refactoring invariance)
+2. Item 2 (clutching family)
+3. Item 3 (paper mechanization claim cleanup)

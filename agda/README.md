@@ -103,6 +103,13 @@ Current theorem-facing modules:
   `public-counting-normal-form`, and `integration-trace-principle`, built on
   the explicit counted sealed-layer surface from
   `Metatheory/InterfaceCalculus.agda`.
+- `Metatheory/UniversalRecurrence.agda` packages the exact paper-facing
+  universal affine recurrence `thm:recurrence` via
+  `CountedHistoricalLayer`, `HistoricalWindow`, `historical-interface`,
+  `historical-interface-counting-normal-form`,
+  `ChronologicalRecurrenceContext`, `UniversalAffineRecurrence`, and
+  `universal-affine-recurrence`, built on the explicit counted sealed-layer
+  surface and the per-layer trace package.
 - `Metatheory/Obligations.agda` also now includes the arity-to-dimension
   surface for `lem:arity-dimension`:
   `Positive`, `CoherenceCellShape`,
@@ -159,7 +166,9 @@ Current theorem-facing modules:
   `cubical-depth-two-law-for-2d-foundations`, and
   `cubical-chronological-window-size-two-for-2d-foundations`.
 - `Core/AffineRecurrence.agda` and `Core/DepthOneAffine.agda` package the
-  payload-aware affine recurrence and the paper-facing depth-1 corollary.
+  arithmetic specializations used by the universal recurrence theorem,
+  including the payload-aware depth-two law and the paper-facing depth-1
+  corollary.
 
 What this means in practice:
 
@@ -176,15 +185,17 @@ What this means in practice:
 - the paper's arity-to-dimension dictionary is now mechanized
 - the exact maximal-interface-density theorem is now mechanized
 - the exact integration trace principle is now mechanized
-- the recurrence side has both the payload-aware affine statement and the
-  depth-1 closed forms
+- the exact universal affine recurrence is mechanized on an explicit counted
+  depth-`d` historical window
+- the recurrence side still has the payload-aware arithmetic specializations
+  and the depth-1 closed forms
 
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `thm:recurrence`
+  `cor:refactoring`
 - exact paper-level wrappers such as the later
-  recurrence/refactoring/clutching results are still pending
+  refactoring/clutching results are still pending
 
 ### Counting / Oracle Track
 
@@ -216,6 +227,8 @@ If you are trying to orient yourself quickly, start here:
   maximal-density package for `thm:canonicity`
 - `Metatheory/TracePrinciple.agda`: exact trace-principle wrapper for sealed
   exports
+- `Metatheory/UniversalRecurrence.agda`: exact universal recurrence wrapper
+  for the counted historical interface
 - `Metatheory/Extensional.agda`: depth-1 theorem
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
@@ -249,6 +262,7 @@ agda --transliterate Metatheory/Obligations.agda
 agda --transliterate Metatheory/InterfaceCalculus.agda
 agda --transliterate Metatheory/CanonicityDensity.agda
 agda --transliterate Metatheory/TracePrinciple.agda
+agda --transliterate Metatheory/UniversalRecurrence.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda
