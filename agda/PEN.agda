@@ -35,7 +35,12 @@ open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
-         binary-coherence-nontrivial; depth1-insufficient)
+         binary-coherence-nontrivial; depth1-insufficient; const-left;
+         const-right; swap-endomap-path; swap-endomap-transport;
+         swap-endomap-obligation; swap-endomap-obligation-impossible;
+         ExplicitBinarySealingObstruction; explicit-binary-sealing-obstruction;
+         TriangleIdentityCorollary; triangle-identity-corollary;
+         adjunction-barrier)
 
 -- ============================================
 -- Main Results (Phase 1)
@@ -61,6 +66,13 @@ open import Metatheory.AdjunctionBarrier public
 --
 -- The older payload-free normalization surface remains available via
 -- stagnation-recurrence in ObligationGraph.Recurrence.
+
+-- THEOREM 4: The explicit adjunction barrier package
+-- The promoted endomap clause const-left on Two leaves a residual
+-- binary sealing obligation along the swap-induced endomap path, and
+-- triangle identities remain depth-2 data.
+-- Proof: explicit-binary-sealing-obstruction / triangle-identity-corollary /
+--        adjunction-barrier in Metatheory.AdjunctionBarrier
 
 -- ============================================
 -- Key Identities

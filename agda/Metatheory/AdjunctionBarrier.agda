@@ -3,8 +3,19 @@
 module Metatheory.AdjunctionBarrier where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism using (Iso; isoToPath; transportIsoToPath)
+open import Cubical.Foundations.Isomorphism using
+  ( Iso
+  ; endoIso
+  ; isoToPath
+  ; transportIsoToPath
+  )
 open import Cubical.Data.Empty.Base using (⊥)
+
+open import Adjunction.AdjunctionDepth using
+  ( Depth2
+  ; triangle-L-depth
+  ; triangle-R-depth
+  )
 
 ¬_ : ∀ {ℓ} → Type ℓ → Type ℓ
 ¬ A = A → ⊥
@@ -64,3 +75,63 @@ depth1-insufficient :
   ¬ ((X Y : Type) (p q : X ≡ Y) → isContr (BinaryObligation p q))
 depth1-insufficient collapse =
   binary-coherence-nontrivial (collapse Two Two refl swap-path)
+
+const-left : Two → Two
+const-left _ = left
+
+const-right : Two → Two
+const-right _ = right
+
+swap-endomap-path : (Two → Two) ≡ (Two → Two)
+swap-endomap-path = isoToPath (endoIso swap-iso)
+
+swap-endomap-conjugates-left : Iso.fun (endoIso swap-iso) const-left ≡ const-right
+swap-endomap-conjugates-left =
+  funExt λ where
+    left → refl
+    right → refl
+
+swap-endomap-transport : transport swap-endomap-path const-left ≡ const-right
+swap-endomap-transport =
+  transportIsoToPath (endoIso swap-iso) const-left
+    ∙ swap-endomap-conjugates-left
+
+swap-endomap-obligation : Type
+swap-endomap-obligation = transport swap-endomap-path const-left ≡ const-left
+
+const-right≠const-left : const-right ≡ const-left → ⊥
+const-right≠const-left α = right≠left (cong (λ f → f left) α)
+
+swap-endomap-obligation-impossible : ¬ swap-endomap-obligation
+swap-endomap-obligation-impossible α =
+  const-right≠const-left (sym swap-endomap-transport ∙ α)
+
+record ExplicitBinarySealingObstruction : Type₁ where
+  field
+    unaryClauseAtTwo : Two → Two
+    transportedUnaryClause : transport swap-endomap-path unaryClauseAtTwo ≡ const-right
+    residualBinaryObligation : Type
+    residualBinaryObligationUninhabited : ¬ residualBinaryObligation
+
+explicit-binary-sealing-obstruction : ExplicitBinarySealingObstruction
+explicit-binary-sealing-obstruction = record
+  { unaryClauseAtTwo = const-left
+  ; transportedUnaryClause = swap-endomap-transport
+  ; residualBinaryObligation = swap-endomap-obligation
+  ; residualBinaryObligationUninhabited = swap-endomap-obligation-impossible
+  }
+
+record TriangleIdentityCorollary : Type where
+  field
+    leftTriangleRequiresBinary : triangle-L-depth ≡ Depth2
+    rightTriangleRequiresBinary : triangle-R-depth ≡ Depth2
+
+triangle-identity-corollary : TriangleIdentityCorollary
+triangle-identity-corollary = record
+  { leftTriangleRequiresBinary = refl
+  ; rightTriangleRequiresBinary = refl
+  }
+
+adjunction-barrier :
+  ¬ ((X Y : Type) (p q : X ≡ Y) → isContr (BinaryObligation p q))
+adjunction-barrier = depth1-insufficient

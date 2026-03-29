@@ -12,3 +12,6 @@ extensional-available = history-truncates-to-one
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
+adjunction-package-available = explicit-binary-sealing-obstruction
+adjunction-triangle-available = triangle-identity-corollary
+adjunction-barrier-available = adjunction-barrier

@@ -76,8 +76,11 @@ original PEN counting artifact:
   `history-beyond-two-algorithmically-subsumed`, and
   `arity3-open-box-hfilled`.
 - `Metatheory/AdjunctionBarrier.agda` gives the depth-one lower bound by
-  constructing a nontrivial binary coherence witness on a two-point type via
-  the cubical `isoToPath` bridge and proving `depth1-insufficient`.
+  packaging the paper's explicit `\mathbf{2}`/swap promoted-interface
+  obstruction: the unary clause `const-left` leaves a residual binary sealing
+  obligation along the swap-induced endomap path, the triangle-identity
+  corollary is exposed as a theorem-facing record, and `depth1-insufficient`
+  / `adjunction-barrier` rule out global depth-1 collapse.
 - `Saturation/Axiom.agda` is retained as the older combinatorial modeling
   surface for the payload-free depth-two counting story; it is no longer the
   main justification for the paper's depth-two theorem.
