@@ -19,11 +19,15 @@ chronological-window-surface = HasChronologicalWindowSize
 library-state-surface = LibraryState
 transparent-development-surface = TransparentDevelopment
 sealed-layer-surface = SealedLayer
+explicit-sealed-layer-surface = ExplicitSealedLayer
 transparent-state-theorem = transparent-growth-keeps-library-state
 transparent-interface-theorem = transparent-definitions-preserve-active-interface
 transparent-latency-theorem = transparent-definitions-have-zero-integration-latency
 transparent-outside-recurrence-theorem =
   transparent-user-level-code-lies-outside-the-recurrence
+trace-package-surface = IntegrationTracePrinciple
+trace-public-counting-normal-form = public-counting-normal-form
+trace-theorem-available = integration-trace-principle
 
 extensional-available = history-truncates-to-one
 

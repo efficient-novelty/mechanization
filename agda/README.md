@@ -84,10 +84,17 @@ Current theorem-facing modules:
 - `Metatheory/InterfaceCalculus.agda` now provides the lightweight
   interface-calculus surface for `prop:transparent` via
   `LibraryState`, `TransparentDevelopment`, `SealedLayer`,
+  `ExplicitSealedLayer`, `explicit-sealed-public-interface`,
+  `explicit-sealed-public-size`,
   `transparent-growth-keeps-library-state`,
   `transparent-definitions-preserve-active-interface`,
   `transparent-definitions-have-zero-integration-latency`, and
   `transparent-user-level-code-lies-outside-the-recurrence`.
+- `Metatheory/TracePrinciple.agda` packages the exact paper-facing integration
+  trace principle `thm:trace` via `IntegrationTracePrinciple`,
+  `public-counting-normal-form`, and `integration-trace-principle`, built on
+  the explicit counted sealed-layer surface from
+  `Metatheory/InterfaceCalculus.agda`.
 - `Metatheory/Obligations.agda` also now includes the arity-to-dimension
   surface for `lem:arity-dimension`:
   `Positive`, `CoherenceCellShape`,
@@ -159,15 +166,16 @@ What this means in practice:
 - the exact `d = 2` coherence-depth corollary is mechanized
 - the abstract `2`D-foundations wrapper is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
+- the exact integration trace principle is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
 
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `thm:trace`
+  `thm:canonicity`
 - exact paper-level wrappers such as the later
-  interface/trace/canonicity/clutching results are still pending
+  canonicity/recurrence/refactoring/clutching results are still pending
 
 ### Counting / Oracle Track
 
@@ -194,6 +202,9 @@ If you are trying to orient yourself quickly, start here:
 - `PEN.agda`: top-level export surface
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
 - `Metatheory/InterfaceCalculus.agda`: transparent-vs-sealed interface surface
+  plus the explicit counted sealed-layer API
+- `Metatheory/TracePrinciple.agda`: exact trace-principle wrapper for sealed
+  exports
 - `Metatheory/Extensional.agda`: depth-1 theorem
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
@@ -225,6 +236,7 @@ Useful additional checks:
 ```bash
 agda --transliterate Metatheory/Obligations.agda
 agda --transliterate Metatheory/InterfaceCalculus.agda
+agda --transliterate Metatheory/TracePrinciple.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda

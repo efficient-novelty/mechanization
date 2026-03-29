@@ -3,9 +3,12 @@
 module Metatheory.InterfaceCalculus where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism using (Iso)
 open import Cubical.Data.Sum.Base using (_⊎_)
 
+open import Core.Nat using (ℕ; _+_)
 open import Core.Nat using (zero)
+open import Metatheory.Obligations using (Fin)
 open import Metatheory.Obligations using (PrimitiveCost; derived; costOf)
 
 private
@@ -111,3 +114,30 @@ transparent-user-level-code-lies-outside-the-recurrence U = record
   ; zero-integration-latency =
       transparent-definitions-have-zero-integration-latency U
   }
+
+-- A counted presentation of a sealed export boundary. The counts are the
+-- paper's κ_k and Δ_k, while the isomorphisms witness counting normal forms.
+record ExplicitSealedLayer {ℓI ℓP ℓT : Level}
+  (B : LibraryState ℓI) :
+  Type (ℓ-suc (ℓ-max ℓI (ℓ-max ℓP ℓT))) where
+  constructor mkExplicitSealedLayer
+  field
+    layer            : SealedLayer {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} B
+    corePayloadSize  : ℕ
+    coherenceCost    : ℕ
+    coreCounting     : Iso (CorePayload layer) (Fin corePayloadSize)
+    traceCounting    : Iso (ResolvedTrace layer) (Fin coherenceCost)
+
+open ExplicitSealedLayer public
+
+explicit-sealed-public-interface :
+  {B : LibraryState ℓI} →
+  ExplicitSealedLayer {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} B →
+  Type (ℓ-max ℓP ℓT)
+explicit-sealed-public-interface E = sealed-public-interface (layer E)
+
+explicit-sealed-public-size :
+  {B : LibraryState ℓI} →
+  ExplicitSealedLayer {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} B →
+  ℕ
+explicit-sealed-public-size E = corePayloadSize E + coherenceCost E
