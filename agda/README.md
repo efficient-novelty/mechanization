@@ -61,6 +61,8 @@ The most important directories are:
 - `Core/`: arithmetic and paper-facing recurrence packages, including
   `Nat.agda`, `AffineRecurrence.agda`, and `DepthOneAffine.agda`
 - `Metatheory/`: theorem-facing coherence-depth surface used by the paper
+- `Geometry/`: exact topological/HIT developments, including the standalone
+  clutching-family formalization for `thm:clutching`
 - `ObligationGraph/` and `Saturation/`: the older counting/barrier model that
   still supports the recurrence side of the artifact
 - `Adjunction/`: supporting lower-bound scaffolding
@@ -73,6 +75,13 @@ The most important directories are:
 
 The coherence-depth theorem package is now exposed from `PEN.agda` and has a
 top-level smoke import in `Test/MetatheorySmoke.agda`.
+
+The one exception is the exact clutching-family artifact for `thm:clutching`,
+which now lives in `Geometry/Clutching.agda` and is checked by the dedicated
+`Test/ClutchingSmoke.agda` smoke module. It is intentionally kept as a
+standalone Cubical geometry artifact for now because the main theorem package
+still uses the repository-local `Core/Nat.agda`, while the exact suspension /
+circle development rides directly on the Cubical library's standard HIT stack.
 
 Current theorem-facing modules:
 
@@ -171,6 +180,13 @@ Current theorem-facing modules:
   `cubical-2d-foundation`,
   `cubical-depth-two-law-for-2d-foundations`, and
   `cubical-chronological-window-size-two-for-2d-foundations`.
+- `Geometry/Clutching.agda` packages the exact paper-facing clutching family
+  `thm:clutching` via `CircleClutchingBoundary`, `clutching-family`,
+  `HopfClutchingFamily`, `hopf-binary-clutching-datum`,
+  `hopf-binary-clutching-nontrivial`, `ClutchingHornExtensionFiber`,
+  `clutching-horn-extension-fiber-contractible`, and
+  `clutching-family-theorem`, with regression coverage in
+  `Test/ClutchingSmoke.agda`.
 - `Core/AffineRecurrence.agda` and `Core/DepthOneAffine.agda` package the
   arithmetic specializations used by the universal recurrence theorem,
   including the payload-aware depth-two law and the paper-facing depth-1
@@ -188,6 +204,7 @@ What this means in practice:
 - the exact chronological-window corollary is mechanized
 - the exact `d = 2` coherence-depth corollary is mechanized
 - the abstract `2`D-foundations wrapper is mechanized
+- the exact clutching-family lower-bound witness is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the exact admissible-refactoring invariance corollary is now mechanized
 - the exact maximal-interface-density theorem is now mechanized
@@ -200,9 +217,9 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `thm:clutching`
-- the exact clutching family and the final paper-level mechanization-claim
-  cleanup are still pending
+  the paper-level mechanization-claim cleanup
+- the final abstract/mechanization/conclusion prose still needs to be tightened
+  so every cited paper theorem points directly at its exact Agda theorem
 
 ### Counting / Oracle Track
 
@@ -248,9 +265,13 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
 - `Metatheory/TwoDFoundations.agda`: abstract 2D-foundations wrapper and
   constant-payload affine/Fibonacci consequence
+- `Geometry/Clutching.agda`: exact suspension-sphere clutching family for
+  `thm:clutching`
 - `Core/AffineRecurrence.agda`: payload-aware recurrence
 - `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem
   package
+- `Test/ClutchingSmoke.agda`: lightweight regression import for the standalone
+  clutching artifact
 - `progress_tracking.md`: longer historical log for the Agda work
 
 ## Verification Commands
@@ -261,6 +282,8 @@ For the integrated coherence-depth surface:
 cd /mnt/c/dev/pen/agda
 agda --transliterate PEN.agda
 agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Geometry/Clutching.agda
+agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
 ```
 
@@ -289,7 +312,12 @@ agda --transliterate Test/BlindTest.agda
 1. The repository intentionally defines its own `Nat` surface in
    `Core/Nat.agda` because some Cubical library data imports trigger Agda
    2.8.0 compatibility problems in this setup.
-2. Some reflection-heavy oracle work has different ergonomics from the Cubical
+2. `Geometry/Clutching.agda` therefore stays as a standalone checked artifact
+   instead of being re-exported through `PEN.agda`: mixing the exact Cubical
+   suspension/circle development with the existing `Core/Nat.agda`-based
+   theorem package in one module currently trips Agda's built-in-natural
+   binding boundary.
+3. Some reflection-heavy oracle work has different ergonomics from the Cubical
    theorem package; `progress_tracking.md` is the best place to check the
    current caveats for those modules.
 

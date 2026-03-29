@@ -118,24 +118,25 @@ These are not part of the remaining backlog below.
   corollary is now present there via `Delta-bootstrap`, `U-bootstrap-closed`,
   and `tau-bootstrap-closed`. The Agda statements use the subtraction-free
   natural-number equivalent of the paper formulas.
+- `thm:clutching` now has an exact theorem-facing counterpart in
+  `agda/Geometry/Clutching.agda` via `CircleClutchingBoundary`,
+  `clutching-family`, `HopfClutchingFamily`,
+  `hopf-binary-clutching-datum`, `hopf-binary-clutching-nontrivial`,
+  `ClutchingHornExtensionFiber`,
+  `clutching-horn-extension-fiber-contractible`, and
+  `clutching-family-theorem`, with a dedicated regression import in
+  `agda/Test/ClutchingSmoke.agda`. Because the repository's theorem package
+  still uses `agda/Core/Nat.agda` while the exact clutching development uses
+  the Cubical library's standard HIT/suspension stack, this topological
+  package is currently checked as a standalone geometry artifact rather than
+  re-exported through `agda/PEN.agda`.
 
 ## Remaining Statements, Easy To Hard
 
-1. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
-
-    Status: missing.
-    This is the hardest remaining statement. The paper's topological exact
-    family is only echoed by exploratory files such as
-    `agda/Experiments/HopfTrace.agda`, which uses postulates and is not part of
-    the theorem-facing safe artifact. An exact mechanization needs an actual
-    cubical HIT/bundle development rather than a distilled interface sketch.
-    Suggested target: a dedicated `agda/Metatheory/Clutching.agda` or
-    `agda/Geometry/Clutching.agda`.
-
-2. Conclusion-level mechanization claim cleanup
+1. Conclusion-level mechanization claim cleanup
 
     Status: still needed after the theorem work above.
-    Once Items 1-2 are completed, the prose in the abstract, mechanization
+    Once Item 1 is completed, the prose in the abstract, mechanization
     section, and conclusion should be tightened so that every cited paper
     theorem points to an exact Agda theorem rather than to a computational
     ingredient or explanatory scaffold.
@@ -154,13 +155,13 @@ These are not part of the remaining backlog below.
 - The refactoring package now builds on that explicit interface-calculus
   surface and extends it from counted-window recurrence to refactoring
   invariance.
-- Item 1 is the main topological formalization project and should be treated
-  as its own milestone.
+- The clutching family is now a completed standalone geometry milestone; the
+  remaining paper-facing task is the prose cleanup that points every paper
+  theorem directly at its exact Agda counterpart.
 
 ## Suggested Execution Order
 
 If the goal is fastest improvement to theorem-to-code fidelity, a good
 implementation order is:
 
-1. Item 1 (clutching family)
-2. Item 2 (paper mechanization claim cleanup)
+1. Item 1 (paper mechanization claim cleanup)
