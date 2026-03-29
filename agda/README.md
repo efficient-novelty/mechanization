@@ -127,6 +127,15 @@ Current theorem-facing modules:
   depth-1 collapse via `explicit-binary-sealing-obstruction`,
   `triangle-identity-corollary`, `depth1-insufficient`, and
   `adjunction-barrier`.
+- `Metatheory/TwoDFoundations.agda` packages the exact paper-facing abstract
+  depth-two law `thm:2d-foundations` via
+  `FullyCoupled2DFoundation`,
+  `depth-two-law-for-2d-foundations`,
+  `chronological-window-size-two-for-2d-foundations`,
+  `constant-payload-depth-two-law`,
+  `cubical-2d-foundation`,
+  `cubical-depth-two-law-for-2d-foundations`, and
+  `cubical-chronological-window-size-two-for-2d-foundations`.
 - `Core/AffineRecurrence.agda` and `Core/DepthOneAffine.agda` package the
   payload-aware affine recurrence and the paper-facing depth-1 corollary.
 
@@ -141,6 +150,7 @@ What this means in practice:
   mechanized
 - the exact chronological-window corollary is mechanized
 - the exact `d = 2` coherence-depth corollary is mechanized
+- the abstract `2`D-foundations wrapper is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
@@ -148,8 +158,8 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `thm:2d-foundations`
-- exact paper-level wrappers such as the abstract 2D-foundations theorem and the later
+  `prop:transparent`
+- exact paper-level wrappers such as the later
   interface/trace/canonicity/clutching results are still pending
 
 ### Counting / Oracle Track
@@ -184,6 +194,8 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/ChronologicalWindow.agda`: exact chronological-window wrapper
 - `Metatheory/ExactDepth.agda`: exact depth-two corollary wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
+- `Metatheory/TwoDFoundations.agda`: abstract 2D-foundations wrapper and
+  constant-payload affine/Fibonacci consequence
 - `Core/AffineRecurrence.agda`: payload-aware recurrence
 - `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem
   package
@@ -210,6 +222,7 @@ agda --transliterate Metatheory/UpperBound.agda
 agda --transliterate Metatheory/ChronologicalWindow.agda
 agda --transliterate Metatheory/ExactDepth.agda
 agda --transliterate Metatheory/AdjunctionBarrier.agda
+agda --transliterate Metatheory/TwoDFoundations.agda
 agda --transliterate Test/OpSchemaTest.agda
 agda --transliterate Test/BlindTest.agda
 ```

@@ -37,6 +37,7 @@ open import Metatheory.KanSubsumption public
 open import Metatheory.UpperBound public
 open import Metatheory.ChronologicalWindow public
 open import Metatheory.ExactDepth public
+open import Metatheory.TwoDFoundations public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
          binary-coherence-nontrivial; depth1-insufficient; const-left;
@@ -90,6 +91,16 @@ open import Metatheory.AdjunctionBarrier public
 -- Proof: cubical-coherence-depth-exactly-two /
 --        cubical-chronological-window-size-exactly-two in
 --        Metatheory.ExactDepth
+
+-- THEOREM 7: The abstract depth-two law for fully coupled 2D foundations
+-- A witness of genuine binary coherence together with depth-two
+-- stabilization/window data forces coherence depth 2, and under constant
+-- payload the same package exposes the affine depth-two recurrence whose
+-- shifted sequence is Fibonacci.
+-- Proof: depth-two-law-for-2d-foundations /
+--        constant-payload-depth-two-law /
+--        cubical-depth-two-law-for-2d-foundations in
+--        Metatheory.TwoDFoundations
 
 -- ============================================
 -- Key Identities

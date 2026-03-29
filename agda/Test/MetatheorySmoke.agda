@@ -38,6 +38,13 @@ exact-depth-theorem-available = cubical-coherence-depth-exactly-two
 exact-window-theorem-available = cubical-chronological-window-size-exactly-two
 exact-depth-binary-obstruction = cubical-binary-sealing-obstruction
 exact-depth-triangle-corollary = cubical-triangle-identity-corollary
+two-d-foundation-surface = FullyCoupled2DFoundation
+two-d-foundation-law-available = depth-two-law-for-2d-foundations
+two-d-foundation-window-available = chronological-window-size-two-for-2d-foundations
+two-d-foundation-payload-law = constant-payload-depth-two-law
+cubical-two-d-foundation-available = cubical-2d-foundation
+cubical-two-d-law-available = cubical-depth-two-law-for-2d-foundations
+cubical-two-d-window-available = cubical-chronological-window-size-two-for-2d-foundations
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
