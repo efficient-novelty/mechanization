@@ -58,6 +58,27 @@ costOf : PrimitiveCost → ℕ
 costOf derived = zero
 costOf requiresPrimitive = suc zero
 
+data Positive : ℕ → Type where
+  positive : (n : ℕ) → Positive (suc n)
+
+-- The paper's arity-to-dimension dictionary, indexed by the exact
+-- dimension forced by the historical support.
+data CoherenceCellShape : ℕ → Type where
+  substitution-or-transport     : CoherenceCellShape (suc zero)
+  naturality-square-or-homotopy : CoherenceCellShape (suc (suc zero))
+  genuine-higher-filler         : {k : ℕ} → CoherenceCellShape (suc (suc (suc k)))
+
+historical-arity-forces-cell-dimension :
+  {k : ℕ} (S : HistoricalSupport k) →
+  Positive (HistoricalSupport.arity S) →
+  CoherenceCellShape (HistoricalSupport.arity S)
+historical-arity-forces-cell-dimension S (positive zero) =
+  substitution-or-transport
+historical-arity-forces-cell-dimension S (positive (suc zero)) =
+  naturality-square-or-homotopy
+historical-arity-forces-cell-dimension S (positive (suc (suc n))) =
+  genuine-higher-filler {k = n}
+
 -- A theorem-facing interface for the paper's obligation language.
 record ObligationLanguage (ℓC ℓO : Level) : Type (ℓ-suc (ℓ-max ℓC ℓO)) where
   field
@@ -90,6 +111,22 @@ module _ {ℓC ℓO} (L : ObligationLanguage ℓC ℓO) where
 
   Derived : {X : CandidateL} {k : ℕ} → OL X k → Type
   Derived o = δ o ≡ zero
+
+  record IrreducibleHistoricalArity {X : CandidateL} {k : ℕ}
+    (o : OL X k) : Type where
+    field
+      irreducible   : Irreducible o
+      positiveArity : Positive (a o)
+
+  open IrreducibleHistoricalArity public
+
+  irreducible-obligation-requires-cell :
+    {X : CandidateL} {k : ℕ} (o : OL X k) →
+    IrreducibleHistoricalArity o →
+    CoherenceCellShape (a o)
+  irreducible-obligation-requires-cell o supported =
+    historical-arity-forces-cell-dimension (SuppL o)
+      (positiveArity supported)
 
 record StabilizesAt {ℓC ℓO : Level}
   (L : ObligationLanguage ℓC ℓO) (d : ℕ) : Type (ℓ-max ℓC ℓO) where

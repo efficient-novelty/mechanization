@@ -10,6 +10,10 @@ affine-depth1-available = tau-depth1-closed
 
 obligation-language-surface = ObligationLanguage
 historical-support-surface = HistoricalSupport
+positive-arity-surface = Positive
+coherence-cell-shape-surface = CoherenceCellShape
+arity-dimension-theorem = historical-arity-forces-cell-dimension
+obligation-arity-theorem = irreducible-obligation-requires-cell
 coherence-depth-surface = HasCoherenceDepth
 chronological-window-surface = HasChronologicalWindowSize
 
