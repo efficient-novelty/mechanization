@@ -130,17 +130,17 @@ These are not part of the remaining backlog below.
   the Cubical library's standard HIT/suspension stack, this topological
   package is currently checked as a standalone geometry artifact rather than
   re-exported through `agda/PEN.agda`.
+- The final paper-level mechanization-claim cleanup is now reflected directly
+  in `1_coherence_depth.tex`: the abstract, mechanization section, and
+  conclusion now give an explicit paper-to-Agda theorem map, state the trust
+  boundary (no theorem-facing postulates; Agda plus the declared Cubical
+  library and the repository-local arithmetic surface), and distinguish the
+  exact cubical metatheory from the distilled sealed-interface/counting
+  calculus layered on top of it.
 
 ## Remaining Statements, Easy To Hard
 
-1. Conclusion-level mechanization claim cleanup
-
-    Status: still needed after the theorem work above.
-    Once Item 1 is completed, the prose in the abstract, mechanization
-    section, and conclusion should be tightened so that every cited paper
-    theorem points to an exact Agda theorem rather than to a computational
-    ingredient or explanatory scaffold.
-    Suggested target: `1_coherence_depth.tex`.
+No remaining paper-facing theorem/prose gaps are currently tracked here.
 
 ## Practical Dependency Notes
 
@@ -155,13 +155,10 @@ These are not part of the remaining backlog below.
 - The refactoring package now builds on that explicit interface-calculus
   surface and extends it from counted-window recurrence to refactoring
   invariance.
-- The clutching family is now a completed standalone geometry milestone; the
-  remaining paper-facing task is the prose cleanup that points every paper
-  theorem directly at its exact Agda counterpart.
+- The clutching family is now a completed standalone geometry milestone.
+- The paper prose now points the cited theorem package directly at exact Agda
+  theorem names instead of only at computational ingredients or scaffolding.
 
 ## Suggested Execution Order
 
-If the goal is fastest improvement to theorem-to-code fidelity, a good
-implementation order is:
-
-1. Item 1 (paper mechanization claim cleanup)
+All items in the current paper-facing mechanization plan are complete.
