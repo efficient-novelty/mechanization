@@ -35,6 +35,7 @@ open import Metatheory.Obligations public
 open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
 open import Metatheory.UpperBound public
+open import Metatheory.ChronologicalWindow public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
          binary-coherence-nontrivial; depth1-insufficient; const-left;
@@ -75,6 +76,12 @@ open import Metatheory.AdjunctionBarrier public
 -- triangle identities remain depth-2 data.
 -- Proof: explicit-binary-sealing-obstruction / triangle-identity-corollary /
 --        adjunction-barrier in Metatheory.AdjunctionBarrier
+
+-- THEOREM 5: The paper-facing chronological-window corollary
+-- Primitive sealing data factor through the most recent two exported layers,
+-- and no smaller chronological window suffices.
+-- Proof: two-layer-chronological-window /
+--        chronological-markov-blanket in Metatheory.ChronologicalWindow
 
 -- ============================================
 -- Key Identities

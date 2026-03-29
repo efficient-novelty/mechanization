@@ -106,6 +106,12 @@ Current theorem-facing modules:
   exact paper-facing upper bound for `thm:upper` via
   `structural-obligation-set-equivalence` and
   `structural-stabilizes-at-two`.
+- `Metatheory/ChronologicalWindow.agda` upgrades that upper bound to the
+  exact paper-facing chronological-window corollary `cor:chrono-window` via
+  `primitive-obligations-factor-through-last-two`,
+  `one-layer-window-insufficient`,
+  `two-layer-chronological-window`, and
+  `chronological-markov-blanket`.
 - `Metatheory/AdjunctionBarrier.agda` packages the lower bound against global
   depth-1 collapse via `explicit-binary-sealing-obstruction`,
   `triangle-identity-corollary`, `depth1-insufficient`, and
@@ -122,6 +128,7 @@ What this means in practice:
   mechanized
 - the exact telescopic subsumption wrapper for remote binary comparisons is
   mechanized
+- the exact chronological-window corollary is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
@@ -129,9 +136,8 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `cor:chrono-window`
-- exact paper-level wrappers such as the chronological-window theorem,
-  exact `d = 2` corollary, and the later
+  `cor:d2`
+- exact paper-level wrappers such as the single exact `d = 2` corollary and the later
   interface/trace/canonicity/clutching results are still pending
 
 ### Counting / Oracle Track
@@ -163,6 +169,7 @@ If you are trying to orient yourself quickly, start here:
   and arity-3 open-box package
 - `Metatheory/UpperBound.agda`: exact depth-two upper-bound/stabilization
   wrapper
+- `Metatheory/ChronologicalWindow.agda`: exact chronological-window wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
 - `Core/AffineRecurrence.agda`: payload-aware recurrence
 - `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem
@@ -187,6 +194,7 @@ agda --transliterate Metatheory/Obligations.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda
+agda --transliterate Metatheory/ChronologicalWindow.agda
 agda --transliterate Metatheory/AdjunctionBarrier.agda
 agda --transliterate Test/OpSchemaTest.agda
 agda --transliterate Test/BlindTest.agda

@@ -29,6 +29,9 @@ telescopic-lemma-available = telescopic-subsumption
 telescopic-derived-available = telescopic-remote-comparison-derived
 upper-bound-equivalence-available = structural-obligation-set-equivalence
 upper-bound-theorem-available = structural-stabilizes-at-two
+one-layer-window-insufficient-available = one-layer-window-insufficient
+chrono-window-theorem-available = two-layer-chronological-window
+markov-blanket-theorem-available = chronological-markov-blanket
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
