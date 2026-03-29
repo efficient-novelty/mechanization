@@ -88,8 +88,12 @@ Current theorem-facing modules:
   `irreducible-obligation-requires-cell`.
 - `Metatheory/Extensional.agda` proves the UIP/extensional collapse via
   `UIP-forces-depth-1` and `history-truncates-to-one`.
-- `Metatheory/KanSubsumption.agda` packages the arity-3 open-box derivation
-  surface via `arity3-obligation-syntactically-derivable`,
+- `Metatheory/KanSubsumption.agda` now packages both the raw arity-3 open-box
+  derivation surface and the exact theorem-facing horn-reduction wrapper via
+  `HornExtensionFiber`, `structural-horn-language`,
+  `structural-integration-horn-reduction`,
+  `remote-layer-obligation-derived`,
+  `arity3-obligation-syntactically-derivable`,
   `history-beyond-two-algorithmically-subsumed`, and
   `arity3-open-box-hfilled`.
 - `Metatheory/AdjunctionBarrier.agda` packages the lower bound against global
@@ -103,15 +107,15 @@ What this means in practice:
 
 - the extensional depth-1 collapse is mechanized
 - the lower bound against cubical depth-1 collapse is mechanized
-- the arity-3 computational subsumption surface is mechanized
+- the exact horn-reduction surface and its arity-3 computational witness are
+  mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
 - the recurrence side has both the payload-aware affine statement and the
   depth-1 closed forms
 
 What is still open on the paper-facing coherence-depth plan:
 
-- the remaining backlog in `mechanization_plan.md` now starts at
-  `lem:horn-reduction`
+- the remaining backlog in `mechanization_plan.md` now starts at `thm:upper`
 - exact paper-level wrappers such as the upper bound, telescopic corollary,
   chronological window theorem, exact `d = 2` corollary, and the later
   interface/trace/canonicity/clutching results are still pending
@@ -141,7 +145,8 @@ If you are trying to orient yourself quickly, start here:
 - `PEN.agda`: top-level export surface
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
 - `Metatheory/Extensional.agda`: depth-1 theorem
-- `Metatheory/KanSubsumption.agda`: arity-3 open-box package
+- `Metatheory/KanSubsumption.agda`: horn-reduction and arity-3 open-box
+  package
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
 - `Core/AffineRecurrence.agda`: payload-aware recurrence
 - `Test/MetatheorySmoke.agda`: lightweight regression import for the theorem

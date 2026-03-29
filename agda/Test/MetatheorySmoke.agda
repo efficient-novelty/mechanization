@@ -19,6 +19,11 @@ chronological-window-surface = HasChronologicalWindowSize
 
 extensional-available = history-truncates-to-one
 
+horn-fiber-surface = HornExtensionFiber
+horn-language-surface = structural-horn-language
+horn-reduction-available = structural-integration-horn-reduction
+horn-derived-cost-available = remote-layer-obligation-derived
+
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
 adjunction-package-available = explicit-binary-sealing-obstruction
