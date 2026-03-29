@@ -62,12 +62,22 @@ arity3-open-box-hfilled :
 arity3-open-box-hfilled u u0 =
   hfill u u0
 
+data HornExtensionWitness : Type where
+  hornWitness : HornExtensionWitness
+
 record HornExtensionFiber {ℓ : Level} {A : Type ℓ} {φ : I}
   (u : I → Partial φ A) (u0 : A [ φ ↦ u i0 ]) : Type ℓ where
   constructor mkHornExtensionFiber
   field
-    missingFace : Arity3-Obligation u u0
-    filler      : I → A
+    witness : HornExtensionWitness
+
+  missingFace : Arity3-Obligation u u0
+  missingFace =
+    arity3-obligation-syntactically-derivable u u0
+
+  filler : I → A
+  filler =
+    arity3-open-box-hfilled u u0
 
 open HornExtensionFiber public
 
@@ -77,9 +87,16 @@ canonical-horn-extension :
   (u0 : A [ φ ↦ u i0 ]) →
   HornExtensionFiber u u0
 canonical-horn-extension u u0 =
-  mkHornExtensionFiber
-    (arity3-obligation-syntactically-derivable u u0)
-    (arity3-open-box-hfilled u u0)
+  mkHornExtensionFiber hornWitness
+
+horn-extension-fiber-contractible :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  isContr (HornExtensionFiber u u0)
+horn-extension-fiber-contractible u u0 =
+  canonical-horn-extension u u0 , λ where
+    (mkHornExtensionFiber hornWitness) → refl
 
 data HornCandidate : Type where
   horn-candidate : HornCandidate

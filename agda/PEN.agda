@@ -34,6 +34,7 @@ open import Adjunction.TriangleIdentity public
 open import Metatheory.Obligations public
 open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
+open import Metatheory.UpperBound public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
          binary-coherence-nontrivial; depth1-insufficient; const-left;

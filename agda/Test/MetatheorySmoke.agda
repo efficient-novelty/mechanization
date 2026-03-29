@@ -23,6 +23,8 @@ horn-fiber-surface = HornExtensionFiber
 horn-language-surface = structural-horn-language
 horn-reduction-available = structural-integration-horn-reduction
 horn-derived-cost-available = remote-layer-obligation-derived
+upper-bound-equivalence-available = structural-obligation-set-equivalence
+upper-bound-theorem-available = structural-stabilizes-at-two
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient
