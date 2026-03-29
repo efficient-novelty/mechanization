@@ -20,6 +20,10 @@ library-state-surface = LibraryState
 transparent-development-surface = TransparentDevelopment
 sealed-layer-surface = SealedLayer
 explicit-sealed-layer-surface = ExplicitSealedLayer
+payload-normal-form-surface = PayloadNormalForm
+payload-presentation-surface = PayloadPresentation
+obligation-normal-form-surface = ObligationNormalForm
+obligation-presentation-surface = ObligationPresentation
 higher-interface-surface = HistoricalInterface
 fully-coupled-foundation-surface = FullyCoupledFoundation
 foundational-core-extension-surface = FoundationalCoreExtension
@@ -28,6 +32,16 @@ transparent-interface-theorem = transparent-definitions-preserve-active-interfac
 transparent-latency-theorem = transparent-definitions-have-zero-integration-latency
 transparent-outside-recurrence-theorem =
   transparent-user-level-code-lies-outside-the-recurrence
+payload-refactoring-bijection-available = atomic-payload-bijection
+payload-counting-normal-form-available = payload-counting-normal-form
+payload-kappa-invariant-available = kappa-invariant-under-refactoring
+obligation-refactoring-bijection-available = atomic-obligation-bijection
+obligation-counting-normal-form-available = obligation-counting-normal-form
+support-refactoring-available = historical-support-correspondence
+obligation-arity-invariant-available =
+  historical-arity-invariant-under-refactoring
+refactoring-package-surface = RefactoringInvariance
+refactoring-theorem-available = refactoring-invariance
 native-totality-surface = NativeCanonicityPreservingTotality
 promoted-exhaustiveness-surface = PromotedOperationalExhaustiveness
 maximal-density-surface = MaximalInterfaceDensity

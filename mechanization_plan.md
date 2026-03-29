@@ -82,6 +82,13 @@ These are not part of the remaining backlog below.
   `transparent-definitions-preserve-active-interface`,
   `transparent-definitions-have-zero-integration-latency`, and
   `transparent-user-level-code-lies-outside-the-recurrence`.
+- `cor:refactoring` now has an exact theorem-facing counterpart in
+  `agda/Metatheory/Refactoring.agda` via `PayloadNormalForm`,
+  `PayloadPresentation`, `ObligationNormalForm`, `ObligationPresentation`,
+  `historical-support-correspondence`, and `refactoring-invariance`, which
+  quotient admissible rebundling/currying/transparent-normalization
+  presentations through a shared counting normal form and expose the induced
+  bijections on atomic payloads, atomic obligations, and historical arities.
 - `thm:canonicity` now has an exact theorem-facing counterpart in
   `agda/Metatheory/CanonicityDensity.agda` via `HistoricalInterface`,
   `FullyCoupledFoundation`, `FoundationalCoreExtension`,
@@ -114,17 +121,7 @@ These are not part of the remaining backlog below.
 
 ## Remaining Statements, Easy To Hard
 
-1. `cor:refactoring` (`1_coherence_depth.tex`, label `cor:refactoring`)
-
-    Status: missing.
-    The paper claims invariance under canonical telescope isomorphism,
-    rebundling, currying, and transparent normalization. The current code uses
-    this principle informally, but does not yet mechanize the quotienting or
-    the induced bijections on atomic payloads and obligations.
-    Suggested target: a separate normalization/refactoring module after the
-    interface calculus is explicit.
-
-2. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
+1. `thm:clutching` (`1_coherence_depth.tex`, label `thm:clutching`)
 
     Status: missing.
     This is the hardest remaining statement. The paper's topological exact
@@ -135,10 +132,10 @@ These are not part of the remaining backlog below.
     Suggested target: a dedicated `agda/Metatheory/Clutching.agda` or
     `agda/Geometry/Clutching.agda`.
 
-3. Conclusion-level mechanization claim cleanup
+2. Conclusion-level mechanization claim cleanup
 
     Status: still needed after the theorem work above.
-    Once Items 1-3 are completed, the prose in the abstract, mechanization
+    Once Items 1-2 are completed, the prose in the abstract, mechanization
     section, and conclusion should be tightened so that every cited paper
     theorem points to an exact Agda theorem rather than to a computational
     ingredient or explanatory scaffold.
@@ -154,9 +151,10 @@ These are not part of the remaining backlog below.
 - The canonicity, trace, and universal-recurrence packages now expose a
   theorem-facing historical interface and counted sealed-layer window surface
   for later refactoring work.
-- Item 1 builds on that explicit interface-calculus surface and extends it
-  from counted-window recurrence to refactoring invariance.
-- Item 2 is the main topological formalization project and should be treated
+- The refactoring package now builds on that explicit interface-calculus
+  surface and extends it from counted-window recurrence to refactoring
+  invariance.
+- Item 1 is the main topological formalization project and should be treated
   as its own milestone.
 
 ## Suggested Execution Order
@@ -164,6 +162,5 @@ These are not part of the remaining backlog below.
 If the goal is fastest improvement to theorem-to-code fidelity, a good
 implementation order is:
 
-1. Item 1 (refactoring invariance)
-2. Item 2 (clutching family)
-3. Item 3 (paper mechanization claim cleanup)
+1. Item 1 (clutching family)
+2. Item 2 (paper mechanization claim cleanup)

@@ -90,6 +90,12 @@ Current theorem-facing modules:
   `transparent-definitions-preserve-active-interface`,
   `transparent-definitions-have-zero-integration-latency`, and
   `transparent-user-level-code-lies-outside-the-recurrence`.
+- `Metatheory/Refactoring.agda` packages the exact paper-facing refactoring
+  corollary `cor:refactoring` via `PayloadNormalForm`,
+  `PayloadPresentation`, `ObligationNormalForm`, `ObligationPresentation`,
+  `historical-support-correspondence`, and `refactoring-invariance`, making
+  the counting-normal-form quotient and the induced payload/obligation/support
+  bijections explicit.
 - `Metatheory/CanonicityDensity.agda` packages the exact paper-facing
   maximal-density theorem `thm:canonicity` via
   `HistoricalInterface`, `FullyCoupledFoundation`,
@@ -183,6 +189,7 @@ What this means in practice:
 - the exact `d = 2` coherence-depth corollary is mechanized
 - the abstract `2`D-foundations wrapper is mechanized
 - the paper's arity-to-dimension dictionary is now mechanized
+- the exact admissible-refactoring invariance corollary is now mechanized
 - the exact maximal-interface-density theorem is now mechanized
 - the exact integration trace principle is now mechanized
 - the exact universal affine recurrence is mechanized on an explicit counted
@@ -193,9 +200,9 @@ What this means in practice:
 What is still open on the paper-facing coherence-depth plan:
 
 - the remaining backlog in `mechanization_plan.md` now starts at
-  `cor:refactoring`
-- exact paper-level wrappers such as the later
-  refactoring/clutching results are still pending
+  `thm:clutching`
+- the exact clutching family and the final paper-level mechanization-claim
+  cleanup are still pending
 
 ### Counting / Oracle Track
 
@@ -223,6 +230,8 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/Obligations.agda`: obligation-language and arity/dimension API
 - `Metatheory/InterfaceCalculus.agda`: transparent-vs-sealed interface surface
   plus the explicit counted sealed-layer API
+- `Metatheory/Refactoring.agda`: exact refactoring-invariance wrapper for
+  payload/obligation counting normal forms
 - `Metatheory/CanonicityDensity.agda`: fully coupled historical-interface and
   maximal-density package for `thm:canonicity`
 - `Metatheory/TracePrinciple.agda`: exact trace-principle wrapper for sealed
@@ -260,6 +269,7 @@ Useful additional checks:
 ```bash
 agda --transliterate Metatheory/Obligations.agda
 agda --transliterate Metatheory/InterfaceCalculus.agda
+agda --transliterate Metatheory/Refactoring.agda
 agda --transliterate Metatheory/CanonicityDensity.agda
 agda --transliterate Metatheory/TracePrinciple.agda
 agda --transliterate Metatheory/UniversalRecurrence.agda

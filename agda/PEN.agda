@@ -33,6 +33,25 @@ open import Adjunction.TriangleIdentity public
 -- Coherence-depth metatheory
 open import Metatheory.Obligations public
 open import Metatheory.InterfaceCalculus public
+open import Metatheory.Refactoring public
+  using ( PayloadNormalForm
+        ; PayloadPresentation
+        ; atomic-payload-bijection
+        ; payload-counting-normal-form
+        ; kappa
+        ; kappa-invariant-under-refactoring
+        ; ObligationNormalForm
+        ; ObligationPresentation
+        ; atomic-obligation-bijection
+        ; obligation-counting-normal-form
+        ; Delta
+        ; Delta-invariant-under-refactoring
+        ; historicalArity
+        ; historical-support-correspondence
+        ; historical-arity-invariant-under-refactoring
+        ; RefactoringInvariance
+        ; refactoring-invariance
+        )
 open import Metatheory.CanonicityDensity public
   using ( HistoricalInterface
         ; FullyCoupledFoundation
@@ -120,6 +139,13 @@ open import Metatheory.AdjunctionBarrier public
 -- one primitive interaction datum per active historical generator.
 -- Proof: global-admissibility-forces-maximal-interface-density in
 --        Metatheory.CanonicityDensity
+
+-- THEOREM 5b: Robustness under admissible refactoring
+-- If two presentations normalize to the same canonical payload and
+-- obligation telescope normal forms, then the induced atomic payloads,
+-- atomic obligations, and historical supports correspond canonically and
+-- the metrics kappa, Delta, and historical arity are unchanged.
+-- Proof: refactoring-invariance in Metatheory.Refactoring
 
 -- THEOREM 6: The integration trace principle
 -- An explicit sealed layer packages its public export as the canonical sum
