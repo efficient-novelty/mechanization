@@ -5,6 +5,7 @@ module Test.MetatheorySmoke where
 open import PEN
 
 affine-shift-available = U-is-fibonacci
+affine-bootstrap-available = tau-bootstrap-closed
 
 extensional-available = history-truncates-to-one
 

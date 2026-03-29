@@ -5,6 +5,7 @@ module Test.Fibonacci where
 open import Cubical.Foundations.Prelude
 
 open import Core.Nat
+open import Core.AffineRecurrence
 open import ObligationGraph.Recurrence
 
 -- ============================================
@@ -237,3 +238,43 @@ _ = refl
 -- 2. The Δ and τ functions match the Genesis table exactly
 -- 3. The recurrence and Golden Schedule identities hold
 -- 4. The infrastructure correspondence (Φ₄ < φ) is verified
+
+-- ============================================
+-- Tests for the paper-facing affine bootstrap corollary
+-- ============================================
+
+_ : Delta-bootstrap 1 0 ≡ 0
+_ = refl
+
+_ : Delta-bootstrap 1 1 ≡ 1
+_ = refl
+
+_ : Delta-bootstrap 1 2 ≡ 3
+_ = refl
+
+_ : Delta-bootstrap 1 3 ≡ 6
+_ = refl
+
+_ : U-bootstrap 1 0 ≡ 2
+_ = refl
+
+_ : U-bootstrap 1 1 ≡ 3
+_ = refl
+
+_ : U-bootstrap 1 2 ≡ 5
+_ = refl
+
+_ : tau-bootstrap 1 0 ≡ 0
+_ = refl
+
+_ : tau-bootstrap 1 1 ≡ 1
+_ = refl
+
+_ : tau-bootstrap 1 2 ≡ 4
+_ = refl
+
+_ : U-bootstrap 1 3 ≡ scale 1 (fib 5)
+_ = U-bootstrap-closed 1 3
+
+_ : tau-bootstrap 1 3 + scale 1 (tauShift 3) ≡ scale 1 (fib 7)
+_ = tau-bootstrap-closed 1 3
