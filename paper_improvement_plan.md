@@ -2,26 +2,11 @@
 
 ## Objective
 
-The paper now fixes the cubical theorem object explicitly and includes a bridge section from surface extensions to normalized public signatures, upgraded to an adequacy/minimality theorem package. The remaining work is to replace the current counting and upper-bound arguments by presentation-invariant ones, restate the main recurrence over the minimal opaque cost `mu`, and align the lower-bound, bibliography, and mechanization sections with that sharper theorem stack.
+The paper now fixes the cubical theorem object explicitly, includes a bridge section from surface extensions to normalized public signatures upgraded to an adequacy/minimality theorem package, and replaces generatorwise density with a basis-sensitive coverage/minimality law. The remaining work is to make the upper bound syntactic via higher-coherence elimination, upgrade chronology to recent-history factorization, restate the main recurrence over the minimal opaque cost `mu`, and align the lower-bound, bibliography, and mechanization sections with that sharper theorem stack.
 
 ## Highest-Priority Remaining Work
 
-## 1. Replace generatorwise density by basis-sensitive coverage/minimality
-
-### Remaining tasks
-
-- Introduce a chosen finite generating basis for the active interface.
-- Redefine coupling sites in terms of basis sites rather than raw exported generators.
-- Replace or refine the current maximal-density theorem with:
-  - a coverage theorem: missing clauses break admissibility
-  - a minimality theorem: redundant clauses are eliminable from canonical normalized presentations
-- Update the examples and recurrence discussion so they count irreducible basis clauses rather than assuming a rigid one-clause-per-generator shape.
-
-### Done criterion
-
-- The counting theorem is stable under harmless polymorphic compression of clauses.
-
-## 2. Make the upper bound syntactic via higher-coherence elimination
+## 1. Make the upper bound syntactic via higher-coherence elimination
 
 ### Remaining tasks
 
@@ -37,7 +22,7 @@ The paper now fixes the cubical theorem object explicitly and includes a bridge 
 
 - "Higher fillers cost zero" is a theorem of minimality, not a modeling convention.
 
-## 3. Upgrade telescopic subsumption to recent-history factorization
+## 2. Upgrade telescopic subsumption to recent-history factorization
 
 ### Remaining tasks
 
@@ -49,7 +34,7 @@ The paper now fixes the cubical theorem object explicitly and includes a bridge 
 
 - The paper no longer jumps directly from dimension control to chronology; the two-layer window is justified by a factorization theorem.
 
-## 4. Restate the main recurrence over `mu`
+## 3. Restate the main recurrence over `mu`
 
 ### Remaining tasks
 
@@ -70,7 +55,7 @@ U_n = \mu_n + 2c.
 
 - The depth-two affine law is the headline theorem and shifted Fibonacci is explicitly secondary.
 
-## 5. Tighten the lower-bound section inside the extension discipline
+## 4. Tighten the lower-bound section inside the extension discipline
 
 ### Remaining tasks
 
@@ -85,7 +70,7 @@ U_n = \mu_n + 2c.
 
 - The lower bound reads as a theorem inside the chosen extension discipline, not as a loose collection of analogies.
 
-## 6. Add the syntax-backed modality story if modalities remain central examples
+## 5. Add the syntax-backed modality story if modalities remain central examples
 
 ### Remaining tasks
 
@@ -97,7 +82,7 @@ U_n = \mu_n + 2c.
 
 - Modal examples are justified by a concrete extension syntax, not only by intuition.
 
-## 7. Finish the bibliography upgrade
+## 6. Finish the bibliography upgrade
 
 ### Remaining tasks
 
@@ -115,7 +100,7 @@ U_n = \mu_n + 2c.
 
 - The bibliography supports the strengthened theorem object rather than only the bridge skeleton.
 
-## 8. Align the mechanization section with the final bridge theorem
+## 7. Align the mechanization section with the final bridge theorem
 
 ### Remaining tasks
 
@@ -134,7 +119,6 @@ U_n = \mu_n + 2c.
 
 ## Final Submission Checklist
 
-- Coverage/minimality is basis-sensitive rather than generatorwise.
 - Higher-coherence elimination is proved over normalized public signatures.
 - Recent-history factorization is proved.
 - The recurrence is stated and proved over `mu`.
@@ -144,9 +128,8 @@ U_n = \mu_n + 2c.
 
 ## Suggested Next Execution Order
 
-1. Replace maximal-interface density with basis-sensitive coverage/minimality.
-2. Rework the upper bound into higher-coherence elimination.
-3. Upgrade telescopic subsumption into recent-history factorization.
-4. Rewrite the recurrence over `mu`.
-5. Tighten the lower-bound section and supporting citations.
-6. Update the mechanization map to match the completed bridge theorem stack.
+1. Rework the upper bound into higher-coherence elimination.
+2. Upgrade telescopic subsumption into recent-history factorization.
+3. Rewrite the recurrence over `mu`.
+4. Tighten the lower-bound section and supporting citations.
+5. Update the mechanization map to match the completed bridge theorem stack.
