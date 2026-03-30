@@ -2,27 +2,11 @@
 
 ## Objective
 
-The paper now fixes the cubical theorem object explicitly and includes a bridge section from surface extensions to normalized public signatures. The remaining work is to strengthen that bridge into a full adequacy/minimality theorem package, replace the current counting and upper-bound arguments by presentation-invariant ones, and restate the main recurrence over the minimal opaque cost `mu`.
+The paper now fixes the cubical theorem object explicitly and includes a bridge section from surface extensions to normalized public signatures, upgraded to an adequacy/minimality theorem package. The remaining work is to replace the current counting and upper-bound arguments by presentation-invariant ones, restate the main recurrence over the minimal opaque cost `mu`, and align the lower-bound, bibliography, and mechanization sections with that sharper theorem stack.
 
 ## Highest-Priority Remaining Work
 
-## 1. Strengthen the bridge section into full adequacy/minimality theorems
-
-### Remaining tasks
-
-- Upgrade the current bridge section from a structural bridge to a full proof package:
-  - elaboration soundness
-  - adequacy of normalized signatures
-  - necessity of irreducible fields
-  - canonical presentation / canonical isomorphism of equivalent extensions
-- Make explicit exactly which parts of the bridge are proved syntactically and which still rely on the abstract counting presentation.
-- Decide whether to keep the current `N(e)` / `mu(e)` definitions as-is or refine the equivalence relation before later theorems depend on it.
-
-### Done criterion
-
-- The bridge section alone is sufficient to justify that the later counting arguments are theorems about explicit extension declarations over the fixed cubical core.
-
-## 2. Replace generatorwise density by basis-sensitive coverage/minimality
+## 1. Replace generatorwise density by basis-sensitive coverage/minimality
 
 ### Remaining tasks
 
@@ -37,7 +21,7 @@ The paper now fixes the cubical theorem object explicitly and includes a bridge 
 
 - The counting theorem is stable under harmless polymorphic compression of clauses.
 
-## 3. Make the upper bound syntactic via higher-coherence elimination
+## 2. Make the upper bound syntactic via higher-coherence elimination
 
 ### Remaining tasks
 
@@ -53,7 +37,7 @@ The paper now fixes the cubical theorem object explicitly and includes a bridge 
 
 - "Higher fillers cost zero" is a theorem of minimality, not a modeling convention.
 
-## 4. Upgrade telescopic subsumption to recent-history factorization
+## 3. Upgrade telescopic subsumption to recent-history factorization
 
 ### Remaining tasks
 
@@ -65,7 +49,7 @@ The paper now fixes the cubical theorem object explicitly and includes a bridge 
 
 - The paper no longer jumps directly from dimension control to chronology; the two-layer window is justified by a factorization theorem.
 
-## 5. Restate the main recurrence over `mu`
+## 4. Restate the main recurrence over `mu`
 
 ### Remaining tasks
 
@@ -86,7 +70,7 @@ U_n = \mu_n + 2c.
 
 - The depth-two affine law is the headline theorem and shifted Fibonacci is explicitly secondary.
 
-## 6. Tighten the lower-bound section inside the extension discipline
+## 5. Tighten the lower-bound section inside the extension discipline
 
 ### Remaining tasks
 
@@ -101,7 +85,7 @@ U_n = \mu_n + 2c.
 
 - The lower bound reads as a theorem inside the chosen extension discipline, not as a loose collection of analogies.
 
-## 7. Add the syntax-backed modality story if modalities remain central examples
+## 6. Add the syntax-backed modality story if modalities remain central examples
 
 ### Remaining tasks
 
@@ -113,7 +97,7 @@ U_n = \mu_n + 2c.
 
 - Modal examples are justified by a concrete extension syntax, not only by intuition.
 
-## 8. Finish the bibliography upgrade
+## 7. Finish the bibliography upgrade
 
 ### Remaining tasks
 
@@ -131,7 +115,7 @@ U_n = \mu_n + 2c.
 
 - The bibliography supports the strengthened theorem object rather than only the bridge skeleton.
 
-## 9. Align the mechanization section with the final bridge theorem
+## 8. Align the mechanization section with the final bridge theorem
 
 ### Remaining tasks
 
@@ -150,7 +134,6 @@ U_n = \mu_n + 2c.
 
 ## Final Submission Checklist
 
-- The bridge section proves adequacy and minimality, not just structural translation.
 - Coverage/minimality is basis-sensitive rather than generatorwise.
 - Higher-coherence elimination is proved over normalized public signatures.
 - Recent-history factorization is proved.
@@ -161,10 +144,9 @@ U_n = \mu_n + 2c.
 
 ## Suggested Next Execution Order
 
-1. Strengthen the bridge section into full adequacy/minimality theorems.
-2. Replace maximal-interface density with basis-sensitive coverage/minimality.
-3. Rework the upper bound into higher-coherence elimination.
-4. Upgrade telescopic subsumption into recent-history factorization.
-5. Rewrite the recurrence over `mu`.
-6. Tighten the lower-bound section and supporting citations.
-7. Update the mechanization map to match the completed bridge theorem stack.
+1. Replace maximal-interface density with basis-sensitive coverage/minimality.
+2. Rework the upper bound into higher-coherence elimination.
+3. Upgrade telescopic subsumption into recent-history factorization.
+4. Rewrite the recurrence over `mu`.
+5. Tighten the lower-bound section and supporting citations.
+6. Update the mechanization map to match the completed bridge theorem stack.
