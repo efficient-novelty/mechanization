@@ -76,7 +76,7 @@ Here ``fully coupled'' refers only to the foundational-core regime just describe
 The paper develops one theorem package with three main components.
 
 \begin{enumerate}
-    \item We fix a cubical extension calculus over a chosen CCHM-style core, formalize its states, sealed extensions, promoted interface packages, active interfaces, and integration latency, and distinguish orthogonal extensions from globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. Within this framework we prove a maximal-interface-density theorem for the fully coupled foundational-core regime and a payload-aware \emph{Integration Trace Principle}, decomposing the exported interface of a sealed layer into its new public payload and the resolved obligations discharged in sealing it.
+\item We fix a cubical extension calculus over a chosen CCHM-style core, formalize its states, surface extensions, elaboration, sealed extensions, promoted interface packages, active interfaces, and integration latency, and distinguish orthogonal extensions from globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. Within this framework we prove a maximal-interface-density theorem for the fully coupled foundational-core regime and a payload-aware \emph{Integration Trace Principle}, decomposing the exported interface of a sealed layer into its new public payload and the resolved obligations discharged in sealing it.
     \item We define coherence depth for this extension calculus and prove the sharp cubical/extensional dichotomy. In extensional type theory with UIP, the depth is~$1$. In the fixed fully coupled cubical extension calculus, the depth is~$2$. The depth-two statement is supported by three convergent arguments: a dimensional upper bound from weak $\omega$-groupoid semantics and cubical Kan filling, stated as an exact obligation-set equivalence because the marginal higher-arity data are normalized as horn extensions rather than closed-sphere fillers; a lower bound from an explicit swap-induced binary sealing obstruction, with adjunction coherence as a categorical reading of the same binary phenomenon; and a topological lower-bound family supplied by clutching constructions for principal bundles over spheres. The passage from the dimensional bound to a genuine two-step time window is made explicit by a telescopic subsumption lemma using cubical Kan filling.
     \item We combine the trace principle with the coherence-depth theorem to obtain a universal affine recurrence for integration latency. Under constant payload size~$c$, the depth-two cubical case specializes to
     \[
@@ -116,6 +116,40 @@ A \emph{state} or \emph{library} is a monotone context $\B$ closed under derivab
 adjoins one sealed integration layer, denoted $L_{n+1}$.
 \end{defi}
 
+\begin{defi}[Surface extensions]
+\label{def:surface-extension}
+Over a state~$\B_n$, a \emph{surface extension declaration} is a finite quadruple
+\[
+  e = (\Gamma_{\mathrm{new}}, \Gamma_{\mathrm{act}}, \Gamma_{\mathrm{cmp}}, \sigma),
+\]
+where $\Gamma_{\mathrm{new}}$ is a telescope of newly declared payload symbols, $\Gamma_{\mathrm{act}}$ is a finite family of unary action clauses against the active interface, $\Gamma_{\mathrm{cmp}}$ is a finite family of comparison or transport clauses, and $\sigma$ specifies which elaborated fields are exported through the sealed public interface. The admissible extensions studied in this paper are exactly those declarations whose intended action is global on the designated active interface footprint.
+\end{defi}
+
+\begin{defi}[Elaboration, sealing, and normalized public signature]
+\label{def:elaboration}
+Each admissible surface extension declaration~$e$ over~$\B_n$ elaborates to a core object
+\[
+  \mathsf{Elab}(e)
+\]
+of the fixed cubical core~$C$: the payload telescope elaborates to new core declarations, the action and comparison clauses elaborate to fields witnessing interaction with the active interface, and the opacity component~$\sigma$ selects the public telescope exported after sealing. The \emph{normalized public signature} of~$e$ is the counting normal form
+\[
+  N(e) := N(\mathsf{Elab}(e)),
+\]
+obtained by flattening the public telescope and discarding fields uniformly synthesized by definitional equality or the generic structural operations of the ambient cubical calculus.
+\end{defi}
+
+\begin{defi}[Presentation equivalence and minimal opaque cost]
+\label{def:mu}
+Two admissible surface extensions $e$ and $e'$ over the same state are \emph{presentation-equivalent}, written
+\[
+  e \approx e',
+\]
+when their elaborated sealed extensions determine the same public typing judgment up to definitional equality, canonical telescope isomorphism, and transparent internal normalization. The \emph{minimal opaque cost} of~$e$ is
+\[
+  \mu(e) := \min \bigl\{\, |N(e')| \;\big|\; e' \approx e \,\bigr\}.
+\]
+\end{defi}
+
 \begin{defi}[Candidate]
 \label{def:candidate}
 A \emph{candidate} over a library state $\B$ is a pair
@@ -123,6 +157,7 @@ A \emph{candidate} over a library state $\B$ is a pair
   X = (X_{\mathrm{core}}, \Gcal_{\mathrm{obl}}),
 \]
 where $X_{\mathrm{core}}$ is the mathematical content proposed for addition and $\Gcal_{\mathrm{obl}}$ is the family of normalized atomic coherence obligations induced when $X$ is sealed against the active interface of~$\B$.
+Every admissible surface extension declaration~$e$ determines such a candidate by elaboration.
 \end{defi}
 
 \begin{defi}[Counting normal form and atomic schemas]
@@ -279,6 +314,59 @@ and the cardinality formula follows immediately.
 \begin{rem}
 \label{rem:trace-native-vs-api}
 The trace principle counts kernel-level extensions and promoted interface packages uniformly. In both cases the public export has a payload part and a trace part. The only difference is the kind of primitive datum involved: for native extensions the payload contributes new reduction heads and the trace contributes defining clauses, whereas for promoted packages the payload contributes new exported operators and the trace contributes comparison or transport witnesses.
+\end{rem}
+
+\section{From cubical syntax to normalized extension signatures}
+\label{sec:bridge}
+
+The counting calculus of \autoref{sec:framework} is intended to measure explicit extension declarations over the fixed cubical core~$C$, not a freestanding payload calculus detached from syntax. This section spells out that bridge. Surface extensions elaborate to sealed core objects, sealing exports only their opaque public interfaces, and counting is performed on the normalized public signature of that export.
+
+\subsection{Elaboration and public signatures}
+
+\begin{thm}[Elaboration to sealed candidates]
+\label{thm:elaboration}
+Every admissible surface extension declaration~$e$ over a state~$\B_n$ determines:
+\begin{enumerate}
+  \item an elaborated candidate
+  \[
+    X(e) := (X_{\mathrm{core}}(e), \Gcal_{\mathrm{obl}}(e)),
+  \]
+  \item a sealed layer $L(e)$ exported through an opaque public interface,
+  \item and a normalized public signature $N(e)$ obtained from that exported interface by counting normalization.
+\end{enumerate}
+In particular, the candidate calculus of \autoref{sec:framework} is the image of admissible surface extensions under elaboration and sealing.
+\end{thm}
+
+\begin{proof}
+By \autoref{def:surface-extension} and \autoref{def:elaboration}, the payload telescope $\Gamma_{\mathrm{new}}$ elaborates to new core declarations, while $\Gamma_{\mathrm{act}}$ and $\Gamma_{\mathrm{cmp}}$ elaborate to the clauses witnessing the required interaction with the active interface of~$\B_n$. Admissibility means precisely that these clauses type-check and discharge the induced coherence obligations, so the result packages into a candidate $X(e)$ together with an opaque exported layer~$L(e)$. Applying the counting normal form of \autoref{def:atomic-schema} to the resulting public telescope yields $N(e)$. Thus every admissible surface extension gives rise canonically to the candidate-and-sealed-layer data used in \autoref{sec:framework}.
+\end{proof}
+
+\begin{thm}[Adequacy of normalized public signatures]
+\label{thm:adequacy}
+Let $e$ be an admissible surface extension over~$\B_n$ and let $L(e)$ be its sealed export. Then:
+\begin{enumerate}
+  \item every field of $N(e)$ is either a payload schema contributed by $\Gamma_{\mathrm{new}}$ or a trace schema arising from a resolved obligation of~$X(e)$;
+  \item every irreducible payload or trace schema visible after sealing occurs as a field of~$N(e)$;
+  \item the synthetic quantities $P(X(e))$, $S(L(e))$, $\Delta(X(e)\mid\B_n)$, and $\Ocal^{(k)}(X(e))$ are exactly the corresponding payload, public-signature, latency, and obligation sets computed from~$N(e)$.
+\end{enumerate}
+\end{thm}
+
+\begin{proof}
+Point~(1) is the surface-language form of the decomposition proved abstractly in \autoref{thm:trace}: after elaboration and sealing, every visible field is either newly introduced payload or the public trace of a resolved interaction with prior interface data. Point~(2) follows because counting normalization removes only presentation artifacts: reassociation of telescopes, transparently derivable fields, and other data uniformly synthesized by definitional equality or the generic structure of the ambient cubical calculus. Thus every irreducible field that remains visible after sealing survives into $N(e)$, and no extra irreducible field is created by normalization. Point~(3) is then immediate from the definitions of payload size, public schema set, integration latency, and induced obligation sets in \autoref{sec:framework} and \autoref{sec:coherence}: those quantities are computed exactly from the normalized public signature and its induced obligations.
+\end{proof}
+
+\begin{prop}[Canonical presentations]
+\label{prop:canonical-presentation}
+If $e \approx e'$, then $N(e)$ and $N(e')$ are canonically isomorphic. Consequently the minimal opaque cost~$\mu(e)$ is well-defined and invariant under admissible refactoring of extension declarations.
+\end{prop}
+
+\begin{proof}
+Presentation equivalence identifies elaborated sealed extensions whenever they induce the same public typing judgment up to definitional equality, canonical telescope isomorphism, and transparent internal normalization. The counting normal form forgets exactly those presentation differences and nothing more. Therefore $N(e)$ and $N(e')$ are canonically isomorphic, and the cardinality of a minimal normalized opaque presentation depends only on the presentation-equivalence class of~$e$.
+\end{proof}
+
+\begin{rem}
+\label{rem:bridge-to-counting}
+Later sections continue to write $\Delta_k$ for the sealing cost of the chosen normalized presentation exported at stage~$k$. The bridge theorems above are what let those counts be read as counts of explicit extension declarations over the fixed cubical core, rather than as a freestanding bookkeeping model.
 \end{rem}
 
 \section{The coherence window concept and the depth dichotomy}

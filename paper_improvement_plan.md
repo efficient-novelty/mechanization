@@ -2,58 +2,27 @@
 
 ## Objective
 
-The paper now presents itself as a theorem about a fixed cubical extension calculus over a chosen CCHM-style core. The remaining work is to supply the missing bridge from cubical syntax to normalized extension signatures, tighten the cost model, and restate the strongest theorems over that bridge rather than over the current synthetic counting layer alone.
+The paper now fixes the cubical theorem object explicitly and includes a bridge section from surface extensions to normalized public signatures. The remaining work is to strengthen that bridge into a full adequacy/minimality theorem package, replace the current counting and upper-bound arguments by presentation-invariant ones, and restate the main recurrence over the minimal opaque cost `mu`.
 
 ## Highest-Priority Remaining Work
 
-## 1. Define the formal theorem object completely
+## 1. Strengthen the bridge section into full adequacy/minimality theorems
 
 ### Remaining tasks
 
-- Give an explicit formal tuple
-  - `C` = chosen cubical core
-  - `Ext(C)` = surface language of globally acting extensions
-  - `Seal` = opacity / controlled-unfolding discipline
-  - `mu` = minimal normalized opaque-presentation cost
-- Add a compact grammar for surface extensions:
-  - payload declarations
-  - global action clauses
-  - comparison / transport clauses
-  - opacity annotations
-- Define elaboration from `Ext(C)` into core signatures over `C`.
-- Define precisely what is public, opaque, and available to later sealing steps.
+- Upgrade the current bridge section from a structural bridge to a full proof package:
+  - elaboration soundness
+  - adequacy of normalized signatures
+  - necessity of irreducible fields
+  - canonical presentation / canonical isomorphism of equivalent extensions
+- Make explicit exactly which parts of the bridge are proved syntactically and which still rely on the abstract counting presentation.
+- Decide whether to keep the current `N(e)` / `mu(e)` definitions as-is or refine the equivalence relation before later theorems depend on it.
 
 ### Done criterion
 
-- A reader can see exactly what an admissible extension declaration is and what part of it survives sealing.
+- The bridge section alone is sufficient to justify that the later counting arguments are theorems about explicit extension declarations over the fixed cubical core.
 
-## 2. Add the missing bridge section
-
-### Required new section
-
-- `From Cubical Syntax to Normalized Extension Signatures`
-
-### Remaining tasks
-
-- Define elaboration:
-  - every admissible surface extension `e` elaborates to `[[e]]`
-- Define normalization:
-  - `N([[e]])` is the canonical normalized public signature
-- Define presentation equivalence modulo:
-  - definitional equality
-  - telescope isomorphism
-  - higher-coherence elimination
-- State and prove:
-  1. Elaboration soundness
-  2. Signature adequacy
-  3. Minimality / necessity of irreducible fields
-  4. Canonical presentation / canonical isomorphism for equivalent extensions
-
-### Done criterion
-
-- The counting layer is attached to actual cubical syntax rather than standing beside it.
-
-## 3. Replace generatorwise density by basis-sensitive coverage/minimality
+## 2. Replace generatorwise density by basis-sensitive coverage/minimality
 
 ### Remaining tasks
 
@@ -68,12 +37,11 @@ The paper now presents itself as a theorem about a fixed cubical extension calcu
 
 - The counting theorem is stable under harmless polymorphic compression of clauses.
 
-## 4. Make the upper bound syntactic via higher-coherence elimination
+## 3. Make the upper bound syntactic via higher-coherence elimination
 
 ### Remaining tasks
 
-- Replace the current primitive-cost convention by a minimal-presentation measure:
-  - `mu(e) =` least size of a normalized opaque presentation of `e`
+- Replace the current primitive-cost convention by a genuinely presentation-invariant minimality theorem over `mu`.
 - Prove a theorem of the form:
 
 > Any admissible extension whose normalized public signature contains a primitive historical field of arity `k >= 3` is definitionally equivalent to one in which that field is removed and replaced by a term synthesized from lower-arity boundary data using cubical Kan operations.
@@ -85,7 +53,7 @@ The paper now presents itself as a theorem about a fixed cubical extension calcu
 
 - "Higher fillers cost zero" is a theorem of minimality, not a modeling convention.
 
-## 5. Upgrade telescopic subsumption to recent-history factorization
+## 4. Upgrade telescopic subsumption to recent-history factorization
 
 ### Remaining tasks
 
@@ -97,11 +65,11 @@ The paper now presents itself as a theorem about a fixed cubical extension calcu
 
 - The paper no longer jumps directly from dimension control to chronology; the two-layer window is justified by a factorization theorem.
 
-## 6. Restate the main recurrence over `mu`
+## 5. Restate the main recurrence over `mu`
 
 ### Remaining tasks
 
-- Rewrite the recurrence section in terms of `mu`, not the current `Delta`-based primitive-cost convention.
+- Rewrite the recurrence section in terms of `mu`, not the current `Delta`-based presentation count.
 - Make the main theorem:
 
 \[
@@ -118,7 +86,7 @@ U_n = \mu_n + 2c.
 
 - The depth-two affine law is the headline theorem and shifted Fibonacci is explicitly secondary.
 
-## 7. Tighten the lower-bound section inside the extension discipline
+## 6. Tighten the lower-bound section inside the extension discipline
 
 ### Remaining tasks
 
@@ -133,7 +101,7 @@ U_n = \mu_n + 2c.
 
 - The lower bound reads as a theorem inside the chosen extension discipline, not as a loose collection of analogies.
 
-## 8. Add the syntax-backed modality story if modalities remain central examples
+## 7. Add the syntax-backed modality story if modalities remain central examples
 
 ### Remaining tasks
 
@@ -145,7 +113,7 @@ U_n = \mu_n + 2c.
 
 - Modal examples are justified by a concrete extension syntax, not only by intuition.
 
-## 9. Finish the bibliography upgrade
+## 8. Finish the bibliography upgrade
 
 ### Remaining tasks
 
@@ -161,13 +129,13 @@ U_n = \mu_n + 2c.
 
 ### Done criterion
 
-- The bibliography supports the strengthened theorem object rather than only the old informal background.
+- The bibliography supports the strengthened theorem object rather than only the bridge skeleton.
 
-## 10. Align the mechanization section with the final bridge theorem
+## 9. Align the mechanization section with the final bridge theorem
 
 ### Remaining tasks
 
-- Once the bridge and elimination theorems are written, update `sec:mechanization` to say exactly which parts of:
+- Once the strengthened bridge and elimination theorems are written, update `sec:mechanization` to say exactly which parts of:
   - elaboration
   - normalized signatures
   - higher-coherence elimination
@@ -182,9 +150,8 @@ U_n = \mu_n + 2c.
 
 ## Final Submission Checklist
 
-- `Ext(C)` and `Seal` are defined explicitly.
-- The bridge section exists and is central.
-- Adequacy and minimality are stated and proved.
+- The bridge section proves adequacy and minimality, not just structural translation.
+- Coverage/minimality is basis-sensitive rather than generatorwise.
 - Higher-coherence elimination is proved over normalized public signatures.
 - Recent-history factorization is proved.
 - The recurrence is stated and proved over `mu`.
@@ -194,7 +161,7 @@ U_n = \mu_n + 2c.
 
 ## Suggested Next Execution Order
 
-1. Write the formal `Ext(C)` / `Seal` definitions and the bridge-section skeleton.
+1. Strengthen the bridge section into full adequacy/minimality theorems.
 2. Replace maximal-interface density with basis-sensitive coverage/minimality.
 3. Rework the upper bound into higher-coherence elimination.
 4. Upgrade telescopic subsumption into recent-history factorization.
