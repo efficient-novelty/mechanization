@@ -680,6 +680,8 @@ Since depth~$0$ would mean the absence of any interaction with the current inter
 
 From now on we specialize the paper's fixed theorem object to the fully coupled cubical extension calculus built over the chosen CCHM-style core~\cite{cubical,cchm-hits}, with univalence and Kan composition available in the ambient operational semantics. The next ingredients are deliberately complementary: exact obligation-set stabilization gives the upper bound on obligation depth, higher-coherence elimination gives the separate syntactic upper bound $d_\mu \leq 2$ on $\mu$-minimal public presentations, recent-history factorization turns the obligation-depth bound into a genuine two-step time window, and the explicit swap obstruction together with the clutching family give lower-bound witnesses. Together they pin down exact obligation depth~$2$.
 
+Univalence and cubical computation play different roles in that argument. Univalence supplies the lower-bound source of genuine binary coherence, witnessed below by the swap obstruction and the clutching family. It does not by itself remove primitive arity-$3$ trace fields or produce exact stabilization of normalized obligation sets. Those upper-bound statements use the separate cubical horn-computation package together with recent-history factorization.
+
 One semantic clarification is important before the cubical argument begins. In univalent foundations, types behave as weak $\omega$-groupoids, so the geometric space of fillers for a fixed higher boundary is not generally contractible. The paper therefore does not model a depth-three obligation as the space of fillers for a closed $3$-sphere. After the normalization of \autoref{def:obligations}, the marginal higher-dimensional datum appears instead as a horn-extension problem: an open box with one remote face still free.
 
 It is equally important to delimit the class of obligations under discussion. The paper does not claim that arbitrary internal higher-algebraic structure carried by a candidate disappears from cubical type theory. What is measured here is only \emph{structural integration coherence}: the obligations induced by sealing a globally acting foundational candidate against prior opaque layers. Those obligations arise from the chronological dependency graph of exported payload and trace data, not from arbitrary user-specified higher operations internal to the candidate.
@@ -1229,7 +1231,42 @@ so the shifted sequence $U_n := \mu_n + 2c$ is Fibonacci.
 Property~(2) gives exact stabilization $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$ together with a genuine two-layer chronological window. Hence \autoref{def:depth} and \autoref{thm:recurrence} imply that the obligation depth is at most~$2$ and that the recurrence is the depth-two affine law. Property~(1) excludes obligation depth~$1$. Hence the least stabilizing obligation depth is exactly~$2$, and substituting $d_{\mathrm{obl}}=2$ and $\kappa_n=c$ into \autoref{thm:recurrence} gives the displayed formula. The Fibonacci shift is exactly the argument of \autoref{cor:fibonacci}.
 \end{proof}
 
-Cubical type theory realizes Property~(2) by Kan composition together with recent-history factorization. Two-level type theory suggests a different possible implementation pattern: the fibrant equality retains genuine higher path structure, while the strict outer equality supplies a separate level in which higher coherence bookkeeping can be strictified without reintroducing new primitive fibrant trace fields \cite{altenkirch-strict,annenkov-2ltt}. The present paper does not claim that plain HoTT, or every 2LTT presentation, automatically instantiates \autoref{thm:2d-foundations}. What the theorem isolates is only the hypothesis pattern: once a foundation has genuine binary coherence, exact stabilization of obligation sets at depth~$2$, and a two-layer chronological window, the same depth-two affine law follows.
+\begin{rem}[Checklist for cubical-style instantiations]
+\label{rem:cubical-checklist}
+To transport the cubical proof pattern of \autoref{sec:coherence} beyond the chosen CCHM-style core, it is not enough to say only that another foundation is ``cubical-like.'' One must verify an explicit package of ingredients:
+\begin{enumerate}
+  \item a computational univalence principle, or an equivalent source of genuinely binary coherence, so that the lower-bound phenomena of \autoref{thm:adjunction} and \autoref{thm:clutching} have an analogue;
+  \item a uniform horn composition/filling operation strong enough to realize the horn-extension fibers of \autoref{lem:horn-reduction};
+  \item enough judgmental computation to synthesize the missing face and filler used in the surface-syntactic elimination statement of \autoref{thm:higher-elim};
+  \item a sealing and normalization discipline whose exports satisfy the basis and factorization-complete trace theorems needed to read the metatheory as a genuine two-layer chronological window; and
+  \item a bridge theorem showing that a witness derived by those horn operations can replace a primitive field without changing the canonical normalized public signature, so that metatheoretic derivability becomes elimination from $\mu$-minimal public form.
+\end{enumerate}
+The present paper checks that package only for the fixed CCHM-style cubical core and its Cubical Agda realization. Other cubical variants may satisfy the same checklist, but that must be proved case by case rather than inferred from terminology alone.
+\end{rem}
+
+\begin{rem}[Why plain HoTT is not claimed here]
+\label{rem:hott-scope}
+The identity-elimination principle of the HoTT book reduces families over a variable path to the reflexivity constructor, but it does not by itself collapse loop-indexed families with fixed endpoints to the reflexivity case~\cite{hott}. The horn-extension problems governing \autoref{lem:horn-reduction} therefore do not automatically reduce in plain Book HoTT to the cubical boundary computations used above. For that reason the paper does not claim that plain HoTT satisfies Property~(2), nor that it instantiates the checklist of \autoref{rem:cubical-checklist}; for this paper it remains an open direction rather than a theorem-level corollary.
+\end{rem}
+
+\begin{table}[t]
+\centering
+\caption{Scope of the paper's generalization claims.}
+\label{tab:foundation-scope}
+\small
+\begin{tabular}{@{}p{0.24\linewidth}p{0.18\linewidth}p{0.19\linewidth}p{0.18\linewidth}p{0.09\linewidth}@{}}
+\toprule
+Foundation & Binary lower bound & Exact upper bound / window & Bridge to $\mu$ & Claimed here? \\
+\midrule
+Chosen CCHM-style cubical core / Cubical Agda variation & yes; explicit swap and clutching witnesses & yes; horn reduction, stabilization, and recent-history factorization & yes, with \autoref{thm:computational-replacement} still paper-level & yes \\
+Other cubical variants & only if \autoref{rem:cubical-checklist} is verified for that system & only if the horn and factorization package is checked for that system & only if the normalization bridge is checked for that presentation & no \\
+Suitable $2$LTT-style extension discipline & plausible, but no concrete discipline is specified here & not proved here & not supplied here & no \\
+Plain Book HoTT & no theorem isolated here & no cubical-style upper-bound argument supplied here & no & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cubical type theory realizes Property~(2) by Kan composition together with recent-history factorization. \autoref{rem:cubical-checklist} records the extra hypotheses needed before that proof pattern can be transported to a different cubical presentation, and \autoref{tab:foundation-scope} summarizes which cases are actual theorem-level claims in this paper. Two-level type theory suggests a different possible implementation pattern: the fibrant equality retains genuine higher path structure, while the strict outer equality supplies a separate level in which higher coherence bookkeeping can be strictified without reintroducing new primitive fibrant trace fields \cite{altenkirch-strict,annenkov-2ltt}. The present paper does not claim that plain HoTT, or every 2LTT presentation, automatically instantiates \autoref{thm:2d-foundations}. What the theorem isolates is only the hypothesis pattern: once a foundation has genuine binary coherence, exact stabilization of obligation sets at depth~$2$, and a two-layer chronological window, the same depth-two affine law follows.
 
 \section{Cubical Agda mechanization}
 \label{sec:mechanization}

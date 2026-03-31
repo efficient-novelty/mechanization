@@ -62,44 +62,9 @@ Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
 - Only keep exact-depth rhetoric in the abstract wrapper if exact stabilization is explicitly one of the hypotheses.
 
-### 6. Recast the HoTT discussion so it is unassailable
-
-Goal: remove all theorem-level overclaim about plain Book HoTT.
-
-Task 6.1. Add a short explanatory remark near the generalization section.
-
-- State that path induction in the HoTT book does not in general collapse loop-indexed families with fixed endpoints to the reflexivity case.
-- Therefore the paper does not claim the cubical upper-bound mechanism for plain Book HoTT.
-
-Done when:
-
-- the HoTT text reads as ambitious but mathematically cautious, with the remaining claim marked explicitly as limitation / open problem rather than theorem.
-
 ### 7. Replace "any cubical theory" with explicit sufficient hypotheses
 
 Goal: generalize as far as possible without pretending all cubical variants instantiate the same proof.
-
-Task 7.1. Write a short hypothesis checklist theorem or remark for cubical-like instantiations.
-
-- Required ingredients:
-  - computational univalence;
-  - a uniform horn composition/filling operation or equivalent;
-  - enough judgmental computation to synthesize the missing face and filler used by `thm:higher-elim`;
-  - a sealing discipline whose normalized exports satisfy the basis and factorization-complete trace theorems;
-  - a bridge theorem connecting derived witnesses to elimination from canonical normalized public signatures.
-
-Task 7.2. Add a short comparison table.
-
-- Suggested rows:
-  - chosen CCHM-style cubical core / Cubical Agda variation;
-  - other cubical variants;
-  - suitable 2LTT-style extension discipline;
-  - plain Book HoTT.
-- Suggested columns:
-  - lower bound;
-  - upper bound;
-  - bridge to `\mu`;
-  - claimed in this paper?
 
 Task 7.3. If time allows, restate the cubical theorem once for an abstract horn-computational foundation interface and instantiate the chosen cubical calculus as the main example.
 
@@ -109,20 +74,6 @@ Task 7.3. If time allows, restate the cubical theorem once for an abstract horn-
 Done when:
 
 - a reviewer must attack a specific missing hypothesis rather than a vague universality claim.
-
-### 8. Separate the roles of univalence and cubical computation
-
-Goal: ensure the paper credits the lower and upper bounds to the right mechanisms.
-
-Task 8.1. Add a short remark near Theorem B.
-
-- State plainly:
-  - univalence gives the obstruction to collapse below `2`;
-  - it does not by itself remove primitive arity-`3` trace fields from minimal signatures.
-
-Done when:
-
-- no sentence suggests that univalence or weak infinity-groupoid semantics alone yields the upper bound.
 
 ## Cross-cutting exposition tasks
 
