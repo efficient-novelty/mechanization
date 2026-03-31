@@ -1036,7 +1036,30 @@ Cubical type theory realizes Property~(2) by Kan composition together with recen
 
 \subsection{Mechanizing the theorem package}
 
-The formalization is organized around the fixed extension calculus of \autoref{sec:framework}, its depth theorems, the induced recurrence law, and the clutching construction. This section records the exact paper-to-Agda theorem map for that theorem package.
+The formalization is organized around the fixed extension calculus of \autoref{sec:framework}, its depth theorems, the induced recurrence law, and the clutching construction. \autoref{tab:mechanization-status} first makes the trusted boundary local. Here \emph{fully formalized} means that the paper's statement is realized directly in the cited Agda modules; \emph{formalized abstractly, read through bridge} means that the Agda development proves the structural theorem and the paper reads it through the normalization and canonical-presentation results of \autoref{sec:bridge}; and \emph{paper-level only} marks the bridge layer itself. The itemized map after the table then records the exact paper-to-Agda theorem correspondence.
+
+\begin{table}[t]
+\centering
+\caption{Mechanization status of the main theorem stack.}
+\label{tab:mechanization-status}
+\small
+\begin{tabular}{@{}p{0.21\linewidth}p{0.23\linewidth}p{0.31\linewidth}p{0.11\linewidth}@{}}
+\toprule
+Paper result & Formal status & Agda module(s) & Bridge? \\
+\midrule
+\autoref{sec:bridge} normalization package & paper-level only & none & n/a \\
+\autoref{prop:transparent} & fully formalized & \path{Metatheory/InterfaceCalculus.agda} & no \\
+\autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{cor:mu-delta} & formalized abstractly, read through bridge & \path{Metatheory/CanonicityDensity.agda}, \path{Metatheory/TracePrinciple.agda}, \path{Metatheory/InterfaceCalculus.agda} & yes \\
+\autoref{lem:arity-dimension}, \autoref{thm:extensional} & fully formalized & \path{Metatheory/Obligations.agda}, \path{Metatheory/Extensional.agda} & no \\
+\autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window} & fully formalized & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & no \\
+\autoref{thm:higher-elim}, \autoref{lem:telescopic} & formalized abstractly, read through bridge & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & yes \\
+\autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2} & fully formalized & \path{Metatheory/AdjunctionBarrier.agda}, \path{Geometry/Clutching.agda}, \path{Metatheory/ExactDepth.agda} & no \\
+\autoref{thm:2d-foundations} & fully formalized & \path{Metatheory/TwoDFoundations.agda} & no \\
+\autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci} & formalized abstractly, read through bridge & \path{Metatheory/UniversalRecurrence.agda}, \path{Core/DepthOneAffine.agda}, \path{Core/AffineRecurrence.agda} & yes \\
+\autoref{cor:refactoring} & fully formalized & \path{Metatheory/Refactoring.agda} & no \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 {\small
 \begin{itemize}[nosep]

@@ -44,7 +44,7 @@ Treat everything in "Ambitious research goals" as optional unless it can be comp
 
 1. Invariant split and basis repair.
 2. Export-completeness and bridge-replacement proofs.
-3. Add the remaining theorem-status / source-justification scaffolding.
+3. Add the remaining source-justification scaffolding.
 4. Optional ambitious generalizations.
 
 ## Detailed task map by reviewer objection
@@ -161,26 +161,6 @@ Task 3.4. Align the paper proof with the existing mechanized telescopic view.
 Done when:
 
 - the first and inductive factorization steps each point to explicit exported data, and no implicit sufficiency assumption remains.
-
-### 4. Restate the trusted boundary honestly
-
-Goal: align the paper's prose with the actual formal status.
-
-Task 4.1. Add a theorem-status table.
-
-- Suggested columns:
-  - paper result / label;
-  - formal status;
-  - Agda module(s);
-  - whether a paper-level bridge is still required.
-- Suggested status vocabulary:
-  - `fully formalized`;
-  - `formalized abstractly, read through bridge`;
-  - `paper-level only`.
-
-Done when:
-
-- a hostile reviewer would agree that the mechanization claims are conservative rather than inflated, and the table makes the trusted boundary locally visible.
 
 ### 5. Upgrade the eliminability argument from "contractible fiber" to a judgmental/presentation theorem
 
@@ -369,7 +349,6 @@ Do not cite any of these sources for a stronger theorem than they actually give.
 2. Check `agda/Metatheory/UpperBound.agda` against the paper's exact-depth statements.
 3. Check `agda/Metatheory/KanSubsumption.agda` and `agda/Metatheory/ChronologicalWindow.agda` against the paper's recent-history factorization statement.
 4. Check `agda/Metatheory/CanonicityDensity.agda` against the paper's revised basis theory.
-5. Update the theorem-status table accordingly.
 
 ## Ambitious research goals
 
@@ -447,7 +426,6 @@ Do not submit until all of the following are true:
 2. The basis layer is canonical or explicitly proved choice-invariant.
 3. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
 4. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
-5. The theorem-status table makes the formalized / bridge / paper-level boundary explicit.
 
 ## Final verification checklist
 
