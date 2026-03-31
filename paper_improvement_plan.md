@@ -33,14 +33,13 @@ This is the safest high-ambition end-state:
 
 The minimum safe submission path is:
 
-1. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
-2. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
+1. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
 
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
 ## Execution order
 
-1. Export-completeness and bridge-replacement proofs.
+1. Bridge-replacement proof.
 2. Add the remaining source-justification scaffolding.
 3. Optional ambitious generalizations.
 
@@ -67,43 +66,6 @@ Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the
 - Best safe formulation:
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
 - Only keep exact-depth rhetoric in the abstract wrapper if exact stabilization is explicitly one of the hypotheses.
-
-### 3. Strengthen the exported structure used by recent-history factorization
-
-Goal: make `lem:telescopic` depend on an explicit theorem, not on an implicit reading of the trace principle.
-
-Task 3.1. Introduce a definition of `factorization-complete trace basis`.
-
-- This exported structure should include:
-  - adjacent unary bridges;
-  - binary comparison traces for the needed composites;
-  - whatever degenerate or structural faces are required to form the next open `3`-box;
-  - stability under normalization and presentation equivalence.
-
-Task 3.2. Add a theorem after `thm:trace`.
-
-- Preferred theorem:
-  - every sealed layer exports a factorization-complete trace basis.
-- Fallback if not derivable from the current trace principle:
-  - make factorization completeness an explicit admissibility requirement of the extension calculus.
-- If the fallback is used:
-  - narrow the scope claims accordingly and say so clearly.
-
-Task 3.3. Rewrite `lem:telescopic` to cite the new completeness theorem explicitly.
-
-- The first nonadjacent step `X -> L_n -> L_{n-1} -> L_{n-2}` should name the exact exported fields used for each face.
-- The inductive step should reference the theorem, not merely "the trace principle".
-
-Task 3.4. Align the paper proof with the existing mechanized telescopic view.
-
-- Touchpoints:
-  - `agda/Metatheory/KanSubsumption.agda`;
-  - `agda/Metatheory/ChronologicalWindow.agda`.
-- Make clear whether the Agda side already packages the needed exported structure or whether the paper is reading more into it than is formally present.
-
-Done when:
-
-- the first and inductive factorization steps each point to explicit exported data, and no implicit sufficiency assumption remains.
 
 ### 5. Upgrade the eliminability argument from "contractible fiber" to a judgmental/presentation theorem
 
@@ -279,16 +241,14 @@ Do not cite any of these sources for a stronger theorem than they actually give.
 
 ### Core definition and theorem edits
 
-1. Add factorization-complete trace basis theorem.
-2. Add computational replacement bridge theorem.
-3. Rework `thm:higher-elim` around the new bridge theorem.
-4. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
+1. Add computational replacement bridge theorem.
+2. Rework `thm:higher-elim` around the new bridge theorem.
+3. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
 
 ### Mechanization alignment edits
 
 1. Check `agda/Metatheory/TwoDFoundations.agda` against the paper's revised abstract theorem.
 2. Check `agda/Metatheory/UpperBound.agda` against the paper's exact-depth statements.
-3. Check `agda/Metatheory/KanSubsumption.agda` and `agda/Metatheory/ChronologicalWindow.agda` against the paper's recent-history factorization statement.
 
 ## Ambitious research goals
 
@@ -362,8 +322,7 @@ Why this matters:
 
 Do not submit until all of the following are true:
 
-1. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
-2. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
+1. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
 
 ## Final verification checklist
 

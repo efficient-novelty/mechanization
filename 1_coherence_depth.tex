@@ -85,7 +85,7 @@ The paper develops one theorem package with three main components.
     and the shifted sequence $U_n=\mu_n+2c$ is Fibonacci. The associated structural inflation factor still converges to the Golden Ratio.
 \end{enumerate}
 
-The Cubical Agda development described in \autoref{sec:mechanization} formalizes the abstract candidate-and-obligation calculus, the cubical upper/lower metatheory, the recent-history factorization chain, and the abstract recurrence package underlying \autoref{thm:extensional}, \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window}, \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2}, \autoref{thm:2d-foundations}, \autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci}, and \autoref{cor:refactoring}. The surface-syntactic readings of \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence are then obtained in the paper by combining those formal metatheorems with the bridge results of \autoref{sec:bridge}. \autoref{sec:mechanization} records the exact Agda theorem names and the trusted boundary.
+The Cubical Agda development described in \autoref{sec:mechanization} formalizes the abstract candidate-and-obligation calculus, the cubical upper/lower metatheory, the recent-history factorization chain, and the abstract recurrence package underlying \autoref{thm:extensional}, \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window}, \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2}, \autoref{thm:2d-foundations}, \autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci}, and \autoref{cor:refactoring}. The surface-syntactic readings of \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence are then obtained in the paper by combining those formal metatheorems with the bridge results of \autoref{sec:bridge}. \autoref{sec:mechanization} records the exact Agda theorem names and the trusted boundary.
 
 \subsection{Related work}
 \label{sec:related}
@@ -514,6 +514,59 @@ rewritten using $\mu_k=\Delta(X(e_k)\mid\B_{k-1})$; its right-hand side is
 well defined for any basis family by \autoref{thm:basis-choice}.
 \end{proof}
 
+\begin{defi}[Factorization-complete public trace export]
+\label{def:factorization-complete}
+Let $L_k$ be a sealed layer with $k \geq 2$. We say that its public trace
+export is \emph{factorization-complete} if, after choosing any admissible
+surface declaration whose sealing exports~$L_k$ and reading its canonical
+normalized trace signature, the following data are available for the next
+remote-comparison step:
+\begin{enumerate}
+  \item the adjacent unary bridge from $L_k$ to~$L_{k-1}$;
+  \item the binary comparison trace witnessing the composite comparison from
+  $L_k$ to~$L_{k-2}$ through~$L_{k-1}$;
+  \item the degenerate or structural faces needed to assemble the corresponding
+  open $3$-box, generated transparently by definitional equality, transport
+  along already exported equalities, and the generic structural operations
+  already quotiented by counting normalization.
+\end{enumerate}
+Equivalently, the next horn-extension problem involving~$L_k$ can be posed
+using only exported public trace fields and transparent structural operations,
+without reopening the hidden derivation that discharged the original sealing
+obligations.
+\end{defi}
+
+\begin{thm}[Sealed layers export factorization-complete trace data]
+\label{thm:factorization-complete}
+Every sealed layer $L_k$ with $k \geq 2$ in the fixed fully coupled cubical
+extension calculus has factorization-complete public trace export.
+\end{thm}
+
+\begin{proof}
+Choose an admissible surface declaration~$e_k$ whose sealing exports~$L_k$.
+By \autoref{thm:trace}, the public export of~$L_k$ decomposes into new payload
+and trace, and by \autoref{thm:adequacy} every irreducible trace schema visible
+after sealing appears in the canonical normalized trace signature
+$N_{\mathrm{tr}}(e_k)$. Because $L_k$ was sealed as a globally acting layer
+against the active interface, its resolved trace obligations include the
+adjacent action on~$L_{k-1}$ and the binary comparison against the already
+exported comparison between $L_{k-1}$ and~$L_{k-2}$. Hence the corresponding
+unary bridge and binary comparison trace occur as public fields of
+$N_{\mathrm{tr}}(e_k)$.
+
+The remaining faces needed for the next open $3$-box are not extra primitive
+obligations. They are degenerate composites, reindexings, and transports along
+already exported equalities, so they are generated transparently by the
+structural operations already quotiented in counting normalization. By
+\autoref{prop:irreducible-necessary} and
+\autoref{prop:canonical-presentation}, passing to a presentation-equivalent
+declaration cannot delete the irreducible unary or binary trace fields just
+identified; it can only rewrite them into canonically isomorphic normalized
+form. Therefore the factorization data are exported stably at the level of
+canonical normalized public signatures and can be reused without reopening the
+hidden sealing derivation. This is exactly factorization completeness.
+\end{proof}
+
 \begin{rem}[Syntactic scope of the bridge]
 \label{rem:bridge-to-counting}
 The results of \autoref{thm:elaboration}, \autoref{thm:adequacy}, \autoref{prop:irreducible-necessary}, and \autoref{prop:canonical-presentation} are syntactic bridge theorems: they speak only about elaboration, sealing, opacity, counting normalization, and the presentation-equivalence relation of \autoref{def:mu}. They justify that $N(e)$ and $\mu(e)$ are invariants of explicit extension declarations over the fixed cubical core~$C$.
@@ -765,19 +818,29 @@ In the fixed fully coupled cubical extension calculus, every binary trace field 
 \end{thm}
 
 \begin{proof}
-Start with the first nonadjacent layer $L_{n-2}$. Because $L_n$ was itself sealed against $L_{n-1}$ and $L_{n-2}$, its exported trace includes a unary comparison
+Start with the first nonadjacent layer $L_{n-2}$. By
+\autoref{thm:factorization-complete} applied to the sealed exports of~$L_n$
+and~$L_{n-1}$, the next factorization step may be read entirely from explicit
+public trace data. In particular, the export of~$L_n$ includes the adjacent
+unary bridge
 \[
   f_n : L_n \to L_{n-1},
 \]
-the previous layer exports
+the export of~$L_{n-1}$ includes the adjacent unary bridge
 \[
   g_{n-1} : L_{n-1} \to L_{n-2},
 \]
-and the binary part of the trace of $L_n$ contains a $2$-cell
+and the binary part of the trace of~$L_n$ contains a $2$-cell
 \[
   \alpha_n : g_{n-1}\circ f_n \Rightarrow h_n
 \]
-recording the induced comparison $h_n : L_n \to L_{n-2}$. When $X$ is sealed against the last two layers, it supplies unary comparisons
+recording the induced comparison $h_n : L_n \to L_{n-2}$. The degenerate
+composition faces needed to assemble the next open box are part of the same
+factorization-complete export, in the sense of
+\autoref{def:factorization-complete}, because counting normalization treats
+them as transparent structural data rather than as fresh primitive fields. When
+$X$ is sealed against the last two layers, it additionally fixes unary
+comparisons
 \[
   x_n : X \to L_n,
   \qquad
@@ -798,9 +861,29 @@ whose first component is precisely the comparison
 \[
   \gamma_{n-2} : h_n \circ x_n \Rightarrow g_{n-1}\circ x_{n-1}
 \]
-between the two composites from $X$ to $L_{n-2}$, and whose second component is the $3$-cell filling the box once that face is chosen. Cubical Kan filling computes this horn-extension term from the displayed boundary data: $\hcomp$ synthesizes the missing face and $\mathsf{hfill}$ the accompanying filler. Thus the comparison with $L_{n-2}$ factors through the already exported signature of~$L_n$ together with the adjacent bridge carried by~$L_{n-1}$; it does not survive as a new primitive remote field in a $\mu$-minimal presentation.
+between the two composites from $X$ to $L_{n-2}$, and whose second component
+is the $3$-cell filling the box once that face is chosen. Cubical Kan filling
+computes this horn-extension term from the displayed boundary data: $\hcomp$
+synthesizes the missing face and $\mathsf{hfill}$ the accompanying filler.
+Thus the comparison with $L_{n-2}$ factors through the already exported
+signature of~$L_n$ together with the adjacent bridge carried by~$L_{n-1}$; it
+does not survive as a new primitive remote field in a $\mu$-minimal
+presentation.
 
-The same argument now iterates. Suppose inductively that the comparison from $X$ to $L_{n-r+1}$ has already been factored through the recent history. Since $L_{n-r+1}$ was sealed against $L_{n-r}$ and $L_{n-r-1}$, its exported trace again contains the adjacent unary bridge to $L_{n-r}$ together with the corresponding binary square witnessing the comparison of composites. Combining that previously exported square with the already factored comparison for $X$ forms another open $3$-box, so one obtains another horn-extension fiber over already available boundary data. Cubical Kan filling computes that fiber again, yielding a comparison from $X$ to $L_{n-r}$ which factors through the normalized public signature of~$L_{n-r+1}$. Inductively, every remote binary comparison is therefore a definitional consequence of the trace data already exported by the recent history, and \autoref{thm:higher-elim} removes it from any $\mu$-minimal signature as a primitive field.
+The same argument now iterates. Suppose inductively that the comparison from
+$X$ to $L_{n-r+1}$ has already been factored through the recent history. Apply
+\autoref{thm:factorization-complete} to the sealed layer~$L_{n-r+1}$. Its
+normalized public trace export already supplies the adjacent unary bridge to
+$L_{n-r}$, the corresponding binary comparison trace for the composite through
+$L_{n-r}$, and the transparently generated degenerate faces needed to assemble
+the next open $3$-box. Combining that explicit exported data with the already
+factored comparison for~$X$ yields another horn-extension fiber over visible
+boundary data. Cubical Kan filling computes that fiber again, yielding a
+comparison from $X$ to $L_{n-r}$ which factors through the normalized public
+signature of~$L_{n-r+1}$. Inductively, every remote binary comparison is
+therefore a definitional consequence of the trace data already exported by the
+recent history, and \autoref{thm:higher-elim} removes it from any
+$\mu$-minimal signature as a primitive field.
 \end{proof}
 
 \begin{cor}[Two-layer chronological window]
@@ -1145,7 +1228,7 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{cor:mu-delta} & formalized abstractly, read through bridge & \path{Metatheory/CanonicityDensity.agda}, \path{Metatheory/TracePrinciple.agda}, \path{Metatheory/InterfaceCalculus.agda} & yes \\
 \autoref{lem:arity-dimension}, \autoref{thm:extensional} & fully formalized & \path{Metatheory/Obligations.agda}, \path{Metatheory/Extensional.agda} & no \\
 \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window} & fully formalized & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & no \\
-\autoref{thm:higher-elim}, \autoref{lem:telescopic} & formalized abstractly, read through bridge & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & yes \\
+\autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic} & formalized abstractly, read through bridge & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & yes \\
 \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2} & fully formalized & \path{Metatheory/AdjunctionBarrier.agda}, \path{Geometry/Clutching.agda}, \path{Metatheory/ExactDepth.agda} & no \\
 \autoref{thm:2d-foundations} & fully formalized & \path{Metatheory/TwoDFoundations.agda} & no \\
 \autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci} & formalized abstractly, read through bridge & \path{Metatheory/UniversalRecurrence.agda}, \path{Core/DepthOneAffine.agda}, \path{Core/AffineRecurrence.agda} & yes \\
@@ -1164,6 +1247,7 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \item \autoref{lem:arity-dimension} corresponds exactly to \path{Metatheory/Obligations.agda} via \path{historical-arity-forces-cell-dimension} and \path{irreducible-obligation-requires-cell}.
 \item \autoref{thm:extensional} corresponds exactly to \path{Metatheory/Extensional.agda} via \path{UIP-forces-depth-1} and \path{history-truncates-to-one}.
 \item \autoref{lem:horn-reduction} corresponds exactly to \path{Metatheory/KanSubsumption.agda} via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, and \path{remote-layer-obligation-derived}.
+\item \autoref{thm:factorization-complete} is the paper's bridge-level export theorem: \path{TelescopicSubsumptionView} in \path{Metatheory/KanSubsumption.agda} packages the recent boundary together with the iterated trace chain, while \path{primitive-obligations-factor-through-last-two} in \path{Metatheory/ChronologicalWindow.agda} records that primitive support factors through the last two layers. The paper theorem uses \autoref{thm:trace}, \autoref{thm:adequacy}, and \autoref{prop:canonical-presentation} to read that formal package as an explicit normalized exported trace basis.
 \item \autoref{thm:higher-elim} is the paper's syntactic corollary of \path{Metatheory/KanSubsumption.agda} and \path{Metatheory/UpperBound.agda}: the Agda development formalizes the horn-extension fiber, its canonical inhabitant, and stabilization at depth~$2$ via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, \path{remote-layer-obligation-derived}, \path{structural-obligation-set-equivalence}, and \path{structural-stabilizes-at-two}; the elimination of primitive arity-$3$ fields from $\mu$-minimal public signatures is obtained in the paper by combining those results with the bridge normalization theorems of \autoref{sec:bridge}.
 \item \autoref{lem:telescopic} corresponds exactly to \path{Metatheory/KanSubsumption.agda} via \path{TelescopicSubsumptionView}, \path{telescopic-subsumption}, and \path{telescopic-remote-comparison-derived}; its reading as recent-history factorization through normalized public signatures is again the paper's bridge-level interpretation of that formal trace chain.
 \item \autoref{thm:upper} corresponds exactly to \path{Metatheory/UpperBound.agda} via \path{structural-obligation-set-equivalence} and \path{structural-stabilizes-at-two}.
@@ -1204,7 +1288,7 @@ The mechanization separates four claims that are easy to conflate in prose. The 
 
 \begin{rem}[Scope of the mechanization]
 \label{rem:mech-scope}
-The formalization establishes the cubical lower/upper metatheory, the abstract candidate-and-obligation calculus, and the recurrence package built on them. The exact paper-to-Agda correspondences are listed above; the cited modules use no \texttt{postulate}; and the clutching module is checked separately only because its HIT imports live on the Cubical library's standard natural-number interface rather than on \path{Core/Nat.agda}. The mathematical arguments of \autoref{sec:coherence} remain important as explanation and as links to the categorical and topological examples. What remains at the paper level is precisely the bridge from those formal metatheorems to the normalized-signature quantity~$\mu$, including the surface-syntactic readings of \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence.
+The formalization establishes the cubical lower/upper metatheory, the abstract candidate-and-obligation calculus, and the recurrence package built on them. The exact paper-to-Agda correspondences are listed above; the cited modules use no \texttt{postulate}; and the clutching module is checked separately only because its HIT imports live on the Cubical library's standard natural-number interface rather than on \path{Core/Nat.agda}. The mathematical arguments of \autoref{sec:coherence} remain important as explanation and as links to the categorical and topological examples. What remains at the paper level is precisely the bridge from those formal metatheorems to the normalized-signature quantity~$\mu$, including the surface-syntactic readings of \autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence.
 \end{rem}
 
 \section{Conclusion}
