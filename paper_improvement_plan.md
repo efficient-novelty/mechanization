@@ -33,25 +33,9 @@ This is the safest high-ambition end-state:
 
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
-## Execution order
+## Remaining execution order
 
-1. Run the final hostile-reviewer pass.
-2. Optional ambitious generalizations.
-
-## Cross-cutting exposition tasks
-
-### 12. Add a hostile-reviewer pass
-
-Do a final pass with these challenge prompts:
-
-- Does this statement depend on a chosen basis?
-- Is this an exact `\Ocal` claim or only a `\mu` claim?
-- Where is factorization completeness proved?
-- What is fully formalized and what still uses the paper-level bridge?
-- Does this generalization really apply to plain HoTT or to arbitrary cubical variants?
-- Is this lower-bound evidence or upper-bound evidence?
-
-Delete or rewrite any sentence that cannot answer one of those questions locally.
+1. Optional ambitious generalizations.
 
 ## Ambitious research goals
 
