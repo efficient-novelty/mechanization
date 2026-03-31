@@ -35,79 +35,10 @@ Treat everything in "Ambitious research goals" as optional unless it can be comp
 
 ## Execution order
 
-1. Add the remaining source-justification scaffolding.
+1. Run the final hostile-reviewer pass.
 2. Optional ambitious generalizations.
 
-## Detailed task map by reviewer objection
-
-### 1. Repair the upper-bound notion mismatch
-
-Goal: make exact obligation stabilization and minimal-signature elimination impossible to confuse.
-
-Task 1.1. Decide whether to reconnect the two depths.
-
-- Safe default:
-  - keep `d_obl` and `d_mu` separate in the abstract theory.
-- Stronger option:
-  - prove a cubical decomposition theorem of the form
-    `\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X) \times C_k(X)`
-    with `C_k(X)` canonically contractible.
-  - then explain exactly what quotient or normalization identifies the contractible factor and why that permits a corollary relating `d_obl` and `d_mu`.
-- Done when:
-  - the paper either has two clearly separated invariants or a fully proved theorem relating them.
-
-Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the stronger bridge is proved.
-
-- Best safe formulation:
-  - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
-- Only keep exact-depth rhetoric in the abstract wrapper if exact stabilization is explicitly one of the hypotheses.
-
-### 7. Replace "any cubical theory" with explicit sufficient hypotheses
-
-Goal: generalize as far as possible without pretending all cubical variants instantiate the same proof.
-
-Task 7.3. If time allows, restate the cubical theorem once for an abstract horn-computational foundation interface and instantiate the chosen cubical calculus as the main example.
-
-- If this is not completed:
-  - keep the chosen CCHM-style cubical core as the only theorem-level cubical instantiation.
-
-Done when:
-
-- a reviewer must attack a specific missing hypothesis rather than a vague universality claim.
-
 ## Cross-cutting exposition tasks
-
-### 10. Add a compact taxonomy of notions and never blur them again
-
-Near `rem:present-vs-cost`, add a compact table or short list distinguishing:
-
-- present obligation type;
-- contractible obligation type;
-- transparently derived / reconstructible field;
-- eliminated from a `\mu`-minimal normalized signature;
-- absent from the obligation set.
-
-Then enforce this vocabulary in:
-
-- `thm:higher-elim`;
-- `thm:upper`;
-- `lem:telescopic`;
-- `thm:2d-foundations`;
-- mechanization section;
-- conclusion.
-
-### 11. Add a claim dependency map
-
-Add one figure or one compact table showing:
-
-- exact `\Ocal`-stabilization;
-- minimal-signature elimination;
-- recent-history factorization;
-- lower-bound binary obstruction;
-- recurrence theorem;
-- mechanization status.
-
-This should make the theorem architecture visually obvious and reviewer-proof.
 
 ### 12. Add a hostile-reviewer pass
 
@@ -121,30 +52,6 @@ Do a final pass with these challenge prompts:
 - Is this lower-bound evidence or upper-bound evidence?
 
 Delete or rewrite any sentence that cannot answer one of those questions locally.
-
-### 13. Tighten source usage and citations
-
-Use the cited sources only for the claims they actually support:
-
-- Cubical Agda documentation:
-  - use for the claim that the implementation is a variation of CCHM with built-in `hcomp` and `transp`.
-- HoTT book:
-  - use for the limitation of path induction on loop-indexed families with fixed endpoints.
-- 2LTT paper:
-  - use for the claim that 2LTT is a stronger coherence / metatheoretic framework, not a synonym for plain HoTT.
-
-Do not cite any of these sources for a stronger theorem than they actually give.
-
-## Concrete section-by-section patch list
-
-### Core definition and theorem edits
-
-1. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
-
-### Mechanization alignment edits
-
-1. Check `agda/Metatheory/TwoDFoundations.agda` against the paper's revised abstract theorem.
-2. Check `agda/Metatheory/UpperBound.agda` against the paper's exact-depth statements.
 
 ## Ambitious research goals
 
