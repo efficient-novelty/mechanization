@@ -31,7 +31,7 @@
 \begin{document}
 
 \begin{abstract}
-We study framework extension over a fixed cubical object theory rather than over ``cubical type theory'' in the abstract. The theorem target is a cubical extension calculus built on a chosen CCHM-style cubical core with univalence and Kan composition, together with a discipline of globally acting opaque extensions whose public interfaces are counted only up to canonical telescope isomorphism. We call the least historical depth at which the resulting normalized obligation types stabilize up to canonical equivalence the coherence depth. Within this calculus we prove a payload-aware trace principle decomposing each sealed public interface into new core payload and resolved coherence trace, and we measure extension debt by the presentation-invariant minimal opaque cost~$\mu$. The cubical metatheory then yields a depth-two theorem stack: the normalized obligation sets stabilize at depth~$2$ up to canonical equivalence; separately, every primitive historical field of arity at least~$3$ is eliminable from a $\mu$-minimal public presentation by cubical Kan operations; every surviving binary clause factors through the previous two normalized signatures; and a binary obstruction remains genuinely independent. Abstracting that proof pattern yields a universal affine recurrence for minimal opaque cost. In extensional systems with UIP the depth collapses to~$1$. In the fixed fully coupled cubical extension calculus studied here the depth is~$2$, so
+We study framework extension over a fixed cubical object theory rather than over ``cubical type theory'' in the abstract. The theorem target is a cubical extension calculus built on a chosen CCHM-style cubical core with univalence and Kan composition, together with a discipline of globally acting opaque extensions whose public interfaces are counted only up to canonical telescope isomorphism. We call the least historical depth at which the resulting normalized obligation types stabilize up to canonical equivalence the \emph{obligation depth}~$d_{\mathrm{obl}}$; separately, the \emph{minimal-signature depth}~$d_\mu$ records which primitive historical trace arities survive in canonical $\mu$-minimal public form. Within this calculus we prove a payload-aware trace principle decomposing each sealed public interface into new core payload and resolved coherence trace, and we measure extension debt by the presentation-invariant minimal opaque cost~$\mu$. The cubical metatheory then yields a depth-two theorem stack: the normalized obligation sets stabilize at depth~$2$ up to canonical equivalence; separately, every primitive historical field of arity at least~$3$ is eliminable from a $\mu$-minimal public presentation by cubical Kan operations; every surviving binary clause factors through the previous two normalized signatures; and a binary obstruction remains genuinely independent. Abstracting that proof pattern yields a universal affine recurrence for minimal opaque cost. In extensional systems with UIP the obligation depth collapses to~$1$. In the fixed fully coupled cubical extension calculus studied here the obligation depth is~$2$, while higher-coherence elimination shows $d_\mu \leq 2$, so
 \[
   \mu_{n+1} = \mu_n + \mu_{n-1} + 2c
 \]
@@ -55,7 +55,7 @@ The question is not about transparent user developments inside a fixed library. 
 
 Orthogonal extensions are not the subject of this recurrence law. Adjoining a new datatype such as \texttt{Tree} to a library that already contains \texttt{List} and \texttt{Socket} need not introduce primitive \texttt{Tree}--\texttt{Socket} interaction data merely to preserve canonicity. Such sparse or local extensions are important in practice, but they do not exhibit the maximal coupling pattern that this paper isolates. Ordinary user-level library growth therefore forms a sparse dependency DAG in general; the recurrence theorem studies only the asymptotic foundational-core regime of monolithic, globally acting extensions.
 
-The central observation is that these obligations are stratified by historical depth. Some are purely unary: the new layer must act on one previously exported generator. Others are genuinely binary: the new layer must preserve a previously exported compatibility witness between two generators. The main invariant of the paper measures the least depth at which this process stabilizes.
+The central observation is that these obligations are stratified by historical depth. Some are purely unary: the new layer must act on one previously exported generator. Others are genuinely binary: the new layer must preserve a previously exported compatibility witness between two generators. The paper therefore tracks two related depth notions: one for exact stabilization of obligation sets and one for what survives in normalized public signatures.
 
 \subsection{The fixed theorem object}
 
@@ -63,13 +63,13 @@ This paper fixes one cubical object theory from the start. Let $C$ be a CCHM-sty
 
 \subsection{The core thesis}
 
-We call that invariant the \emph{coherence depth} (or \emph{coherence window}) of the foundation. The thesis of the paper is that, once coherence depth is isolated, the asymptotic law of integration becomes forced.
+The exact metatheoretic invariant is the \emph{obligation depth}~$d_{\mathrm{obl}}$, also called the \emph{coherence window}; the separate surface-syntactic invariant is the \emph{minimal-signature depth}~$d_\mu$. The thesis of the paper is that, once obligation depth is isolated from minimal-signature elimination, the asymptotic law of integration becomes forced.
 
 \begin{quote}
 In the fixed fully coupled cubical extension calculus of this paper, minimal opaque extension debt obeys a depth-two affine recurrence; under uniform payload size, the shifted sequence is Fibonacci.
 \end{quote}
 
-Here ``fully coupled'' refers only to the foundational-core regime just described: admissible extensions are globally acting payloads whose semantics or promoted action is intended to range over the whole active interface, not orthogonal additions that leave most earlier exports untouched. Within that regime, the operative assumption is the scope of the advertised global action, not a prior density axiom. \autoref{thm:canonicity} identifies the primitive active \emph{basis} interface of this fixed extension calculus: native core extensions are constrained by canonicity-preserving totality of the operational semantics, while promoted interface packages are constrained by operational exhaustiveness of the exported global interface. The resulting recurrence is stated over the presentation-invariant minimal opaque cost~$\mu$, not over a chosen surface presentation. In extensional systems with UIP, the coherence depth collapses to~$1$, and under uniform payload size the recurrence is first-order affine. In the fixed cubical extension calculus studied here, the coherence depth is~$2$, and after the constant-payload shift the affine law becomes Fibonacci.
+Here ``fully coupled'' refers only to the foundational-core regime just described: admissible extensions are globally acting payloads whose semantics or promoted action is intended to range over the whole active interface, not orthogonal additions that leave most earlier exports untouched. Within that regime, the operative assumption is the scope of the advertised global action, not a prior density axiom. \autoref{thm:canonicity} identifies the primitive active \emph{basis} interface of this fixed extension calculus: native core extensions are constrained by canonicity-preserving totality of the operational semantics, while promoted interface packages are constrained by operational exhaustiveness of the exported global interface. The resulting recurrence is stated over the presentation-invariant minimal opaque cost~$\mu$, not over a chosen surface presentation. In extensional systems with UIP, the obligation depth collapses to~$1$, and under uniform payload size the recurrence is first-order affine. In the fixed cubical extension calculus studied here, the obligation depth is~$2$, and \autoref{thm:higher-elim} gives the separate surface-syntactic bound $d_\mu \leq 2$; after the constant-payload shift the affine law becomes Fibonacci.
 
 \subsection{Summary of contributions}
 
@@ -77,8 +77,8 @@ The paper develops one theorem package with three main components.
 
 \begin{enumerate}
 \item We fix a cubical extension calculus over a chosen CCHM-style core, formalize its states, surface extensions, elaboration, sealed extensions, promoted interface packages, active interfaces, and integration latency, and distinguish orthogonal extensions from globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. The bridge section then proves that elaboration, sealing, and counting normalization turn explicit surface declarations into canonical normalized public signatures, so the abstract counts are theorems about extension syntax over the fixed cubical core. Within this framework we prove a basis-sensitive coverage/minimality theorem for the fully coupled foundational-core regime, a payload-aware \emph{Integration Trace Principle}, and a presentation-invariant minimal opaque cost~$\mu$ measuring the irreducible trace fields that survive in canonical public form.
-    \item We define coherence depth for this extension calculus and prove the sharp cubical/extensional dichotomy. In extensional type theory with UIP, the depth is~$1$. In the fixed fully coupled cubical extension calculus, the depth is~$2$. The depth-two statement is supported by four complementary ingredients: an exact upper bound on normalized obligation sets showing $\Ocal^{(k)}(X)\simeq\Ocal^{(2)}(X)$ for $k\geq 2$; a separate surface-syntactic corollary showing that primitive historical fields of arity at least~$3$ are eliminated from $\mu$-minimal public signatures by cubical Kan operations; a recent-history factorization theorem showing that every surviving binary clause factors through the previous two normalized signatures; and lower bounds from an explicit swap-induced binary sealing obstruction, read categorically by adjunction coherence, together with a topological exact family supplied by clutching constructions for principal bundles over spheres.
-    \item We combine the trace principle with the coherence-depth theorem to obtain a universal affine recurrence for minimal opaque cost. Under constant payload size~$c$, the depth-two cubical case specializes to
+    \item We define obligation depth~$d_{\mathrm{obl}}$ for exact stabilization of normalized obligation sets and minimal-signature depth~$d_\mu$ for elimination in $\mu$-minimal normalized public signatures, and we prove the sharp cubical/extensional dichotomy for the exact invariant. In extensional type theory with UIP, the obligation depth is~$1$. In the fixed fully coupled cubical extension calculus, the obligation depth is~$2$, while \autoref{thm:higher-elim} gives the separate bound $d_\mu \leq 2$. The depth-two obligation statement is supported by four complementary ingredients: an exact upper bound on normalized obligation sets showing $\Ocal^{(k)}(X)\simeq\Ocal^{(2)}(X)$ for $k\geq 2$; a separate surface-syntactic corollary showing that primitive historical fields of arity at least~$3$ are eliminated from $\mu$-minimal public signatures by cubical Kan operations; a recent-history factorization theorem showing that every surviving binary clause factors through the previous two normalized signatures; and lower bounds from an explicit swap-induced binary sealing obstruction, read categorically by adjunction coherence, together with a topological exact family supplied by clutching constructions for principal bundles over spheres.
+    \item We combine the trace principle with the obligation-depth theorem to obtain a universal affine recurrence for minimal opaque cost. Under constant payload size~$c$, the depth-two cubical case specializes to
     \[
       \mu_{n+1} = \mu_n + \mu_{n-1} + 2c,
     \]
@@ -440,7 +440,7 @@ The results of \autoref{thm:elaboration}, \autoref{thm:adequacy}, \autoref{prop:
 By contrast, \autoref{thm:canonicity}, \autoref{thm:trace}, and the later depth and recurrence theorems are metatheorems of the abstract candidate-and-obligation calculus. Their application to surface syntax passes through the adequacy theorem above: once an admissible declaration has been elaborated and normalized, those later counts are read off from the resulting normalized public signature. Throughout the rest of the paper we keep the definitions of $N(e)$ and~$\mu(e)$ from \autoref{def:elaboration} and \autoref{def:mu} unchanged; all later minimality statements are therefore relative to this fixed presentation-equivalence relation.
 \end{rem}
 
-\section{The coherence window concept and the depth dichotomy}
+\section{Obligation Depth, Minimal-Signature Depth, and the Dichotomy}
 \label{sec:coherence}
 
 \subsection{Induced obligations and historical arity}
@@ -455,7 +455,7 @@ Let $\Ocal^{(k)}(X)$ be the set of normalized atomic obligation types induced wh
 
 \begin{rem}
 \label{rem:present-vs-cost}
-Three notions must be kept distinct. An obligation may be absent; it may be present but contractible; or it may be present while still being eliminable from every $\mu$-minimal public presentation. \autoref{def:depth} is a statement about exact normalized obligation types. The surface-syntactic quantity~$\mu$ asks a different question, namely which trace fields survive in canonical normalized public form. Accordingly, ``derivable'', ``contractible'', ``eliminable from a minimal presentation'', and ``not present'' are never used interchangeably in this paper.
+Three notions must be kept distinct. An obligation may be absent; it may be present but contractible; or it may be present while still being eliminable from every $\mu$-minimal public presentation. Obligation depth~$d_{\mathrm{obl}}$ is a statement about exact normalized obligation types. Minimal-signature depth~$d_\mu$ asks a different question, namely which primitive trace fields survive in canonical normalized public form. A bound on~$d_\mu$ therefore does not by itself produce a chronological window. Accordingly, ``derivable'', ``contractible'', ``eliminable from a minimal presentation'', and ``not present'' are never used interchangeably in this paper.
 \end{rem}
 
 \begin{defi}[Historical support and arity]
@@ -480,29 +480,31 @@ An irreducible obligation of historical arity~$k$ requires a $k$-dimensional coh
 With one historical input, the new layer must supply a comparison morphism between its behavior and one prior export, so the obligation is one-dimensional. With two independent historical inputs, the witness compares two unary composites and therefore has the form of a square or homotopy. More generally, relating $k$ independently supplied historical interfaces requires a $k$-dimensional filler between the corresponding composites.
 \end{proof}
 
-\subsection{Definition of coherence depth}
+\subsection{Definition of obligation depth and minimal-signature depth}
 
-\begin{defi}[Coherence depth]
+\begin{defi}[Obligation depth and minimal-signature depth]
 \label{def:depth}
-A foundation, equivalently a fixed extension calculus together with its sealing discipline, has \emph{coherence depth}~$d$ if $d$ is the least integer such that for every candidate~$X$ and all $k \geq d$ there is a canonical equivalence
+A foundation, equivalently a fixed extension calculus together with its sealing discipline, has \emph{obligation depth}~$d_{\mathrm{obl}}$ if $d_{\mathrm{obl}}$ is the least integer such that for every candidate~$X$ and all $k \geq d_{\mathrm{obl}}$ there is a canonical equivalence
 \[
-  \Ocal^{(k)}(X) \simeq \Ocal^{(d)}(X).
+  \Ocal^{(k)}(X) \simeq \Ocal^{(d_{\mathrm{obl}})}(X).
 \]
-We also call~$d$ the \emph{coherence window} of the foundation.
+It has \emph{minimal-signature depth}~$d_\mu$ if $d_\mu$ is the least integer such that every admissible surface extension declaration~$e$ is presentation-equivalent to a declaration~$e'$ whose normalized trace signature $N_{\mathrm{tr}}(e')$ contains no irreducible primitive historical field of arity greater than~$d_\mu$.
+
+We also call~$d_{\mathrm{obl}}$ the \emph{coherence window} of the foundation. When the paper says simply ``coherence depth,'' it means obligation depth.
 \end{defi}
 
-The point of \autoref{def:depth} is that beyond depth~$d$, the normalized obligation types themselves stop changing up to canonical equivalence. This is stronger than saying merely that deeper history contributes no new minimal opaque cost. Once that exact stabilization has been upgraded to a genuine chronological window, the size of the primitive active basis interface controls the recurrence law for integration debt.
+The point of \autoref{def:depth} is that beyond depth~$d_{\mathrm{obl}}$, the normalized obligation types themselves stop changing up to canonical equivalence. This is stronger than saying merely that deeper history contributes no new minimal opaque cost or that $d_\mu$ is bounded. Once that exact stabilization has been upgraded to a genuine chronological window, the size of the primitive active basis interface controls the recurrence law for integration debt.
 
 \begin{rem}
 \label{rem:arity-vs-chronology}
-\autoref{def:depth} is a stabilization statement about \emph{obligation sets}. It should not be read as saying that a bound on coherence dimension automatically identifies the chronological layers that must still be inspected primitively. In particular, an arity-two obligation could in principle couple a new layer to a remote historical layer. To extract a genuine time window from a dimensional bound one needs an additional factorization theorem showing that such remote binary comparisons are already generated by recently exported traces. In the cubical univalent case, this passage from arity to chronology is supplied by \autoref{lem:telescopic}.
+\autoref{def:depth} records two depth notions. The obligation-depth bound~$d_{\mathrm{obl}}$ is a stabilization statement about \emph{obligation sets}; the minimal-signature bound~$d_\mu$ is a statement about canonical normalized public signatures. Neither should be read as saying that a bound on coherence dimension automatically identifies the chronological layers that must still be inspected primitively. In particular, an arity-two obligation could in principle couple a new layer to a remote historical layer. To extract a genuine time window from a dimensional bound one needs an additional factorization theorem showing that such remote binary comparisons are already generated by recently exported traces. In the cubical univalent case, this passage from arity to chronology is supplied by \autoref{lem:telescopic}.
 \end{rem}
 
-\subsection{\texorpdfstring{Theorem A: extensional systems collapse to $d=1$}{Theorem A: extensional systems collapse to d=1}}
+\subsection{\texorpdfstring{Theorem A: extensional systems collapse to $d_{\mathrm{obl}}=1$}{Theorem A: extensional systems collapse to d obl = 1}}
 
 \begin{thm}
 \label{thm:extensional}
-In Martin-L\"of type theory with UIP, the coherence depth is~$1$.
+In Martin-L\"of type theory with UIP, the obligation depth is~$1$.
 \end{thm}
 
 \begin{proof}
@@ -512,12 +514,12 @@ Under UIP, any two proofs of identity between fixed endpoints are equal. Hence e
   \qquad
   (k \geq 1).
 \]
-Since depth~$0$ would mean the absence of any interaction with the current interface, which is impossible for a nontrivial sealing step, the least stabilizing depth is~$1$.
+Since depth~$0$ would mean the absence of any interaction with the current interface, which is impossible for a nontrivial sealing step, the least stabilizing obligation depth is~$1$.
 \end{proof}
 
-\subsection{\texorpdfstring{Theorem B: fully coupled univalent systems have $d=2$}{Theorem B: fully coupled univalent systems have d=2}}
+\subsection{\texorpdfstring{Theorem B: fully coupled univalent systems have $d_{\mathrm{obl}}=2$}{Theorem B: fully coupled univalent systems have d obl = 2}}
 
-From now on we specialize the paper's fixed theorem object to the fully coupled cubical extension calculus built over the chosen CCHM-style core~\cite{cubical,cchm-hits}, with univalence and Kan composition available in the ambient operational semantics. The next ingredients are deliberately complementary: exact obligation-set stabilization gives the upper bound on coherence depth, higher-coherence elimination gives the separate syntactic upper bound on $\mu$-minimal public presentations, recent-history factorization turns that depth bound into a genuine two-step time window, and the explicit swap obstruction together with the clutching family give lower-bound witnesses. Together they pin down exact depth~$2$.
+From now on we specialize the paper's fixed theorem object to the fully coupled cubical extension calculus built over the chosen CCHM-style core~\cite{cubical,cchm-hits}, with univalence and Kan composition available in the ambient operational semantics. The next ingredients are deliberately complementary: exact obligation-set stabilization gives the upper bound on obligation depth, higher-coherence elimination gives the separate syntactic upper bound $d_\mu \leq 2$ on $\mu$-minimal public presentations, recent-history factorization turns the obligation-depth bound into a genuine two-step time window, and the explicit swap obstruction together with the clutching family give lower-bound witnesses. Together they pin down exact obligation depth~$2$.
 
 One semantic clarification is important before the cubical argument begins. In univalent foundations, types behave as weak $\omega$-groupoids, so the geometric space of fillers for a fixed higher boundary is not generally contractible. The paper therefore does not model a depth-three obligation as the space of fillers for a closed $3$-sphere. After the normalization of \autoref{def:obligations}, the marginal higher-dimensional datum appears instead as a horn-extension problem: an open box with one remote face still free.
 
@@ -634,6 +636,15 @@ Let $\phi$ be a historical trace field of arity $k \geq 3$ appearing in $N_{\mat
 Replace the primitive witness for~$\phi$ by that synthesized term internally before sealing. The resulting declaration is presentation-equivalent to~$e$, because presentation equivalence already identifies elaborated declarations that differ only by definitional equality, canonical telescope isomorphism, or transparent internal normalization. The public typing judgment is unchanged, but the corresponding trace field is no longer irreducible: it is definitionally reconstructed from lower-arity boundary data and therefore disappears from the canonical normalized trace signature. Since the public trace signature is finite, iterating this elimination over all fields of historical arity at least~$3$ yields a presentation-equivalent declaration~$e'$ with no such irreducible fields. By \autoref{prop:canonical-presentation}, $\mu(e)$ is computed exactly on that canonical trace signature, so no field of arity at least~$3$ contributes to minimal opaque cost.
 \end{proof}
 
+\begin{cor}
+\label{cor:dmu2}
+In the fixed fully coupled cubical extension calculus, the minimal-signature depth satisfies $d_\mu \leq 2$.
+\end{cor}
+
+\begin{proof}
+\autoref{thm:higher-elim} shows that every admissible surface extension declaration is presentation-equivalent to one whose normalized trace signature contains no irreducible historical field of arity~$k \geq 3$. This is exactly the defining condition for $d_\mu \leq 2$ in \autoref{def:depth}.
+\end{proof}
+
 \subsubsection{\texorpdfstring{Dimensional upper bound ($d \leq 2$)}{Dimensional upper bound}}
 
 \begin{thm}[Dimensional upper bound]
@@ -642,7 +653,7 @@ In the fixed fully coupled cubical extension calculus, for every foundational co
 \[
   \Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X).
 \]
-Hence the coherence depth is at most~$2$.
+Hence the obligation depth is at most~$2$.
 \end{thm}
 
 \begin{proof}
@@ -728,7 +739,7 @@ Let the active interface of a fully coupled univalent foundation export the two-
 \[
   p_{\mathsf{swap}} := \mathsf{ua}(\mathsf{swap}) : \mathbf{2} \equiv \mathbf{2}.
 \]
-Then there exists a globally acting promoted interface candidate whose unary clauses do not determine its sealing: sealing induces a genuine binary obligation over~$p_{\mathsf{swap}}$. Consequently the coherence depth is at least~$2$.
+Then there exists a globally acting promoted interface candidate whose unary clauses do not determine its sealing: sealing induces a genuine binary obligation over~$p_{\mathsf{swap}}$. Consequently the obligation depth is at least~$2$.
 \end{thm}
 
 \begin{proof}
@@ -762,7 +773,7 @@ Hence $\alpha_{\mathsf{swap}}$ is exactly the type
 \]
 which is impossible because evaluation at $\mathsf{left}$ would force $\mathsf{right} = \mathsf{left}$. Thus the passage from depth~$1$ to depth~$2$ introduces a genuine new sealing obligation type: the unary clause $f_{\mathbf{2}}$ does not determine whether $X$ is admissible, because the typechecker must still ask for the binary witness $\alpha_{\mathsf{swap}}$.
 
-Therefore $\Ocal^{(2)}(X)$ contains a binary obligation not already present in $\Ocal^{(1)}(X)$, so the ambient foundation cannot have coherence depth~$1$. Equivalently, univalence exposes binary sealing sites that are invisible to unary data alone. This is the same obstruction formalized in \path{Metatheory/AdjunctionBarrier.agda} by the nontriviality of \texttt{swap-path} and the contradiction theorem \texttt{depth1-insufficient}. Hence $d \geq 2$.
+Therefore $\Ocal^{(2)}(X)$ contains a binary obligation not already present in $\Ocal^{(1)}(X)$, so the ambient foundation cannot have obligation depth~$1$. Equivalently, univalence exposes binary sealing sites that are invisible to unary data alone. This is the same obstruction formalized in \path{Metatheory/AdjunctionBarrier.agda} by the nontriviality of \texttt{swap-path} and the contradiction theorem \texttt{depth1-insufficient}. Hence $d_{\mathrm{obl}} \geq 2$.
 \end{proof}
 
 \begin{rem}[Adjunction as categorical reading]
@@ -811,11 +822,11 @@ Crucially, the HIT signature of $S^2$ contains no constructor of dimension~$3$ o
 
 \begin{cor}
 \label{cor:d2}
-In the fixed fully coupled cubical extension calculus considered above, the coherence depth is exactly~$2$.
+In the fixed fully coupled cubical extension calculus considered above, the obligation depth is exactly~$2$.
 \end{cor}
 
 \begin{proof}
-\autoref{thm:upper} provides the upper bound by showing the exact obligation-set equivalence $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$, and \autoref{thm:higher-elim} turns that equivalence into the syntactic statement that no $\mu$-minimal public signature needs primitive arity-$3$ data. \autoref{lem:telescopic} shows that this depth-two upper bound is realized by a genuine two-layer chronological window rather than merely by a bound on cell dimension. \autoref{thm:adjunction} and \autoref{thm:clutching} provide lower bounds by exhibiting genuine depth-two phenomena that do not collapse in the univalent setting. Therefore the least stabilizing depth is~$2$.
+\autoref{thm:upper} provides the upper bound by showing the exact obligation-set equivalence $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$, and \autoref{thm:higher-elim} turns that equivalence into the syntactic statement that no $\mu$-minimal public signature needs primitive arity-$3$ data. \autoref{lem:telescopic} shows that this depth-two upper bound is realized by a genuine two-layer chronological window rather than merely by a bound on cell dimension. \autoref{thm:adjunction} and \autoref{thm:clutching} provide lower bounds by exhibiting genuine depth-two phenomena that do not collapse in the univalent setting. Therefore the least stabilizing obligation depth is~$2$.
 \end{proof}
 
 \section{The complexity scaling theorem}
@@ -825,9 +836,9 @@ Let $e_n$ be the admissible surface extension declaration whose sealing exports 
 \[
   \mu_n := \mu(e_n)
 \]
-for its minimal opaque cost, and let $\kappa_n$ be its core payload size. By \autoref{cor:mu-delta}, $\mu_n$ is exactly the abstract sealing cost $\Delta(X(e_n)\mid\B_{n-1})$, but it is phrased on canonical normalized public signatures and is therefore presentation-invariant by construction. The recurrence theorem therefore uses not only the stabilization statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has coherence depth~$d$ realized by a chronological window of size~$d$, the primitive active basis interface at stage~$n+1$ is the depth-$d$ historical basis built from the preceding layers:
+for its minimal opaque cost, and let $\kappa_n$ be its core payload size. By \autoref{cor:mu-delta}, $\mu_n$ is exactly the abstract sealing cost $\Delta(X(e_n)\mid\B_{n-1})$, but it is phrased on canonical normalized public signatures and is therefore presentation-invariant by construction. The recurrence theorem therefore uses not only the obligation-depth statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has obligation depth~$d_{\mathrm{obl}}$ realized by a chronological window of size~$d_{\mathrm{obl}}$, the primitive active basis interface at stage~$n+1$ is the depth-$d_{\mathrm{obl}}$ historical basis built from the preceding layers:
 \[
-  I_{n,\mathrm{bas}}^{(d)} = \biguplus_{j=0}^{d-1} S_{\mathrm{bas}}(L_{n-j}).
+  I_{n,\mathrm{bas}}^{(d_{\mathrm{obl}})} = \biguplus_{j=0}^{d_{\mathrm{obl}}-1} S_{\mathrm{bas}}(L_{n-j}).
 \]
 Thus the recurrence counts the chosen irreducible basis of the active interface rather than the raw number of exported generators. For the initial bootstrap stages before the full window has been populated, we adopt the natural convention that nonexistent earlier layers contribute the empty interface.
 
@@ -835,24 +846,24 @@ Thus the recurrence counts the chosen irreducible basis of the active interface 
 
 \begin{thm}[Universal affine recurrence for minimal opaque cost]
 \label{thm:recurrence}
-For every foundation whose coherence depth~$d$ is realized by a chronological window of size~$d$, the minimal opaque cost satisfies
+For every foundation whose obligation depth~$d_{\mathrm{obl}}$ is realized by a chronological window of size~$d_{\mathrm{obl}}$, the minimal opaque cost satisfies
 \[
-  \mu_{n+1} = \sum_{j=0}^{d-1} \bigl(\mu_{n-j} + \kappa_{n-j}\bigr)
+  \mu_{n+1} = \sum_{j=0}^{d_{\mathrm{obl}}-1} \bigl(\mu_{n-j} + \kappa_{n-j}\bigr)
   \qquad
-  (n \geq d).
+  (n \geq d_{\mathrm{obl}}).
 \]
 \end{thm}
 
 \begin{proof}
 By \autoref{cor:mu-delta}, the next minimal opaque cost is the abstract sealing cost, so \autoref{thm:canonicity} identifies it with the size of the active basis interface:
 \[
-  \mu_{n+1} = |I_{n,\mathrm{bas}}^{(d)}|.
+  \mu_{n+1} = |I_{n,\mathrm{bas}}^{(d_{\mathrm{obl}})}|.
 \]
 Using the tagged coproduct decomposition of \autoref{def:basis-sites},
 \[
-  |I_{n,\mathrm{bas}}^{(d)}|
+  |I_{n,\mathrm{bas}}^{(d_{\mathrm{obl}})}|
   =
-  \sum_{j=0}^{d-1} |S_{\mathrm{bas}}(L_{n-j})|.
+  \sum_{j=0}^{d_{\mathrm{obl}}-1} |S_{\mathrm{bas}}(L_{n-j})|.
 \]
 Now apply \autoref{cor:mu-delta}, equivalently the Integration Trace Principle \autoref{thm:trace}, which gives
 \[
@@ -871,7 +882,7 @@ for the cumulative minimal opaque cost through stage~$n$.
 
 \begin{cor}
 \label{cor:d1}
-If the coherence depth is~$1$, this depth is realized by a one-layer chronological window, and every layer contributes the same core payload size~$c$, then
+If the obligation depth is~$1$, this depth is realized by a one-layer chronological window, and every layer contributes the same core payload size~$c$, then
 \[
   \mu_{n+1} = \mu_n + c.
 \]
@@ -904,7 +915,7 @@ Assume in this subsection that every sealed layer contributes the same core payl
 
 \begin{cor}[Affine Fibonacci recurrence]
 \label{cor:fibonacci}
-In the fixed fully coupled cubical extension calculus, if the coherence depth is~$2$ and every sealed layer contributes core payload size~$c$, then
+In the fixed fully coupled cubical extension calculus, if the obligation depth is~$2$ and every sealed layer contributes core payload size~$c$, then
 \[
   \mu_{n+1} = \mu_n + \mu_{n-1} + 2c.
 \]
@@ -1018,7 +1029,7 @@ Let a fully coupled foundation satisfy the following two properties.
   \]
   and every surviving binary clause factors through a chronological window of size~$2$.
 \end{enumerate}
-Then the foundation has coherence depth~$2$. Under the uniform payload hypothesis $\kappa_n=c$, its minimal opaque cost satisfies
+Then the foundation has obligation depth~$2$. Under the uniform payload hypothesis $\kappa_n=c$, its minimal opaque cost satisfies
 \[
   \mu_{n+1} = \mu_n + \mu_{n-1} + 2c,
 \]
@@ -1026,7 +1037,7 @@ so the shifted sequence $U_n := \mu_n + 2c$ is Fibonacci.
 \end{thm}
 
 \begin{proof}
-Property~(2) gives exact stabilization $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$ together with a genuine two-layer chronological window. Hence \autoref{def:depth} and \autoref{thm:recurrence} imply that the depth is at most~$2$ and that the recurrence is the depth-two affine law. Property~(1) excludes depth~$1$. Hence the least stabilizing depth is exactly~$2$, and substituting $d=2$ and $\kappa_n=c$ into \autoref{thm:recurrence} gives the displayed formula. The Fibonacci shift is exactly the argument of \autoref{cor:fibonacci}.
+Property~(2) gives exact stabilization $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$ together with a genuine two-layer chronological window. Hence \autoref{def:depth} and \autoref{thm:recurrence} imply that the obligation depth is at most~$2$ and that the recurrence is the depth-two affine law. Property~(1) excludes obligation depth~$1$. Hence the least stabilizing obligation depth is exactly~$2$, and substituting $d_{\mathrm{obl}}=2$ and $\kappa_n=c$ into \autoref{thm:recurrence} gives the displayed formula. The Fibonacci shift is exactly the argument of \autoref{cor:fibonacci}.
 \end{proof}
 
 Cubical type theory realizes Property~(2) by Kan composition together with recent-history factorization. Two-level type theory suggests a different possible implementation pattern: the fibrant equality retains genuine higher path structure, while the strict outer equality supplies a separate level in which higher coherence bookkeeping can be strictified without reintroducing new primitive fibrant trace fields \cite{altenkirch-strict,annenkov-2ltt}. The present paper does not claim that plain HoTT, or every 2LTT presentation, automatically instantiates \autoref{thm:2d-foundations}. What the theorem isolates is only the hypothesis pattern: once a foundation has genuine binary coherence, exact stabilization of obligation sets at depth~$2$, and a two-layer chronological window, the same depth-two affine law follows.
@@ -1116,7 +1127,7 @@ The formalization establishes the cubical lower/upper metatheory, the abstract c
 \section{Conclusion}
 \label{sec:conclusion}
 
-The paper isolates \emph{coherence depth} as a metatheoretic invariant of a fixed cubical extension calculus. The associated payload counts, abstract latency counts, and normalized-signature quantity~$\mu$ are taken on counting normal forms of sealed interfaces, so they are stable under admissible record rebundling, interface slicing, and other canonical telescope refactorings. In extensional settings with UIP, higher coherences collapse and the invariant is~$1$. In the fixed fully coupled cubical extension calculus studied here, the invariant is~$2$. The main metatheorem is therefore a depth-two affine recurrence for minimal opaque cost; under uniform payload size, the shifted sequence is Fibonacci.
+The paper isolates \emph{obligation depth}~$d_{\mathrm{obl}}$ as the exact metatheoretic invariant of a fixed cubical extension calculus and distinguishes it from the separate minimal-signature depth~$d_\mu$ governing what survives in $\mu$-minimal normalized public form. The associated payload counts, abstract latency counts, and normalized-signature quantity~$\mu$ are taken on counting normal forms of sealed interfaces, so they are stable under admissible record rebundling, interface slicing, and other canonical telescope refactorings. In extensional settings with UIP, higher coherences collapse and the obligation depth is~$1$. In the fixed fully coupled cubical extension calculus studied here, the obligation depth is~$2$, while \autoref{thm:higher-elim} gives $d_\mu \leq 2$. The main metatheorem is therefore a depth-two affine recurrence for minimal opaque cost; under uniform payload size, the shifted sequence is Fibonacci.
 
 The mechanism behind the recurrence is structural. In the formalization, \autoref{thm:canonicity} is read through \path{global-admissibility-forces-maximal-interface-density} together with the bridge-level normalization theorems, \autoref{thm:trace} by \path{integration-trace-principle}, and \autoref{cor:chrono-window} by \path{two-layer-chronological-window}. Sealing cost is therefore identified with the size of the active basis interface, while resolved coherence data disappear as derivations but remain present in the public signature as trace fields. In the cubical case, the marginal higher-arity data are horn extensions rather than closed-sphere fillers; \path{structural-stabilizes-at-two} and \path{cubical-coherence-depth-exactly-two} make that upper statement exact, \autoref{thm:higher-elim} turns it into the statement that primitive arity-$3$ fields disappear from $\mu$-minimal public signatures, and \path{primitive-obligations-factor-through-last-two} gives the recent-history factorization underlying the two-layer window. The explicit swap obstruction and the clutching family supply exact lower-bound witnesses. Under constant payload size \path{universal-affine-recurrence}, read through \autoref{cor:mu-delta}, specializes to the affine depth-two law and \path{Delta-bootstrap} gives the shifted Fibonacci corollary.
 

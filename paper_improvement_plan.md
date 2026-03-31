@@ -33,16 +33,15 @@ This is the safest high-ambition end-state:
 
 The minimum safe submission path is:
 
-1. Split the invariant or prove a decomposition theorem connecting the two notions.
-2. Make the basis layer canonical or explicitly prove basis existence and canonical bijection.
-3. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
-4. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
+1. Make the basis layer canonical or explicitly prove basis existence and canonical bijection.
+2. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
+3. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
 
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
 ## Execution order
 
-1. Invariant split and basis repair.
+1. Basis repair.
 2. Export-completeness and bridge-replacement proofs.
 3. Add the remaining source-justification scaffolding.
 4. Optional ambitious generalizations.
@@ -53,19 +52,7 @@ Treat everything in "Ambitious research goals" as optional unless it can be comp
 
 Goal: make exact obligation stabilization and minimal-signature elimination impossible to confuse.
 
-Task 1.1. Split the invariant.
-
-- Recommended move:
-  - rename current Definition 4.2 to `obligation depth` `d_obl`;
-  - add `minimal-signature depth` `d_mu`.
-- Suggested definition of `d_mu`:
-  - the least `d` such that every admissible declaration is presentation-equivalent to one whose canonical normalized public signature contains no primitive historical trace field of arity greater than `d`.
-- Required companion remark:
-  - `d_mu` does not by itself yield a chronological window; that still requires recent-history factorization.
-- Done when:
-  - the recurrence theorem and abstract 2D wrapper say exactly which depth notion they use.
-
-Task 1.2. Decide whether to reconnect the two depths.
+Task 1.1. Decide whether to reconnect the two depths.
 
 - Safe default:
   - keep `d_obl` and `d_mu` separate in the abstract theory.
@@ -77,7 +64,7 @@ Task 1.2. Decide whether to reconnect the two depths.
 - Done when:
   - the paper either has two clearly separated invariants or a fully proved theorem relating them.
 
-Task 1.3. Move the abstract recurrence theorem onto the weaker notion unless the stronger bridge is proved.
+Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the stronger bridge is proved.
 
 - Best safe formulation:
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
@@ -336,12 +323,11 @@ Do not cite any of these sources for a stronger theorem than they actually give.
 
 ### Core definition and theorem edits
 
-1. Add `d_obl` / `d_mu` split, or prove a theorem relating them.
-2. Replace or justify the basis definition.
-3. Add factorization-complete trace basis theorem.
-4. Add computational replacement bridge theorem.
-5. Rework `thm:higher-elim` around the new bridge theorem.
-6. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
+1. Replace or justify the basis definition.
+2. Add factorization-complete trace basis theorem.
+3. Add computational replacement bridge theorem.
+4. Rework `thm:higher-elim` around the new bridge theorem.
+5. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
 
 ### Mechanization alignment edits
 
@@ -422,10 +408,9 @@ Why this matters:
 
 Do not submit until all of the following are true:
 
-1. The paper no longer conflates exact obligation stabilization with minimal-signature elimination.
-2. The basis layer is canonical or explicitly proved choice-invariant.
-3. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
-4. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
+1. The basis layer is canonical or explicitly proved choice-invariant.
+2. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
+3. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
 
 ## Final verification checklist
 
