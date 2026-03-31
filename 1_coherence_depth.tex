@@ -489,6 +489,31 @@ If $e \approx e'$, then $N(e)$ and $N(e')$ are canonically isomorphic, and their
 Presentation equivalence identifies elaborated sealed extensions whenever they induce the same public typing judgment up to definitional equality, canonical telescope isomorphism, and transparent internal normalization. The counting normal form forgets exactly those presentation differences and nothing more, so $N(e)$ and $N(e')$ are canonically isomorphic. By \autoref{thm:adequacy}, the payload/trace decomposition is part of the sealed typing judgment itself, so the trace subfamilies correspond under that isomorphism. By \autoref{prop:irreducible-necessary}, no presentation-equivalent declaration can remove an irreducible trace field from the normalized public signature unless that field was already transparently reconstructible. Hence every representative of the class has the same canonical irreducible trace cardinality, so the minimum in \autoref{def:mu} is attained by $N_{\mathrm{tr}}(e)$ itself and equals~$|N_{\mathrm{tr}}(e)|$.
 \end{proof}
 
+\begin{thm}[Computational replacement preserves canonical presentation]
+\label{thm:computational-replacement}
+Let $e$ be an admissible surface extension over~$\B_n$, and let $\phi$ be a primitive historical trace clause in the elaborated sealed export of~$e$. Suppose there is a lower-arity boundary subfamily $\partial_\phi$ already exported by the remaining trace clauses and a cubically synthesized term
+\[
+  t_\phi(\partial_\phi),
+\]
+built only from $\hcomp$, $\transp$, $\mathsf{hfill}$, definitional equality, and the transparent structural operations already quotiented by counting normalization, such that the clause witnessing~$\phi$ is definitionally equal in the sealed typing judgment to~$t_\phi(\partial_\phi)$. Let $e[\phi \rightsquigarrow t_\phi]$ be the declaration obtained by replacing that primitive clause by the synthesized term before sealing. Then:
+\begin{enumerate}
+  \item $e[\phi \rightsquigarrow t_\phi] \approx e$;
+  \item in the canonical normalized trace signature of the resulting presentation-equivalence class, the field corresponding to~$\phi$ is transparently derived from the remaining boundary data and therefore absent as an irreducible primitive trace field;
+  \item every other irreducible payload or trace field corresponds canonically to one from~$N(e)$, so the replacement introduces no new irreducible public fields.
+\end{enumerate}
+\end{thm}
+
+\begin{proof}
+By hypothesis, replacing the primitive clause for~$\phi$ by $t_\phi(\partial_\phi)$ changes the elaborated sealed declaration only by definitional equality and transparent internal normalization inside the same public typing judgment. Therefore $e[\phi \rightsquigarrow t_\phi] \approx e$ by \autoref{def:mu}. Because the replacement term is built only from lower-arity boundary data and the transparent cubical operations already quotiented by \autoref{def:atomic-schema}, the corresponding field is no longer primitively inhabited: it is uniformly reconstructed from the remaining exported trace data.
+
+Now apply \autoref{thm:adequacy}. Counting normalization introduces no new primitive public datum, and it discards fields that have become transparently synthesized from earlier ones. Hence the field corresponding to~$\phi$ does not survive as an irreducible element of the canonical normalized trace signature of the presentation-equivalence class. Every other irreducible payload or trace field belongs to the same sealed typing judgment and therefore corresponds canonically under \autoref{prop:canonical-presentation}. Thus the only effect of the replacement is to move~$\phi$ from primitive syntax into transparent derivation, with no new irreducible public field introduced elsewhere.
+\end{proof}
+
+\begin{rem}[Status of the replacement bridge]
+\label{rem:replacement-bridge}
+\autoref{thm:computational-replacement} is presently the main remaining paper-level bridge lemma. The Agda development formalizes the horn-extension fiber and its canonical cubical inhabitant, but not yet the passage from that synthesized witness to a theorem about surface declarations, presentation equivalence, and elimination from canonical normalized public signatures.
+\end{rem}
+
 \begin{cor}[Minimal opaque cost agrees with abstract coherence cost]
 \label{cor:mu-delta}
 For every admissible surface extension declaration~$e$ over~$\B_n$,
@@ -569,7 +594,7 @@ hidden sealing derivation. This is exactly factorization completeness.
 
 \begin{rem}[Syntactic scope of the bridge]
 \label{rem:bridge-to-counting}
-The results of \autoref{thm:elaboration}, \autoref{thm:adequacy}, \autoref{prop:irreducible-necessary}, and \autoref{prop:canonical-presentation} are syntactic bridge theorems: they speak only about elaboration, sealing, opacity, counting normalization, and the presentation-equivalence relation of \autoref{def:mu}. They justify that $N(e)$ and $\mu(e)$ are invariants of explicit extension declarations over the fixed cubical core~$C$.
+The results of \autoref{thm:elaboration}, \autoref{thm:adequacy}, \autoref{prop:irreducible-necessary}, \autoref{prop:canonical-presentation}, and \autoref{thm:computational-replacement} are syntactic bridge theorems: they speak only about elaboration, sealing, opacity, counting normalization, and the presentation-equivalence relation of \autoref{def:mu}. They justify that $N(e)$ and $\mu(e)$ are invariants of explicit extension declarations over the fixed cubical core~$C$.
 
 By contrast, \autoref{thm:canonicity}, \autoref{thm:trace}, and the later depth and recurrence theorems are metatheorems of the abstract candidate-and-obligation calculus. Their application to surface syntax passes through the adequacy theorem above: once an admissible declaration has been elaborated and normalized, those later counts are read off from the resulting normalized public signature. Throughout the rest of the paper we keep the definitions of $N(e)$ and~$\mu(e)$ from \autoref{def:elaboration} and \autoref{def:mu} unchanged; all later minimality statements are therefore relative to this fixed presentation-equivalence relation.
 \end{rem}
@@ -765,9 +790,9 @@ whose normalized trace signature $N_{\mathrm{tr}}(e')$ contains no irreducible h
 \end{thm}
 
 \begin{proof}
-Let $\phi$ be a historical trace field of arity $k \geq 3$ appearing in $N_{\mathrm{tr}}(e)$. By \autoref{thm:adequacy}, $\phi$ corresponds to a visible resolved obligation in the public signature of~$e$. By \autoref{lem:horn-reduction}, the additional datum contributed by that arity-$k$ step is a horn-extension fiber $H_k(\partial)$ over a boundary~$\partial$ already exported by lower-arity trace fields. Cubical Kan structure computes a canonical inhabitant of that fiber from the boundary alone: $\hcomp$ synthesizes the missing remote face, $\transp$ aligns the comparison along the relevant boundary transport, and $\mathsf{hfill}$ packages the resulting higher filler.
+Fix any surface presentation of~$e$ and any primitive historical trace clause~$\phi$ of arity $k \geq 3$ occurring in its elaborated sealed export. By \autoref{thm:elaboration}, this clause is part of the public typing judgment before counting normalization, and by \autoref{thm:adequacy} any irreducible contribution it makes would have to survive in the canonical normalized trace signature. By \autoref{lem:horn-reduction}, the additional datum contributed by that arity-$k$ step is a horn-extension fiber $H_k(\partial)$ over a boundary~$\partial$ already exported by lower-arity trace fields. Cubical Kan structure computes a canonical witness of that fiber from the boundary alone: $\hcomp$ synthesizes the missing remote face, $\transp$ aligns the comparison along the relevant boundary transport, and $\mathsf{hfill}$ packages the resulting higher filler.
 
-Replace the primitive witness for~$\phi$ by that synthesized term internally before sealing. The resulting declaration is presentation-equivalent to~$e$, because presentation equivalence already identifies elaborated declarations that differ only by definitional equality, canonical telescope isomorphism, or transparent internal normalization. The public typing judgment is unchanged, but the corresponding trace field is no longer irreducible: it is definitionally reconstructed from lower-arity boundary data and therefore disappears from the canonical normalized trace signature. Since the public trace signature is finite, iterating this elimination over all fields of historical arity at least~$3$ yields a presentation-equivalent declaration~$e'$ with no such irreducible fields. By \autoref{prop:canonical-presentation}, $\mu(e)$ is computed exactly on that canonical trace signature, so no field of arity at least~$3$ contributes to minimal opaque cost.
+Apply \autoref{thm:computational-replacement} to replace the primitive clause~$\phi$ by that synthesized witness before sealing. The theorem shows that this changes only the source presentation: in the canonical normalized trace signature of the presentation-equivalence class, the field corresponding to~$\phi$ is transparently derived from lower-arity boundary data and contributes no irreducible primitive trace schema. Since any surface declaration contains only finitely many primitive clauses of arity at least~$3$, iterating this replacement yields a presentation-equivalent declaration~$e'$ with no such primitive clauses left. By \autoref{prop:canonical-presentation}, the same canonical normalized trace signature is attached to every representative of that class, so it contains no irreducible historical field of arity~$k \geq 3$. That is exactly the stated elimination claim, and it is on that canonical signature that~$\mu(e)$ is computed.
 \end{proof}
 
 \begin{cor}
@@ -809,7 +834,7 @@ Now let $k>3$. By \autoref{lem:horn-reduction}, passing from depth $k-1$ to dept
 \[
   \Ocal^{(k)}(X) \simeq \Ocal^{(k-1)}(X)
 \]
-for every $k \geq 3$, and iterating yields $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$. Separately, \autoref{thm:higher-elim} gives the surface-syntactic corollary that any arity-$k \geq 3$ trace witness is definitional shadow of lower-arity boundary data and therefore disappears from a $\mu$-minimal public presentation.
+for every $k \geq 3$, and iterating yields $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)$ for all $k \geq 2$. Separately, \autoref{lem:horn-reduction} together with \autoref{thm:computational-replacement} yields the surface-syntactic corollary recorded in \autoref{thm:higher-elim}: any arity-$k \geq 3$ trace witness is definitional shadow of lower-arity boundary data and therefore disappears from a $\mu$-minimal public presentation.
 \end{proof}
 
 \begin{thm}[Recent-history factorization]
@@ -1211,7 +1236,7 @@ Cubical type theory realizes Property~(2) by Kan composition together with recen
 
 \subsection{Mechanizing the theorem package}
 
-The formalization is organized around the fixed extension calculus of \autoref{sec:framework}, its depth theorems, the induced recurrence law, and the clutching construction. \autoref{tab:mechanization-status} first makes the trusted boundary local. Here \emph{fully formalized} means that the paper's statement is realized directly in the cited Agda modules; \emph{formalized abstractly, read through bridge} means that the Agda development proves the structural theorem and the paper reads it through the normalization and canonical-presentation results of \autoref{sec:bridge}; and \emph{paper-level only} marks the bridge layer itself. The itemized map after the table then records the exact paper-to-Agda theorem correspondence.
+The formalization is organized around the fixed extension calculus of \autoref{sec:framework}, its depth theorems, the induced recurrence law, and the clutching construction. \autoref{tab:mechanization-status} first makes the trusted boundary local. Here \emph{fully formalized} means that the paper's statement is realized directly in the cited Agda modules; \emph{formalized abstractly, read through bridge} means that the Agda development proves the structural theorem and the paper reads it through the normalization and canonical-presentation results of \autoref{sec:bridge}; and \emph{paper-level only} marks the bridge layer itself. In particular, \autoref{thm:computational-replacement} is the main remaining paper-level bridge lemma: the Agda development proves the cubical synthesis of the replacement witness, but not yet its passage through presentation equivalence and counting normalization. The itemized map after the table then records the exact paper-to-Agda theorem correspondence.
 
 \begin{table}[t]
 \centering
@@ -1223,6 +1248,7 @@ The formalization is organized around the fixed extension calculus of \autoref{s
 Paper result & Formal status & Agda module(s) & Bridge? \\
 \midrule
 \autoref{sec:bridge} normalization package & paper-level only & none & n/a \\
+\autoref{thm:computational-replacement} & paper-level only & none & n/a \\
 \autoref{prop:transparent} & fully formalized & \path{Metatheory/InterfaceCalculus.agda} & no \\
 \autoref{thm:basis-choice} & paper-level only & none & n/a \\
 \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{cor:mu-delta} & formalized abstractly, read through bridge & \path{Metatheory/CanonicityDensity.agda}, \path{Metatheory/TracePrinciple.agda}, \path{Metatheory/InterfaceCalculus.agda} & yes \\
@@ -1247,8 +1273,9 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \item \autoref{lem:arity-dimension} corresponds exactly to \path{Metatheory/Obligations.agda} via \path{historical-arity-forces-cell-dimension} and \path{irreducible-obligation-requires-cell}.
 \item \autoref{thm:extensional} corresponds exactly to \path{Metatheory/Extensional.agda} via \path{UIP-forces-depth-1} and \path{history-truncates-to-one}.
 \item \autoref{lem:horn-reduction} corresponds exactly to \path{Metatheory/KanSubsumption.agda} via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, and \path{remote-layer-obligation-derived}.
+\item \autoref{thm:computational-replacement} is presently paper-level only. It packages the bridge claim that replacing a primitive higher-arity trace clause by the cubically synthesized witness preserves presentation equivalence and removes that clause from irreducible canonical normalized public form. The current Agda development proves the synthesis side via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, and \path{remote-layer-obligation-derived}, but not yet that normalization-and-presentation theorem itself.
 \item \autoref{thm:factorization-complete} is the paper's bridge-level export theorem: \path{TelescopicSubsumptionView} in \path{Metatheory/KanSubsumption.agda} packages the recent boundary together with the iterated trace chain, while \path{primitive-obligations-factor-through-last-two} in \path{Metatheory/ChronologicalWindow.agda} records that primitive support factors through the last two layers. The paper theorem uses \autoref{thm:trace}, \autoref{thm:adequacy}, and \autoref{prop:canonical-presentation} to read that formal package as an explicit normalized exported trace basis.
-\item \autoref{thm:higher-elim} is the paper's syntactic corollary of \path{Metatheory/KanSubsumption.agda} and \path{Metatheory/UpperBound.agda}: the Agda development formalizes the horn-extension fiber, its canonical inhabitant, and stabilization at depth~$2$ via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, \path{remote-layer-obligation-derived}, \path{structural-obligation-set-equivalence}, and \path{structural-stabilizes-at-two}; the elimination of primitive arity-$3$ fields from $\mu$-minimal public signatures is obtained in the paper by combining those results with the bridge normalization theorems of \autoref{sec:bridge}.
+\item \autoref{thm:higher-elim} is the paper's syntactic corollary of \path{Metatheory/KanSubsumption.agda} and \path{Metatheory/UpperBound.agda}: the Agda development formalizes the horn-extension fiber, its canonical inhabitant, and stabilization at depth~$2$ via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, \path{remote-layer-obligation-derived}, \path{structural-obligation-set-equivalence}, and \path{structural-stabilizes-at-two}; the elimination of primitive arity-$3$ fields from $\mu$-minimal public signatures is obtained in the paper by combining those results with \autoref{thm:computational-replacement} and the rest of the bridge normalization theorems of \autoref{sec:bridge}.
 \item \autoref{lem:telescopic} corresponds exactly to \path{Metatheory/KanSubsumption.agda} via \path{TelescopicSubsumptionView}, \path{telescopic-subsumption}, and \path{telescopic-remote-comparison-derived}; its reading as recent-history factorization through normalized public signatures is again the paper's bridge-level interpretation of that formal trace chain.
 \item \autoref{thm:upper} corresponds exactly to \path{Metatheory/UpperBound.agda} via \path{structural-obligation-set-equivalence} and \path{structural-stabilizes-at-two}.
 \item \autoref{cor:chrono-window} corresponds exactly to \path{Metatheory/ChronologicalWindow.agda} via \path{primitive-obligations-factor-through-last-two}, \path{two-layer-chronological-window}, and \path{chronological-markov-blanket}.

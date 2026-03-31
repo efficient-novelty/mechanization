@@ -31,17 +31,12 @@ This is the safest high-ambition end-state:
 
 ## If time is tight
 
-The minimum safe submission path is:
-
-1. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
-
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
 ## Execution order
 
-1. Bridge-replacement proof.
-2. Add the remaining source-justification scaffolding.
-3. Optional ambitious generalizations.
+1. Add the remaining source-justification scaffolding.
+2. Optional ambitious generalizations.
 
 ## Detailed task map by reviewer objection
 
@@ -66,54 +61,6 @@ Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the
 - Best safe formulation:
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
 - Only keep exact-depth rhetoric in the abstract wrapper if exact stabilization is explicitly one of the hypotheses.
-
-### 5. Upgrade the eliminability argument from "contractible fiber" to a judgmental/presentation theorem
-
-Goal: prove that cubically synthesized witnesses can actually replace primitive fields in the extension language without leaving residue in canonical normalized public form.
-
-Task 5.1. Add an explicit bridge theorem near `thm:adequacy` / `prop:canonical-presentation`.
-
-- Statement template:
-  - if a public trace field is definitionally synthesized from lower-arity boundary data by the ambient cubical operations, then replacing the primitive clause by the synthesized term preserves the sealed public typing judgment up to presentation equivalence, and the field disappears from the canonical normalized trace signature.
-- Possible theorem names:
-  - `thm:computational-replacement`;
-  - `prop:kan-synthesis-preserves-presentation`;
-  - `cor:derived-fields-drop-from-normal-form`.
-
-Task 5.2. Prove the ingredients separately if needed.
-
-- Replacement/substitution preserves elaborated well-typed sealed export.
-- Presentation equivalence respects that replacement.
-- Counting normalization removes fields that are transparently reconstructible from the remaining boundary data.
-- No new irreducible public fields are introduced by the replacement.
-
-Task 5.3. Rewrite `thm:higher-elim`.
-
-- Required proof shape:
-  - horn reduction;
-  - cubical synthesis of the missing face/filler;
-  - computational replacement theorem;
-  - canonical normalized presentation.
-- Explicitly avoid the jump:
-  - "the fiber is contractible, therefore the field disappears from `N_tr(e)`".
-
-Task 5.4. Decide whether the bridge theorem can be mechanized now.
-
-- If yes:
-  - put it on the high-priority formalization queue.
-- If no:
-  - identify it as the main remaining paper-level bridge lemma and state that openly.
-
-Touchpoints:
-
-- `agda/Metatheory/KanSubsumption.agda`;
-- `agda/Metatheory/UpperBound.agda`;
-- `agda/Metatheory/InterfaceCalculus.agda`;
-- bridge theorems in `sec:bridge`.
-
-Done when:
-
-- the eliminability claim is a theorem about the extension language, not merely an existence statement in homotopy semantics.
 
 ### 6. Recast the HoTT discussion so it is unassailable
 
@@ -241,9 +188,7 @@ Do not cite any of these sources for a stronger theorem than they actually give.
 
 ### Core definition and theorem edits
 
-1. Add computational replacement bridge theorem.
-2. Rework `thm:higher-elim` around the new bridge theorem.
-3. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
+1. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
 
 ### Mechanization alignment edits
 
@@ -317,12 +262,6 @@ Target:
 Why this matters:
 
 - it would push the paper toward the broadest defensible generalization.
-
-## Submission gate
-
-Do not submit until all of the following are true:
-
-1. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
 
 ## Final verification checklist
 
