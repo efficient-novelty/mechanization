@@ -54,9 +54,22 @@ data PrimitiveCost : Type where
   derived           : PrimitiveCost
   requiresPrimitive : PrimitiveCost
 
+data PrimitiveCostWitness : Type where
+  primitiveWitness : PrimitiveCostWitness
+
 costOf : PrimitiveCost → ℕ
 costOf derived = zero
 costOf requiresPrimitive = suc zero
+
+PrimitiveCost-code : PrimitiveCost → Type
+PrimitiveCost-code derived = PrimitiveCostWitness
+PrimitiveCost-code requiresPrimitive = ⊥
+
+derived≠requiresPrimitive : derived ≡ requiresPrimitive → ⊥
+derived≠requiresPrimitive p = subst PrimitiveCost-code p primitiveWitness
+
+requiresPrimitive≠derived : requiresPrimitive ≡ derived → ⊥
+requiresPrimitive≠derived p = derived≠requiresPrimitive (sym p)
 
 data Positive : ℕ → Type where
   positive : (n : ℕ) → Positive (suc n)
@@ -143,6 +156,27 @@ record HasCoherenceDepth {ℓC ℓO : Level}
   field
     stabilizesAt : StabilizesAt L d
     leastDepth   : (d' : ℕ) → d' < d → Not (StabilizesAt L d')
+
+record PrimitiveEliminatesAbove {ℓC ℓO : Level}
+  (L : ObligationLanguage ℓC ℓO) (d : ℕ) : Type (ℓ-max ℓC ℓO) where
+  open ObligationLanguage L renaming
+    ( Candidate to CandidateL
+    ; O to OL
+    ; primitiveCost to primitiveCostL
+    )
+
+  field
+    eliminate :
+      (X : CandidateL) (offset : ℕ) →
+      (o : OL X (d + suc offset)) →
+      primitiveCostL o ≡ derived
+
+record HasPrimitiveDepth {ℓC ℓO : Level}
+  (L : ObligationLanguage ℓC ℓO) (d : ℕ) : Type (ℓ-max ℓC ℓO) where
+  field
+    eliminatesAbove     : PrimitiveEliminatesAbove L d
+    leastPrimitiveDepth :
+      (d' : ℕ) → d' < d → Not (PrimitiveEliminatesAbove L d')
 
 -- A support factors through the recent w layers when every referenced layer in
 -- a deeper history is already the image of one of those w recent positions.

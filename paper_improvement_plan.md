@@ -51,16 +51,6 @@ Why this matters:
 
 - it would remove the main remaining paper-level trust boundary.
 
-### C. Refactor the abstract Agda layer to distinguish exact depth from minimal-signature depth
-
-Target:
-
-- add a weaker abstract interface for `2D foundations` that speaks directly about primitive-cost elimination and chronological windows, not only about exact `StabilizesAt`.
-
-Why this matters:
-
-- it would make the generalization layer stronger and more widely applicable, while still remaining formalized.
-
 ### D. Build a real 2LTT instantiation
 
 Target:

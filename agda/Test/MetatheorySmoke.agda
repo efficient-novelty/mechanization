@@ -14,6 +14,8 @@ positive-arity-surface = Positive
 coherence-cell-shape-surface = CoherenceCellShape
 arity-dimension-theorem = historical-arity-forces-cell-dimension
 obligation-arity-theorem = irreducible-obligation-requires-cell
+primitive-elimination-surface = PrimitiveEliminatesAbove
+primitive-depth-surface = HasPrimitiveDepth
 coherence-depth-surface = HasCoherenceDepth
 chronological-window-surface = HasChronologicalWindowSize
 library-state-surface = LibraryState
@@ -56,9 +58,12 @@ counted-historical-layer-surface = CountedHistoricalLayer
 historical-window-surface = HistoricalWindow
 historical-interface-counting-available =
   historical-interface-counting-normal-form
+windowed-recurrence-context-surface = WindowedRecurrenceContext
 chronological-recurrence-context-surface = ChronologicalRecurrenceContext
 universal-recurrence-package-surface = UniversalAffineRecurrence
 universal-recurrence-theorem-available = universal-affine-recurrence
+universal-recurrence-from-coherence-available =
+  universal-affine-recurrence-from-coherence
 
 extensional-available = history-truncates-to-one
 
@@ -86,10 +91,15 @@ exact-depth-theorem-available = cubical-coherence-depth-exactly-two
 exact-window-theorem-available = cubical-chronological-window-size-exactly-two
 exact-depth-binary-obstruction = cubical-binary-sealing-obstruction
 exact-depth-triangle-corollary = cubical-triangle-identity-corollary
+primitive-two-d-foundation-surface = PrimitiveWindow2DFoundation
+primitive-two-d-law-available = primitive-depth-two-law-for-2d-foundations
 two-d-foundation-surface = FullyCoupled2DFoundation
 two-d-foundation-law-available = depth-two-law-for-2d-foundations
 two-d-foundation-window-available = chronological-window-size-two-for-2d-foundations
 two-d-foundation-payload-law = constant-payload-depth-two-law
+cubical-primitive-two-d-foundation-available = cubical-primitive-window-2d-foundation
+cubical-primitive-two-d-law-available =
+  cubical-primitive-depth-two-law-for-2d-foundations
 cubical-two-d-foundation-available = cubical-2d-foundation
 cubical-two-d-law-available = cubical-depth-two-law-for-2d-foundations
 cubical-two-d-window-available = cubical-chronological-window-size-two-for-2d-foundations

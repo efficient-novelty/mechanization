@@ -79,12 +79,15 @@ open import Metatheory.UniversalRecurrence public
         ; historical-interface-counting-normal-form
         ; window-affine-sum
         ; historical-interface-size-as-affine-sum
+        ; WindowedRecurrenceContext
         ; ChronologicalRecurrenceContext
+        ; windowed-recurrence-context
         ; active-historical-interface
         ; next-integration-latency
         ; recent-layer-affine-sum
         ; UniversalAffineRecurrence
         ; universal-affine-recurrence
+        ; universal-affine-recurrence-from-coherence
         )
 open import Metatheory.Extensional public
 open import Metatheory.KanSubsumption public
@@ -181,11 +184,14 @@ open import Metatheory.AdjunctionBarrier public
 -- Proof: universal-affine-recurrence in Metatheory.UniversalRecurrence
 
 -- THEOREM 11: The abstract depth-two law for fully coupled 2D foundations
--- A witness of genuine binary coherence together with depth-two
--- stabilization/window data forces coherence depth 2, and under constant
--- payload the same package exposes the affine depth-two recurrence whose
--- shifted sequence is Fibonacci.
--- Proof: depth-two-law-for-2d-foundations /
+-- The abstraction now splits explicitly into a weaker primitive/window
+-- package and a separate exact-depth package. The primitive layer tracks
+-- which obligations remain primitive beyond arity 2 and which window their
+-- supports factor through; the exact layer separately records stabilization
+-- at depth 2. Under constant payload the same windowed package exposes the
+-- affine depth-two recurrence whose shifted sequence is Fibonacci.
+-- Proof: primitive-depth-two-law-for-2d-foundations /
+--        depth-two-law-for-2d-foundations /
 --        constant-payload-depth-two-law /
 --        cubical-depth-two-law-for-2d-foundations in
 --        Metatheory.TwoDFoundations

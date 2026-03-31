@@ -88,7 +88,8 @@ Current theorem-facing modules:
 - `Metatheory/Obligations.agda` defines the paper's obligation-language
   surface:
   `HistoricalSupport`, `PrimitiveCost`, `ObligationLanguage`,
-  `StabilizesAt`, `HasCoherenceDepth`, `FactorsThroughWindow`, and
+  `StabilizesAt`, `HasCoherenceDepth`, `PrimitiveEliminatesAbove`,
+  `HasPrimitiveDepth`, `FactorsThroughWindow`, and
   `HasChronologicalWindowSize`.
 - `Metatheory/InterfaceCalculus.agda` now provides the lightweight
   interface-calculus surface for `prop:transparent` via
@@ -122,9 +123,11 @@ Current theorem-facing modules:
   universal affine recurrence `thm:recurrence` via
   `CountedHistoricalLayer`, `HistoricalWindow`, `historical-interface`,
   `historical-interface-counting-normal-form`,
-  `ChronologicalRecurrenceContext`, `UniversalAffineRecurrence`, and
-  `universal-affine-recurrence`, built on the explicit counted sealed-layer
-  surface and the per-layer trace package.
+  `WindowedRecurrenceContext`, `ChronologicalRecurrenceContext`,
+  `UniversalAffineRecurrence`, `universal-affine-recurrence`, and
+  `universal-affine-recurrence-from-coherence`, making explicit that the
+  recurrence law itself uses only the windowed counted-history package while
+  exact depth can still be tracked separately.
 - `Metatheory/Obligations.agda` also now includes the arity-to-dimension
   surface for `lem:arity-dimension`:
   `Positive`, `CoherenceCellShape`,
@@ -175,12 +178,18 @@ Current theorem-facing modules:
   depth-1 collapse via `explicit-binary-sealing-obstruction`,
   `triangle-identity-corollary`, `depth1-insufficient`, and
   `adjunction-barrier`.
-- `Metatheory/TwoDFoundations.agda` packages the exact paper-facing abstract
-  depth-two law `thm:2d-foundations` via
+- `Metatheory/TwoDFoundations.agda` now splits the abstract 2D-foundations
+  layer into a weaker primitive/window package and a separate exact-depth
+  wrapper. The primitive/window side is exposed via
+  `PrimitiveWindow2DFoundation`,
+  `primitive-depth-two-law-for-2d-foundations`,
+  `chronological-window-size-two-for-2d-foundations`, and
+  `cubical-primitive-depth-two-law-for-2d-foundations`; the exact
+  `thm:2d-foundations` wrapper is then exposed via
   `FullyCoupled2DFoundation`,
   `depth-two-law-for-2d-foundations`,
-  `chronological-window-size-two-for-2d-foundations`,
   `constant-payload-depth-two-law`,
+  `cubical-primitive-window-2d-foundation`,
   `cubical-2d-foundation`,
   `cubical-depth-two-law-for-2d-foundations`, and
   `cubical-chronological-window-size-two-for-2d-foundations`.
@@ -258,8 +267,8 @@ If you are trying to orient yourself quickly, start here:
   maximal-density package for `thm:canonicity`
 - `Metatheory/TracePrinciple.agda`: exact trace-principle wrapper for sealed
   exports
-- `Metatheory/UniversalRecurrence.agda`: exact universal recurrence wrapper
-  for the counted historical interface
+- `Metatheory/UniversalRecurrence.agda`: windowed recurrence wrapper for the
+  counted historical interface, plus the exact-depth context that extends it
 - `Metatheory/Extensional.agda`: depth-1 theorem
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
@@ -268,8 +277,9 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/ChronologicalWindow.agda`: exact chronological-window wrapper
 - `Metatheory/ExactDepth.agda`: exact depth-two corollary wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package
-- `Metatheory/TwoDFoundations.agda`: abstract 2D-foundations wrapper and
-  constant-payload affine/Fibonacci consequence
+- `Metatheory/TwoDFoundations.agda`: split abstract 2D-foundations wrappers
+  for primitive/window depth and exact depth, plus the constant-payload
+  affine/Fibonacci consequence
 - `Geometry/Clutching.agda`: exact suspension-sphere clutching family for
   `thm:clutching`
 - `Core/AffineRecurrence.agda`: payload-aware recurrence

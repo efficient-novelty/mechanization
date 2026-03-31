@@ -138,9 +138,24 @@ historical-interface-size-as-affine-sum (H ∷ window) =
   (layer-integration-latency H + layer-core-payload H)
     + window-affine-sum window                                     ∎
 
--- This packages the paper hypothesis "coherence depth d is realized by a
--- chronological window of size d" together with the explicit counted exports
+-- This is the minimal interface needed by the recurrence package itself:
+-- a genuine chronological window together with the explicit counted exports
 -- inhabiting that window at the current stage.
+record WindowedRecurrenceContext
+  {ℓC ℓO ℓI ℓP ℓT : Level}
+  (L : ObligationLanguage ℓC ℓO) (d : Nat) :
+  Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓO) (ℓ-max ℓI (ℓ-max ℓP ℓT)))) where
+  constructor mkWindowedRecurrenceContext
+  field
+    chronologicalWindow :
+      HasChronologicalWindowSize L d
+    recentLayers :
+      HistoricalWindow {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} d
+
+open WindowedRecurrenceContext public
+
+-- Exact depth can still be tracked separately when a later theorem needs it,
+-- but the recurrence law itself only consumes the windowed subpackage above.
 record ChronologicalRecurrenceContext
   {ℓC ℓO ℓI ℓP ℓT : Level}
   (L : ObligationLanguage ℓC ℓO) (d : Nat) :
@@ -149,30 +164,37 @@ record ChronologicalRecurrenceContext
   field
     coherenceDepth :
       HasCoherenceDepth L d
-    chronologicalWindow :
-      HasChronologicalWindowSize L d
-    recentLayers :
-      HistoricalWindow {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} d
+    windowedContext :
+      WindowedRecurrenceContext
+        {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d
 
 open ChronologicalRecurrenceContext public
 
-active-historical-interface :
+windowed-recurrence-context :
   {L : ObligationLanguage ℓC ℓO} {d : Nat} →
   ChronologicalRecurrenceContext
+    {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d →
+  WindowedRecurrenceContext
+    {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d
+windowed-recurrence-context = windowedContext
+
+active-historical-interface :
+  {L : ObligationLanguage ℓC ℓO} {d : Nat} →
+  WindowedRecurrenceContext
     {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d →
   Type (ℓ-max ℓP ℓT)
 active-historical-interface C = historical-interface (recentLayers C)
 
 next-integration-latency :
   {L : ObligationLanguage ℓC ℓO} {d : Nat} →
-  ChronologicalRecurrenceContext
+  WindowedRecurrenceContext
     {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d →
   Nat
 next-integration-latency C = historical-interface-size (recentLayers C)
 
 recent-layer-affine-sum :
   {L : ObligationLanguage ℓC ℓO} {d : Nat} →
-  ChronologicalRecurrenceContext
+  WindowedRecurrenceContext
     {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d →
   Nat
 recent-layer-affine-sum C = window-affine-sum (recentLayers C)
@@ -180,7 +202,7 @@ recent-layer-affine-sum C = window-affine-sum (recentLayers C)
 record UniversalAffineRecurrence
   {ℓC ℓO ℓI ℓP ℓT : Level}
   {L : ObligationLanguage ℓC ℓO} {d : Nat}
-  (C : ChronologicalRecurrenceContext
+  (C : WindowedRecurrenceContext
          {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d) :
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓO) (ℓ-max ℓI (ℓ-max ℓP ℓT)))) where
   field
@@ -194,7 +216,7 @@ open UniversalAffineRecurrence public
 
 universal-affine-recurrence :
   {L : ObligationLanguage ℓC ℓO} {d : Nat} →
-  (C : ChronologicalRecurrenceContext
+  (C : WindowedRecurrenceContext
          {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d) →
   UniversalAffineRecurrence C
 universal-affine-recurrence C = record
@@ -203,3 +225,11 @@ universal-affine-recurrence C = record
   ; integration-latency-step =
       historical-interface-size-as-affine-sum (recentLayers C)
   }
+
+universal-affine-recurrence-from-coherence :
+  {L : ObligationLanguage ℓC ℓO} {d : Nat} →
+  (C : ChronologicalRecurrenceContext
+         {ℓC = ℓC} {ℓO = ℓO} {ℓI = ℓI} {ℓP = ℓP} {ℓT = ℓT} L d) →
+  UniversalAffineRecurrence (windowed-recurrence-context C)
+universal-affine-recurrence-from-coherence C =
+  universal-affine-recurrence (windowed-recurrence-context C)

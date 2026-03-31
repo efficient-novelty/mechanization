@@ -16,9 +16,13 @@ open import Core.AffineRecurrence
 open import Metatheory.Obligations
   using ( Not
         ; ObligationLanguage
+        ; PrimitiveEliminatesAbove
+        ; HasPrimitiveDepth
         ; StabilizesAt
         ; HasCoherenceDepth
         ; HasChronologicalWindowSize
+        ; requiresPrimitive
+        ; requiresPrimitive≠derived
         ; _<_
         ; s≤s
         )
@@ -26,6 +30,7 @@ open import Metatheory.KanSubsumption
   using ( horn-candidate
         ; StructuralObligation
         ; depth2-boundary
+        ; telescopic-remote-comparison-derived
         ; structural-horn-language
         )
 open import Metatheory.ExactDepth
@@ -69,21 +74,65 @@ not-less-than-two-abstract :
   (n : Nat) → Not ((suc (suc n)) < 2)
 not-less-than-two-abstract n (s≤s (s≤s ()))
 
+record PrimitiveWindow2DFoundation {ℓC ℓO : Level}
+  (L : ObligationLanguage ℓC ℓO) : Type (ℓ-max ℓC ℓO) where
+  open ObligationLanguage L
+
+  field
+    primitiveBinaryWitness    : Candidate
+    primitiveBinaryObligation : O primitiveBinaryWitness 2
+    primitiveBinaryCost       :
+      primitiveCost primitiveBinaryObligation ≡ requiresPrimitive
+    eliminatesAboveTwo        : PrimitiveEliminatesAbove L 2
+    twoLayerWindow            : HasChronologicalWindowSize L 2
+
+open PrimitiveWindow2DFoundation public
+
 record FullyCoupled2DFoundation {ℓC ℓO : Level}
   (L : ObligationLanguage ℓC ℓO) : Type (ℓ-max ℓC ℓO) where
   open ObligationLanguage L
 
   field
-    binaryWitness   : Candidate
-    binaryNotUnary  : Not (Iso (O binaryWitness 2) (O binaryWitness 1))
-    stabilizesAtTwo : StabilizesAt L 2
-    twoLayerWindow  : HasChronologicalWindowSize L 2
+    primitiveWindowFoundation : PrimitiveWindow2DFoundation L
+    binaryWitness             : Candidate
+    binaryNotUnary            : Not (Iso (O binaryWitness 2) (O binaryWitness 1))
+    stabilizesAtTwo           : StabilizesAt L 2
 
 open FullyCoupled2DFoundation public
 
 module _ {ℓC ℓO : Level} {L : ObligationLanguage ℓC ℓO} where
 
   open ObligationLanguage L
+
+  no-primitive-depth-one :
+    (F : PrimitiveWindow2DFoundation L) →
+    Not (PrimitiveEliminatesAbove L 1)
+  no-primitive-depth-one F elimination =
+    requiresPrimitive≠derived
+      (sym (primitiveBinaryCost F) ∙
+        PrimitiveEliminatesAbove.eliminate elimination
+          (primitiveBinaryWitness F) zero (primitiveBinaryObligation F))
+
+  no-primitive-depth-zero :
+    (F : PrimitiveWindow2DFoundation L) →
+    Not (PrimitiveEliminatesAbove L 0)
+  no-primitive-depth-zero F elimination =
+    requiresPrimitive≠derived
+      (sym (primitiveBinaryCost F) ∙
+        PrimitiveEliminatesAbove.eliminate elimination
+          (primitiveBinaryWitness F) (suc zero)
+          (primitiveBinaryObligation F))
+
+  primitive-depth-two-law-for-2d-foundations :
+    (F : PrimitiveWindow2DFoundation L) →
+    HasPrimitiveDepth L 2
+  primitive-depth-two-law-for-2d-foundations F = record
+    { eliminatesAbove = eliminatesAboveTwo F
+    ; leastPrimitiveDepth = λ where
+        zero _ → no-primitive-depth-zero F
+        (suc zero) _ → no-primitive-depth-one F
+        (suc (suc d)) lt → λ _ → not-less-than-two-abstract d lt
+    }
 
   no-unary-collapse :
     (F : FullyCoupled2DFoundation L) →
@@ -114,7 +163,7 @@ module _ {ℓC ℓO : Level} {L : ObligationLanguage ℓC ℓO} where
     }
 
   chronological-window-size-two-for-2d-foundations :
-    (F : FullyCoupled2DFoundation L) →
+    (F : PrimitiveWindow2DFoundation L) →
     HasChronologicalWindowSize L 2
   chronological-window-size-two-for-2d-foundations = twoLayerWindow
 
@@ -146,11 +195,35 @@ binary-obligation-set-not-unary :
 binary-obligation-set-not-unary u u0 α =
   no-structural-obligation-at-one (Iso.fun α depth2-boundary)
 
+structural-primitive-eliminates-above-two :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  PrimitiveEliminatesAbove (structural-horn-language u u0) 2
+structural-primitive-eliminates-above-two u u0 = record
+  { eliminate = λ where
+      horn-candidate offset o →
+        telescopic-remote-comparison-derived u u0 offset o
+  }
+
 cubical-binary-coherence-source : ExplicitBinarySealingObstruction
 cubical-binary-coherence-source = cubical-binary-sealing-obstruction
 
 cubical-triangle-coherence-source : TriangleIdentityCorollary
 cubical-triangle-coherence-source = cubical-triangle-identity-corollary
+
+cubical-primitive-window-2d-foundation :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  PrimitiveWindow2DFoundation (structural-horn-language u u0)
+cubical-primitive-window-2d-foundation u u0 = record
+  { primitiveBinaryWitness = horn-candidate
+  ; primitiveBinaryObligation = depth2-boundary
+  ; primitiveBinaryCost = refl
+  ; eliminatesAboveTwo = structural-primitive-eliminates-above-two u u0
+  ; twoLayerWindow = structural-chronological-window-size-exactly-two u u0
+  }
 
 cubical-2d-foundation :
   {ℓ : Level} {A : Type ℓ} {φ : I} →
@@ -158,13 +231,23 @@ cubical-2d-foundation :
   (u0 : A [ φ ↦ u i0 ]) →
   FullyCoupled2DFoundation (structural-horn-language u u0)
 cubical-2d-foundation u u0 = record
-  { binaryWitness = horn-candidate
+  { primitiveWindowFoundation =
+      cubical-primitive-window-2d-foundation u u0
+  ; binaryWitness = horn-candidate
   ; binaryNotUnary = binary-obligation-set-not-unary u u0
   ; stabilizesAtTwo =
       HasCoherenceDepth.stabilizesAt
         (structural-coherence-depth-exactly-two u u0)
-  ; twoLayerWindow = structural-chronological-window-size-exactly-two u u0
   }
+
+cubical-primitive-depth-two-law-for-2d-foundations :
+  {ℓ : Level} {A : Type ℓ} {φ : I} →
+  (u : I → Partial φ A) →
+  (u0 : A [ φ ↦ u i0 ]) →
+  HasPrimitiveDepth (structural-horn-language u u0) 2
+cubical-primitive-depth-two-law-for-2d-foundations u u0 =
+  primitive-depth-two-law-for-2d-foundations
+    (cubical-primitive-window-2d-foundation u u0)
 
 cubical-depth-two-law-for-2d-foundations :
   {ℓ : Level} {A : Type ℓ} {φ : I} →
@@ -181,4 +264,4 @@ cubical-chronological-window-size-two-for-2d-foundations :
   HasChronologicalWindowSize (structural-horn-language u u0) 2
 cubical-chronological-window-size-two-for-2d-foundations u u0 =
   chronological-window-size-two-for-2d-foundations
-    (cubical-2d-foundation u u0)
+    (cubical-primitive-window-2d-foundation u u0)
