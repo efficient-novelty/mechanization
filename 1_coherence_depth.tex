@@ -648,7 +648,7 @@ Absent from the obligation set & No normalized obligation type of that kind occu
 \bottomrule
 \end{tabular}
 \end{center}
-Obligation depth~$d_{\mathrm{obl}}$ is a statement about exact normalized obligation types. Minimal-signature depth~$d_\mu$ asks a different question, namely which primitive trace fields survive in canonical normalized public form. A bound on~$d_\mu$ therefore does not by itself produce a chronological window. Accordingly, ``contractible'', ``transparently derived'', ``eliminated from a minimal presentation'', and ``absent'' are never used interchangeably in this paper.
+Obligation depth~$d_{\mathrm{obl}}$ is a statement about exact normalized obligation types. Minimal-signature depth~$d_\mu$ asks a different question, namely which primitive trace fields survive in canonical normalized public form. A bound on~$d_\mu$ therefore does not by itself produce a chronological window. Accordingly, ``contractible'', ``transparently derived'', ``eliminated from a minimal presentation'', and ``absent'' are never used interchangeably in this paper. The schematic separation in \autoref{rem:toy-separation} below is the motivating toy case: a depth-three horn factor remains present in the exact obligation set, is contractible as a type, and contributes no irreducible primitive field to~$\mu$.
 \end{rem}
 
 \begin{defi}[Historical support and arity]
@@ -815,6 +815,18 @@ module _ (L : OldU) (P : Payload) (T : Trace L P) where
 \end{quote}
 
 Read top-to-bottom, \texttt{Payload} is the human-authored new content, while \texttt{Trace} is the compatibility debt forced by sealing against the old universe. The two routes are the two composites from \texttt{El (FlatU (Arr A B))} to \texttt{Flat (El A) -> Flat (El B)}. The marginal depth-$3$ obligation is not the space of fillers for a closed boundary. It is the horn-extension type whose free component is the remote comparison between those composites and whose second component is the $3$-cell certifying compatibility with the displayed boundary. In a cubical presentation this total extension type is canonically trivial: \texttt{hcomp} computes the missing face and \texttt{hfill} packages the accompanying filler. The extra factor is therefore present but contractible, rather than absent.
+
+\begin{rem}[Toy separation of \texorpdfstring{$d_{\mathrm{obl}}$ and $d_\mu$}{d obl and d mu}]
+\label{rem:toy-separation}
+The cubical sketch above isolates the separation direction relevant for this paper. Fix $A,B:U$ and let $\partial(A,B)$ be the lower-arity boundary built from \texttt{flat-El}, \texttt{flat-code-Arr}, and \texttt{flat-Arr}. The exact depth-$3$ obligation over that boundary is
+\[
+  H_3(\partial(A,B))
+  :=
+  \sum_{\rho : \Gamma_{\mathrm{miss}}(\partial(A,B))}
+  \mathsf{Fill}_{\partial(A,B)}(\rho),
+\]
+whose first component is the would-be remote comparison field \texttt{remote-face}. Cubical composition makes $H_3(\partial(A,B))$ canonically contractible, so this higher obligation is still present in $\Ocal^{(3)}(X)$ even though it contributes no new irreducible primitive field to any $\mu$-minimal normalized trace signature. In counting terms, the depth-$3$ step adds an exact contractible horn factor but zero new units to~$\mu$. This is why \autoref{thm:upper} and \autoref{thm:higher-elim} are stated separately: even when the two depth bounds both land at~$2$, they measure different layers of structure.
+\end{rem}
 
 \begin{thm}[Higher-coherence elimination from minimal public signatures]
 \label{thm:higher-elim}
