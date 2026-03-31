@@ -37,20 +37,15 @@ The minimum safe submission path is:
 2. Make the basis layer canonical or explicitly prove basis existence and canonical bijection.
 3. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
 4. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
-5. Downgrade the mechanization claims to the exact trusted boundary.
-6. Remove all theorem-level claims about plain Book HoTT and about arbitrary cubical theories.
-7. Fix the `thm:2d-foundations` witness bug.
 
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
 ## Execution order
 
-1. Claim freeze and theorem statement triage.
-2. Invariant split and basis repair.
-3. Export-completeness and bridge-replacement proofs.
-4. Abstract 2D wrapper rewrite.
-5. Mechanization status rewrite.
-6. Optional ambitious generalizations.
+1. Invariant split and basis repair.
+2. Export-completeness and bridge-replacement proofs.
+3. Add the remaining theorem-status / source-justification scaffolding.
+4. Optional ambitious generalizations.
 
 ## Detailed task map by reviewer objection
 
@@ -58,27 +53,7 @@ Treat everything in "Ambitious research goals" as optional unless it can be comp
 
 Goal: make exact obligation stabilization and minimal-signature elimination impossible to confuse.
 
-Task 1.1. Audit all places where `thm:higher-elim` and `thm:upper` are currently treated as interchangeable.
-
-- Targets:
-  - abstract;
-  - introduction bullet list;
-  - the paragraph after `def:depth`;
-  - `thm:higher-elim`;
-  - `thm:upper`;
-  - `cor:chrono-window`;
-  - `thm:2d-foundations`;
-  - mechanization bullet list;
-  - `rem:mech-scope`;
-  - conclusion.
-- Rewrite rule:
-  - `thm:upper` handles exact `\Ocal`-stabilization;
-  - `thm:higher-elim` handles disappearance from `\mu`-minimal normalized public signatures;
-  - `lem:telescopic` handles chronology.
-- Done when:
-  - no sentence infers exact `\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)` from eliminability in `\mu`-minimal signatures.
-
-Task 1.2. Split the invariant.
+Task 1.1. Split the invariant.
 
 - Recommended move:
   - rename current Definition 4.2 to `obligation depth` `d_obl`;
@@ -90,7 +65,7 @@ Task 1.2. Split the invariant.
 - Done when:
   - the recurrence theorem and abstract 2D wrapper say exactly which depth notion they use.
 
-Task 1.3. Decide whether to reconnect the two depths.
+Task 1.2. Decide whether to reconnect the two depths.
 
 - Safe default:
   - keep `d_obl` and `d_mu` separate in the abstract theory.
@@ -102,7 +77,7 @@ Task 1.3. Decide whether to reconnect the two depths.
 - Done when:
   - the paper either has two clearly separated invariants or a fully proved theorem relating them.
 
-Task 1.4. Move the abstract recurrence theorem onto the weaker notion unless the stronger bridge is proved.
+Task 1.3. Move the abstract recurrence theorem onto the weaker notion unless the stronger bridge is proved.
 
 - Best safe formulation:
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
@@ -191,13 +166,7 @@ Done when:
 
 Goal: align the paper's prose with the actual formal status.
 
-Task 4.1. Rewrite the abstract, introduction, mechanization section, and conclusion so they say exactly this:
-
-- cubical lower and upper metatheory are formalized;
-- the recurrence law is formalized abstractly;
-- the bridge from those results to `\mu`-minimal normalized signatures remains at paper level unless it is separately mechanized.
-
-Task 4.2. Add a theorem-status table.
+Task 4.1. Add a theorem-status table.
 
 - Suggested columns:
   - paper result / label;
@@ -209,20 +178,9 @@ Task 4.2. Add a theorem-status table.
   - `formalized abstractly, read through bridge`;
   - `paper-level only`.
 
-Task 4.3. Rewrite the mechanization bullet list and `rem:mech-scope`.
-
-- Do not say `thm:higher-elim`, `lem:telescopic`, `thm:2d-foundations`, or the `\mu`-based recurrence are formalized simpliciter if their surface-syntactic form still depends on the bridge.
-- Instead say:
-  - the Agda development formalizes the structural horn language / obligation-level theorem;
-  - the paper reads those results through `sec:bridge`.
-
-Task 4.4. Recheck every "main claims are formalized" sentence.
-
-- If a sentence can be read as "the syntactic theorem about minimal opaque cost is fully mechanized", rewrite it.
-
 Done when:
 
-- a hostile reviewer would agree that the mechanization claims are conservative rather than inflated.
+- a hostile reviewer would agree that the mechanization claims are conservative rather than inflated, and the table makes the trusted boundary locally visible.
 
 ### 5. Upgrade the eliminability argument from "contractible fiber" to a judgmental/presentation theorem
 
@@ -276,34 +234,14 @@ Done when:
 
 Goal: remove all theorem-level overclaim about plain Book HoTT.
 
-Task 6.1. Audit the paper for any sentence implying that iterated `J` in plain HoTT gives the same upper-bound mechanism as cubical filling.
-
-Task 6.2. Replace those passages with one of the following, in order of safety.
-
-- preferred:
-  - an explicit open problem;
-- acceptable:
-  - a conjecture;
-- only if actually developed:
-  - a theorem about HoTT embedded in a suitable 2LTT-style extension discipline.
-
-Task 6.3. Add a short explanatory remark near the generalization section.
+Task 6.1. Add a short explanatory remark near the generalization section.
 
 - State that path induction in the HoTT book does not in general collapse loop-indexed families with fixed endpoints to the reflexivity case.
 - Therefore the paper does not claim the cubical upper-bound mechanism for plain Book HoTT.
 
-Task 6.4. Keep 2LTT language narrow unless fully instantiated.
-
-- Safe wording:
-  - `2LTT offers a plausible strictification environment in which an analogue of the depth-two law may be formulated.`
-- Do not write:
-  - `Book HoTT is exactly 2D`;
-  - `2LTT rescues the HoTT theorem`;
-  - or anything equivalent unless a real instance has been built.
-
 Done when:
 
-- the HoTT text reads as ambitious but mathematically cautious.
+- the HoTT text reads as ambitious but mathematically cautious, with the remaining claim marked explicitly as limitation / open problem rather than theorem.
 
 ### 7. Replace "any cubical theory" with explicit sufficient hypotheses
 
@@ -318,9 +256,7 @@ Task 7.1. Write a short hypothesis checklist theorem or remark for cubical-like 
   - a sealing discipline whose normalized exports satisfy the basis and factorization-complete trace theorems;
   - a bridge theorem connecting derived witnesses to elimination from canonical normalized public signatures.
 
-Task 7.2. Rewrite every "any cubical type theory" sentence to refer to this checklist instead.
-
-Task 7.3. Add a short comparison table.
+Task 7.2. Add a short comparison table.
 
 - Suggested rows:
   - chosen CCHM-style cubical core / Cubical Agda variation;
@@ -333,7 +269,7 @@ Task 7.3. Add a short comparison table.
   - bridge to `\mu`;
   - claimed in this paper?
 
-Task 7.4. If time allows, restate the cubical theorem once for an abstract horn-computational foundation interface and instantiate the chosen cubical calculus as the main example.
+Task 7.3. If time allows, restate the cubical theorem once for an abstract horn-computational foundation interface and instantiate the chosen cubical calculus as the main example.
 
 - If this is not completed:
   - keep the chosen CCHM-style cubical core as the only theorem-level cubical instantiation.
@@ -346,40 +282,15 @@ Done when:
 
 Goal: ensure the paper credits the lower and upper bounds to the right mechanisms.
 
-Task 8.1. Rewrite the introduction and conclusion slogans.
-
-- Univalence / swap / clutching support the lower bound `d >= 2`.
-- Cubical Kan computation plus the bridge theorem support the upper bound and eliminability.
-- Recent-history factorization depends on exported trace completeness, not on univalence alone.
-
-Task 8.2. Add a short remark near Theorem B.
+Task 8.1. Add a short remark near Theorem B.
 
 - State plainly:
   - univalence gives the obstruction to collapse below `2`;
   - it does not by itself remove primitive arity-`3` trace fields from minimal signatures.
 
-Task 8.3. Audit the abstract and conclusion for any sentence that moves directly from "types are weak infinity-groupoids" to the upper bound.
-
 Done when:
 
 - no sentence suggests that univalence or weak infinity-groupoid semantics alone yields the upper bound.
-
-### 9. Fix the logical bug in the abstract 2D theorem
-
-Goal: make the lower-bound witness notion internally coherent.
-
-Task 9.1. Change Property `(1)` of `thm:2d-foundations` from `sealed candidate` to `candidate`.
-
-Task 9.2. Recheck the proof and surrounding prose.
-
-- The lower-bound witness should always be a candidate that induces a genuine binary obligation before sealing.
-- Once sealed, the obligation has already been discharged.
-
-Task 9.3. If the theorem is split into exact and `\mu`-minimal versions, ensure each theorem uses the correct witness notion.
-
-Done when:
-
-- `thm:2d-foundations` is internally coherent without any ambiguity about whether the witness still carries obligations.
 
 ## Cross-cutting exposition tasks
 
@@ -442,14 +353,6 @@ Use the cited sources only for the claims they actually support:
 Do not cite any of these sources for a stronger theorem than they actually give.
 
 ## Concrete section-by-section patch list
-
-### Immediate textual edits
-
-1. Fix the theorem statement and proof of `thm:2d-foundations`.
-2. Fix all "sealed candidate" language in lower-bound contexts.
-3. Rewrite mechanization claims in the abstract, introduction, mechanization section, and conclusion.
-4. Remove any "plain HoTT has depth two" wording.
-5. Remove any "any cubical theory" wording.
 
 ### Core definition and theorem edits
 
@@ -544,11 +447,7 @@ Do not submit until all of the following are true:
 2. The basis layer is canonical or explicitly proved choice-invariant.
 3. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
 4. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
-5. The mechanization section clearly says what is formalized and what remains at paper level.
-6. No theorem-level claim remains about plain Book HoTT unless a real proof is supplied.
-7. No theorem-level claim remains about arbitrary cubical theories without an explicit hypothesis checklist.
-8. `thm:2d-foundations` Property `(1)` is fixed and the theorem's hypotheses match the paper's actual proof obligations.
-9. The abstract, introduction, mechanization section, and conclusion all tell the same truth about scope and status.
+5. The theorem-status table makes the formalized / bridge / paper-level boundary explicit.
 
 ## Final verification checklist
 
@@ -564,7 +463,6 @@ Before calling the revision done, run one last audit for these phrases and their
 - `any cubical`
 - `HoTT`
 - `2LTT`
-- `sealed candidate`
 - `formalized`
 
 Every occurrence should now be unambiguous, locally justified, and consistent with the revised theorem architecture.
