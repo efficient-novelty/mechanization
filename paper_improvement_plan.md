@@ -33,18 +33,16 @@ This is the safest high-ambition end-state:
 
 The minimum safe submission path is:
 
-1. Make the basis layer canonical or explicitly prove basis existence and canonical bijection.
-2. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
-3. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
+1. Strengthen the recent-history factorization argument with an explicit exported-structure theorem.
+2. Rewrite the eliminability argument as a judgmental/presentation theorem, not just a contractibility argument.
 
 Treat everything in "Ambitious research goals" as optional unless it can be completed cleanly.
 
 ## Execution order
 
-1. Basis repair.
-2. Export-completeness and bridge-replacement proofs.
-3. Add the remaining source-justification scaffolding.
-4. Optional ambitious generalizations.
+1. Export-completeness and bridge-replacement proofs.
+2. Add the remaining source-justification scaffolding.
+3. Optional ambitious generalizations.
 
 ## Detailed task map by reviewer objection
 
@@ -69,48 +67,6 @@ Task 1.2. Move the abstract recurrence theorem onto the weaker notion unless the
 - Best safe formulation:
   - the abstract `2D foundations` wrapper should be a theorem about `d_mu = 2` plus a two-layer chronological window, not automatically a theorem about exact `d_obl = 2`.
 - Only keep exact-depth rhetoric in the abstract wrapper if exact stabilization is explicitly one of the hypotheses.
-
-### 2. Make the basis layer canonical
-
-Goal: remove dependence on an implicit basis choice from `def:basis-sites`, `thm:coverage`, and `thm:canonicity`.
-
-Task 2.1. Preferred redesign: replace the chosen minimal subset by a canonical quotient notion of basis site.
-
-- Define basis sites as equivalence classes of atomic schemas under the transparent-generation relation already named in `def:basis-sites`.
-- Use chosen representatives only for exposition, not inside theorem statements.
-- This makes cardinality and invariance structural rather than postulated.
-
-Task 2.2. If the subset-based definition is retained, add an explicit theorem immediately after `def:basis-sites`.
-
-- Theorem shape:
-  - every normalized public signature admits a finite basis;
-  - any two bases are canonically bijective.
-- What must be proved:
-  - existence of a finite minimal generating family;
-  - invariance of its cardinality;
-  - compatibility with elaboration and normalization;
-  - stability under presentation equivalence.
-
-Task 2.3. Add bridge corollaries making basis cardinality presentation-invariant.
-
-- Show that `|S_bas(L)|` is independent of presentation-equivalent choices.
-- Show that `|I_{n,bas}^{(k)}|` is well-defined for historical interfaces.
-- Update the proofs of:
-  - `thm:coverage`;
-  - `prop:basis-minimality`;
-  - `thm:canonicity`;
-  - `cor:mu-delta`.
-
-Task 2.4. Check whether the existing Agda basis abstractions can be aligned with the paper's new definition.
-
-- Touchpoints:
-  - `agda/Metatheory/CanonicityDensity.agda`;
-  - `agda/ObligationGraph/Interface.agda`.
-- Only claim a basis theorem as "formalized" if the formal object really matches the new paper definition.
-
-Done when:
-
-- a reviewer cannot say "your recurrence depends on a non-canonical basis choice."
 
 ### 3. Strengthen the exported structure used by recent-history factorization
 
@@ -323,18 +279,16 @@ Do not cite any of these sources for a stronger theorem than they actually give.
 
 ### Core definition and theorem edits
 
-1. Replace or justify the basis definition.
-2. Add factorization-complete trace basis theorem.
-3. Add computational replacement bridge theorem.
-4. Rework `thm:higher-elim` around the new bridge theorem.
-5. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
+1. Add factorization-complete trace basis theorem.
+2. Add computational replacement bridge theorem.
+3. Rework `thm:higher-elim` around the new bridge theorem.
+4. Rework the abstract 2D theorem to use the correct hypotheses and depth notion.
 
 ### Mechanization alignment edits
 
 1. Check `agda/Metatheory/TwoDFoundations.agda` against the paper's revised abstract theorem.
 2. Check `agda/Metatheory/UpperBound.agda` against the paper's exact-depth statements.
 3. Check `agda/Metatheory/KanSubsumption.agda` and `agda/Metatheory/ChronologicalWindow.agda` against the paper's recent-history factorization statement.
-4. Check `agda/Metatheory/CanonicityDensity.agda` against the paper's revised basis theory.
 
 ## Ambitious research goals
 
@@ -408,9 +362,8 @@ Why this matters:
 
 Do not submit until all of the following are true:
 
-1. The basis layer is canonical or explicitly proved choice-invariant.
-2. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
-3. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
+1. `lem:telescopic` cites an explicit factorization-complete export theorem or admissibility axiom.
+2. `thm:higher-elim` is proved via a judgmental/presentation bridge theorem, not by contractibility rhetoric alone.
 
 ## Final verification checklist
 

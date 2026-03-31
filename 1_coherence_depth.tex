@@ -76,7 +76,7 @@ Here ``fully coupled'' refers only to the foundational-core regime just describe
 The paper develops one theorem package with three main components.
 
 \begin{enumerate}
-\item We fix a cubical extension calculus over a chosen CCHM-style core, formalize its states, surface extensions, elaboration, sealed extensions, promoted interface packages, active interfaces, and integration latency, and distinguish orthogonal extensions from globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. The bridge section then proves that elaboration, sealing, and counting normalization turn explicit surface declarations into canonical normalized public signatures, so the abstract counts are theorems about extension syntax over the fixed cubical core. Within this framework we prove a basis-sensitive coverage/minimality theorem for the fully coupled foundational-core regime, a payload-aware \emph{Integration Trace Principle}, and a presentation-invariant minimal opaque cost~$\mu$ measuring the irreducible trace fields that survive in canonical public form.
+\item We fix a cubical extension calculus over a chosen CCHM-style core, formalize its states, surface extensions, elaboration, sealed extensions, promoted interface packages, active interfaces, and integration latency, and distinguish orthogonal extensions from globally acting foundational core extensions. The payload and latency counts are defined on flattened telescope normal forms, so they are invariant under admissible interface refactorings such as rebundling records or splitting one interface into several shells. The bridge section then proves that elaboration, sealing, and counting normalization turn explicit surface declarations into canonical normalized public signatures, so the abstract counts are theorems about extension syntax over the fixed cubical core. Within this framework we prove a basis-family coverage/minimality theorem for the fully coupled foundational-core regime, show that basis cardinality is independent of the chosen minimal generating family, establish a payload-aware \emph{Integration Trace Principle}, and define a presentation-invariant minimal opaque cost~$\mu$ measuring the irreducible trace fields that survive in canonical public form.
     \item We define obligation depth~$d_{\mathrm{obl}}$ for exact stabilization of normalized obligation sets and minimal-signature depth~$d_\mu$ for elimination in $\mu$-minimal normalized public signatures, and we prove the sharp cubical/extensional dichotomy for the exact invariant. In extensional type theory with UIP, the obligation depth is~$1$. In the fixed fully coupled cubical extension calculus, the obligation depth is~$2$, while \autoref{thm:higher-elim} gives the separate bound $d_\mu \leq 2$. The depth-two obligation statement is supported by four complementary ingredients: an exact upper bound on normalized obligation sets showing $\Ocal^{(k)}(X)\simeq\Ocal^{(2)}(X)$ for $k\geq 2$; a separate surface-syntactic corollary showing that primitive historical fields of arity at least~$3$ are eliminated from $\mu$-minimal public signatures by cubical Kan operations; a recent-history factorization theorem showing that every surviving binary clause factors through the previous two normalized signatures; and lower bounds from an explicit swap-induced binary sealing obstruction, read categorically by adjunction coherence, together with a topological exact family supplied by clutching constructions for principal bundles over spheres.
     \item We combine the trace principle with the obligation-depth theorem to obtain a universal affine recurrence for minimal opaque cost. Under constant payload size~$c$, the depth-two cubical case specializes to
     \[
@@ -240,27 +240,77 @@ For $k \geq 1$, the \emph{historical interface of depth~$k$} at stage~$n$ is
 the tagged coproduct of the atomic schemas exported by the most recent $k$ sealed layers in counting normal form.
 \end{defi}
 
-\begin{defi}[Chosen basis of the historical interface]
+\begin{defi}[Basis families of the historical interface]
 \label{def:basis-sites}
-For each sealed layer $L$, fix a finite family
+For each sealed layer $L$, a finite family
 \[
   S_{\mathrm{bas}}(L) \subseteq S(L)
 \]
-of \emph{basis schemas} with the following properties:
+is called a \emph{basis family} if it has the following properties:
 \begin{enumerate}
   \item every field of $S(L)$ is uniformly generated from $S_{\mathrm{bas}}(L)$ by definitional equality, uniform polymorphic instantiation, transport along already exported equalities, or the generic structural operations already quotiented in \autoref{def:atomic-schema};
   \item no proper subfamily of $S_{\mathrm{bas}}(L)$ still has property~(1).
 \end{enumerate}
-For $k \geq 1$, the \emph{historical basis of depth~$k$} at stage~$n$ is
+For $k \geq 1$, once a basis family has been chosen for each of the layers
+$L_n,\dots,L_{n-k+1}$, the associated \emph{historical basis of depth~$k$} at
+stage~$n$ is
 \[
   I_{n,\mathrm{bas}}^{(k)} := \biguplus_{j=0}^{k-1} S_{\mathrm{bas}}(L_{n-j}).
 \]
-Its elements are the \emph{basis sites} on which a globally acting extension is primitively specified. Different valid choices of basis are canonically bijective by the same counting-normalization and refactoring invariance principles used throughout the paper, so only the resulting cardinality matters.
+Its elements are the \emph{basis sites} on which a globally acting extension is
+primitively specified.
 \end{defi}
+
+\begin{thm}[Basis existence and canonical bijection]
+\label{thm:basis-choice}
+For every sealed layer $L$ in counting normal form, basis families in the sense
+of \autoref{def:basis-sites} exist. If $S_{\mathrm{bas}}(L)$ and
+$S'_{\mathrm{bas}}(L)$ are two such basis families, then counting
+normalization identifies a canonical bijection
+\[
+  S_{\mathrm{bas}}(L) \cong S'_{\mathrm{bas}}(L).
+\]
+Consequently the cardinality $|S_{\mathrm{bas}}(L)|$ depends only on the
+canonical normalized public signature of~$L$, and for every depth~$k$ the
+historical basis cardinality $|I_{n,\mathrm{bas}}^{(k)}|$ is independent of the
+chosen basis families and stable under presentation-equivalent replacement of
+the participating layers.
+\end{thm}
+
+\begin{proof}
+Existence is immediate because $S(L)$ itself is finite and generates all of its
+fields. Starting from that finite family and deleting any schema whose removal
+still leaves a generating family produces, after finitely many steps, a minimal
+generating family.
+
+For uniqueness up to canonical bijection, declare two schemas of $S(L)$ to lie
+in the same \emph{transparent-generation class} when each is obtained from the
+other by the operations already quotiented in \autoref{def:atomic-schema}:
+definitional equality, uniform polymorphic instantiation, transport along
+already exported equalities, and generic structural reindexings. Counting
+normalization collapses exactly those operations, so every irreducible field of
+the canonical normalized signature determines one such class. A basis family is
+minimal exactly when it contains one representative of each irreducible class:
+it must contain at least one representative to generate that class at all, and
+it cannot contain two because then one representative would be transparently
+generated from the other, contradicting minimality. Hence any two basis
+families are canonically identified by matching the unique representatives of
+the same normalized irreducible class, yielding the displayed bijection and the
+cardinality invariance. Presentation-equivalent layers have canonically
+isomorphic normalized signatures by \autoref{prop:canonical-presentation}, so
+the same class-by-class identification gives the historical invariance claim.
+\end{proof}
 
 \begin{defi}[Basis coverage and canonical basis minimality]
 \label{def:max-density}
-An admissible foundational core candidate sealed against $I_n^{(k)}$ has \emph{basis coverage} if every basis site of $I_{n,\mathrm{bas}}^{(k)}$ receives at least one primitive interaction datum from the new extension. It is in \emph{canonical basis-minimal form} if, after elaboration and normalization, each basis site contributes at most one irreducible public trace schema. Equivalently, presentation-equivalent duplicate clauses have been eliminated from the normalized public signature.
+An admissible foundational core candidate sealed against $I_n^{(k)}$ has
+\emph{basis coverage} if, for any historical basis
+$I_{n,\mathrm{bas}}^{(k)}$ supplied by \autoref{def:basis-sites}, every basis
+site receives at least one primitive interaction datum from the new extension.
+It is in \emph{canonical basis-minimal form} if, again for any such historical
+basis, after elaboration and normalization each basis site contributes at most
+one irreducible public trace schema. By \autoref{thm:basis-choice}, these
+properties do not depend on which basis family is chosen.
 \end{defi}
 
 \begin{defi}[Fully coupled foundation]
@@ -272,7 +322,16 @@ The next theorem turns basis coverage into a metatheoretic necessity for this gl
 
 \begin{thm}[Global admissibility forces basis coverage]
 \label{thm:coverage}
-Let $\B_n$ be a library state in a fully coupled foundation, let $X$ be an admissible foundational core extension sealed against the historical interface $I_n^{(k)}$, and let $I_{n,\mathrm{bas}}^{(k)}$ be a chosen basis for that interface. If the extended theory is to pass the sealed library's global admissibility discipline, then every basis site of $I_{n,\mathrm{bas}}^{(k)}$ must receive at least one primitive interaction datum from~$X$. For native core extensions this is enforced by canonicity-preserving totality of the operational semantics, while for promoted interface packages it is enforced by operational exhaustiveness of the exported global interface.
+Let $\B_n$ be a library state in a fully coupled foundation, let $X$ be an
+admissible foundational core extension sealed against the historical interface
+$I_n^{(k)}$, and let $I_{n,\mathrm{bas}}^{(k)}$ be any historical basis for
+that interface. If the extended theory is to pass the sealed library's global
+admissibility discipline, then every basis site of
+$I_{n,\mathrm{bas}}^{(k)}$ must receive at least one primitive interaction
+datum from~$X$. For native core extensions this is enforced by
+canonicity-preserving totality of the operational semantics, while for promoted
+interface packages it is enforced by operational exhaustiveness of the exported
+global interface.
 \end{thm}
 
 \begin{proof}
@@ -285,21 +344,34 @@ Next consider a promoted interface package. Such a package need not alter kernel
 
 \begin{prop}[Canonical normalized presentations are basis-minimal]
 \label{prop:basis-minimality}
-Let $e$ be an admissible surface extension declaration over~$\B_n$ whose candidate $X(e)$ is sealed against the historical interface $I_n^{(k)}$. Then the normalized public signature $N(e)$ contains at most one irreducible public trace schema for each basis site of $I_{n,\mathrm{bas}}^{(k)}$. Equivalently, redundant primitive clauses that differ only by transparent polymorphic compression, definitional equality, transport, or generic structural operations are eliminable from the canonical normalized presentation.
+Let $e$ be an admissible surface extension declaration over~$\B_n$ whose
+candidate $X(e)$ is sealed against the historical interface $I_n^{(k)}$, and
+let $I_{n,\mathrm{bas}}^{(k)}$ be any historical basis for that interface.
+Then the normalized public signature $N(e)$ contains at most one irreducible
+public trace schema for each basis site of $I_{n,\mathrm{bas}}^{(k)}$.
+Equivalently, redundant primitive clauses that differ only by transparent
+polymorphic compression, definitional equality, transport, or generic
+structural operations are eliminable from the canonical normalized
+presentation.
 \end{prop}
 
 \begin{proof}
 Suppose two primitive clauses of~$e$ correspond to the same basis site. By construction of \autoref{def:basis-sites}, they induce the same public trace field up to definitional equality, transparent transport, uniform polymorphic instantiation, or the generic structural operations already quotiented by counting normalization. If both survived as distinct irreducible fields in~$N(e)$, then the sealed public signature would contain presentation-equivalent duplicate trace data. But \autoref{thm:adequacy} says that $N(e)$ retains exactly the irreducible visible public fields after normalization, and \autoref{prop:canonical-presentation} identifies a canonical normalized presentation for each presentation-equivalence class. Hence one of the two clauses is redundant and disappears in canonical normalized form. Therefore at most one irreducible trace schema survives per basis site.
 \end{proof}
 
-\begin{thm}[Basis-sensitive density law]
+\begin{thm}[Basis-cardinality density law]
 \label{thm:canonicity}
-Let $\B_n$ be a library state in a fully coupled foundation, let $X$ be an admissible foundational core extension sealed against the historical interface $I_n^{(k)}$, and let $I_{n,\mathrm{bas}}^{(k)}$ be a chosen basis for that interface. Then
+Let $\B_n$ be a library state in a fully coupled foundation, let $X$ be an
+admissible foundational core extension sealed against the historical interface
+$I_n^{(k)}$, and let $I_{n,\mathrm{bas}}^{(k)}$ be any historical basis for
+that interface. Then
 \[
   \Delta(X \mid \B_n) = |I_{n,\mathrm{bas}}^{(k)}|.
 \]
 \noindent
-In particular, sealing cost counts irreducible basis clauses rather than the raw number of exported generators.
+In particular, sealing cost counts irreducible basis clauses rather than the
+raw number of exported generators, and the right-hand side is independent of
+the chosen basis family by \autoref{thm:basis-choice}.
 \end{thm}
 
 \begin{proof}
@@ -423,14 +495,23 @@ For every admissible surface extension declaration~$e$ over~$\B_n$,
 \[
   \mu(e) = \Delta(X(e)\mid\B_n).
 \]
-If $e_k$ is the declaration whose sealing exports~$L_k$, and if $\mu_k := \mu(e_k)$, then
+If $e_k$ is the declaration whose sealing exports~$L_k$, if $\mu_k := \mu(e_k)$,
+and if $S_{\mathrm{bas}}(L_k)$ is any basis family of~$L_k$, then
 \[
   |S_{\mathrm{bas}}(L_k)| = \kappa_k + \mu_k.
 \]
 \end{cor}
 
 \begin{proof}
-By \autoref{thm:adequacy}, the trace part of $N(e)$ records exactly the irreducible public trace schemas arising from resolved obligations of~$X(e)$. By \autoref{prop:canonical-presentation}, $\mu(e)$ is exactly the cardinality of that canonical trace part. By \autoref{thm:canonicity}, there is one and only one irreducible primitive trace schema for each basis site of the active interface, so that cardinality is precisely $\Delta(X(e)\mid\B_n)$. The final formula is then the trace-principle decomposition of \autoref{thm:trace}, rewritten using $\mu_k=\Delta(X(e_k)\mid\B_{k-1})$.
+By \autoref{thm:adequacy}, the trace part of $N(e)$ records exactly the
+irreducible public trace schemas arising from resolved obligations of~$X(e)$.
+By \autoref{prop:canonical-presentation}, $\mu(e)$ is exactly the cardinality
+of that canonical trace part. By \autoref{thm:canonicity}, there is one and
+only one irreducible primitive trace schema for each basis site of the active
+interface, so that cardinality is precisely $\Delta(X(e)\mid\B_n)$. The final
+formula is then the trace-principle decomposition of \autoref{thm:trace},
+rewritten using $\mu_k=\Delta(X(e_k)\mid\B_{k-1})$; its right-hand side is
+well defined for any basis family by \autoref{thm:basis-choice}.
 \end{proof}
 
 \begin{rem}[Syntactic scope of the bridge]
@@ -836,11 +917,11 @@ Let $e_n$ be the admissible surface extension declaration whose sealing exports 
 \[
   \mu_n := \mu(e_n)
 \]
-for its minimal opaque cost, and let $\kappa_n$ be its core payload size. By \autoref{cor:mu-delta}, $\mu_n$ is exactly the abstract sealing cost $\Delta(X(e_n)\mid\B_{n-1})$, but it is phrased on canonical normalized public signatures and is therefore presentation-invariant by construction. The recurrence theorem therefore uses not only the obligation-depth statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has obligation depth~$d_{\mathrm{obl}}$ realized by a chronological window of size~$d_{\mathrm{obl}}$, the primitive active basis interface at stage~$n+1$ is the depth-$d_{\mathrm{obl}}$ historical basis built from the preceding layers:
+for its minimal opaque cost, and let $\kappa_n$ be its core payload size. By \autoref{cor:mu-delta}, $\mu_n$ is exactly the abstract sealing cost $\Delta(X(e_n)\mid\B_{n-1})$, but it is phrased on canonical normalized public signatures and is therefore presentation-invariant by construction. The recurrence theorem therefore uses not only the obligation-depth statement of \autoref{def:depth} but also a theorem identifying a genuine chronological window. In the depth-two cubical univalent case, this is exactly \autoref{cor:chrono-window}; in the UIP case, the proof of \autoref{thm:extensional} shows that all non-unary comparisons collapse to their boundary, so the window is one layer. More generally, whenever a foundation has obligation depth~$d_{\mathrm{obl}}$ realized by a chronological window of size~$d_{\mathrm{obl}}$, any depth-$d_{\mathrm{obl}}$ historical basis of the preceding layers has the form
 \[
   I_{n,\mathrm{bas}}^{(d_{\mathrm{obl}})} = \biguplus_{j=0}^{d_{\mathrm{obl}}-1} S_{\mathrm{bas}}(L_{n-j}).
 \]
-Thus the recurrence counts the chosen irreducible basis of the active interface rather than the raw number of exported generators. For the initial bootstrap stages before the full window has been populated, we adopt the natural convention that nonexistent earlier layers contribute the empty interface.
+By \autoref{thm:basis-choice}, its cardinality is independent of the basis families used to write the coproduct. Thus the recurrence counts the well-defined irreducible basis cardinality of the active interface rather than the raw number of exported generators. For the initial bootstrap stages before the full window has been populated, we adopt the natural convention that nonexistent earlier layers contribute the empty interface.
 
 \subsection{The universal affine recurrence}
 
@@ -1060,6 +1141,7 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \midrule
 \autoref{sec:bridge} normalization package & paper-level only & none & n/a \\
 \autoref{prop:transparent} & fully formalized & \path{Metatheory/InterfaceCalculus.agda} & no \\
+\autoref{thm:basis-choice} & paper-level only & none & n/a \\
 \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{cor:mu-delta} & formalized abstractly, read through bridge & \path{Metatheory/CanonicityDensity.agda}, \path{Metatheory/TracePrinciple.agda}, \path{Metatheory/InterfaceCalculus.agda} & yes \\
 \autoref{lem:arity-dimension}, \autoref{thm:extensional} & fully formalized & \path{Metatheory/Obligations.agda}, \path{Metatheory/Extensional.agda} & no \\
 \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window} & fully formalized & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & no \\
@@ -1075,7 +1157,8 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 {\small
 \begin{itemize}[nosep]
 \item \autoref{prop:transparent} corresponds exactly to \path{Metatheory/InterfaceCalculus.agda} via \path{transparent-growth-keeps-library-state}, \path{transparent-definitions-preserve-active-interface}, \path{transparent-definitions-have-zero-integration-latency}, and \path{transparent-user-level-code-lies-outside-the-recurrence}.
-\item \autoref{thm:canonicity} is the paper's basis-sensitive reformulation of \path{Metatheory/CanonicityDensity.agda} via \path{CanonicityDensityTheorem} and \path{global-admissibility-forces-maximal-interface-density}, combined with the bridge-level normalization and canonical-presentation results of \autoref{sec:bridge}.
+\item \autoref{thm:basis-choice} is a paper-level finiteness and canonical-bijection theorem for subset-valued basis families: it packages counting normalization and \autoref{prop:canonical-presentation} into the claim that every minimal generating family picks one representative from each irreducible transparent-generation class. The Agda development does not separately formalize those subset-valued basis families; instead it takes the counted active interface as primitive.
+\item \autoref{thm:canonicity} is the paper's basis-cardinality reformulation of \path{Metatheory/CanonicityDensity.agda} via \path{CanonicityDensityTheorem} and \path{global-admissibility-forces-maximal-interface-density}, combined with the bridge-level normalization and canonical-presentation results of \autoref{sec:bridge}.
 \item \autoref{thm:trace} corresponds exactly to \path{Metatheory/TracePrinciple.agda} via \path{IntegrationTracePrinciple}, \path{public-counting-normal-form}, and \path{integration-trace-principle}, built on the explicit sealed-layer presentation \path{ExplicitSealedLayer} from \path{Metatheory/InterfaceCalculus.agda}.
 \item \autoref{cor:mu-delta} is the paper's bridge corollary combining \autoref{thm:canonicity}, \autoref{thm:trace}, and the normalization/canonical-presentation results of \autoref{sec:bridge}; the Agda development formalizes the abstract counting theorems, while the passage to the syntactic quantity~$\mu$ is the paper's normalized-signature reading of those results.
 \item \autoref{lem:arity-dimension} corresponds exactly to \path{Metatheory/Obligations.agda} via \path{historical-arity-forces-cell-dimension} and \path{irreducible-obligation-requires-cell}.
@@ -1109,7 +1192,7 @@ Its organizing invariant is that resolved layers are exported through opaque int
 
 This realizes the abstraction barrier promised by \autoref{def:sealed}. In the formalization, \autoref{prop:transparent} is exactly the package \path{transparent-growth-keeps-library-state}, \path{transparent-definitions-preserve-active-interface}, \path{transparent-definitions-have-zero-integration-latency}, and \path{transparent-user-level-code-lies-outside-the-recurrence}. It is the reason historical depth is measured in terms of sealed layers rather than in terms of raw derivation ancestry.
 
-On the counting side, the Agda development makes the modeling discipline explicit. The active primitive interface is represented as the disjoint union of the two most recent schema sets, and the saturation step is stated separately rather than hidden in the syntax of imports. In the paper's current basis-sensitive presentation, recurrence counts the corresponding irreducible basis sites of that interface and then reads that abstract count as minimal opaque cost via \autoref{cor:mu-delta}. The concrete decompositions in \texttt{Saturation/Decomposition.agda} then record, step by step, how the next obligation set splits into contributions from the two most recent sealed layers.
+On the counting side, the Agda development makes the modeling discipline explicit. The active primitive interface is represented as the disjoint union of the two most recent schema sets, and the saturation step is stated separately rather than hidden in the syntax of imports. In the paper's current basis-family presentation, recurrence counts the well-defined common cardinality of any minimal generating family for that interface and then reads that abstract count as minimal opaque cost via \autoref{cor:mu-delta}. The concrete decompositions in \texttt{Saturation/Decomposition.agda} then record, step by step, how the next obligation set splits into contributions from the two most recent sealed layers.
 
 \path{Metatheory/UniversalRecurrence.agda} proves \path{universal-affine-recurrence}, while \path{Core/DepthOneAffine.agda} and \path{Core/AffineRecurrence.agda} package the exact arithmetic specializations \path{depth1-affine-growth}, \path{Delta-depth1-closed}, \path{tau-depth1-closed}, \path{Delta-bootstrap}, \path{U-bootstrap-closed}, and \path{tau-bootstrap-closed}. In particular, \path{Core/AffineRecurrence.agda} extends the payload-free counting law to the payload-aware recurrence
 \[
