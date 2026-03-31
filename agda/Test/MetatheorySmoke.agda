@@ -117,6 +117,14 @@ cubical-primitive-two-d-law-available =
 cubical-two-d-foundation-available = cubical-2d-foundation
 cubical-two-d-law-available = cubical-depth-two-law-for-2d-foundations
 cubical-two-d-window-available = cubical-chronological-window-size-two-for-2d-foundations
+two-level-language-surface = two-level-language
+two-level-primitive-two-d-foundation-available =
+  two-level-primitive-window-2d-foundation
+two-level-primitive-two-d-law-available =
+  two-level-primitive-depth-two-law-for-2d-foundations
+two-level-two-d-foundation-available = two-level-2d-foundation
+two-level-two-d-law-available = two-level-depth-two-law-for-2d-foundations
+two-level-two-d-window-available = two-level-window-size-two-for-2d-foundations
 
 upper-bound-available = history-beyond-two-algorithmically-subsumed
 lower-bound-available = depth1-insufficient

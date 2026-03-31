@@ -111,6 +111,7 @@ open import Metatheory.UpperBound public
 open import Metatheory.ChronologicalWindow public
 open import Metatheory.ExactDepth public
 open import Metatheory.TwoDFoundations public
+open import Metatheory.TwoLTTFoundations public
 open import Metatheory.AdjunctionBarrier public
   using (¬_; Two; left; right; swap; swap-iso; swap-path; swap-path≠refl;
          binary-coherence-nontrivial; depth1-insufficient; const-left;
