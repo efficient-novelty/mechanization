@@ -70,6 +70,11 @@ telescopic-trace-surface = TelescopicTraceChain
 telescopic-view-surface = TelescopicSubsumptionView
 telescopic-lemma-available = telescopic-subsumption
 telescopic-derived-available = telescopic-remote-comparison-derived
+contractible-remote-factor-surface = ContractibleRemoteFactor
+contractible-factorization-available =
+  structural-obligation-contractible-factorization
+contractible-remote-factor-available =
+  contractible-remote-factor-contractible
 upper-bound-equivalence-available = structural-obligation-set-equivalence
 upper-bound-theorem-available = structural-stabilizes-at-two
 one-layer-window-insufficient-available = one-layer-window-insufficient

@@ -41,19 +41,6 @@ Treat everything in "Ambitious research goals" as optional unless it can be comp
 
 These should only enter the paper if they can be completed cleanly.
 
-### A. Prove and mechanize the contractible-factor decomposition
-
-Target:
-
-- prove
-  `\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X) \times C_k(X)`
-  with `C_k(X)` canonically contractible;
-- then explain exactly how normalized obligation quotients identify the extra factor.
-
-Why this matters:
-
-- it would let the paper retain a stronger exact-depth narrative while still being precise about minimal signatures.
-
 ### B. Mechanize the bridge theorem from cubical synthesis to `\mu`-minimal elimination
 
 Target:

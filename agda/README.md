@@ -147,8 +147,12 @@ Current theorem-facing modules:
   `history-beyond-two-algorithmically-subsumed`, and
   `arity3-open-box-hfilled`.
 - `Metatheory/UpperBound.agda` turns that horn-extension package into the
-  exact paper-facing upper bound for `thm:upper` via
-  `structural-obligation-set-equivalence` and
+  exact paper-facing upper bound and contractible-factor decomposition for
+  `thm:upper` and `cor:contractible-factor` via
+  `ContractibleRemoteFactor`,
+  `structural-obligation-contractible-factorization`,
+  `contractible-remote-factor-contractible`,
+  `structural-obligation-set-equivalence`, and
   `structural-stabilizes-at-two`.
 - `Metatheory/ChronologicalWindow.agda` upgrades that upper bound to the
   exact paper-facing chronological-window corollary `cor:chrono-window` via
@@ -196,6 +200,7 @@ What this means in practice:
 
 - the extensional depth-1 collapse is mechanized
 - the exact cubical upper bound `O^(k)(X) ~= O^(2)(X)` is mechanized
+- the exact contractible-factor decomposition above depth 2 is mechanized
 - the lower bound against cubical depth-1 collapse is mechanized
 - the exact horn-reduction surface and its arity-3 computational witness are
   mechanized
@@ -259,7 +264,7 @@ If you are trying to orient yourself quickly, start here:
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
 - `Metatheory/UpperBound.agda`: exact depth-two upper-bound/stabilization
-  wrapper
+  wrapper and contractible-factor decomposition
 - `Metatheory/ChronologicalWindow.agda`: exact chronological-window wrapper
 - `Metatheory/ExactDepth.agda`: exact depth-two corollary wrapper
 - `Metatheory/AdjunctionBarrier.agda`: lower-bound obstruction package

@@ -85,7 +85,7 @@ The paper develops one theorem package with three main components.
     and the shifted sequence $U_n=\mu_n+2c$ is Fibonacci. The associated structural inflation factor still converges to the Golden Ratio.
 \end{enumerate}
 
-The Cubical Agda development described in \autoref{sec:mechanization} formalizes the abstract candidate-and-obligation calculus, the cubical upper/lower metatheory, the recent-history factorization chain, and the abstract recurrence package underlying \autoref{thm:extensional}, \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window}, \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2}, \autoref{thm:2d-foundations}, \autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci}, and \autoref{cor:refactoring}. The surface-syntactic readings of \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence are then obtained in the paper by combining those formal metatheorems with the bridge results of \autoref{sec:bridge}. \autoref{sec:mechanization} records the exact Agda theorem names and the trusted boundary.
+The Cubical Agda development described in \autoref{sec:mechanization} formalizes the abstract candidate-and-obligation calculus, the cubical upper/lower metatheory, the contractible-factor decomposition of higher exact fibers, the recent-history factorization chain, and the abstract recurrence package underlying \autoref{thm:extensional}, \autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:contractible-factor}, \autoref{cor:chrono-window}, \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2}, \autoref{thm:2d-foundations}, \autoref{thm:recurrence}, \autoref{cor:d1}, \autoref{cor:fibonacci}, and \autoref{cor:refactoring}. The surface-syntactic readings of \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic}, and the $\mu$-based recurrence are then obtained in the paper by combining those formal metatheorems with the bridge results of \autoref{sec:bridge}. \autoref{sec:mechanization} records the exact Agda theorem names and the trusted boundary.
 
 \autoref{tab:claim-map} summarizes the dependency architecture that the rest of the paper keeps separate: exact stabilization of obligation sets, elimination from $\mu$-minimal signatures, recent-history factorization, lower-bound binary obstructions, the affine recurrence itself, and the status of each layer in the mechanization.
 
@@ -98,7 +98,7 @@ The Cubical Agda development described in \autoref{sec:mechanization} formalizes
 \toprule
 Claim & Logical role & Main inputs & Status \\
 \midrule
-\autoref{thm:upper} & exact $\Ocal$-stabilization at depth~$2$ & horn-reduction metatheory and contractibility of cubical horn-extension fibers & fully formalized \\
+\autoref{thm:upper}, \autoref{cor:contractible-factor} & exact $\Ocal$-stabilization at depth~$2$ and trivialization of higher exact fibers & horn-reduction metatheory and contractibility of cubical horn-extension fibers & fully formalized \\
 \autoref{thm:higher-elim} & elimination from $\mu$-minimal normalized public signatures & \autoref{lem:horn-reduction}, \autoref{thm:computational-replacement}, and canonical presentation & bridge corollary \\
 \autoref{lem:telescopic} & recent-history factorization of surviving binary primitive fields & factorization-complete trace export and the formal chronological-window chain & bridge reading of formal trace chain \\
 \autoref{thm:adjunction}, \autoref{thm:clutching} & lower-bound binary obstruction & swap barrier, adjunction coherence, and clutching-family witness & fully formalized \\
@@ -877,6 +877,20 @@ for every $k \geq 3$, and iterating yields $\Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X)
 In the taxonomy of \autoref{rem:present-vs-cost}, the higher exact obligation types remain present but contractible at the metatheoretic level, and only the bridge theorem turns that fact into elimination from $\mu$-minimal syntax.
 \end{proof}
 
+\begin{cor}[Contractible-factor decomposition]
+\label{cor:contractible-factor}
+For every foundational core candidate~$X$ and every $k \geq 2$ there is a canonical equivalence
+\[
+  \Ocal^{(k)}(X) \simeq \Ocal^{(2)}(X) \times C_k(X),
+\]
+where $C_2(X) := \mathbf{1}$ and, for $k>2$, $C_k(X)$ is the iterated chain of canonical remote horn factors selected by the cubical compositions used in the proof of \autoref{thm:upper}. Each $C_k(X)$ is canonically contractible.
+Equivalently, the projection to the depth-two boundary trivializes the higher exact data as a contractible remote factor: the extra higher layer remains present in the exact obligation set, but the quotient that identifies each remote horn chain with its canonical center recovers precisely~$\Ocal^{(2)}(X)$.
+\end{cor}
+
+\begin{proof}
+The proof of \autoref{thm:upper} is iterative: each passage from depth~$j$ to depth~$j+1$ adjoins one horn-extension fiber over already exported boundary data, and cubical composition supplies a canonical center of that fiber. Iterating those chosen centers trivializes the resulting dependent family into a product of the depth-two boundary with a remote-factor chain~$C_k(X)$. Each stage of that chain is contractible by the same Kan-composition argument used in \autoref{thm:upper}, so the whole factor~$C_k(X)$ is canonically contractible. Projecting away that factor yields the displayed equivalence, and collapsing each factor to its chosen center gives the stated quotient description.
+\end{proof}
+
 \begin{thm}[Recent-history factorization]
 \label{lem:telescopic}
 In the fixed fully coupled cubical extension calculus, every binary trace field that survives in a $\mu$-minimal normalized public signature at stage~$n+1$ factors through the previous two normalized signatures. More precisely, let $X$ be a candidate added at stage~$n+1$. Once the unary and binary trace data of~$X$ against $L_n$ and $L_{n-1}$ have been fixed, every comparison between $X$ and a remote layer $L_{n-r}$ with $r \geq 2$ is definitionally equal to a term obtained by iterating the factorization through the already exported unary bridges and binary comparison traces of the intervening normalized signatures. Consequently no $\mu$-minimal public signature contains a primitive remote binary field.
@@ -1330,7 +1344,7 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \autoref{thm:basis-choice} & paper-level only & none & n/a \\
 \autoref{thm:canonicity}, \autoref{thm:trace}, \autoref{cor:mu-delta} & formalized abstractly, read through bridge & \path{Metatheory/CanonicityDensity.agda}, \path{Metatheory/TracePrinciple.agda}, \path{Metatheory/InterfaceCalculus.agda} & yes \\
 \autoref{lem:arity-dimension}, \autoref{thm:extensional} & fully formalized & \path{Metatheory/Obligations.agda}, \path{Metatheory/Extensional.agda} & no \\
-\autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:chrono-window} & fully formalized & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & no \\
+\autoref{lem:horn-reduction}, \autoref{thm:upper}, \autoref{cor:contractible-factor}, \autoref{cor:chrono-window} & fully formalized & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & no \\
 \autoref{thm:factorization-complete}, \autoref{thm:higher-elim}, \autoref{lem:telescopic} & formalized abstractly, read through bridge & \path{Metatheory/KanSubsumption.agda}, \path{Metatheory/UpperBound.agda}, \path{Metatheory/ChronologicalWindow.agda} & yes \\
 \autoref{thm:adjunction}, \autoref{thm:clutching}, \autoref{cor:d2} & fully formalized & \path{Metatheory/AdjunctionBarrier.agda}, \path{Geometry/Clutching.agda}, \path{Metatheory/ExactDepth.agda} & no \\
 \autoref{thm:2d-foundations} & fully formalized & \path{Metatheory/TwoDFoundations.agda} & no \\
@@ -1355,6 +1369,7 @@ Paper result & Formal status & Agda module(s) & Bridge? \\
 \item \autoref{thm:higher-elim} is the paper's syntactic corollary of \path{Metatheory/KanSubsumption.agda} and \path{Metatheory/UpperBound.agda}: the Agda development formalizes the horn-extension fiber, its canonical inhabitant, and stabilization at depth~$2$ via \path{HornExtensionFiber}, \path{structural-integration-horn-reduction}, \path{remote-layer-obligation-derived}, \path{structural-obligation-set-equivalence}, and \path{structural-stabilizes-at-two}; the elimination of primitive arity-$3$ fields from $\mu$-minimal public signatures is obtained in the paper by combining those results with \autoref{thm:computational-replacement} and the rest of the bridge normalization theorems of \autoref{sec:bridge}.
 \item \autoref{lem:telescopic} corresponds exactly to \path{Metatheory/KanSubsumption.agda} via \path{TelescopicSubsumptionView}, \path{telescopic-subsumption}, and \path{telescopic-remote-comparison-derived}; its reading as recent-history factorization through normalized public signatures is again the paper's bridge-level interpretation of that formal trace chain.
 \item \autoref{thm:upper} corresponds exactly to \path{Metatheory/UpperBound.agda} via \path{structural-obligation-set-equivalence} and \path{structural-stabilizes-at-two}.
+\item \autoref{cor:contractible-factor} corresponds exactly to \path{Metatheory/UpperBound.agda} via \path{ContractibleRemoteFactor}, \path{structural-obligation-contractible-factorization}, and \path{contractible-remote-factor-contractible}; this is the formal trivialization of each higher exact obligation set into the depth-two boundary together with a canonically contractible remote horn chain.
 \item \autoref{cor:chrono-window} corresponds exactly to \path{Metatheory/ChronologicalWindow.agda} via \path{primitive-obligations-factor-through-last-two}, \path{two-layer-chronological-window}, and \path{chronological-markov-blanket}.
 \item \autoref{thm:adjunction} corresponds exactly to \path{Metatheory/AdjunctionBarrier.agda} via \path{explicit-binary-sealing-obstruction}.
 \item \autoref{rem:adjunction-reading} corresponds to the same module's categorical wrapper via \path{triangle-identity-corollary} and \path{adjunction-barrier}.
