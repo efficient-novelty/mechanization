@@ -70,6 +70,22 @@ open import Metatheory.TracePrinciple public
         ; public-counting-normal-form
         ; integration-trace-principle
         )
+open import Metatheory.ComputationalReplacement public
+  using ( CanonicalTraceSignature
+        ; TracePresentation
+        ; presentedHistoricalSupport
+        ; presentedPrimitiveCost
+        ; presentation-equivalence
+        ; InCanonicalMinimalSignature
+        ; InPresentedMinimalSignature
+        ; ComputationalReplacementResult
+        ; computational-replacement-preserves-canonical-presentation
+        ; canonical-obligation-signature
+        ; higher-arity-fields-become-derived
+        ; higher-arity-fields-disappear-from-minimal-signature
+        ; higher-arity-presented-fields-disappear-from-minimal-signature
+        ; higher-arity-computational-replacement
+        )
 open import Metatheory.UniversalRecurrence public
   using ( CountedHistoricalLayer
         ; HistoricalWindow

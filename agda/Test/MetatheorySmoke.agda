@@ -54,6 +54,20 @@ canonicity-theorem-available =
 trace-package-surface = IntegrationTracePrinciple
 trace-public-counting-normal-form = public-counting-normal-form
 trace-theorem-available = integration-trace-principle
+canonical-trace-signature-surface = CanonicalTraceSignature
+trace-presentation-surface = TracePresentation
+trace-presentation-equivalence-available = presentation-equivalence
+computational-replacement-package-surface = ComputationalReplacementResult
+computational-replacement-theorem-available =
+  computational-replacement-preserves-canonical-presentation
+canonical-obligation-signature-available = canonical-obligation-signature
+higher-arity-derived-available = higher-arity-fields-become-derived
+higher-arity-minimal-elimination-available =
+  higher-arity-fields-disappear-from-minimal-signature
+higher-arity-presented-minimal-elimination-available =
+  higher-arity-presented-fields-disappear-from-minimal-signature
+higher-arity-computational-replacement-available =
+  higher-arity-computational-replacement
 counted-historical-layer-surface = CountedHistoricalLayer
 historical-window-surface = HistoricalWindow
 historical-interface-counting-available =
