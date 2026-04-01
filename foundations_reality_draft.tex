@@ -1,0 +1,423 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\geometry{margin=1in}
+\setstretch{1.08}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{1.25em}
+\setlist[itemize]{leftmargin=1.5em, itemsep=0.25em, topsep=0.35em}
+\setlist[enumerate]{leftmargin=1.7em, itemsep=0.25em, topsep=0.35em}
+\setlength{\emergencystretch}{2em}
+\raggedbottom
+
+\definecolor{titleblue}{HTML}{203A5B}
+\definecolor{linkblue}{HTML}{1F4E79}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue,
+  pdftitle={The Necessary Foundations of Reality: Coherent Possibility and Selective Actualization},
+  pdfauthor={Halvor S. Lande}
+}
+
+\newtheoremstyle{foundation}
+  {0.85em}
+  {0.85em}
+  {\itshape}
+  {}
+  {\color{titleblue}\bfseries}
+  {.}
+  {0.45em}
+  {}
+
+\theoremstyle{foundation}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\title{\textcolor{titleblue}{\Large The Necessary Foundations of Reality:}\\[0.35em]\textcolor{titleblue}{\Large Coherent Possibility and Selective Actualization}}
+\author{Halvor S. Lande}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A determinate world cannot be derived from form alone, nor from brute fact alone. This paper argues that any stable and interesting reality requires exactly two irreducible kinds of law. The first is constitutive: it determines what can count as a possible structure at all. The second is selective: it determines which coherent possibilities become actual within history. I call these the \emph{Constitutive Law} and the \emph{Selective Law}. The paper first argues that a purely mathematical or structural ontology explains coherent possibility but not actuality. It then formulates the constitutive law in presentation-independent terms as the requirement that reality be coherently realizable, identity-sensitive, equivalence-invariant, canonically executable, and locally satisfiable. Next, it argues from first principles that any selective law adequate to a dynamic universe must exhibit commitment, admissibility, valuation, critical sufficiency, constructive primeness, and coherent integration. From these requirements it derives the canonical selective statement: among coherent continuations of realized history, actuality selects the least constructively prime continuation whose future-opening power is sufficient to justify its stabilization burden in context, and integrates it irreversibly into the basis of further actualization. The paper concludes by distinguishing what is argued as metaphysically necessary from what is proposed as a canonical formulation and from what is deferred to later formal work.
+\end{abstract}
+
+\section{Introduction: the missing half of reality}
+
+The deepest attraction of structural or mathematical metaphysics is obvious. If reality has any intelligible order at all, then it must in some sense answer to structure. The hope behind the Mathematical Universe Hypothesis is that the world is not merely \emph{described} by mathematics, but \emph{is} mathematics in a sufficiently robust sense.\cite{tegmark} That hope captures something real: whatever exists must at least be compatible with the order of coherent form.
+
+Yet a decisive problem remains. Mathematics, taken by itself, appears to explain at most the space of coherent possibility. It does not by itself explain why one possibility is actual, why actuality is historically articulated rather than undifferentiated, or why reality advances by determinate transitions rather than remaining a mere catalogue of admissible forms. A universe, if it is to be more than a set of abstract structures, must be not only \emph{possible} but \emph{actualized}.
+
+This paper begins from that gap. Its central claim is that any determinate and historically articulated reality requires two irreducible kinds of law. The first governs \emph{coherent possibility}: it determines what can count as a genuine candidate for existence at all. The second governs \emph{actualization}: it determines which coherent candidates become real and in what manner they are integrated into history. These are not two optional theoretical choices. They are the two irreducible tasks any complete ontology must discharge.
+
+The result is a two-law architecture:
+
+\begin{quote}
+\textbf{Constitutive Law:} the law of coherent possibility.\\
+\textbf{Selective Law:} the law of actualization.
+\end{quote}
+
+The paper proceeds in four stages. First, it clarifies the methodological scope of the argument and distinguishes ontological content from any one formal presentation. Second, it argues that a determinate reality must contain exactly two irreducible foundational roles: admissibility and actualization. Third, it formulates canonical versions of the Constitutive Law and the Selective Law. Fourth, it distinguishes what is argued here as metaphysically necessary from what is merely proposed as a canonical articulation and from what is deferred to later formal work.
+
+The immediate target is not every conceivable universe whatsoever, but any universe that is stable enough to persist, dynamic enough to change, and rich enough to support non-trivial articulation. By a \emph{stable} universe I mean one capable of preserving determinate identity through change. By a \emph{dynamic} universe I mean one that admits genuine becoming rather than timeless stasis. By an \emph{interesting} universe I mean one whose history can sustain non-trivial differentiation rather than collapsing either into sterile repetition or into explosive incoherence. The claim of this paper is that such a universe must satisfy the two laws developed below.
+
+\section{Method and scope}
+
+The present argument is ontological rather than implementation-specific. It is not the claim that reality is literally ``written'' in any one human formalism, still less that the world is a proof assistant or that its source code can be identified with a particular syntactic calculus. Human logical systems are at best presentations of deeper invariant content. They matter here only insofar as they provide partial insight into what the constitutive order of reality must be.
+
+Constructive type theory, for example, is useful because it treats existence as witness-bearing and because it makes the passage from possibility to actuality formally visible in the judgmental form $\Gamma \vdash a : A$.\cite{martinlof} Homotopy type theory is useful because it exhibits a presentation in which identity carries internal structure and equivalence can be elevated to ontological significance.\cite{hott} But the paper does not assume that reality is identical with either presentation. It seeks the invariant content beneath them.
+
+A second clarification concerns the word \emph{law}. In the present paper, a foundational law is not yet a contingent regularity of a particular physical cosmos. It is a necessary condition for the existence of any determinate world of the target kind. To call something a foundational law here is to say that, without it, there is no coherent candidate reality to be discussed.
+
+A third clarification concerns the scope of later work. The present paper does not introduce a specific formal evaluator, selection algorithm, or cosmological mechanism. It argues only for the necessity of two ontological roles and for the structural form these roles must take. A later paper may propose a concrete formal candidate for the Selective Law, but that is not done here.
+
+Finally, this paper does not treat arithmetic as a third primitive. It presupposes only that cumulative actualization can be spoken of in finite stages when convenient. Whether the natural numbers should later be reconstructed as a primitive, a categorical object of iteration, or the discrete skeleton of cumulative history is deferred.
+
+\section{Why reality requires two laws}
+
+\subsection{The insufficiency of constitutive order alone}
+
+Suppose there were only a constitutive order: a realm of coherent forms, structures, or possibilities. Then one of three things must happen. Either nothing becomes actual, in which case no world exists. Or every coherent possibility is equally actual, in which case actuality is indistinguishable from undifferentiated possibility and there is no determinate history. Or one possibility is actual rather than another for no reason internal to the ontology, in which case actuality is brute.
+
+None of these options is satisfactory. The first yields no world. The second yields no articulated world. The third abandons explanation precisely where ontology should begin. A constitutive order alone is therefore incomplete.
+
+\subsection{The insufficiency of selection alone}
+
+Now suppose there were only a selective order. A selective principle presupposes something to be selected. If there is no prior distinction between coherent and incoherent, admissible and inadmissible, meaningful and meaningless, then the very idea of selection is empty. A ``selection'' that can equally well choose contradiction, incoherence, or indeterminacy is no law of reality at all.
+
+Hence selection cannot be primitive in isolation. It presupposes a prior order of coherent possibility.
+
+\begin{theorem}[Two-Law Thesis]
+Any determinate and historically articulated reality requires at least two irreducible kinds of law: a constitutive law determining what can coherently count as possible, and a selective law determining which coherent possibilities become actual.
+\end{theorem}
+
+\begin{proof}
+The previous two subsections establish the two directions. A constitutive order without a selective order leaves actuality either absent, totalized, or brute. A selective order without a constitutive order is undefined, since selection requires a candidate space. Therefore a complete ontology must include both.
+\end{proof}
+
+\subsection{Why there are not three foundational kinds of law}
+
+One might object that a full ontology requires more than two primitive laws. Perhaps one law governs logic, another dynamics, another value, another temporality, and so on. At later levels of formalization that may be true. But at the foundational level the space of roles is exhausted more quickly.
+
+Any primitive law of reality must do one of two things. Either it constrains what can count as a coherent candidate for existence, or it governs the relation between such candidates and realized history. There is no third basic role available at this level. A law of time, for example, is either constitutive if it determines the admissible form of temporality, or selective if it governs temporal actualization. A law of value is selective insofar as it orders admissible continuations. A law of identity is constitutive insofar as it determines what sameness is.
+
+\begin{proposition}[Exhaustiveness of the two-law partition]
+At the foundational level, every further primitive law either constrains coherent possibility or governs actualization from among coherent possibilities. Hence there is no third irreducible category of foundational law alongside the constitutive and the selective.
+\end{proposition}
+
+The claim of ``exactly two'' therefore concerns ontological roles, not axiom count. A later formal theory may require many axioms. But every such axiom will fall under one of these two irreducible functions.
+
+\section{The Constitutive Law of coherent possibility}
+
+\subsection{Why possibility must be coherent}
+
+The minimal requirement on a possible world is not merely that it be thinkable, but that it be \emph{coherently realizable}. An entity or process cannot count as genuinely possible if its very being depends on unresolved contradiction. A square circle does not fail because it is unusual; it fails because the conditions required to specify it cancel one another.
+
+Yet bare non-contradiction is too weak. A world is not constituted by a list of propositions that happen not to clash. It is constituted by structures that must compose, persist, and interact. Thus possibility must be understood as \emph{coherent realizability}: the mutual satisfiability of the structure's internal and external conditions of being.
+
+\begin{definition}[Coherent realizability]
+A candidate structure is coherently realizable when its constituents, relations, and operations can be jointly determined without unresolved contradiction or indefinite suspension of compatibility conditions.
+\end{definition}
+
+\subsection{Identity, equivalence, and invariance}
+
+A second constitutive requirement concerns identity. If reality is structured, then sameness cannot be treated as a merely flat predicate detached from the internal relations that make a thing what it is. The identity of a structure must be rich enough to support the preservation and transport of its organization across admissible variation.
+
+This does not yet force any one formal doctrine of identity, but it does force a principle of \emph{equivalence-invariance}. If two presentations differ only in ways that make no invariant structural difference, then the difference cannot be ontologically fundamental. Reality cannot count as different what differs only by representational dressing.
+
+\begin{definition}[Equivalence-invariance]
+A constitutive order is equivalence-invariant when representationally distinct but structurally equivalent candidates are not counted as different in being.
+\end{definition}
+
+This principle is important because without it ontology becomes hostage to presentation. The same world would be multiply overcounted merely by redescribing it. A genuine constitutive law must cut deeper than syntax.
+
+\subsection{Canonicity and executability}
+
+A third requirement is canonicity. A possible world cannot be built from permanently stuck pseudo-objects whose closed realization never becomes determinate. If a construction is genuinely closed, reality must determine what it is. Otherwise the candidate remains an unresolved schematic placeholder rather than an executable world-constituent.
+
+\begin{definition}[Canonicity]
+A constitutive order satisfies canonicity when closed constructions admit determinate realization rather than remaining indefinitely non-canonical.
+\end{definition}
+
+The language of executability is not meant computationally in any narrow machine sense. The point is ontological: a world must be capable of running as a world. A purely schematic form that never resolves into determinate being is not enough.
+
+\subsection{Local satisfiability of coherence burdens}
+
+A fourth requirement concerns scale. Any genuine structure carries compatibility conditions. If these coherence burdens can grow without local discharge, then no stable world is possible. There would be only an ever-accumulating debt of unresolved compatibility, and reality would collapse into non-executability.
+
+Hence a constitutive law must require that coherence burdens be \emph{locally satisfiable}. New structure may introduce new conditions, but those conditions must be dischargeable within the world rather than indefinitely deferred.
+
+\begin{definition}[Local satisfiability]
+A constitutive order satisfies local satisfiability when the compatibility burdens introduced by new structure are locally dischargeable rather than requiring indefinitely unresolved global repair.
+\end{definition}
+
+\subsection{Canonical formulation}
+
+We may now state the constitutive law in its strongest compact form.
+
+\begin{theorem}[Constitutive Law]
+A universe can exist only as a coherent, equivalence-invariant, canonically executable structure whose identity and compatibility conditions are locally satisfiable.
+\end{theorem}
+
+This statement is intentionally presentation-independent. It does not identify the law with any one proof theory or any one formal semantics. Rather, it names the invariant content that any adequate presentation must preserve.
+
+\subsection{Why weaker alternatives fail}
+
+The constitutive law has the shape above because weaker candidates fail.
+
+Bare consistency is too weak. One can imagine a body of non-contradictory descriptions that nevertheless never becomes an executable world because its constructions remain non-canonical or its compatibilities remain unresolved.
+
+Flat identity is too weak. If sameness is treated as a purely extensional yes-or-no fact detached from structural transport, ontology becomes blind to the internal articulation of identity and loses the ability to distinguish genuine sameness from accidental coding.
+
+Representation-sensitive ontology is too weak. If structurally equivalent presentations count as different worlds, being becomes hostage to syntax.
+
+Unbounded coherence debt is too weak. If new structure may indefinitely accumulate unresolved compatibility burdens, then no stable world can be realized.
+
+Taken together, these failures force the stronger constitutive statement above.
+
+\section{The Selective Law of actualization}
+
+The Constitutive Law yields a realm of coherent possibility. It does not yet yield reality as realized history. The task of the Selective Law is therefore not to replace the constitutive order, but to act \emph{on} it.
+
+Let $H$ denote realized history at some stage. Let $\mathcal{C}(H)$ denote the set of coherent continuations of $H$ permitted by the Constitutive Law. The Selective Law is a rule on $\mathcal{C}(H)$. The question is: what structural features must any such rule possess if it is to generate a stable and interesting universe?
+
+\subsection{Commitment}
+
+A world with history cannot simply forget what it has actualized. Local destruction, transformation, and decay are compatible with history; erasure of actuality as actuality is not. If actualization can simply be revoked without remainder, then there is no one world persisting through time, only serial replacement.
+
+\begin{definition}[Commitment]
+A selective order exhibits commitment when realized history is cumulative: what has become actual remains part of the world's history and conditions future actuality.
+\end{definition}
+
+Commitment does not mean that every local form persists forever. It means that realized actuality is not ontologically reset at each step.
+
+\subsection{Admissibility}
+
+Selection cannot float free of the constitutive order. Whatever becomes actual must remain coherent with both the constitutive law and the already realized history. Otherwise selection could introduce contradiction into reality after the constitutive law had ruled it out.
+
+\begin{definition}[Admissibility]
+A continuation of history is admissible when it is coherent with both the Constitutive Law and the realized past it would extend.
+\end{definition}
+
+Admissibility is therefore the point at which the constitutive and selective laws touch. The constitutive law defines the admissible field; the selective law acts only within it.
+
+\subsection{Valuation: future-opening power and stabilization burden}
+
+Suppose now that multiple admissible continuations are available. If the selective law contains no ordering principle, then actuality is brute. But not just any ordering will do.
+
+A dynamic world must avoid two opposite failures. If it always favors bare preservation, it stagnates. If it always favors novelty as such, it explodes into unstable excess. Hence valuation must be dual. It must regard both what a continuation \emph{opens} and what it \emph{costs to stabilize}.
+
+\begin{definition}[Future-opening power]
+The future-opening power of a continuation is its capacity to unlock further coherent distinctions, relations, processes, or structures that were not previously actualizable.
+\end{definition}
+
+\begin{definition}[Stabilization burden]
+The stabilization burden of a continuation is the additional coordination, integration, and maintenance required to make it actual without destabilizing realized history.
+\end{definition}
+
+Future-opening power without stabilization collapses into uncontrolled branching. Stabilization without future-opening power collapses into sterile conservation. A genuine selective law must therefore weigh both.
+
+\subsection{Critical sufficiency}
+
+Even dual valuation is not enough. If the world simply chose the greatest available value in the abstract, history would tend to collapse into arbitrary composite leaps. Distinct admissible gains could be bundled into one oversized transition, and actuality would lose articulation.
+
+Therefore the selective law cannot be mere maximization. It must be \emph{critical}: actuality should prefer what is sufficient \emph{here and now}, not what is globally maximal in a way that erases the structure of becoming.
+
+\begin{definition}[Critical sufficiency]
+A continuation is sufficient in context when its future-opening power is strong enough, relative to its stabilization burden, to justify actualization at the present stage of history.
+\end{definition}
+
+Sufficiency introduces a threshold relative to context. Not every positive continuation actualizes. Only those strong enough to justify integration under present conditions can do so.
+
+\subsection{Constructive primeness}
+
+Criticality alone still leaves room for gratuitous bundling. A single transition might package together several smaller continuations that would each already have been sufficient. That would again destroy the articulation of history.
+
+Hence actuality must prefer not merely the sufficient, but the \emph{least constructively prime sufficient} continuation.
+
+\begin{definition}[Constructive primeness]
+A continuation is constructively prime at a stage when it is not merely a gratuitous bundle of smaller continuations each of which would already be independently sufficient for actualization in that context.
+\end{definition}
+
+Constructive primeness is what prevents arbitrary packing. It enforces the granularity of becoming.
+
+\subsection{Coherent integration}
+
+Finally, selection must not end with choice alone. What is actualized must enter history in a way that changes the future field of admissible continuations. Without that, there is no cumulative reality, only repeated isolated choices.
+
+\begin{definition}[Coherent integration]
+A selective order exhibits coherent integration when the actualized continuation is irreversibly incorporated into realized history and thereby reshapes the future admissible field.
+\end{definition}
+
+Coherent integration is the selective analogue of commitment, but stronger. It does not merely preserve the fact that something happened; it makes that happening part of the basis of what can happen next.
+
+\subsection{Canonical formulation}
+
+We may now state the selective law.
+
+\begin{theorem}[Selective Law]
+Among the coherent continuations of realized history, actuality selects the least constructively prime continuation whose future-opening power is sufficient to justify its stabilization burden in the present context, and irreversibly integrates it into the basis of further actualization.
+\end{theorem}
+
+The statement is deliberately qualitative. It does not yet specify a metric, ratio, threshold equation, or dynamical algorithm. It names the structural form any adequate law of actualization must instantiate.
+
+\begin{remark}
+A compressed formulation is useful. One may summarize the Selective Law by saying: \emph{reality becomes by least sufficient coherent expansion}. The fuller theorem should be preferred whenever precision matters.
+\end{remark}
+
+\section{Why the Selective Law must have this form}
+
+The previous section stated the Selective Law positively. This section strengthens the case by showing that each of its components is forced by the failure of nearby alternatives.
+
+\subsection{Without commitment: serial replacement}
+
+A world without commitment is not an evolving world but a sequence of disconnected replacements. Nothing that has happened genuinely belongs to what comes next. Identity through change disappears, and with it any meaningful notion of history. Therefore commitment is necessary.
+
+\subsection{Without admissibility: self-violation}
+
+A selective law without admissibility can choose what the constitutive law has already ruled out. In that case the ontology contradicts itself: possibility is constrained at one level and unconstrained at another. Therefore admissibility is necessary.
+
+\subsection{Without valuation: brute actuality}
+
+If multiple coherent continuations are available and nothing orders them, then actuality is brute. The world becomes one possibility rather than another for no internal reason. Therefore valuation is necessary.
+
+\subsection{With pure conservation: stagnation}
+
+A world that values only preservation may remain stable, but it cannot be genuinely dynamic. It can only conserve what already exists. No principled route to novelty remains. Therefore valuation cannot reduce to stabilization alone.
+
+\subsection{With pure novelty: explosion}
+
+A world that values only novelty may constantly introduce difference, but at the cost of losing stability and identity. Novelty becomes self-undermining. Therefore valuation cannot reduce to future-opening power alone.
+
+\subsection{With global maximization: arbitrary packing}
+
+Suppose selection simply chooses the globally best continuation at each stage. Then composite candidates can swallow smaller transitions that would have been independently sufficient. History loses its articulation, and actuality jumps by gratuitous macro-moves. Therefore the law must be critical and prime-sensitive rather than globally maximizing in a naive sense.
+
+\subsection{Without constructive primeness: loss of granularity}
+
+Suppose critical sufficiency is retained but constructive primeness is not. Then the world still has a threshold, but it may clear that threshold by arbitrary bundling of independently sufficient continuations. The threshold alone cannot protect articulated becoming. Therefore constructive primeness is necessary.
+
+\subsection{Without coherent integration: no world-memory}
+
+Suppose a continuation is selected but not coherently integrated. Then it does not alter the future admissible field. Selection becomes episodic rather than cumulative, and the same world-memory never forms. Therefore coherent integration is necessary.
+
+Taken together, these failures force the selective law into something close to the canonical statement given above. The exact later formalization may vary. The structural shape cannot vary very far without the ontology collapsing into arbitrariness, stagnation, explosion, or replacement.
+
+\section{The relation between the two laws}
+
+The Constitutive Law and the Selective Law are not rival explanations. They are complementary.
+
+The Constitutive Law answers the question: \emph{what can coherently be?} It defines the admissible order of form. In a broadly Platonic register, it concerns the realm of coherent structures as such.
+
+The Selective Law answers the question: \emph{what becomes actual?} It defines the order of realized history. In a broadly constructive register, it concerns the transition from form to fact, from candidate structure to inhabited actuality.
+
+\begin{proposition}
+The Constitutive Law is the law of admissibility. The Selective Law is the law of actualization. Neither is reducible to the other.
+\end{proposition}
+
+\begin{proof}
+The Constitutive Law specifies the candidate space but does not choose within it. The Selective Law chooses within the candidate space but does not create it. Reducing the first to the second leaves selection without ground; reducing the second to the first leaves actuality without articulation.
+\end{proof}
+
+A useful way to state the relation is this: the Constitutive Law gives the world its \emph{order of form}; the Selective Law gives it its \emph{order of becoming}. Reality requires both.
+
+\section{What is argued, what is proposed, and what is deferred}
+
+A foundations paper gains strength by distinguishing necessity from proposal and proposal from speculation.
+
+\subsection{Argued as metaphysical necessity}
+
+The following claims are argued here as necessary for any stable and interesting reality:
+
+\begin{enumerate}
+    \item Reality requires both a constitutive law and a selective law.
+    \item The constitutive law must at least require coherent realizability, equivalence-invariance, canonical executability, and local satisfiability of compatibility burdens.
+    \item The selective law must at least require commitment, admissibility, valuation, critical sufficiency, constructive primeness, and coherent integration.
+\end{enumerate}
+
+These are the core philosophical results of the paper.
+
+\subsection{Proposed as canonical formulation}
+
+The following stronger claims are proposed as the best current articulation of the foregoing necessities:
+
+\begin{enumerate}
+    \item The Constitutive Law is best stated as the requirement that a universe be a coherent, equivalence-invariant, canonically executable structure whose identity and compatibility conditions are locally satisfiable.
+    \item The Selective Law is best stated as the rule that actuality selects the least constructively prime coherent continuation whose future-opening power is sufficient to justify its stabilization burden in context, and integrates it irreversibly into further history.
+\end{enumerate}
+
+These formulations are stronger than the bare necessities because they package the minimal requirements into single canonical statements.
+
+\subsection{Deferred to later work}
+
+The following questions are intentionally left open here:
+
+\begin{enumerate}
+    \item The exact mathematical form of valuation and selection.
+    \item Any concrete evaluator, threshold equation, or dynamical mechanism that might instantiate the Selective Law.
+    \item The formal status of arithmetic and the natural numbers, beyond the weak assumption that cumulative actualization can be discussed stagewise.
+    \item Probabilistic or amplitude-like refinements of actualization.
+    \item Cosmological, physical, or phenomenological applications.
+    \item Any claim that a single human formalism uniquely and exhaustively captures the constitutive order.
+\end{enumerate}
+
+This paper is therefore not a complete metaphysical system. It is the identification of the two irreducible tasks any such system must perform, together with the strongest presentation-independent articulation currently available.
+
+\section{Conclusion: reality as coherent form plus actualization}
+
+The paper has argued for a simple but demanding thesis. A universe cannot be constituted by form alone, because form alone never explains actuality. Nor can it be constituted by actuality alone, because actuality without admissible form is unintelligible. A determinate world requires both a constitutive law and a selective law.
+
+The constitutive order determines what can coherently count as possible. The selective order determines which of those possibilities become actual and how they are integrated into history. At the foundational level there is no third irreducible role. Every further primitive law will either constrain coherent possibility or govern actualization from within it.
+
+The resulting picture may be summarized in one sentence:
+
+\begin{quote}
+Reality is neither mere form nor brute fact. It is coherent possibility under a law of actualization.
+\end{quote}
+
+Or, still more compactly:
+
+\begin{quote}
+A universe exists only where coherent form and selective becoming meet.
+\end{quote}
+
+That is the paper's final claim. If it is right, then the deepest problem for metaphysics is not to choose between mathematics and world, nor between possibility and actuality, but to understand why reality requires both -- and why the two laws that govern them must have the form they do.
+
+\begin{thebibliography}{9}
+
+\bibitem{tegmark}
+Max Tegmark,
+\emph{The Mathematical Universe},
+Foundations of Physics \textbf{38} (2008), 101--150.
+
+\bibitem{martinlof}
+Per Martin-L\"of,
+\emph{Intuitionistic Type Theory},
+Bibliopolis, Naples, 1984.
+
+\bibitem{hott}
+The Univalent Foundations Program,
+\emph{Homotopy Type Theory: Univalent Foundations of Mathematics},
+Institute for Advanced Study, Princeton, 2013.
+
+\end{thebibliography}
+
+\end{document}
