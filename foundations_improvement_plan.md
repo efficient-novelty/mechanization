@@ -12,7 +12,7 @@ Turn the current manuscript from a concise metaphysical architecture statement i
 ## Current manuscript snapshot
 
 - Current file: `foundations_reality_draft.tex`.
-- Current approximate length: 5,287 words, so the paper is currently still well short of the expected JGPS full-article scale.
+- Current approximate length: 5,478 words, so the paper is now past the midpoint toward the expected JGPS full-article scale but still needs substantial expansion.
 - Current strengths: clear constitutive/selective distinction, good presentation-independent instinct, strong "argued / proposed / deferred" discipline, useful emphasis on local actualization.
 - Current obstacles to submission: manifesto-style rhetoric, theorem/proof presentation for conceptual claims, only three references, no literature comparison section, no minimal formal schema, no toy model, and no JGPS-facing front matter.
 
@@ -52,32 +52,7 @@ This paper should function as the philosophical gateway paper, not the technical
 
 ## Execution order
 
-### Task 1. Build a literature spine strong enough for a philosophy-of-science journal
-
-Objective: move from three references to a literature-situated argument with enough body engagement to survive review.
-
-Required literature clusters:
-
-- laws of nature and modality;
-- structural realism and mathematical structuralism;
-- possibility, actuality, and grounding;
-- state space vs dynamics / law vs initial conditions;
-- process, becoming, and historical articulation;
-- global constraints and whole-history approaches.
-
-Actions:
-
-- Expand the bibliography target to roughly 25-40 references.
-- Ensure at least 8-12 references are substantively discussed in the body rather than only listed in the bibliography.
-- Add citation checkpoints to the introduction, the comparison section, the constitutive section, the selective section, and the conclusion.
-- Convert the paper from the current hand-built bibliography to a `.bib`-driven workflow.
-
-Done when:
-
-- the bibliography is no longer skeletal;
-- the paper has an argumentative literature spine rather than an isolated thesis voice.
-
-### Task 2. Revise the constitutive section into a literature-facing account of constitutive constraint
+### Task 1. Revise the constitutive section into a literature-facing account of constitutive constraint
 
 Objective: keep the strongest current material while tying each requirement to a live philosophical issue.
 
@@ -93,7 +68,7 @@ Done when:
 - each constitutive requirement has a clear explanatory role;
 - the section is no longer just a polished restatement of the original thesis.
 
-### Task 3. Rewrite the selective section so localizability leads the argument
+### Task 2. Rewrite the selective section so localizability leads the argument
 
 Objective: make the selective role precise, intelligible, and less vulnerable to charges of hand-waving.
 
@@ -109,7 +84,7 @@ Done when:
 - the selective role reads as a structured argument rather than a list of intuitions;
 - localizability is clearly defended and clearly delimited.
 
-### Task 4. Add the minimal formal schema
+### Task 3. Add the minimal formal schema
 
 Objective: give reviewers a precise enough skeleton to evaluate the view without importing full PEN machinery.
 
@@ -134,7 +109,7 @@ Done when:
 - a reviewer can answer "what is selected?", "what counts as better?", and "how is context represented?" from the paper itself;
 - the paper has a formal skeleton without becoming a technical systems paper.
 
-### Task 5. Add a one-page toy branching model
+### Task 4. Add a one-page toy branching model
 
 Objective: convert the framework from proclamation into article-grade argument by showing how the pieces work on a small example.
 
@@ -158,7 +133,7 @@ Done when:
 - the toy model clarifies admissibility, valuation, sufficiency, primeness, and integration in one place;
 - the section can be read independently as the paper's intuitive core example.
 
-### Task 6. Split novelty from repetition by creating a dedicated "What the framework adds" section
+### Task 5. Split novelty from repetition by creating a dedicated "What the framework adds" section
 
 Objective: state the paper's contribution positively after the machinery is on the table.
 
@@ -174,7 +149,7 @@ Done when:
 - the contribution is explicit, not merely implied;
 - the section answers the likely referee question "what is new here beyond terminology?"
 
-### Task 7. Preserve and strengthen the "argued / proposed / deferred" section
+### Task 6. Preserve and strengthen the "argued / proposed / deferred" section
 
 Objective: keep one of the current draft's best features while making the limits more explicit.
 
@@ -190,7 +165,7 @@ Done when:
 - the limits of the paper are unambiguous;
 - the manuscript reads as disciplined rather than overextended.
 
-### Task 8. Rewrite the conclusion into a restrained submission-ready ending
+### Task 7. Rewrite the conclusion into a restrained submission-ready ending
 
 Objective: end with a clear result instead of a final metaphysical flourish.
 
@@ -206,24 +181,24 @@ Done when:
 - the conclusion is shorter, calmer, and more analytic;
 - the final sentence points forward without grandiosity.
 
-### Task 9. Convert the citation and LaTeX setup to JGPS-friendly form
+### Task 8. Complete the remaining JGPS-facing LaTeX and submission formatting
 
 Objective: make the manuscript operationally ready for journal submission rather than just conceptually revised.
 
 Actions:
 
-- Replace the current manual `thebibliography` block with a `.bib` file and author-year citations.
 - Introduce a submission-ready journal template workflow, ideally using the Springer LaTeX setup already present in the repository.
-- Add an abstract block, keyword block, and any required front-matter fields in the expected journal format.
+- Keep the existing abstract, keyword block, and author-year bibliography aligned with the eventual journal template.
 - Keep displayed heading levels to three or fewer across the full manuscript.
-- Add DOI information where available during bibliography cleanup.
+- Add DOI information where available during the final bibliography cleanup.
+- Prepare the declarations and other submission-facing front-matter items once the manuscript text is stable.
 
 Done when:
 
-- the manuscript compiles with author-year references and journal-compatible structure;
+- the manuscript is sitting in a journal-compatible template with the remaining front matter in place;
 - the front matter matches the stated JGPS constraints.
 
-### Task 10. Expand the manuscript to full-article scale without importing the wrong material
+### Task 9. Expand the manuscript to full-article scale without importing the wrong material
 
 Objective: reach JGPS length by deepening the argument, not by stuffing in the larger PEN program.
 
@@ -245,7 +220,7 @@ Done when:
 - the main text is in the 8,500-10,500 word range;
 - the added length directly serves the central argument.
 
-### Task 11. Run a final referee-style audit before submission packaging
+### Task 10. Run a final referee-style audit before submission packaging
 
 Objective: catch the remaining places where the paper still sounds stronger, stranger, or less grounded than it should.
 
