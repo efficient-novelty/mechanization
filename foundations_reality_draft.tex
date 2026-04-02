@@ -218,7 +218,7 @@ Taken together, these failures force the stronger constitutive statement above.
 
 Constitutive constraint yields a realm of coherent possibility. It does not yet yield reality as realized history. The task of selective actualization is therefore not to replace the constitutive order, but to govern how actuality proceeds from within it.
 
-Let $H$ denote realized history at some stage. Let $\mathcal{C}_{\mathrm{loc}}(H)$ denote the local continuation cone of coherent continuations of $H$ permitted by constitutive constraint. Selective actualization is a rule on $\mathcal{C}_{\mathrm{loc}}(H)$. The question is: what structural features must such a rule possess if it is to generate a nontrivial, dynamically stable, historically articulated world without hidden global foresight?
+Let $H$ denote realized history at some stage. Let $A(H)$ denote the admissible continuation cone at $H$: the locally accessible continuations compatible with constitutive constraint and with the commitments already carried by $H$. Selective actualization is a rule on $A(H)$. The question is: what structural features must such a rule possess if it is to generate a nontrivial, dynamically stable, historically articulated world without hidden global foresight?
 
 \subsection{Why actuality must be local}
 
@@ -318,6 +318,8 @@ The statement is deliberately local. It does not require reality to inspect inde
 A compressed formulation is useful. One may summarize the selective role by saying: \emph{reality becomes by least sufficient locally generative coherent expansion}. The fuller theorem should be preferred whenever precision matters.
 \end{remark}
 
+The argument is still deliberately schematic. A later section makes the skeleton explicit in a notation compact enough for evaluation while remaining neutral about any later evaluator or metric.
+
 \subsection{Why these requirements are needed}
 
 The previous subsections stated the selective role positively. The present subsection strengthens the case by showing that each component is forced by the failure of nearby alternatives.
@@ -373,6 +375,42 @@ Any universe rich enough to sustain determinate, cumulative becoming must obey a
 \end{itemize}
 
 Taken together, these constraints force selective actualization into something close to the canonical statement given above. The exact later formalization may vary. The structural shape cannot vary far without the ontology collapsing into arbitrariness, stagnation, explosion, serial replacement, or computational opacity.
+
+\section{A Minimal Formal Schema}
+
+The preceding argument can now be compressed into a minimal formal schema. The purpose of the schema is not to replace the philosophical discussion with a technical system. It is to state, in a reviewer-legible way, what the selective role ranges over, how context enters, what counts as a better continuation, and how an actual choice becomes the next realized history.
+
+The notation is intentionally spare:
+
+\begin{itemize}
+    \item $H$ is realized history up to the present stage.
+    \item $A(H)$ is the admissible continuation cone at $H$: the continuations compatible with constitutive constraint and with the commitments already carried by $H$.
+    \item $\preceq_H$ is a context-sensitive preorder on $A(H)$. It records comparative eligibility for actualization relative to $H$, once the local balance of generative affordance and stabilization burden is taken into account.
+    \item $S_H(x)$ says that $x$ is sufficient at $H$: it clears the context-sensitive threshold for actualization.
+    \item $P_H(x)$ says that $x$ is prime at $H$: it is not merely a gratuitous bundle of independently sufficient continuations.
+    \item $I(H,x)$ is the integration of $x$ into the next realized history.
+\end{itemize}
+
+The dependence on $H$ is not cosmetic. It represents the path-dependent context inherited from realized history. Admissibility, sufficiency, primeness, and comparative rank are all assessed relative to the history being extended. The framework therefore does not compare continuations against a history-free global scale. It compares admissible continuations relative to a determinate present continuation cone.
+
+The preorder $\preceq_H$ is kept abstract on purpose. At this level of the paper it does not stand for a single numerical metric or a completed evaluator. It stands for the minimal comparative structure needed to say that one admissible continuation is at least as eligible for actualization as another in context $H$. Using a preorder rather than a total order also leaves room for ties. Two admissible continuations may be equally eligible at this level of abstraction. A later theory may refine such ties by additional local structure, or treat them as a genuine parity that must be handled without appeal to a remote whole-history survey. What matters here is that ``better'' means better relative to the realized history and its admissible continuation cone, not better by inspection of indefinitely distant futures.
+
+With that notation in place, the selective role can be stated schematically. A continuation $x$ is eligible for actualization at $H$ only if it lies in the admissible cone, is sufficient in context, is prime in context, and is not strictly outranked by another admissible continuation that is likewise sufficient and prime:
+
+\[
+\begin{aligned}
+&x \in A(H), \qquad S_H(x), \qquad P_H(x),\\
+&\neg \exists y \in A(H)\bigl(S_H(y) \wedge P_H(y) \wedge y \prec_H x\bigr).
+\end{aligned}
+\]
+
+Here $y \prec_H x$ is the strict part of the preorder: $y$ is strictly more eligible than $x$ in context $H$. Once such an $x$ is selected, the next realized history is given schematically by
+
+\[
+H' = I(H,x).
+\]
+
+This schema is minimal but already clarifying. It says what is selected: an admissible continuation. It says what counts as better: comparative eligibility under the history-indexed preorder $\preceq_H$. It says how context enters: every condition is indexed to the realized history $H$ being extended. And it says how actuality advances: not by cataloguing possible worlds, but by integrating one locally admissible, sufficient, and prime continuation into the next history. That is enough structure to make the framework assessable without importing a full technical implementation.
 
 \section{What the Framework Adds}
 
