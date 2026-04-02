@@ -12,7 +12,7 @@ Turn the current manuscript from a concise metaphysical architecture statement i
 ## Current manuscript snapshot
 
 - Current file: `foundations_reality_draft.tex`.
-- Current approximate length: 4,394 words, so the paper is currently still well short of the expected JGPS full-article scale.
+- Current approximate length: 4,544 words, so the paper is currently still well short of the expected JGPS full-article scale.
 - Current strengths: clear constitutive/selective distinction, good presentation-independent instinct, strong "argued / proposed / deferred" discipline, useful emphasis on local actualization.
 - Current obstacles to submission: manifesto-style rhetoric, theorem/proof presentation for conceptual claims, only three references, no literature comparison section, no minimal formal schema, no toy model, and no JGPS-facing front matter.
 
@@ -52,35 +52,7 @@ This paper should function as the philosophical gateway paper, not the technical
 
 ## Execution order
 
-### Task 1. Rebuild the outline around the actualization problem
-
-Objective: replace the current architecture-first flow with a problem-driven argumentative structure suitable for JGPS.
-
-Target section order:
-
-1. Introduction: the problem of actualization.
-2. Existing distinctions and the remaining gap.
-3. A two-level framework for foundational explanation.
-4. Constitutive constraint.
-5. Selective actualization.
-6. Minimal formal schema and toy model.
-7. What the framework adds.
-8. Scope, limits, and what is deferred.
-9. Conclusion.
-
-Actions:
-
-- Map each current section into the new outline.
-- Merge or eliminate repetitive material, especially where the current draft states the selective law and then re-argues each component in isolation.
-- Keep the heading hierarchy to at most three displayed levels.
-- Decide early which current paragraphs move into the comparison section and which move into the scope/limits section.
-
-Done when:
-
-- the manuscript has a stable JGPS-style outline with no orphaned current sections;
-- every current major section has an explicit destination in the new structure.
-
-### Task 2. Add the comparison section JGPS referees will expect
+### Task 1. Add the comparison section JGPS referees will expect
 
 Objective: show that the constitutive/selective distinction is not just a relabeling of familiar contrasts.
 
@@ -104,7 +76,7 @@ Done when:
 - the manuscript contains a real comparison section, not just isolated name-checks;
 - a referee can see why the paper adds something beyond familiar architecture distinctions.
 
-### Task 3. Build a literature spine strong enough for a philosophy-of-science journal
+### Task 2. Build a literature spine strong enough for a philosophy-of-science journal
 
 Objective: move from three references to a literature-situated argument with enough body engagement to survive review.
 
@@ -129,7 +101,7 @@ Done when:
 - the bibliography is no longer skeletal;
 - the paper has an argumentative literature spine rather than an isolated thesis voice.
 
-### Task 4. Revise the constitutive section into a literature-facing account of constitutive constraint
+### Task 3. Revise the constitutive section into a literature-facing account of constitutive constraint
 
 Objective: keep the strongest current material while tying each requirement to a live philosophical issue.
 
@@ -145,7 +117,7 @@ Done when:
 - each constitutive requirement has a clear explanatory role;
 - the section is no longer just a polished restatement of the original thesis.
 
-### Task 5. Rewrite the selective section so localizability leads the argument
+### Task 4. Rewrite the selective section so localizability leads the argument
 
 Objective: make the selective role precise, intelligible, and less vulnerable to charges of hand-waving.
 
@@ -161,7 +133,7 @@ Done when:
 - the selective role reads as a structured argument rather than a list of intuitions;
 - localizability is clearly defended and clearly delimited.
 
-### Task 6. Add the minimal formal schema
+### Task 5. Add the minimal formal schema
 
 Objective: give reviewers a precise enough skeleton to evaluate the view without importing full PEN machinery.
 
@@ -186,7 +158,7 @@ Done when:
 - a reviewer can answer "what is selected?", "what counts as better?", and "how is context represented?" from the paper itself;
 - the paper has a formal skeleton without becoming a technical systems paper.
 
-### Task 7. Add a one-page toy branching model
+### Task 6. Add a one-page toy branching model
 
 Objective: convert the framework from proclamation into article-grade argument by showing how the pieces work on a small example.
 
@@ -210,7 +182,7 @@ Done when:
 - the toy model clarifies admissibility, valuation, sufficiency, primeness, and integration in one place;
 - the section can be read independently as the paper's intuitive core example.
 
-### Task 8. Split novelty from repetition by creating a dedicated "What the framework adds" section
+### Task 7. Split novelty from repetition by creating a dedicated "What the framework adds" section
 
 Objective: state the paper's contribution positively after the machinery is on the table.
 
@@ -218,7 +190,7 @@ Actions:
 
 - Explain that the paper is not merely contrasting possibility and actuality in the abstract.
 - State that the novelty lies in a claim about the architecture of foundational explanation for a determinate and historically articulated world.
-- Contrast the framework with familiar distinctions already discussed in Task 2.
+- Contrast the framework with familiar distinctions already discussed in Task 1.
 - Keep this section concise and synthetic rather than introducing new major machinery.
 
 Done when:
@@ -226,7 +198,7 @@ Done when:
 - the contribution is explicit, not merely implied;
 - the section answers the likely referee question "what is new here beyond terminology?"
 
-### Task 9. Preserve and strengthen the "argued / proposed / deferred" section
+### Task 8. Preserve and strengthen the "argued / proposed / deferred" section
 
 Objective: keep one of the current draft's best features while making the limits more explicit.
 
@@ -242,7 +214,7 @@ Done when:
 - the limits of the paper are unambiguous;
 - the manuscript reads as disciplined rather than overextended.
 
-### Task 10. Rewrite the conclusion into a restrained submission-ready ending
+### Task 9. Rewrite the conclusion into a restrained submission-ready ending
 
 Objective: end with a clear result instead of a final metaphysical flourish.
 
@@ -258,7 +230,7 @@ Done when:
 - the conclusion is shorter, calmer, and more analytic;
 - the final sentence points forward without grandiosity.
 
-### Task 11. Convert the citation and LaTeX setup to JGPS-friendly form
+### Task 10. Convert the citation and LaTeX setup to JGPS-friendly form
 
 Objective: make the manuscript operationally ready for journal submission rather than just conceptually revised.
 
@@ -275,7 +247,7 @@ Done when:
 - the manuscript compiles with author-year references and journal-compatible structure;
 - the front matter matches the stated JGPS constraints.
 
-### Task 12. Expand the manuscript to full-article scale without importing the wrong material
+### Task 11. Expand the manuscript to full-article scale without importing the wrong material
 
 Objective: reach JGPS length by deepening the argument, not by stuffing in the larger PEN program.
 
@@ -297,7 +269,7 @@ Done when:
 - the main text is in the 8,500-10,500 word range;
 - the added length directly serves the central argument.
 
-### Task 13. Run a final referee-style audit before submission packaging
+### Task 12. Run a final referee-style audit before submission packaging
 
 Objective: catch the remaining places where the paper still sounds stronger, stranger, or less grounded than it should.
 
