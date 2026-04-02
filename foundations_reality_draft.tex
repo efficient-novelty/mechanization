@@ -378,7 +378,7 @@ Taken together, these constraints force selective actualization into something c
 
 \section{A Minimal Formal Schema}
 
-The preceding argument can now be compressed into a minimal formal schema. The purpose of the schema is not to replace the philosophical discussion with a technical system. It is to state, in a reviewer-legible way, what the selective role ranges over, how context enters, what counts as a better continuation, and how an actual choice becomes the next realized history.
+The preceding argument can now be compressed into a minimal formal schema. The purpose of the schema is not to replace the philosophical discussion with a technical system. It is to state, in compact form, what the selective role ranges over, how context enters, what counts as a better continuation, and how an actual choice becomes the next realized history.
 
 The notation is intentionally spare:
 
@@ -412,6 +412,89 @@ H' = I(H,x).
 
 This schema is minimal but already clarifying. It says what is selected: an admissible continuation. It says what counts as better: comparative eligibility under the history-indexed preorder $\preceq_H$. It says how context enters: every condition is indexed to the realized history $H$ being extended. And it says how actuality advances: not by cataloguing possible worlds, but by integrating one locally admissible, sufficient, and prime continuation into the next history. That is enough structure to make the framework assessable without importing a full technical implementation.
 
+\section{A Toy Branching Model}
+
+A small branching example makes the division of explanatory labor fully explicit. Let $H$ be realized history, and consider four candidate continuations:
+
+\[
+a, \qquad b, \qquad c, \qquad d = b \oplus c.
+\]
+
+Here $\oplus$ is only schematic notation for bundling two candidate moves into one composite continuation. The example does not assume any special algebraic structure beyond that intuitive idea of combination.
+
+The case of $a$ illustrates constitutive exclusion. Suppose $a$ carries an unresolved incompatibility: it cannot be jointly determined with the identity and coherence conditions already borne by $H$. Then $a$ never enters the admissible continuation cone at all:
+
+\[
+a \notin A(H).
+\]
+
+This is the work of constitutive constraint. The selective role does not need to reject $a$, because $a$ was never a genuine candidate for actualization in the first place.
+
+The case of $b$ illustrates admissibility without sufficiency. Suppose $b$ is coherent with constitutive constraint and with realized history, so that
+
+\[
+b \in A(H),
+\]
+
+but suppose also that $b$ opens too little local generative affordance to justify the stabilization burden it would impose in the present context. Then $b$ is admissible but not sufficient:
+
+\[
+b \in A(H), \qquad \neg S_H(b).
+\]
+
+This is the first point at which the selective role does substantive work. Constitutive constraint leaves $b$ inside the admissible cone, but selective actualization does not yet permit its integration into realized history.
+
+The case of $c$ illustrates a continuation that is admissible, sufficient, and prime. Suppose $c$ is coherent with $H$, opens enough further continuation space to justify its stabilization burden, and does so without being a gratuitous bundle of independently sufficient parts. Then
+
+\[
+c \in A(H), \qquad S_H(c), \qquad P_H(c).
+\]
+
+To keep the example focused, suppose further that no admissible continuation that is both sufficient and prime strictly outranks $c$ under the context-sensitive preorder:
+
+\[
+\neg \exists y \in A(H)\bigl(S_H(y) \wedge P_H(y) \wedge y \prec_H c\bigr).
+\]
+
+Under those assumptions, $c$ is eligible for actualization.
+
+The final case shows why primeness matters. Let
+
+\[
+d = b \oplus c.
+\]
+
+Assume that this bundled continuation is still admissible and still sufficient because it contains the gain already carried by $c$:
+
+\[
+d \in A(H), \qquad S_H(d).
+\]
+
+Even so, $d$ should not be selected if the extra $b$-component contributes nothing that is contextually needed for actualization. In that case $d$ is not prime. It is merely a gratuitous package that combines one independently insufficient move with one move that was already sufficient on its own:
+
+\[
+\neg P_H(d).
+\]
+
+The example therefore yields a clean pattern of exclusion and selection:
+
+\[
+\begin{aligned}
+&a \notin A(H),\\
+&b \in A(H)\ \text{but}\ \neg S_H(b),\\
+&c \in A(H) \wedge S_H(c) \wedge P_H(c),\\
+&d \in A(H) \wedge S_H(d) \wedge \neg P_H(d).
+\end{aligned}
+\]
+
+Only $c$ survives every filter that the framework imposes. Constitutive constraint excludes $a$. Selective sufficiency excludes $b$. Primeness excludes $d$. The next realized history is therefore
+
+\[
+H' = I(H,c).
+\]
+
+The toy model is simple, but it displays the architecture of the view in one place. Constitutive constraint determines which continuations count as genuine candidates. Selective actualization then distinguishes the merely admissible from the actually eligible. And primeness ensures that actual history proceeds by contextually warranted articulation rather than by arbitrary bundling of whatever could be packaged together.
+
 \section{What the Framework Adds}
 
 Constitutive constraint and selective actualization are not rival explanations. They are complementary.
@@ -428,7 +511,7 @@ A foundations paper gains strength by distinguishing necessity from proposal and
 
 \subsection{Argued as metaphysical necessity}
 
-The following claims are argued here as necessary for any stable and interesting reality:
+The following claims are argued here as necessary for any stable and historically articulated world:
 
 \begin{enumerate}
     \item Reality requires both a constitutive law and a selective law.

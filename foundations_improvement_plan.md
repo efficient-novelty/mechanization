@@ -14,7 +14,7 @@ Turn the current manuscript from a concise metaphysical architecture statement i
 - Current file: `foundations_reality_draft.tex`.
 - Current approximate length: 5,478 words, so the paper is now past the midpoint toward the expected JGPS full-article scale but still needs substantial expansion.
 - Current strengths: clear constitutive/selective distinction, good presentation-independent instinct, strong "argued / proposed / deferred" discipline, useful emphasis on local actualization.
-- Current obstacles to submission: manifesto-style rhetoric, theorem/proof presentation for conceptual claims, bibliography still needing fuller integration, no toy model, and no JGPS-facing front matter.
+- Current obstacles to submission: manifesto-style rhetoric, theorem/proof presentation for conceptual claims, bibliography still needing fuller integration, and no JGPS-facing front matter.
 
 ## Non-negotiable editorial shift
 
@@ -84,31 +84,7 @@ Done when:
 - the selective role reads as a structured argument rather than a list of intuitions;
 - localizability is clearly defended and clearly delimited.
 
-### Task 3. Add a one-page toy branching model
-
-Objective: convert the framework from proclamation into article-grade argument by showing how the pieces work on a small example.
-
-Toy model to implement:
-
-- `a`: incoherent, so not in `A(H)`;
-- `b`: admissible but insufficient;
-- `c`: admissible, sufficient, and prime;
-- `d = b \oplus c`: admissible and sufficient, but non-prime because it is a gratuitous bundle.
-
-Actions:
-
-- Walk through the example in prose and simple notation.
-- Show that constitutive constraint excludes `a`.
-- Show that selective actualization excludes `b`.
-- Show that primeness excludes `d`.
-- Conclude with `H' = I(H,c)`.
-
-Done when:
-
-- the toy model clarifies admissibility, valuation, sufficiency, primeness, and integration in one place;
-- the section can be read independently as the paper's intuitive core example.
-
-### Task 4. Split novelty from repetition by creating a dedicated "What the framework adds" section
+### Task 3. Split novelty from repetition by creating a dedicated "What the framework adds" section
 
 Objective: state the paper's contribution positively after the machinery is on the table.
 
@@ -124,7 +100,7 @@ Done when:
 - the contribution is explicit, not merely implied;
 - the section answers the likely referee question "what is new here beyond terminology?"
 
-### Task 5. Preserve and strengthen the "argued / proposed / deferred" section
+### Task 4. Preserve and strengthen the "argued / proposed / deferred" section
 
 Objective: keep one of the current draft's best features while making the limits more explicit.
 
@@ -140,7 +116,7 @@ Done when:
 - the limits of the paper are unambiguous;
 - the manuscript reads as disciplined rather than overextended.
 
-### Task 6. Rewrite the conclusion into a restrained submission-ready ending
+### Task 5. Rewrite the conclusion into a restrained submission-ready ending
 
 Objective: end with a clear result instead of a final metaphysical flourish.
 
@@ -156,7 +132,7 @@ Done when:
 - the conclusion is shorter, calmer, and more analytic;
 - the final sentence points forward without grandiosity.
 
-### Task 7. Complete the remaining JGPS-facing LaTeX and submission formatting
+### Task 6. Complete the remaining JGPS-facing LaTeX and submission formatting
 
 Objective: make the manuscript operationally ready for journal submission rather than just conceptually revised.
 
@@ -173,7 +149,7 @@ Done when:
 - the manuscript is sitting in a journal-compatible template with the remaining front matter in place;
 - the front matter matches the stated JGPS constraints.
 
-### Task 8. Expand the manuscript to full-article scale without importing the wrong material
+### Task 7. Expand the manuscript to full-article scale without importing the wrong material
 
 Objective: reach JGPS length by deepening the argument, not by stuffing in the larger PEN program.
 
@@ -181,7 +157,7 @@ Recommended word-budget growth:
 
 - introduction plus comparison section: add roughly 2,000-2,500 words;
 - constitutive and selective sections: add roughly 1,500-2,000 words through clarification and literature engagement;
-- toy model and remaining formal clarification: add roughly 1,000-1,500 words;
+- remaining formal clarification and targeted argumentative deepening: add roughly 1,000-1,500 words;
 - framework-adds and limits sections: add roughly 500-1,000 words.
 
 Actions:
@@ -195,7 +171,7 @@ Done when:
 - the main text is in the 8,500-10,500 word range;
 - the added length directly serves the central argument.
 
-### Task 9. Run a final referee-style audit before submission packaging
+### Task 8. Run a final referee-style audit before submission packaging
 
 Objective: catch the remaining places where the paper still sounds stronger, stranger, or less grounded than it should.
 
@@ -247,10 +223,9 @@ Use this order when doing the actual rewrite:
 5. revise the framework section;
 6. revise the constitutive section;
 7. revise the selective section;
-8. add the toy model;
-9. revise the contribution and limits sections;
-10. rebuild the bibliography and convert citations;
-11. do the final tone and submission audit.
+8. revise the contribution and limits sections;
+9. rebuild the bibliography and convert citations;
+10. do the final tone and submission audit.
 
 ## Submission-prep checklist
 
