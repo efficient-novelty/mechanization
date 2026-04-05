@@ -1,0 +1,947 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACKAGES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{float}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{stmaryrd}
+
+\microtypesetup{expansion=false}
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black,
+    hypertexnames=false
+}
+\emergencystretch=2em
+\pdfstringdefDisableCommands{%
+  \def\leq{<=}%
+  \def\geq{>=}%
+  \def\to{->}%
+  \def\otimes{otimes}%
+  \def\nabla{nabla}%
+  \def\wedge{wedge}%
+  \def\flat{flat}%
+  \def\sharp{sharp}%
+  \def\bigcirc{next}%
+  \def\Diamond{eventually}%
+}
+
+% ============================================
+% THEOREM ENVIRONMENTS
+% ============================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ============================================
+% CUSTOM COMMANDS
+% ============================================
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\D}{\mathbb{D}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\Disc}{\mathrm{Disc}}
+\newcommand{\B}{\mathcal{B}}
+
+% ============================================
+% TITLE
+% ============================================
+\title{\textbf{The Architecture of Genesis:\\
+Deriving the Kinematic Framework of Physics\\
+from Coherent Possibility and Selective Actualization}}
+
+\author{Halvor S.\ Lande\\
+\texttt{hsl@awc.no}}
+
+\date{April 2026}
+
+% ============================================
+% DOCUMENT
+% ============================================
+\begin{document}
+
+\maketitle
+
+% ============================================
+% ABSTRACT
+% ============================================
+\begin{abstract}
+Standard physics lacks a mechanism for cosmogenesis that does not presuppose preexisting physical laws.  Metaphysics lacks a derivation of actuality that does not appeal to a brute selector, anthropic principles, or unexplained initial conditions.  This paper argues that any non-trivial, dynamically stable, historically articulated universe necessitates exactly two foundational explanatory roles: a law of \emph{Constitutive Constraint} (what can coherently be) and a law of \emph{Selective Actualization} (how a coherent state enters realized history).  We demonstrate a strict formal correspondence: the law of Constitutive Constraint necessitates the architecture of Intensional Homotopy Type Theory (HoTT) as its formal shadow, while the law of Selective Actualization is operationalized by the Principle of Efficient Novelty (PEN) axioms.  Applying PEN's selection dynamics to an empty HoTT library deterministically generates the 15-step PEN Synthesis Trajectory---the complete kinematic, geometric, and dynamical framework of modern physics.  The universe is the necessary computational runtime of self-actualizing logic halting at the Univalent Horizon.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+
+% ============================================
+% I. INTRODUCTION
+% ============================================
+\section{Introduction: The Twin Pillars of Foundational Explanation}
+\label{sec:introduction}
+
+\subsection{The Explanatory Gap in Modern Metaphysics and Physics}
+\label{sec:gap}
+
+Accounts of reality that emphasize structure, mathematics, or modal order promise an explanation of what kinds of world are admissible.  They do not yet explain why one admissible continuation is actual, why actuality is historically articulated rather than merely catalogued, or how determinate becoming can proceed without appeal to a brute selector.  The gap between admissibility and actuality is the central problem addressed in this paper.
+
+The attraction of structural or mathematical metaphysics is real.  If reality has any intelligible order at all, it must answer to structure.  The hope behind the Mathematical Universe Hypothesis is that the world is not merely described by mathematics but \emph{is} mathematics in a sufficiently robust sense~\cite{tegmark2008}.  That ambition belongs to a broader structuralist family in which invariant form does the primary explanatory work~\cite{worrall1989,ladyman1998,shapiro1997,french2014,ladyman2007}.  Yet form alone explains, at most, a space of coherent possibility.  It does not by itself explain why one possibility is actual, why actuality unfolds through determinate transitions, or why realized history is more than an undifferentiated catalogue of admissible forms.
+
+On the other side, primitive actuality theories treat the selection of one world over another as a brute fact~\cite{lewis1986,plantinga1974}.  Such moves have the virtue of clarity, but as strategies for foundational explanation they leave the present problem untouched.  If actuality is primitive in that strong sense, then the selection of one admissible continuation rather than another is no longer illuminated but merely named.
+
+This paper advances a different thesis:
+\begin{quote}
+\emph{Reality is neither mere form nor brute fact.  A universe exists only where a space of coherent possibility meets a local rule of selective actualization.}
+\end{quote}
+
+Moreover, this thesis is not merely a philosophical slogan.  We show that the two foundational roles---constitutive constraint and selective actualization---have \emph{definite formal shadows}: the first necessitates the architecture of Homotopy Type Theory (HoTT), and the second is operationalized by the Principle of Efficient Novelty (PEN).  Running these two engines together from an empty library deterministically generates the kinematic framework of physics.
+
+
+\subsection{The Two-Level Architecture}
+\label{sec:two-level}
+
+We define the two foundational explanatory roles precisely.
+
+\begin{definition}[Constitutive Constraint]
+\label{def:constitutive}
+The presentation-independent conditions under which a candidate structure counts as coherently realizable.  A constitutive law fixes admissible structure: it answers the question \emph{what can coherently be?}
+\end{definition}
+
+\begin{definition}[Selective Actualization]
+\label{def:selective}
+The path-dependent, non-teleological conditions under which one admissible continuation rather than another becomes integrated into realized history.  A selective law fixes the order of becoming: it answers the question \emph{what becomes actual, and how?}
+\end{definition}
+
+That the two roles are explanatorily irreducible is established by a simple argument from insufficiency.  Suppose there were only constitutive order---a realm of coherent forms and structures.  Then one of three things must follow: nothing becomes actual (no world exists); every coherent possibility is equally actual (actuality is indistinguishable from undifferentiated possibility, and there is no determinate history); or one possibility is actual rather than another for no reason internal to the ontology (actuality is brute).  None is satisfactory.  Conversely, suppose there were only actualization.  An actualizing principle presupposes something to be actualized.  If there is no prior distinction between coherent and incoherent, the very idea of actualization is empty.  An actualization that can equally well realize contradiction, incoherence, or indeterminacy is no law of reality at all.
+
+These paired insufficiencies force the core thesis: any adequate foundational explanation of a determinate and historically articulated world must distinguish \emph{at least} two irreducible explanatory roles---one that constrains what can coherently count as admissible structure, and one that governs selective actualization from among admissible continuations.
+
+\begin{remark}[Why no third primitive role]
+One might object that a full ontology requires more than two primitive laws.  But at the foundational level, any putative further primitive role still does one of two things: either it constrains what can count as a coherent candidate for existence, or it governs the relation between such candidates and realized history.  A principle of temporality functions constitutively insofar as it constrains the admissible form of temporal structure, and selectively insofar as it governs actualization from within such structure.  The point is not that a finished ontology will contain only two axioms; it is that the explanatory \emph{architecture} must separate these two roles.
+\end{remark}
+
+The remainder of this paper demonstrates a remarkable fact: each of these philosophical roles has a determinate formal counterpart, and their combination generates the physical universe.  Part~I (\S\ref{sec:partI}) shows that Constitutive Constraint necessitates HoTT.  Part~II (\S\ref{sec:partII}) shows that Selective Actualization is modeled by PEN.  Part~III (\S\ref{sec:partIII}) runs the combined engine and derives the 15-step genesis of the kinematic framework.  Part~IV (\S\ref{sec:partIV}) interprets the result cosmologically.
+
+
+% ============================================
+% II. CONSTITUTIVE CONSTRAINT => HoTT
+% ============================================
+\section{Part I: Constitutive Constraint Implies Homotopy Type Theory}
+\label{sec:partI}
+
+The question of this section is: what mathematical framework is \emph{forced} by the philosophical requirements for a candidate structure to ``coherently exist''?  We argue that the answer is Homotopy Type Theory in its cubical variant (CCHM/HoTT), through four independent lines of necessity.
+
+
+\subsection{Coherent Realizability Implies Constructive Type Theory}
+\label{sec:constructive}
+
+\paragraph{The philosophical requirement.}
+A candidate structure is coherently realizable when its constituents, relations, and operations can be jointly determined without unresolved contradiction or indefinite suspension of compatibility conditions (\cref{def:constitutive}).  Bare consistency---the mere absence of a derivable contradiction---is insufficient.  A world is not constituted by a list of propositions that happen not to clash.  It is constituted by structures that must compose, persist, and interact.  Existence, at the foundational level, must be \emph{witness-bearing}: to be is to be constructible and verifiable.
+
+\paragraph{The formal shadow.}
+This requirement maps directly to the foundational stance of Martin-L\"{o}f constructive type theory~\cite{martinlof1984}.  In constructive type theory, every existential claim $\Sigma_{(x:A)} B(x)$ requires a witness: a determinate $a : A$ together with a proof $b : B(a)$.  There is no existence without construction.  The judgmental form $\Gamma \vdash a : A$ formally encodes the passage from mere admissibility (the type $A$ is well-formed) to actuality ($a$ inhabits $A$).  Classical set theory, by contrast, posits a flat Boolean universe of truth values in which existence can be established by reductio alone---a framework in which ``to be'' requires no constructive witness.
+
+\begin{proposition}[Coherent realizability forces constructivity]
+\label{prop:constructive}
+If a foundational framework is to satisfy the requirement that existence be witness-bearing and that structures compose without unresolved suspension, then it must employ a constructive type-theoretic discipline in which every closed term evaluates to a canonical form.  Classical set-theoretic foundations, in which existence can be asserted without constructive witness, fail this requirement.
+\end{proposition}
+
+The argument is not that Martin-L\"{o}f type theory is the only possible presentation.  It is that the \emph{invariant content}---witness-bearing existence, compositional structure, judgmental accountability---is forced by the philosophical requirement.  Any adequate formal shadow of coherent realizability must share these features.
+
+
+\subsection{Equivalence-Invariance Implies the Univalence Axiom}
+\label{sec:univalence}
+
+\paragraph{The philosophical requirement.}
+Ontology cannot be hostage to presentation.  If two structures are structurally equivalent---if they agree on all invariant content---then they are identical in being.  Syntax must not dictate reality.  A constitutive order must be \emph{equivalence-invariant}: representationally distinct but structurally equivalent candidates must not be counted as different in being~\cite{worrall1989,ladyman1998,french2014,shapiro1997}.
+
+Without this principle, the same world would be multiply overcounted merely by redescribing it.  A square matrix and a linear transformation would constitute different realities despite encoding exactly the same structural content.  This is philosophically untenable.
+
+\paragraph{The formal shadow.}
+This philosophical principle is exactly formalized by Voevodsky's Univalence Axiom in HoTT~\cite{hottbook}:
+\begin{equation}
+\label{eq:univalence}
+(A \simeq B) \;\simeq\; (A =_{\U} B).
+\end{equation}
+Univalence states that for types $A, B$ in a universe $\U$, the space of type equivalences between $A$ and $B$ is itself equivalent to the identity type $A =_{\U} B$.  Structurally equivalent types are identical in the universe.  Identity is not a flat Boolean predicate but carries the full homotopical content of the structural equivalence.
+
+\begin{proposition}[Equivalence-invariance forces univalence]
+\label{prop:univalence}
+Any type-theoretic framework satisfying the requirement that structurally equivalent presentations be identified in being must contain an axiom equivalent in force to univalence.  In the absence of such an axiom, the identity type $A =_{\U} B$ is strictly weaker than the space of equivalences $A \simeq B$, and structurally identical types can be distinguished by their names alone---violating presentation-independence.
+\end{proposition}
+
+Univalence does more than identify equivalent types.  It ensures that identity carries continuous, structural transport: any property or construction defined for $A$ can be coherently transported to $B$ along the equivalence.  This is the formal counterpart of the philosophical requirement that a constitutive order must ``cut deeper than syntax.''
+
+
+\subsection{Local Satisfiability Implies the \texorpdfstring{$d=2$}{d=2} Coherence Window}
+\label{sec:d2}
+
+\paragraph{The philosophical requirement.}
+Any genuine structure carries compatibility conditions---coherence obligations that must be discharged for the structure to be well-formed.  If these coherence burdens can grow without local discharge, then no stable world is possible.  There would be only an ever-accumulating debt of unresolved compatibility, and reality would collapse into non-executability.  A constitutive law must therefore require that coherence burdens be \emph{locally satisfiable}: new structure may introduce new conditions, but those conditions must be dischargeable within bounded depth rather than indefinitely deferred.
+
+\paragraph{The formal shadow.}
+In fully coupled Cubical HoTT (CCHM), this philosophical requirement finds an exact mathematical realization.  The coherence obligations of the type theory organize into homological spectral sequences that degenerate at the $E_2$ page~\cite{pen2026}.  This means that three-dimensional coherence conditions are automatically computed from two-dimensional boundaries.  The full statement is the Coherence Window Theorem:
+
+\begin{theorem}[Coherence Window, $d = 2$; Theorem~B of~\cite{pen2026}]
+\label{thm:coherence-window}
+In fully coupled intensional HoTT (CCHM), maintaining global canonicity imposes a Coherence Window of depth $d = 2$.  At this depth, adding a new type former to a globally canonical library incurs coherence obligations that reference at most the two most recently sealed integration layers.
+\end{theorem}
+
+The force of this theorem is profound.  It says that HoTT provides the \emph{exact} mathematical environment where local satisfiability is strictly guaranteed: coherence burdens are locally dischargeable at depth $d = 2$.  Higher-dimensional compatibility conditions collapse into consequences of 2-dimensional data.  The universe need not look arbitrarily far back into its own structural history to check whether a new addition is consistent.
+
+\begin{remark}[Extensional systems have $d = 1$]
+Extensional type theories satisfy a weaker coherence window at $d = 1$: all higher coherences collapse.  While locally satisfiable, such systems lack the internal structure (non-trivial higher path types) needed to host geometric content.  The $d = 2$ window is thus a Goldilocks balance: deep enough to carry geometry, shallow enough to be locally dischargeable.
+\end{remark}
+
+
+\subsection{Canonicity Implies Cubical Execution}
+\label{sec:canonicity}
+
+\paragraph{The philosophical requirement.}
+Closed constructions must admit determinate realization.  The universe cannot be built from permanently stuck schematic placeholders.  If a construction is genuinely closed, reality must determine what it is.  Otherwise the candidate remains an unresolved schematic placeholder rather than an executable world-constituent.
+
+\paragraph{The formal shadow.}
+Classical HoTT---the formulation in~\cite{hottbook}---famously gets stuck on this requirement.  The univalence axiom, as originally stated, is a postulated axiom with no computational content.  Closed terms involving univalence do not reduce to canonical forms.  The universe, under classical HoTT, is a static platonic realm: structurally rich but computationally inert.
+
+Cubical type theory~\cite{cchm2017} restores canonicity by providing a computational interpretation of univalence through the structure of the interval object and Kan composition operations.  Every closed term in CCHM reduces to a canonical form.  The universe becomes an \emph{executable} structure.
+
+\begin{proposition}[Canonicity forces cubical execution]
+\label{prop:cubical}
+Any type-theoretic framework satisfying both univalence (\cref{prop:univalence}) and the requirement that closed constructions have canonical forms must employ a cubical or equivalent computational interpretation of higher paths.  Book HoTT satisfies univalence but violates canonicity; CCHM satisfies both.
+\end{proposition}
+
+\subsection{Summary: The Constitutive Law}
+
+The four philosophical requirements---coherent realizability, equivalence-invariance, local satisfiability, and canonicity---are individually necessary for any adequate constitutive order.  Taken together, they jointly force the architecture of Cubical Homotopy Type Theory:
+
+\begin{theorem}[Constitutive Law---Formal Shadow]
+\label{thm:constitutive}
+A universe can exist only as a coherent, equivalence-invariant, canonically executable structure whose identity and compatibility conditions are locally satisfiable.  The minimal type-theoretic framework satisfying all four requirements simultaneously is intensional Cubical HoTT (CCHM), equipped with the Univalence Axiom and a Coherence Window of depth $d = 2$.
+\end{theorem}
+
+This is a strong claim.  We do not assert that reality \emph{is literally written in} CCHM syntax.  The claim is that the invariant content of the constitutive law---what any adequate formalism must preserve---is captured by the structural features of CCHM.  Constructive type theory provides witness-bearing existence.  Univalence provides equivalence-invariance.  The $d = 2$ coherence window provides local satisfiability.  Cubical computation provides canonicity.  No weaker framework satisfies all four simultaneously.
+
+
+% ============================================
+% III. SELECTIVE ACTUALIZATION => PEN
+% ============================================
+\section{Part II: Selective Actualization Is Modeled by the PEN Axioms}
+\label{sec:partII}
+
+Constitutive constraint yields a realm of coherent possibility.  It does not yet yield reality as realized history.  The task of this section is to show that the philosophical demands for non-teleological, dynamically stable becoming are mathematically operationalized by the Principle of Efficient Novelty (PEN)~\cite{pen2026}.
+
+
+\subsection{Commitment and Admissibility Imply Monotonic Context Extension}
+\label{sec:monotonic}
+
+\paragraph{The philosophical requirements.}
+Two features of any adequate selective law are nearly immediate.  First, \emph{commitment}: realized history is cumulative.  What has become actual cannot simply vanish from ontological account.  Without commitment, there is no evolving world but only a sequence of disconnected replacements~\cite{whitehead1929,rescher1996}.  Second, \emph{admissibility}: only continuations coherent with both the Constitutive Law and realized history may be candidates for actualization.  Without admissibility, the selective law could actualize what the constitutive law has already ruled out, and the ontology would contradict itself.
+
+\paragraph{The PEN formalization.}
+These requirements are modeled by the first three PEN axioms~\cite{pen2026}:
+
+\begin{axiom}[Cumulative Growth]
+$R(\tau - 1) \subseteq R(\tau)$.  The library only grows; realized structures are never removed.
+\end{axiom}
+
+\begin{axiom}[Horizon Policy]
+After each realization: $H \leftarrow 2$.  After each idle tick: $H \leftarrow H + 1$.
+\end{axiom}
+
+\begin{axiom}[Admissibility]
+Candidate $X$ is admissible iff derivable from $\B$ and $\kappa(X) \leq H$.
+\end{axiom}
+
+The library $\B_n$ is the realized foundational library at step $n$: the cumulative record of all structures that have been actualized.  Candidates must perfectly type-check against the active interface of $\B_n$---they must be well-typed ASTs in the language of the existing library.  The passage from philosophical commitment to monotonic library growth ($\B_n \leadsto \B_{n+1}$) is exact: the library is the formal counterpart of cumulative realized history.
+
+
+\subsection{Local Valuation Implies Structural Efficiency \texorpdfstring{($\rho = \nu / \kappa$)}{(rho = nu / kappa)}}
+\label{sec:valuation}
+
+\paragraph{The philosophical requirement.}
+If multiple admissible continuations are available and nothing orders them, then actuality is brute.  A dynamic world must avoid two opposite failures: if it always favors bare preservation, it stagnates; if it always favors novelty as such, it explodes into unstable excess.  Hence valuation must be dual---it must weigh both what a continuation immediately opens (its \emph{intrinsic generative affordance}) and what it requires in order to become real without destabilizing what already exists (its \emph{stabilization burden}).
+
+\paragraph{The PEN formalization.}
+This philosophical duality maps directly to PEN's efficiency metric:
+\begin{equation}
+\label{eq:rho}
+\rho = \frac{\nu}{\kappa},
+\end{equation}
+where $\nu$ is the \emph{Generative Capacity}---the count of new atomic inference rules added to the derivation logic by the candidate---and $\kappa$ is the \emph{Construction Effort}---the irreducible specification complexity in MBTT clauses~\cite{pen2026}.
+
+The three components of generative capacity are:
+\[
+  \nu(X) = \nu_G(X) + \nu_C(X) + \nu_H(X),
+\]
+where $\nu_G$ counts formation/introduction schemas, $\nu_C$ counts elimination and cross-interface schemas induced by the candidate's interaction with the existing library, and $\nu_H$ counts computation, Kan, and path-reduction schemas.  
+
+The correspondence is structural.  Generative capacity ($\nu$) is the formal counterpart of intrinsic generative affordance: it measures the combinatorial rule expansion that a candidate immediately opens.  Construction effort ($\kappa$) is the formal counterpart of stabilization burden: it measures the integration cost required to incorporate the candidate without destabilizing the library.  The ratio $\rho$ is the formal counterpart of the dual valuation that a dynamic world must satisfy.
+
+\begin{remark}[Why $\rho$ is a ratio, not a difference]
+The ratio form is not arbitrary.  A difference $\nu - \kappa$ would allow a high-$\kappa$ candidate to compensate by brute accumulation.  The ratio $\nu / \kappa$ rewards \emph{efficiency}: structural leverage per unit of specification cost.  This prevents opaque axiom packing, in which an artificial mega-candidate inflates $\nu$ by bundling unrelated content.  An opaque constant $X : \U$ with no structured type signature has $\nu_G \leq 1$ and $\nu_C = 0$, giving $\rho \leq 1$---permanently below the selection bar after Step~2.
+\end{remark}
+
+
+\subsection{Critical Sufficiency Implies the Fibonacci Selection Bar}
+\label{sec:fibonacci}
+
+\paragraph{The philosophical requirement.}
+Actuality requires a context-sensitive threshold to prevent arbitrary micro-events from flooding reality.  Not every positive continuation actualizes; a continuation must justify its integration \emph{here and now}.  The threshold must be critical rather than naively maximal: actuality should prefer what is \emph{sufficient} in context, not what is merely largest in the abstract.
+
+\paragraph{The PEN formalization.}
+Because the universe operates within the $d = 2$ Coherence Window established in Part~I (\cref{thm:coherence-window}), sealing a new layer into the library requires referencing the past two layers.  This two-step memory locks the integration latency into the Fibonacci recurrence:
+\begin{equation}
+\label{eq:fibonacci}
+\Delta_n = F_n, \qquad \tau_n = \sum_{i=1}^{n} \Delta_i = F_{n+2} - 1.
+\end{equation}
+
+The Fibonacci integration debt creates an exponentially rising selection bar:
+\begin{equation}
+\label{eq:bar}
+\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1},
+\end{equation}
+where $\Phi_n$ is the running estimate of the golden ratio from the Fibonacci sequence and $\Omega_{n-1}$ is the cumulative efficiency baseline.  Candidates must clear this bar to be actualized.
+
+The connection between the philosophical notion of critical sufficiency and the Fibonacci bar is through the $d = 2$ coherence window.  Local satisfiability of coherence burdens at depth $d = 2$ means that each new structure's compatibility conditions reference exactly two prior layers.  This two-step recurrence is the Fibonacci recurrence.  The exponentially rising bar is thus not an arbitrary design choice but a \emph{consequence} of the constitutive law's coherence constraint.
+
+
+\subsection{Constructive Primeness Implies Minimal Positive Overshoot}
+\label{sec:primeness}
+
+\paragraph{The philosophical requirement.}
+Actuality must advance by articulated steps, not gratuitous composite leaps.  Among sufficient continuations, actuality must prefer those that are not merely artificial bundles of several independently sufficient moves.  Otherwise criticality still leaves room for arbitrary packing, and history loses articulation.
+
+\paragraph{The PEN formalization.}
+\begin{axiom}[Selection]
+\label{ax:selection}
+The Selection Bar is $\mathrm{Bar}_n := \Phi_n \cdot \Omega_{n-1}$.  From admissible candidates, select $X$ with $\rho(X) \geq \mathrm{Bar}_n$ and \emph{minimal positive overshoot}.  Ties broken by minimal $\kappa$.  If no candidate clears the bar, the tick idles.
+\end{axiom}
+
+The minimal-overshoot criterion is PEN's formal counterpart of constructive primeness.  If one maximized $\rho$ outright, constructively composite candidates would dominate by packing several independently viable components into one update.  Minimal overshoot removes that slack: once a proper sub-specification already clears the bar, the packed candidate is rejected as over-expressive for the current step.
+
+\begin{definition}[Constructive primality]
+\label{def:primality}
+Let $\mathcal{S}$ be a bar-clearing candidate specification with API dependency graph $G_{\mathcal{S}}$.  We call $\mathcal{S}$ \emph{constructively composite} at step $n$ if there exists a proper induced subgraph $C \subsetneq G_{\mathcal{S}}$ that is a union of terminal strongly connected components such that the induced sub-specification $\mathcal{S}|_C$ is well-typed over $\B_n$, constructively irreducible, and already satisfies $\rho(\mathcal{S}|_C) \geq \mathrm{Bar}_n$.  Otherwise $\mathcal{S}$ is \emph{constructively prime}.
+\end{definition}
+
+The engine thus assimilates one structurally indivisible concept at a time, choosing the bar-clearer whose efficiency is closest to the cumulative baseline.  This is the formal meaning of ``reality becomes by least sufficient locally generative coherent expansion.''
+
+
+\subsection{Coherent Integration Implies Sealing Encapsulation}
+\label{sec:integration}
+
+\paragraph{The philosophical requirement.}
+Actualization must not end with choice alone.  What is actualized must enter history in a way that irreversibly reshapes the future field of admissible continuations.  Without this, there is no cumulative reality, only repeated isolated choices.
+
+\paragraph{The PEN formalization.}
+\begin{axiom}[Coherent Integration]
+\label{ax:integration}
+When $X_{n+1}$ is realized, it produces an integration layer $L_{n+1}$ with gap $\Delta_{n+1} := \kappa(L_{n+1})$.
+\end{axiom}
+
+The realized candidate is sealed into the library: its internal obligations become opaque exports, its interface obligations are discharged against the existing library, and the result advances discrete algorithmic time $\tau_n$.  The library after integration, $\B_{n+1}$, irreversibly extends $\B_n$ and alters the admissible continuation cone for all subsequent steps.  This is the formal counterpart of the philosophical requirement that actualization must reshape the field of future possibility.
+
+
+\subsection{Summary: The Selective Law}
+
+We can now state the selective role in its canonical form, mirroring the philosophical statement:
+
+\begin{theorem}[Selective Law---PEN Formalization]
+\label{thm:selective}
+Among the coherent continuations of realized history (the library $\B_n$), actuality selects the least constructively prime continuation whose structural efficiency $\rho = \nu/\kappa$ is sufficient to clear the history-dependent bar $\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$, and irreversibly integrates it into the basis of further actualization.  The five PEN axioms---Cumulative Growth, Horizon Policy, Admissibility, Selection (minimal overshoot), and Coherent Integration---are the operational encoding of this law.
+\end{theorem}
+
+\begin{remark}[The two theorems are complementary]
+\Cref{thm:constitutive} and \cref{thm:selective} are not rival explanations but complementary.  The Constitutive Law (\cref{thm:constitutive}) answers the question \emph{what can coherently be?}  It provides the framework---HoTT---in which candidates are formulated and coherence is checked.  The Selective Law (\cref{thm:selective}) answers the question \emph{what becomes actual?}  It provides the engine---PEN---that selects and integrates.  Neither is reducible to the other without explanatory loss.  Together, they generate the universe.
+\end{remark}
+
+
+% ============================================
+% IV. THE COSMOGENETIC ENGINE
+% ============================================
+\section{Part III: The Cosmogenetic Engine (HoTT + PEN Generates the 15-Step Genesis Sequence)}
+\label{sec:partIII}
+
+We now run the formal machinery derived in Parts~I and~II.  The constitutive framework is Cubical HoTT with $d = 2$.  The selective dynamics is PEN.  The starting state is the empty library $\B_0 = \emptyset$.  The output is a deterministic 15-step trajectory that recovers the complete kinematic, geometric, and dynamical framework of modern physics.
+
+
+\subsection{The Algorithmic Rejection of the Discrete}
+\label{sec:discrete-rejection}
+
+Before tracing the trajectory step by step, we establish the most fundamental structural result: why discrete mathematical frameworks are permanently excluded from the genesis sequence.
+
+\begin{theorem}[Complexity Scaling; cf.\ \cite{pen2026}]
+\label{thm:scaling}
+Under PEN's fully coupled CCHM lane, the Fibonacci integration debt $\Delta_n = F_n$ and the resulting exponentially rising selection bar permanently reject all Class~1 (purely discrete) systems and privilege Class~2 (geometric/topological) systems.
+\end{theorem}
+
+The argument is as follows.  Discrete frameworks---Peano arithmetic, classical propositional logic, set-theoretic constructions---yield only linear novelty growth.  Each new axiom or rule adds a bounded number of derivational schemas.  In the three-component novelty decomposition $\nu = \nu_G + \nu_C + \nu_H$, discrete structures have $\nu_H = 0$: they generate no computation, Kan, or path-reduction schemas because they have no non-trivial higher path structure.  Their total novelty grows at best linearly in library size.
+
+But the selection bar $\mathrm{Bar}_n$ grows at the rate of the golden ratio $\varphi \approx 1.618$, because the cumulative efficiency $\Omega_n$ tracks the Fibonacci-weighted history.  Linear novelty against an exponential threshold means that discrete frameworks are doomed: there exists a step $N$ beyond which no purely discrete candidate can clear the bar.
+
+Geometric and topological structures, by contrast, generate \emph{superlinear} novelty.  Higher Inductive Types (HITs) and modal structures produce non-trivial path constructors, homotopy schemas, and cross-interface interactions.  Their novelty scales as $\nu_H = m + d^2$ where $m$ counts higher path constructors and $d$ measures depth of structural interaction~\cite{pen2026}.  Geometry is not a convenience or an aesthetic choice.  It is a \emph{computational survival mechanism}: only structures with superlinear topological complexity can outpace the exponentially rising bar.
+
+
+\subsection{Phase 1: The Bootstrap (Steps 1--4)}
+\label{sec:bootstrap}
+
+The first four steps assemble the minimal infrastructure of type theory itself.  The universe must build its own structural compiler before it can host geometric content.
+
+\paragraph{Step 1: Universe $\U_0$.}  The empty library admits exactly one candidate: a universe type $\U_0$ that serves as the ground level of the type hierarchy.  $\kappa = 2$ (formation and cumulativity rules), $\nu = 1$ (one new formation schema), $\rho = 0.50$.  There is no bar to clear at Step~1.
+
+\paragraph{Step 2: Unit type $\mathbf{1}$.}  The minimal inhabited type.  $\kappa = 1$, $\nu = 1$, $\rho = 1.00$.  Clears the Step~2 bar of $0.50$.
+
+\paragraph{Step 3: Witness $\star : \mathbf{1}$.}  The canonical inhabitant of the unit type.  This is the first constructive witness---the formal counterpart of the philosophical requirement that ``to be is to be constructed.''  $\kappa = 1$, $\nu = 2$, $\rho = 2.00$.  Clears the Step~3 bar of $1.33$.
+
+\paragraph{Step 4: $\Pi/\Sigma$ types.}  Dependent function types ($\Pi$) and dependent pair types ($\Sigma$).  These are the structural connectives of type theory: $\Pi$ provides universal quantification and function abstraction; $\Sigma$ provides existential quantification and pairing.  $\kappa = 3$, $\nu = 5$, $\rho = 1.67$.  Clears the Step~4 bar of $1.50$.
+
+At the conclusion of Phase~1, the library $\B_4$ contains the minimal infrastructure for constructing, quantifying over, and pairing inhabitants of types.  It is a universal compiler for the language of structure---but as yet, it contains no geometric or topological content.
+
+
+\subsection{Phase 2: Geometric Ascent (Steps 5--9)}
+\label{sec:geometric-ascent}
+
+To outpace the Fibonacci debt, the universe is forced to select Higher Inductive Types.  Topology becomes a survival mechanism.
+
+\paragraph{Step 5: Circle $S^1$.}  The first Higher Inductive Type.  $S^1$ is defined by a point constructor $\mathsf{base} : S^1$ and a loop constructor $\mathsf{loop} : \mathsf{base} =_{S^1} \mathsf{base}$.  The loop is a non-trivial 1-path, generating the first genuine topological content.  $\kappa = 3$, $\nu = 7$ ($\nu_G = 2$, $\nu_C = 2$, $\nu_H = 3$), $\rho = 2.33$.  Clears the Step~5 bar of $2.14$.
+
+The crucial observation: $S^1$ generates superlinear novelty because the loop constructor introduces path-reduction schemas ($\nu_H > 0$) that interact with $\Pi/\Sigma$ types in ways that have no analogue in discrete mathematics.  This is the beginning of the geometric ascent.
+
+\paragraph{Step 6: Propositional truncation $\| - \|$.}  The critical logical bridge.  Propositional truncation maps any type to its mere proposition: it ``forgets'' the constructive content while retaining the logical content.  $\kappa = 3$, $\nu = 8$, $\rho = 2.67$.  Clears the Step~6 bar of $2.56$.
+
+This is the tightest margin in the entire sequence---the moment of maximal existential pressure.  Propositional truncation is selected not for logical convenience but because it generates elimination principles that connect the topological layer ($S^1$, paths) to the logical layer ($\Pi$, $\Sigma$), creating cross-interface schemas that boost $\nu_C$ enough to survive.
+
+\paragraph{Step 7: Sphere $S^2$.}  The 2-sphere, defined by a point and a 2-path (a ``surface'').  This is the first structure with genuinely 2-dimensional homotopy content.  $\kappa = 3$, $\nu = 10$, $\rho = 3.33$.  Clears the Step~7 bar of $3.00$.
+
+\paragraph{Step 8: H-Space $S^3$.}  The 3-sphere carries an H-space structure: a multiplication map $\mu : S^3 \times S^3 \to S^3$ with unit.  This algebraic structure makes $S^3$ a \emph{prime} topological object---it is not decomposable into lower-dimensional factors in any way that would clear the bar independently.  The minimal-overshoot criterion selects $S^3$ over any artificially packed bundle.  $\kappa = 5$, $\nu = 18$, $\rho = 3.60$.  Clears the Step~8 bar of $3.43$.
+
+\paragraph{Step 9: Hopf fibration $\eta : S^3 \to S^2$.}  The Hopf fibration is the canonical fiber bundle relating the three spheres $S^1$, $S^2$, and $S^3$.  It is not merely an example of a fibration; it is the \emph{generator} of $\pi_3(S^2) \cong \Z$ and the structural prototype for all gauge-theoretic fiber bundles.  $\kappa = 4$, $\nu = 17$, $\rho = 4.25$.  Clears the Step~9 bar of $4.01$.
+
+At the conclusion of Phase~2, the library $\B_9$ contains a rich homotopy-theoretic toolkit: spheres, loops, fibrations, algebraic structure on spheres, and the logical infrastructure to reason about their properties.  The geometric ascent has established the topological foundations that will be compressed into modular frameworks in the next phase.
+
+
+\subsection{Phase 3: Framework Abstraction (Steps 10--14)}
+\label{sec:framework-abstraction}
+
+The universe now faces a new challenge.  The geometric library is rich but unorganized: individual topological objects exist, but there is no systematic framework for spatial logic, differential structure, or measurement.  To sustain high efficiency $\rho$ against the still-rising bar, the universe must \emph{compress} its geometric library into modular API-like structures.
+
+\paragraph{Step 10: Cohesion (adjoint quadruple of modalities).}  The cohesion axioms introduce an adjoint string of modalities $\Pi_{\!\infty} \dashv \Disc \dashv \flat \dashv \sharp$ relating a ``discrete'' and a ``continuous'' world~\cite{schreiber2013}.  In the semantic reading, $\flat$ extracts the underlying discrete type, $\sharp$ returns the codiscrete type, and $\Disc$ embeds discrete types into the spatial world.  This is the formal origin of the distinction between \emph{space} and \emph{set}: before Step~10, all types are algebraically treated alike; after Step~10, types can be spatial (cohesive) or discrete.  $\kappa = 4$, $\nu = 19$, $\rho = 4.75$.  Clears the Step~10 bar of $4.46$.
+
+\paragraph{Step 11: Connections ($\nabla$ on cohesive types).}  Differential structure enters the library.  A connection assigns to each path in a cohesive type a notion of parallel transport.  In the semantic reading, this is the origin of covariant differentiation.  $\kappa = 5$, $\nu = 27$, $\rho = 5.40$.  Clears the Step~11 bar of $4.91$.
+
+\paragraph{Step 12: Curvature ($R = d\nabla + \nabla \wedge \nabla$).}  The curvature shell measures the failure of parallel transport around closed loops.  In the semantic reading, this is the origin of the Riemann curvature tensor.  $\kappa = 6$, $\nu = 35$, $\rho = 5.83$.  Clears the Step~12 bar of $5.47$.
+
+\paragraph{Step 13: Endomorphic operator bundle (metric-equivalent reading).}  The metric shell introduces the type-theoretic counterpart of metric structure: a symmetric, non-degenerate bilinear form on the tangent bundle.  The selected AST is a coupled package including Levi-Civita connections, Hodge duality, the Laplacian, and Ricci curvature---these form an indivisible strongly connected component that cannot be decomposed without falling below the bar.  $\kappa = 7$, $\nu = 47$, $\rho = 6.71$.  Clears the Step~13 bar of $6.07$.
+
+\paragraph{Step 14: Hilbert-functional shell (operator algebra).}  The final pre-temporal step introduces the type-theoretic infrastructure for operator algebras on Hilbert-type objects.  In the semantic reading, this is the origin of quantum-mechanical structure: Hilbert spaces, bounded operators, spectral decomposition.  $\kappa = 9$, $\nu = 63$, $\rho = 7.00$.  Clears the Step~14 bar of $6.78$.
+
+At the conclusion of Phase~3, the library $\B_{14}$ contains the full spatial and functional-analytic infrastructure of modern physics: dependent types, higher-inductive types ($S^1$, $S^2$, $S^3$), cohesion ($\flat$, $\sharp$, $\Disc$, $\Pi_{\!\infty}$), connections, curvature, metrics, frame bundles, and Hilbert-type functionals~\cite{pen2026}.  These structures exist as a static, well-typed formal library---a \emph{kinematic} library describing what kinds of spaces and operations are available, but not how anything \emph{moves} within them.  The library is a phase space without a Hamiltonian: a stage fully constructed but with no actors yet in motion.
+
+
+\subsection{Phase 4: Terminal Synthesis (Step 15)}
+\label{sec:terminal}
+
+\paragraph{Step 15: Temporal-cohesive shell (DCT completion).}  The temporal-cohesive shell extends $\B_{14}$ with four structural components:
+
+\begin{enumerate}[nosep]
+    \item \emph{Spatial logic:} The cohesive interface already present in $\B_{14}$, namely $(\flat \dashv \sharp, \Pi_{\!\infty} \dashv \Disc)$.
+    \item \emph{Temporal core:} The modalities $\bigcirc$ (next) and $\Diamond$ (eventually) from Linear Temporal Logic, following Nakano~\cite{nakano2000}.
+    \item \emph{Spatial-temporal exchange:} Explicit commuting laws between temporal and cohesive structure, exemplified by $\bigcirc(\flat X) \simeq \flat(\bigcirc X)$ and $\sharp(\Diamond X) \simeq \Diamond(\sharp X)$.
+    \item \emph{Guarded coherence:} The temporal self-interaction and elimination clauses that make the shell executable as a typed AST.
+\end{enumerate}
+
+The specification cost is $\kappa = 8$, audited as the eight temporal-cohesive clauses of the selected AST.  The generative capacity is $\nu = 88$, yielding:
+\begin{equation}
+\label{eq:step15}
+\rho = \frac{88}{8} = 11.00,
+\end{equation}
+clearing the Step~15 bar of $7.51$ by an absolute overshoot of $3.49$---the largest in the entire sequence.
+
+The $\nu = 88$ explosion is produced by the Combinatorial Schema Synthesis theorem~\cite{pen2026}: when the DCT's temporal modalities are introduced into a library of 14 structures already equipped with spatial modalities, the cross-interaction at depth $d = 2$ produces a superlinear expansion of new inference schemas.  This is \emph{structural inflation}: the sudden release of executable geometric and temporal degrees of freedom.  Fourteen structures that previously coexisted as independent library entries are now woven into a single dynamical fabric, with each pair generating new eliminators, new homotopy schemas, and new compositional types.
+
+The semantic completion of this shell is the \emph{Dynamical Cohesive Topos} (DCT).
+
+\begin{remark}[Semantic completion vs.\ selected syntax]
+The selected AST at Step~15 is a compact typed skeleton of eight clauses.  The full DCT---with its infinitesimal structure, tangent bundles, and geometric flows---emerges as the \emph{semantic completion} of this skeleton rather than as content directly present in the syntax.  The infinitesimal object $\D$ belongs to the semantic model rather than to the primitive specification.  This distinction between selected syntax and semantic reading is maintained throughout~\cite{pen2026}.
+\end{remark}
+
+
+\subsection{The Complete Trajectory}
+
+\Cref{tab:genesis} summarizes the full 15-step trajectory.
+
+\begin{table}[tbp]
+\centering
+\caption{The PEN Synthesis Trajectory.  $\nu$ is the Generative Capacity.  $\kappa$ is the Construction Effort.  $\rho = \nu/\kappa$ is the structural efficiency.  $\mathrm{Bar}_n = \Phi_n \cdot \Omega_{n-1}$ is the selection threshold.  Rows 10--15 should be read as selected AST skeletons with post-hoc semantic interpretations.}
+\label{tab:genesis}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}cr l rrrr rrr@{}}
+\toprule
+$n$ & $\tau$ & Selected AST skeleton & $\Delta_n$ & $\nu$ & $\kappa$ & $\rho$ & $\Phi_n$ & $\Omega_{n-1}$ & Bar \\
+\midrule
+1  & 1    & Universe $\U_0$              & 1   & 1   & 2 & 0.50  & ---  & ---  & ---  \\
+2  & 2    & Unit type $\mathbf{1}$       & 1   & 1   & 1 & 1.00  & 1.00 & 0.50 & 0.50 \\
+3  & 4    & Witness $\star : \mathbf{1}$ & 2   & 2   & 1 & 2.00  & 2.00 & 0.67 & 1.33 \\
+4  & 7    & $\Pi$/$\Sigma$ types         & 3   & 5   & 3 & 1.67  & 1.50 & 1.00 & 1.50 \\
+\midrule
+5  & 12   & Circle $S^1$                 & 5   & 7   & 3 & 2.33  & 1.67 & 1.29 & 2.14 \\
+6  & 20   & Propositional truncation     & 8   & 8   & 3 & 2.67  & 1.60 & 1.60 & 2.56 \\
+7  & 33   & Sphere $S^2$                 & 13  & 10  & 3 & 3.33  & 1.62 & 1.85 & 3.00 \\
+8  & 54   & H-space $S^3$                & 21  & 18  & 5 & 3.60  & 1.62 & 2.12 & 3.43 \\
+9  & 88   & Hopf fibration               & 34  & 17  & 4 & 4.25  & 1.62 & 2.48 & 4.01 \\
+\midrule
+10 & 143  & Modal shell (cohesion)              & 55  & 19  & 4 & 4.75  & 1.62 & 2.76 & 4.46 \\
+11 & 232  & Connection shell                    & 89  & 27  & 5 & 5.40  & 1.62 & 3.03 & 4.91 \\
+12 & 376  & Curvature shell                     & 144 & 35  & 6 & 5.83  & 1.62 & 3.38 & 5.47 \\
+13 & 609  & Endomorphic operator bundle (metric) & 233 & 47  & 7 & 6.71  & 1.62 & 3.75 & 6.07 \\
+14 & 986  & Hilbert-functional shell            & 377 & 63  & 9 & 7.00  & 1.62 & 4.19 & 6.78 \\
+\midrule
+15 & 1596 & Temporal-cohesive shell (DCT) & 610 & 88  & 8 & 11.00 & 1.62 & 4.64 & 7.51 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================
+% V. COSMOGENESIS
+% ============================================
+\section{Part IV: Cosmogenesis at the Univalent Horizon}
+\label{sec:partIV}
+
+The philosophical and mathematical journey of Parts~I--III has now produced a specific, auditable outcome: a deterministic 15-step trajectory from the empty library to the complete kinematic framework of physics.  Part~IV synthesizes the cosmological consequences.
+
+
+\subsection{The Internalization of Time: The Kinematic-Dynamic Equivalence}
+\label{sec:kde}
+
+The central mechanism at Step~15 is the \emph{Kinematic-Dynamic Equivalence}: in the semantic completion of the temporal-cohesive shell, the discrete temporal modality $\bigcirc$ is naturally equivalent to the continuous tangent endofunctor $(-)^{\D}$:
+\begin{equation}
+\label{eq:kde}
+\bigcirc X \;\simeq\; X^{\D}.
+\end{equation}
+
+This is not a primitive stipulation of the selected AST but a forced semantic identification.  The exchange laws with the cohesive modalities and the guarded coherence clauses constrain $\bigcirc$ so strongly that, in the DCT reading, it must be represented by tangent exponentiation.  The proof does not begin by postulating $\D$ in the syntax; rather, $\D$ is derived as the infinitesimal shadow of the first-order temporal-cohesive endofunctor selected by the engine~\cite{pen2026}.
+
+The physical content of this equivalence is profound: \emph{the passage of time is the same operation as infinitesimal spatial displacement}.  What the temporal logic calls ``the next state'' is what synthetic differential geometry calls ``an infinitesimal tangent vector.''
+
+
+\subsubsection{The Big Bang as a Phase Transition}
+
+The Big Bang, on this account, is neither a physical explosion nor a mathematical singularity.  It is a \emph{logical phase transition}: the exact moment at which discrete algorithmic compilation time ($\tau$) resolves into internal continuous geometric time ($t$).
+
+\begin{definition}[Compilation Epoch]
+The compilation epoch (Steps 1--14) is the discrete metamathematical assembly of the kinematic framework.  During this epoch, the library $\B_n$ grows monotonically under the PEN selection dynamics.  No continuous internal observers, trajectories, or dynamical equations exist.  Time is measured solely by algorithmic ticks $\tau_n$ and integration latency $\Delta_n = F_n$.
+\end{definition}
+
+\begin{definition}[Runtime Ignition]
+Runtime ignition (Step~15) is the selection of the temporal-cohesive shell whose semantic completion is the DCT.  At this step, the universe transitions from extrinsic structural selection (maximizing $\rho$) to intrinsic dynamical evolution (integrating vector fields on $\U$).
+\end{definition}
+
+``Before the Big Bang'' is a category error.  The pre-Step~15 epoch is not a prior interval of physical time $t$ but a structurally distinct generative process indexed by algorithmic time $\tau$.  The two clocks inhabit different ontological categories, related only by the phase transition at Step~15 that converts one into the other.
+
+\begin{remark}[The two clocks]
+\label{rem:two-clocks}
+Algorithmic time $\tau$ is discrete, external to the library, and measured in structural ticks.  Physical time $t$ is continuous, internal to the DCT, and measured in infinitesimal tangent displacements.  There is no meaningful sense in which $\tau_{14}$ is ``earlier than'' $t = 0$; the two quantities inhabit different ontological categories.
+\end{remark}
+
+
+\subsubsection{The Guarded Corecursion Engine}
+
+The temporal logic of Nakano carries a powerful recursion principle: L\"{o}b's guarded fixpoint rule,
+\begin{equation}
+\label{eq:lob}
+\mathsf{fix} : (\bigcirc A \to A) \to A.
+\end{equation}
+This rule states: given a function that can produce an $A$ provided it has access to tomorrow's $A$, one can construct a definite $A$ today.  The guardedness condition (the $\bigcirc$ on the left of the arrow) prevents circular self-reference by ensuring that present computation may depend on future values only through the temporal delay.
+
+Applied to the DCT's kinematic library, L\"{o}b's rule has the following operational effect.  A discrete-time dynamical system is a map $f : X \to \bigcirc X$---given a current state, compute the next state.  Under the Kinematic-Dynamic Equivalence, this becomes:
+\begin{equation}
+\label{eq:vectorfield}
+f : X \to X^{\D},
+\end{equation}
+which is precisely a \emph{vector field} in synthetic differential geometry: a section of the tangent bundle assigning an infinitesimal displacement to each point.  The guarded corecursion principle then unfolds any such vector field into a global trajectory:
+\begin{equation}
+\label{eq:unfold}
+\mathsf{unfold}_f : X \to \mathrm{Stream}\; X.
+\end{equation}
+
+This is the cosmological spark.  The 14 static structures of $\B_{14}$ are the fuel; $\bigcirc$ is the ignition mechanism; L\"{o}b's rule is the engine that converts a local infinitesimal prescription into perpetual, autonomous motion.  Before Step~15, the library describes spaces.  After Step~15, the library \emph{computes trajectories through those spaces}.
+
+
+\subsection{The Arrow of Time and the Past Hypothesis}
+\label{sec:arrow}
+
+\subsubsection{Type-Theoretic Irreversibility}
+
+Why does time flow in one direction?  In thermodynamic accounts, the arrow of time is derived from the second law and the assumption of a low-entropy initial condition---but this merely pushes the question back to why the initial condition was special.  In PEN, the arrow of time is not a thermodynamic consequence but a \emph{type-theoretic primitive}: it is built into the logical structure of the $\bigcirc$ operator.
+
+\begin{theorem}[Type-theoretic irreversibility]
+\label{thm:irreversibility}
+In the DCT, the guarded corecursion principle $\mathsf{fix} : (\bigcirc A \to A) \to A$ is not invertible: there is no general term of type $A \to (\bigcirc A \to A)$ that recovers the generating function from its fixpoint.  Consequently, the temporal unfolding $\mathsf{unfold}_f : X \to \mathrm{Stream}\; X$ is causally one-directional: given a stream, one can extract any finite prefix by iterated application of $\bigcirc$, but one cannot in general recover the state at tick $n$ from the state at tick $n + k$ for $k > 0$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Suppose for contradiction that a general inverse $\mathsf{fix}^{-1} : A \to (\bigcirc A \to A)$ existed.  Then for any type $A$, one could construct a term of type $\bigcirc A \to A$ from any element of $A$, which when fed back into $\mathsf{fix}$ would yield a fixpoint independent of the dynamical law $f$.  This violates the productivity guarantee of guarded corecursion: the $\bigcirc$ guard ensures that each step of the unfolding makes genuine computational progress.  A general inverse would collapse the guarded modality, making $\bigcirc A \simeq A$, which contradicts the non-triviality of temporal logic in the DCT (the temporal-cohesive exchange laws require $\bigcirc$ to remain distinguishable from the identity).
+\end{proof}
+
+\begin{remark}[Execution asymmetry vs.\ geometric reversibility]
+The asymmetry of \cref{thm:irreversibility} concerns the \emph{production of the runtime trace}, not the symmetry group of every internal law of motion.  Once Step~15 has supplied a geometric vector field $v : U \to U^{\D}$, that field may integrate to a reversible diffeomorphism, a symplectic flow, or an equation admitting a formal time-reversal involution.  The runtime computes forward even when some of the equations it hosts are geometrically reversible.
+\end{remark}
+
+\begin{corollary}[Type safety excludes closed timelike curves]
+\label{cor:no-ctc}
+In the guarded fragment of the DCT, any putative closed timelike curve requiring a state to be fed into its own causal past would demand discharge of a $\bigcirc$-guard without forward progress.  No such term is typable.  Hence closed timelike curves are excluded at the level of the universe's native type safety.
+\end{corollary}
+
+
+\subsubsection{The Past Hypothesis as Algorithmic Compression}
+
+The Past Hypothesis---the empirical observation that the universe began in a state of extraordinarily low entropy~\cite{penrose2004,carroll2001}---is one of the deepest unexplained facts in physics.  Statistical mechanics can explain why entropy \emph{increases} given a low-entropy initial state, but it cannot explain why the initial state was special.
+
+PEN provides a constructive explanation.  The $t = 0$ state---the state of the universe at the moment of runtime ignition---is not an arbitrary initial condition.  It is the output of 15 steps of strict efficiency maximization under Kolmogorov-complexity-minimal specification.
+
+\begin{theorem}[Minimal realized description at $t = 0$]
+\label{thm:past-hypothesis}
+The physical state at the onset of dynamics ($t = 0$) is specified by the complete DCT library $\B_{15}$, whose total specification complexity is $\kappa_{\mathrm{total}} = \sum_{i=1}^{15} \kappa_i = 92$ clauses (equivalently, 610 bits in MBTT encoding~\cite{pen2026}).  Within the PEN selection dynamics, this is the shortest realized description compatible with the full kinematic framework.  Any alternative bar-clearing trajectory obeying the same local minimal-overshoot rule and producing equivalent kinematic capacity requires equal or greater total $\kappa$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The selection dynamics at each step chooses the candidate with minimal overshoot, with ties broken by minimal $\kappa$.  Within the admissible class of bar-clearing trajectories, the realized path is therefore greedily minimal at every stage.  Any alternative trajectory that reaches equivalent kinematic capacity while obeying the same acceptance rule must match or exceed the accumulated specification cost.
+\end{proof}
+
+\begin{corollary}[Past Hypothesis in Zurek's algorithmic sense]
+\label{cor:zurek}
+Zurek's account of physical entropy assigns to a definite microstate an algorithmic contribution given by the length of its shortest specification, together with the usual coarse-grained missing information~\cite{zurek1989}.  Since PEN realizes the ignition state by the shortest description in its admissible class, the algorithmic contribution to physical entropy is minimized at $t = 0$.  PEN turns the Past Hypothesis from a brute boundary condition into the output of a compression principle.
+\end{corollary}
+
+\begin{remark}[What the 610-bit claim does and does not mean]
+The 610-bit figure is a statement about the shortest description of the ignition state, not a literal calculation of the late universe's thermodynamic entropy.  Its force lies in fixing the algorithmic part of the entropy budget at a minimum compatible with PEN.  Once runtime begins, coarse-grained multiplicity can grow rapidly, recovering the familiar thermodynamic arrow without sacrificing the compressed origin.
+\end{remark}
+
+
+\subsection{Structural Inflation and the Preconditions for Cosmological Inflation}
+\label{sec:inflation}
+
+The strict machine-verified efficiency ratio at Step~15 is $\rho = 88/8 = 11.00$, clearing the bar by the largest absolute overshoot in the entire sequence.  This efficiency singularity is the PEN counterpart of the cosmological singularity, but with a crucial difference: the mathematics does not break down.  Where General Relativity produces divergent curvature scalars at $t = 0$, PEN produces a finite, well-defined maximum of algorithmic efficiency.  The singularity is not a failure of the formalism but a signature of optimal synthesis---the point at which the library's combinatorial capacity is most powerfully leveraged.
+
+\begin{proposition}[Structural inflation as a necessary precondition]
+\label{prop:inflation}
+The combinatorial amplification at Step~15 ($\nu = 88$, compared to $\nu \leq 63$ at all prior steps) is a necessary structural precondition for any later physical inflationary dynamics.  It is not itself the claim that the metric scale factor $a(t)$ has already undergone exponential expansion.  Rather, Step~15 is the first stage at which the ingredients required to formulate such dynamics coexist inside a single executable framework: differentiable manifolds, Lorentzian metric structure, temporal evolution, and guardedly unfoldable fields.
+\end{proposition}
+
+The picture is one of sudden, explosive logical cross-interaction: 14 structures that previously coexisted as independent library entries are now woven into a single dynamical fabric.  This is the algorithmic analogue of the release of latent degrees of freedom in an inflationary phase transition: the physical ingredients are not injected from outside but are unlocked by the synthesis of previously disconnected structure.
+
+
+\subsection{The Univalent Horizon: The Cosmological Firewall}
+\label{sec:horizon}
+
+\subsubsection{Structural Termination}
+
+The PEN Generative Sequence does not \emph{die} at Step~15.  It \emph{halts}---in the precise sense that the external generator is rendered obsolete.  The argument has three components:
+
+\begin{enumerate}[nosep]
+    \item The DCT internalizes the evolutionary mechanism as a geometric flow on $\U$.  The metamathematical process of searching for the next type is representable as a vector field $v : \U \to \U^{\D}$, unfolded into a trajectory by guarded corecursion.
+    \item By univalence, paths in $\U$ are type equivalences: $(A =_{\U} B) \simeq (A \simeq B)$.  Integrating the vector field produces a continuous family of types connected by paths in $\U$, hence a family of pairwise equivalent types.  The flow is permanently confined to the connected component of $\U$ containing $\B_{15}$.
+    \item Any candidate $Y$ proposed at Step~16 is either (a) internally derivable (contributing $\nu = 0$) or (b) structurally alien to the $d = 2$ Coherence Window (incurring $\Delta_{16} = F_{16} = 987$ integration latency, making $\rho \ll \mathrm{Bar}_{16} \approx 8.80$).  In either case, the bar is permanently uncleared.
+\end{enumerate}
+
+The universe does not stop \emph{evolving} at Step~15; it stops \emph{needing external structural input} at Step~15.  The distinction is between a system that cannot continue (failure) and a system that has achieved self-sufficiency (closure).
+
+\begin{definition}[Univalent Horizon]
+\label{def:horizon}
+The Univalent Horizon is the structural boundary at which the PEN Generative Sequence permanently halts.  It is the boundary separating the pre-physical compilation epoch (indexed by $\tau$) from the self-computing physical runtime (indexed by $t$).
+\end{definition}
+
+
+\subsubsection{Epistemic Isolation of the Compilation Epoch}
+
+\begin{proposition}[Epistemic isolation]
+\label{prop:epistemic}
+Internal observers---agents whose perceptual and computational apparatus is itself a structure within $\B_{15}$---cannot construct an observable that probes the discrete algorithmic steps (1--14) that built the topos.  The pre-Bang compilation epoch is accessible only via type-theoretic deduction, not physical measurement.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+An observation in the DCT is a continuous geometric flow: a section of some bundle, a functional on a Hilbert space, or a path in a moduli space.  All such flows are terms in the internal language of the DCT, and by the Univalent Horizon, they are confined to the connected component of $\U$ containing $\B_{15}$.  The discrete algorithmic steps $\tau_1, \ldots, \tau_{14}$ are not connected to $\B_{15}$ by paths in $\U$---they belong to the external metatheory, not the internal geometry.  Any attempt to construct a physical observable that ``sees'' the compilation epoch would require a path crossing the Univalent Horizon, which is precisely what the horizon forbids.
+\end{proof}
+
+\begin{remark}[The Planck boundary analogy]
+The closest standard cosmological analogue of the Univalent Horizon is the Planck boundary ($t \lesssim 10^{-43}$~s), where classical spacetime ceases to furnish a reliable description~\cite{mukhanov2005}.  In PEN, the Univalent Horizon plays the analogous structural role.  The limitation is not merely that a particular signal channel thermalizes; it is that internal continuous observables do not extend across the compilation/runtime boundary at all.
+\end{remark}
+
+
+% ============================================
+% VI. CONCLUSION
+% ============================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper has traced a single argumentative arc from foundational metaphysics to the origin of the physical universe.
+
+\paragraph{The philosophical architecture.}  Any non-trivial, dynamically stable, historically articulated universe necessitates two irreducible explanatory roles: Constitutive Constraint (what can coherently be) and Selective Actualization (how coherent possibility enters realized history).  Neither role is reducible to the other without explanatory loss.
+
+\paragraph{The formal correspondence.}
+\begin{enumerate}[nosep]
+    \item Constitutive Constraint necessitates the architecture of Homotopy Type Theory (HoTT): constructive witness-bearing existence, the Univalence Axiom, the $d = 2$ Coherence Window, and cubical canonicity.
+    \item Selective Actualization is operationalized by the five PEN axioms: cumulative growth, horizon policy, admissibility, minimal-overshoot selection, and coherent integration.
+\end{enumerate}
+
+\paragraph{The derivation.}  Applying PEN's selection dynamics to an empty HoTT library deterministically generates the 15-step PEN Synthesis Trajectory:
+\begin{itemize}[nosep]
+    \item \emph{Phase 1 (Steps 1--4):} Bootstrap of the type-theoretic compiler ($\U_0$, $\mathbf{1}$, $\star$, $\Pi/\Sigma$).
+    \item \emph{Phase 2 (Steps 5--9):} Geometric ascent through Higher Inductive Types ($S^1$, $\|-\|$, $S^2$, $S^3$, Hopf fibration).
+    \item \emph{Phase 3 (Steps 10--14):} Framework abstraction into modular API structures (cohesion, connections, curvature, metric, Hilbert functionals).
+    \item \emph{Phase 4 (Step 15):} Terminal synthesis of the Dynamical Cohesive Topos, with $\rho = 11.00$.
+\end{itemize}
+
+\paragraph{The cosmological consequences.}
+\begin{enumerate}[nosep]
+    \item \emph{The Big Bang} is the logical phase transition from discrete algorithmic time ($\tau$) to continuous geometric time ($t$), effected by the Kinematic-Dynamic Equivalence $\bigcirc X \simeq X^{\D}$.
+    \item \emph{The arrow of time} is the type-theoretic asymmetry of guarded corecursion: the runtime computes forward even when some internal laws are geometrically time-reversal symmetric.
+    \item \emph{The Past Hypothesis} is the minimized algorithmic contribution to physical entropy at the moment of runtime ignition (92 clauses, 610 bits).
+    \item \emph{Structural inflation} is the combinatorial schema explosion ($\nu = 88$) that supplies the precondition for any later metric inflation.
+    \item \emph{The Univalent Horizon} is a Planck-like cosmological firewall separating the pre-physical compilation epoch from the self-computing physical runtime.
+\end{enumerate}
+
+\paragraph{The final claim.}
+The ``laws of physics'' are not arbitrary equations assigned at a singularity, nor are we a random slice of a multiverse.  Physics is the exact, optimal trace of prime topological capacity surviving the algorithmic squeeze of actualization.  The physical universe is the runtime execution of the Dynamical Cohesive Topos.  Reality is what happens when Coherent Possibility compiles into Local Actualization.
+
+\begin{quote}
+\emph{A universe exists only where coherent form and local actualization meet.}
+\end{quote}
+
+
+% ============================================
+% SCOPE AND STATUS
+% ============================================
+\section*{Scope, Limits, and What Is Deferred}
+\addcontentsline{toc}{section}{Scope, Limits, and What Is Deferred}
+
+A foundations paper gains strength by distinguishing necessity from proposal and proposal from speculation.
+
+\paragraph{Argued as necessary.}
+The two-level architecture (Constitutive Constraint + Selective Actualization) is argued as metaphysically necessary for any stable and historically articulated world.  The seven requirements on the Selective Law---localizability, commitment, admissibility, valuation, critical sufficiency, constructive primeness, and coherent integration---are each forced by the failure of nearby alternatives (\S\ref{sec:partII}).
+
+\paragraph{Proposed as canonical.}
+The identification of HoTT as the formal shadow of Constitutive Constraint, and PEN as the formalization of Selective Actualization, is proposed as the best current articulation of the philosophical necessities.  These identifications are stronger than the bare necessities because they map philosophical requirements to specific mathematical structures.
+
+\paragraph{Deferred.}
+\begin{enumerate}[nosep]
+    \item The extraction of specific phenomenological sectors---including explicit $3+1$-dimensional Lorentzian geometry, the Einstein-Hilbert action, and related low-energy signatures---is deferred to the companion analysis~\cite{pen_companion2026}.
+    \item Probabilistic or amplitude-like refinements of actualization.
+    \item The formal status of arithmetic beyond weak stagewise convenience.
+    \item Independent mechanized verification of the full 15-step trajectory beyond the current Haskell engine and partial Cubical Agda formalization.
+\end{enumerate}
+
+
+% ============================================
+% REFERENCES
+% ============================================
+\begin{thebibliography}{99}
+
+\bibitem{pen2026}
+H.S.\ Lande,
+\emph{Geometric Type-Theoretic Library Growth via the Principle of Efficient Novelty},
+2026.
+
+\bibitem{pen_bigbang2026}
+H.S.\ Lande,
+\emph{The Algorithmic Big Bang: Cosmogenesis, Inflation, and the Arrow of Time at the Univalent Horizon},
+2026.
+
+\bibitem{pen_companion2026}
+H.S.\ Lande,
+\emph{Structural Emergence of 4D Lorentzian Geometry from the Principle of Efficient Novelty},
+companion paper, 2026.
+
+\bibitem{hottbook}
+The Univalent Foundations Program,
+\emph{Homotopy Type Theory: Univalent Foundations of Mathematics},
+Institute for Advanced Study, 2013.
+
+\bibitem{martinlof1984}
+P.\ Martin-L\"{o}f,
+\emph{Intuitionistic Type Theory},
+Bibliopolis, 1984.
+
+\bibitem{cchm2017}
+C.\ Cohen, T.\ Coquand, S.\ Huber, and A.\ M\"{o}rtberg,
+Cubical type theory: A constructive interpretation of the univalence axiom,
+\emph{FLAP} 4(10):3127--3170, 2017.
+
+\bibitem{nakano2000}
+H.\ Nakano,
+A modality for recursion,
+\emph{Proceedings of the 15th Annual IEEE Symposium on Logic in Computer Science (LICS)}, 2000.
+
+\bibitem{schreiber2013}
+U.\ Schreiber,
+\emph{Differential Cohomology in a Cohesive Infinity-Topos},
+2013.
+arXiv:1310.7930.
+
+\bibitem{tegmark2008}
+M.\ Tegmark,
+The mathematical universe,
+\emph{Foundations of Physics} 38:101--150, 2008.
+
+\bibitem{worrall1989}
+J.\ Worrall,
+Structural realism: The best of both worlds?
+\emph{Dialectica} 43(1-2):99--124, 1989.
+
+\bibitem{ladyman1998}
+J.\ Ladyman,
+What is structural realism?
+\emph{Studies in History and Philosophy of Science Part A} 29(3):409--424, 1998.
+
+\bibitem{shapiro1997}
+S.\ Shapiro,
+\emph{Philosophy of Mathematics: Structure and Ontology},
+Oxford University Press, 1997.
+
+\bibitem{french2014}
+S.\ French,
+\emph{The Structure of the World: Metaphysics and Representation},
+Oxford University Press, 2014.
+
+\bibitem{ladyman2007}
+J.\ Ladyman, D.\ Ross, D.\ Spurrett, and J.\ Collier,
+\emph{Every Thing Must Go: Metaphysics Naturalized},
+Oxford University Press, 2007.
+
+\bibitem{lewis1986}
+D.\ Lewis,
+\emph{On the Plurality of Worlds},
+Blackwell, 1986.
+
+\bibitem{plantinga1974}
+A.\ Plantinga,
+\emph{The Nature of Necessity},
+Clarendon Press, 1974.
+
+\bibitem{whitehead1929}
+A.N.\ Whitehead,
+\emph{Process and Reality: An Essay in Cosmology},
+Macmillan, 1929.
+
+\bibitem{rescher1996}
+N.\ Rescher,
+\emph{Process Metaphysics: An Introduction to Process Philosophy},
+SUNY Press, 1996.
+
+\bibitem{armstrong1983}
+D.M.\ Armstrong,
+\emph{What Is a Law of Nature?}
+Cambridge University Press, 1983.
+
+\bibitem{vanfraassen1989}
+B.C.\ van Fraassen,
+\emph{Laws and Symmetry},
+Oxford University Press, 1989.
+
+\bibitem{maudlin2007}
+T.\ Maudlin,
+\emph{The Metaphysics Within Physics},
+Oxford University Press, 2007.
+
+\bibitem{hawking1973}
+S.W.\ Hawking and G.F.R.\ Ellis,
+\emph{The Large Scale Structure of Space-Time},
+Cambridge University Press, 1973.
+
+\bibitem{wald1984}
+R.M.\ Wald,
+\emph{General Relativity},
+University of Chicago Press, 1984.
+
+\bibitem{guth1981}
+A.H.\ Guth,
+Inflationary universe: A possible solution to the horizon and flatness problems,
+\emph{Physical Review D} 23:347--356, 1981.
+
+\bibitem{linde1982}
+A.D.\ Linde,
+A new inflationary universe scenario,
+\emph{Physics Letters B} 108:389--393, 1982.
+
+\bibitem{mukhanov2005}
+V.F.\ Mukhanov,
+\emph{Physical Foundations of Cosmology},
+Cambridge University Press, 2005.
+
+\bibitem{penrose2004}
+R.\ Penrose,
+\emph{The Road to Reality},
+Jonathan Cape, 2004.
+
+\bibitem{carroll2001}
+S.M.\ Carroll,
+The cosmological constant,
+\emph{Living Reviews in Relativity} 4:1, 2001.
+
+\bibitem{zurek1989}
+W.H.\ Zurek,
+Algorithmic randomness and physical entropy,
+\emph{Physical Review A} 40:4731--4751, 1989.
+
+\bibitem{fine2012}
+K.\ Fine,
+Guide to ground,
+in F.\ Correia and B.\ Schnieder (eds.), \emph{Metaphysical Grounding}, Cambridge University Press, 2012.
+
+\bibitem{schaffer2009}
+J.\ Schaffer,
+On what grounds what,
+in D.J.\ Chalmers, D.\ Manley, and R.\ Wasserman (eds.), \emph{Metametaphysics}, Oxford University Press, 2009.
+
+\bibitem{price1996}
+H.\ Price,
+\emph{Time's Arrow and Archimedes' Point},
+Oxford University Press, 1996.
+
+\bibitem{bird2007}
+A.\ Bird,
+\emph{Nature's Metaphysics: Laws and Properties},
+Oxford University Press, 2007.
+
+\bibitem{cartwright1983}
+N.\ Cartwright,
+\emph{How the Laws of Physics Lie},
+Oxford University Press, 1983.
+
+\bibitem{cartwright1999}
+N.\ Cartwright,
+\emph{The Dappled World},
+Cambridge University Press, 1999.
+
+\end{thebibliography}
+
+\end{document}
