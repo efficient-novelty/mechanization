@@ -21,8 +21,11 @@ agda --transliterate Metatheory/SurfaceToHornImage.agda
 agda --transliterate Metatheory/FiniteInterfaceBasis.agda
 agda --transliterate Metatheory/GlobalActionSemantics.agda
 agda --transliterate Metatheory/ActiveBasisContract.agda
+agda --transliterate Metatheory/SparseDependencyRecurrence.agda
+agda --transliterate Metatheory/FullCouplingEnvelope.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
 agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
@@ -78,6 +81,13 @@ agda --transliterate Test/Fibonacci.agda
 | `active-basis-contract-entails-density` | `Metatheory.ActiveBasisContract` | deterministic active-basis coverage yields a contractible action datum at each field |
 | `coverage-alone-does-not-imply-depth-two-window` | `Metatheory.ActiveBasisContract` | explicit coverage model with depth-one collapse refutes circular depth-two inference |
 | `coverage-alone-does-not-imply-fibonacci` | `Metatheory.ActiveBasisContract` | explicit coverage model without Fibonacci growth refutes circular recurrence inference |
+| `sparse-windowed-recurrence` | `Metatheory.SparseDependencyRecurrence` | recurrence over an explicit finite dependency footprint |
+| `transparent-growth-zero-footprint` | `Metatheory.SparseDependencyRecurrence` | transparent elaboration has an empty sparse footprint and zero latency |
+| `orthogonal-extension-zero-or-sparse` | `Metatheory.SparseDependencyRecurrence` | ordinary orthogonal extensions classify as zero-footprint or sparse-footprint cases |
+| `orthogonal-extension-below-full-envelope` | `Metatheory.SparseDependencyRecurrence` | sparse dependency counts are bounded by the full previous-window envelope |
+| `full-coupling-envelope` | `Metatheory.FullCouplingEnvelope` | maximal footprint containing every previous-window dependency site |
+| `full-coupling-specializes-sparse-recurrence` | `Metatheory.FullCouplingEnvelope` | the full envelope is a specialization of sparse recurrence |
+| `full-coupling-depth-two-affine-law` | `Metatheory.FullCouplingEnvelope` | full depth-two coupling exposes the existing constant-payload affine law |
 | `integration-trace-principle` | `Metatheory.TracePrinciple` | payload plus trace decomposition |
 | `canonical-telescope-cardinality` | `Metatheory.CanonicalTelescope` | finite cardinality of a canonical telescope |
 | `trace-cost-normal-form-cardinality` | `Metatheory.TraceCostNormalForm` | finite cardinality of a trace-cost normal form |
@@ -137,8 +147,6 @@ agda --transliterate Test/Fibonacci.agda
 
 ## Planned Names Not Yet Present
 
-These names are intentionally absent until the remaining bridge phases are
-implemented:
-
-- `sparse-windowed-recurrence`
-- `full-coupling-specializes-sparse-recurrence`
+The remaining planned names are the Phase 8 case-study and audit artifacts;
+they are intentionally absent until the case-study modules and reports are
+implemented.

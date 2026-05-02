@@ -1,86 +1,98 @@
-# Next Step Plan: Sparse Dependency Recurrence And Full-Coupling Envelope
+# Next Step Plan: Case Studies And Audit Data
 
 ## Goal
 
-Implement Phase 7 of `mechanization_plan.md`: formalize a sparse dependency
-hierarchy where ordinary local extensions can have zero or finite footprints,
-and the Fibonacci/affine depth-two law appears only as the fully coupled
-endpoint.
+Implement Phase 8 of `mechanization_plan.md`: add toy-but-explicit case
+studies and an audit dataset that exercise the same counting vocabulary used by
+the bridge modules.
 
 ## Files To Create Or Update
 
-- Create `agda/Metatheory/SparseDependencyRecurrence.agda`.
-- Create `agda/Metatheory/FullCouplingEnvelope.agda`.
-- Create `agda/Test/SparseRecurrenceSmoke.agda`.
-- After the modules type-check, add the Phase 7 theorem names to
-  `docs/theorem_index.md`.
-- Add the new Phase 7 modules to `scripts/check_coherence_depth_artifact.sh`.
-- After completion, remove Phase 7 from `mechanization_plan.md`, move the new
-  modules into the current baseline, and leave a dated completion note.
+- Create `agda/CaseStudies/UniverseExtension.agda`.
+- Create `agda/CaseStudies/GlobalModality.agda`.
+- Create `agda/CaseStudies/PromotedInterface.agda`.
+- Create `agda/CaseStudies/SparseDatatype.agda`.
+- Create `docs/case_studies/coherence_depth_universe_extension.md`.
+- Create `docs/case_studies/coherence_depth_global_modality.md`.
+- Create `docs/case_studies/coherence_depth_promoted_interface.md`.
+- Create `docs/case_studies/coherence_depth_sparse_datatype.md`.
+- Create `docs/reports/coherence_depth_case_study_report.md`.
+- Create `runs/coherence_depth_case_studies/*.yaml`.
+- Create `scripts/coherence_depth_audit.py`.
+- After the Agda and audit checks pass, add case-study commands to
+  `docs/theorem_index.md` and `scripts/check_coherence_depth_artifact.sh`.
 
 ## Preparation
 
-1. Re-read the recurrence/counting surface:
-   - `agda/Metatheory/UniversalRecurrence.agda`
-   - `agda/Metatheory/TraceCostNormalForm.agda`
-   - `agda/Metatheory/InterfaceCalculus.agda`
-2. Re-read the chronological-window and arithmetic endpoints:
-   - `agda/Metatheory/ChronologicalWindow.agda`
-   - `agda/Metatheory/TwoDFoundations.agda`
-   - `agda/Core/AffineRecurrence.agda`
-3. Re-read the Phase 6 active-basis modules only for terminology consistency:
+1. Re-read the bridge/counting modules:
+   - `agda/Metatheory/SurfaceNormalizationBridge.agda`
+   - `agda/Metatheory/SurfaceToHornImage.agda`
    - `agda/Metatheory/FiniteInterfaceBasis.agda`
-   - `agda/Metatheory/GlobalActionSemantics.agda`
    - `agda/Metatheory/ActiveBasisContract.agda`
+   - `agda/Metatheory/SparseDependencyRecurrence.agda`
+   - `agda/Metatheory/FullCouplingEnvelope.agda`
+2. Re-read the case-study expectations in `paper_improvement_plan.md` and
+   `1_coherence_depth.tex` so the examples align with the paper vocabulary.
+3. Inspect existing docs/report style under `docs/` before adding the new
+   markdown files.
 
 ## Implementation Sketch
 
-1. In `SparseDependencyRecurrence.agda`, define the finite sparse footprint.
-   - Introduce `CouplingFootprint n` with an explicit finite dependency
-     surface over previous layers.
-   - Introduce `SparseWindowedContext` with footprint, layer cost, and payload.
-   - Export `sparse-windowed-recurrence`.
+1. Create a shared case-study shape inside the Agda case-study modules or a
+   small helper if duplication becomes meaningful.
+   - Record payload fields.
+   - Record active interface footprint.
+   - Record unary, binary, and higher horn obligations.
+   - Record whether higher horn obligations are derived.
+   - Record expected `mu` contribution.
+   - Record which recurrence law applies.
 
-2. Add zero and sparse examples.
-   - Export `transparent-growth-zero-footprint`.
-   - Export `orthogonal-extension-zero-or-sparse`.
-   - Export `orthogonal-extension-below-full-envelope`.
-   - Keep ordinary orthogonal extensions modeled as sparse cases, not as
-     counterexamples to the recurrence framework.
+2. Implement the four Agda examples.
+   - `UniverseExtension`: full-coupling recurrence endpoint.
+   - `GlobalModality`: full-coupling or global active-basis example.
+   - `PromotedInterface`: active-basis coverage without claiming it alone
+     proves a chronological window.
+   - `SparseDatatype`: explicit finite local footprint with no full recurrence
+     claim.
 
-3. In `FullCouplingEnvelope.agda`, define the maximal full-coupling package.
-   - Build on `Metatheory/UniversalRecurrence.agda`.
-   - Define `full-coupling-envelope` as the footprint containing the whole
-     active previous-window interface.
-   - Export `full-coupling-specializes-sparse-recurrence`.
+3. Add markdown case-study pages.
+   - Keep each page aligned to the same headings so the audit script can cross
+     check YAML fields against prose.
+   - Explicitly state payload fields, footprint, trace obligations, derived
+     status, totality, `mu`, and recurrence classification.
 
-4. Connect the full endpoint to the existing depth-two affine law.
-   - Export `full-coupling-depth-two-affine-law`.
-   - Make clear in the types that the Fibonacci endpoint consumes a full
-     coupling envelope plus the chronological-window reduction, not mere
-     active-basis coverage.
+4. Add YAML audit fixtures under `runs/coherence_depth_case_studies/`.
+   - One YAML file per case study.
+   - Use stable keys for all required fields.
+   - Include a refactored-presentation entry that has the same `mu` as its
+     source example.
 
-5. Add `agda/Test/SparseRecurrenceSmoke.agda`.
-   - Import both new modules.
-   - Alias every Phase 7 expected export so missing public names fail fast.
+5. Implement `scripts/coherence_depth_audit.py`.
+   - Validate required keys.
+   - Check that transparent examples have zero footprint and zero `mu`.
+   - Check sparse examples do not claim full-coupling recurrence.
+   - Check full-coupling examples declare the full envelope.
+   - Check refactored presentations preserve `mu`.
 
 ## Acceptance Commands
 
 ```bash
 cd agda
-agda --transliterate Metatheory/SparseDependencyRecurrence.agda
-agda --transliterate Metatheory/FullCouplingEnvelope.agda
-agda --transliterate Test/SparseRecurrenceSmoke.agda
+agda --transliterate CaseStudies/UniverseExtension.agda
+agda --transliterate CaseStudies/GlobalModality.agda
+agda --transliterate CaseStudies/PromotedInterface.agda
+agda --transliterate CaseStudies/SparseDatatype.agda
 cd ..
+python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
 ./scripts/check_coherence_depth_artifact.sh
 ```
 
 ## Guardrails
 
-- Do not present sparse recurrence as Fibonacci growth.
-- Do not import the Phase 6 active-basis contract as if it implied a
-  chronological window.
-- Keep the sparse/full distinction proof-relevant, with explicit footprints
-  rather than Boolean tags.
-- If a full-coupling proof needs a helper from `UniversalRecurrence.agda`,
-  reuse it instead of restating counted-window arithmetic.
+- Do not turn case studies into a parser or elaborator for arbitrary Cubical
+  Agda.
+- Do not claim active-basis totality alone implies the Fibonacci law.
+- Keep sparse datatype examples explicitly finite-footprint, not
+  full-envelope.
+- Keep YAML, markdown, and Agda names synchronized so the audit script can be
+  mechanical instead of interpretive.

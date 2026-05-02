@@ -47,6 +47,8 @@ Already present and usable:
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
 - `agda/Metatheory/GlobalActionSemantics.agda`
 - `agda/Metatheory/ActiveBasisContract.agda`
+- `agda/Metatheory/SparseDependencyRecurrence.agda`
+- `agda/Metatheory/FullCouplingEnvelope.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -61,6 +63,7 @@ Already present and usable:
 - `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 - `agda/Test/SurfaceBridgeSmoke.agda`
 - `agda/Test/ActiveBasisExamples.agda`
+- `agda/Test/SparseRecurrenceSmoke.agda`
 
 These checks currently pass:
 
@@ -78,9 +81,12 @@ agda --transliterate Metatheory/SurfaceToHornImage.agda
 agda --transliterate Metatheory/FiniteInterfaceBasis.agda
 agda --transliterate Metatheory/GlobalActionSemantics.agda
 agda --transliterate Metatheory/ActiveBasisContract.agda
+agda --transliterate Metatheory/SparseDependencyRecurrence.agda
+agda --transliterate Metatheory/FullCouplingEnvelope.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
@@ -101,10 +107,7 @@ under transport.
 The following files requested by `paper_improvement_plan.md` are currently
 absent and are the core backlog:
 
-- `agda/Metatheory/SparseDependencyRecurrence.agda`
-- `agda/Metatheory/FullCouplingEnvelope.agda`
 - `agda/CaseStudies/*.agda`
-- `agda/Test/SparseRecurrenceSmoke.agda`
 
 Supporting documentation and audit artifacts are also absent:
 
@@ -202,60 +205,20 @@ The focused checks
 sites were introduced; the checks retain the known `UnsupportedIndexedMatch`
 warning from `Metatheory/Obligations.agda`.
 
-## Phase 7: Sparse Dependency Recurrence And Full-Coupling Envelope
-
-Goal: formalize the sparse/full hierarchy so the Fibonacci theorem is the
-maximal fully coupled specialization, not a claim about all library growth.
-
-Deliverables:
-
-- `agda/Metatheory/SparseDependencyRecurrence.agda`
-- `agda/Metatheory/FullCouplingEnvelope.agda`
-- `agda/Test/SparseRecurrenceSmoke.agda`
-
-Core definitions:
-
-```agda
-record CouplingFootprint (n : Nat) : Set where
-  field
-    dependsOn : FiniteSubset (PreviousLayers n)
-
-record SparseWindowedContext : Set where
-  field
-    footprint : (n : Nat) -> CouplingFootprint n
-    layerCost : Nat -> Nat
-    payload   : Nat -> Nat
-```
-
-Expected exports:
-
-```agda
-sparse-windowed-recurrence
-transparent-growth-zero-footprint
-orthogonal-extension-zero-or-sparse
-orthogonal-extension-below-full-envelope
-full-coupling-envelope
-full-coupling-specializes-sparse-recurrence
-full-coupling-depth-two-affine-law
-```
-
-Implementation notes:
-
-- Build on `Metatheory/UniversalRecurrence.agda`.
-- The full-coupling case should recover the existing two-layer affine law after
-  the cubical chronological-window theorem reduces the active footprint to the
-  previous two layers.
-- Sparse recurrence should be stated over an explicit finite footprint, so
-  ordinary orthogonal extensions are modeled rather than dismissed.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/SparseDependencyRecurrence.agda
-agda --transliterate Metatheory/FullCouplingEnvelope.agda
-agda --transliterate Test/SparseRecurrenceSmoke.agda
-```
+Phase 7 sparse dependency recurrence and full-coupling envelope was completed
+on 2026-05-02. The finite dependency footprint, sparse context, sparse
+recurrence package, transparent zero-footprint package, and sparse/full
+bounding lemmas are implemented in
+`agda/Metatheory/SparseDependencyRecurrence.agda`; the maximal full-coupling
+envelope, sparse specialization, and depth-two affine endpoint are implemented
+in `agda/Metatheory/FullCouplingEnvelope.agda`. The smoke surface
+`agda/Test/SparseRecurrenceSmoke.agda` aliases every expected Phase 7 export.
+The focused checks
+`agda --transliterate Metatheory/SparseDependencyRecurrence.agda`,
+`agda --transliterate Metatheory/FullCouplingEnvelope.agda`, and
+`agda --transliterate Test/SparseRecurrenceSmoke.agda` pass. No new warning
+sites were introduced; the checks retain the known `UnsupportedIndexedMatch`
+warnings from existing theorem modules.
 
 ## Phase 8: Case Studies And Audit Data
 
