@@ -18,7 +18,11 @@ agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
 agda --transliterate Metatheory/SurfaceToHornImage.agda
+agda --transliterate Metatheory/FiniteInterfaceBasis.agda
+agda --transliterate Metatheory/GlobalActionSemantics.agda
+agda --transliterate Metatheory/ActiveBasisContract.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
+agda --transliterate Test/ActiveBasisExamples.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
 agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
@@ -67,6 +71,13 @@ agda --transliterate Test/Fibonacci.agda
 | `two-level-depth-two-law-for-2d-foundations` | `Metatheory.TwoLTTFoundations` | strict/fibrant 2LTT-style instance |
 | `refactoring-invariance` | `Metatheory.Refactoring` | coarse refactoring invariance |
 | `global-admissibility-forces-maximal-interface-density` | `Metatheory.CanonicityDensity` | active basis density for global admissibility |
+| `basis-families-exist` | `Metatheory.FiniteInterfaceBasis` | canonical finite basis family for a counted active interface |
+| `basis-family-cardinality-invariant` | `Metatheory.FiniteInterfaceBasis` | basis cardinality agrees with the active interface count |
+| `basis-action-equivalence` | `Metatheory.FiniteInterfaceBasis` | basis sites are equivalent to active interface fields |
+| `global-action-totality-implies-active-basis-contract` | `Metatheory.ActiveBasisContract` | global totality covers every active-basis site |
+| `active-basis-contract-entails-density` | `Metatheory.ActiveBasisContract` | deterministic active-basis coverage yields a contractible action datum at each field |
+| `coverage-alone-does-not-imply-depth-two-window` | `Metatheory.ActiveBasisContract` | explicit coverage model with depth-one collapse refutes circular depth-two inference |
+| `coverage-alone-does-not-imply-fibonacci` | `Metatheory.ActiveBasisContract` | explicit coverage model without Fibonacci growth refutes circular recurrence inference |
 | `integration-trace-principle` | `Metatheory.TracePrinciple` | payload plus trace decomposition |
 | `canonical-telescope-cardinality` | `Metatheory.CanonicalTelescope` | finite cardinality of a canonical telescope |
 | `trace-cost-normal-form-cardinality` | `Metatheory.TraceCostNormalForm` | finite cardinality of a trace-cost normal form |
@@ -129,7 +140,5 @@ agda --transliterate Test/Fibonacci.agda
 These names are intentionally absent until the remaining bridge phases are
 implemented:
 
-- `global-action-totality-implies-active-basis-contract`
-- `coverage-alone-does-not-imply-fibonacci`
 - `sparse-windowed-recurrence`
 - `full-coupling-specializes-sparse-recurrence`

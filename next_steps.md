@@ -1,90 +1,86 @@
-# Next Step Plan: Active-Basis Naturality
+# Next Step Plan: Sparse Dependency Recurrence And Full-Coupling Envelope
 
 ## Goal
 
-Implement Phase 6 of `mechanization_plan.md`: show that active-basis coverage
-is a consequence of global action totality, and keep that theorem separate
-from the depth-two recurrence. The point of this phase is non-circularity:
-coverage should entail the active-basis contract and the existing density
-package, but coverage alone should not imply a depth-two window or Fibonacci
-growth.
+Implement Phase 7 of `mechanization_plan.md`: formalize a sparse dependency
+hierarchy where ordinary local extensions can have zero or finite footprints,
+and the Fibonacci/affine depth-two law appears only as the fully coupled
+endpoint.
 
 ## Files To Create Or Update
 
-- Create `agda/Metatheory/FiniteInterfaceBasis.agda`.
-- Create `agda/Metatheory/GlobalActionSemantics.agda`.
-- Create `agda/Metatheory/ActiveBasisContract.agda`.
-- Create `agda/Test/ActiveBasisExamples.agda`.
-- After the modules type-check, add the Phase 6 theorem names to
+- Create `agda/Metatheory/SparseDependencyRecurrence.agda`.
+- Create `agda/Metatheory/FullCouplingEnvelope.agda`.
+- Create `agda/Test/SparseRecurrenceSmoke.agda`.
+- After the modules type-check, add the Phase 7 theorem names to
   `docs/theorem_index.md`.
-- After completion, remove Phase 6 from `mechanization_plan.md`, move the new
+- Add the new Phase 7 modules to `scripts/check_coherence_depth_artifact.sh`.
+- After completion, remove Phase 7 from `mechanization_plan.md`, move the new
   modules into the current baseline, and leave a dated completion note.
 
 ## Preparation
 
-1. Re-read the counted interface and density surface:
-   - `agda/Metatheory/InterfaceCalculus.agda`
-   - `agda/Metatheory/CanonicityDensity.agda`
-   - `agda/Metatheory/CanonicalTelescope.agda`
-2. Re-read the bridge counting layer now available from earlier phases:
-   - `agda/Metatheory/SurfaceNormalizationBridge.agda`
-   - `agda/Metatheory/SurfaceToHornImage.agda`
-3. Re-read the recurrence/window modules only to avoid accidentally depending
-   on them in the coverage theorem:
-   - `agda/Metatheory/ChronologicalWindow.agda`
+1. Re-read the recurrence/counting surface:
    - `agda/Metatheory/UniversalRecurrence.agda`
+   - `agda/Metatheory/TraceCostNormalForm.agda`
+   - `agda/Metatheory/InterfaceCalculus.agda`
+2. Re-read the chronological-window and arithmetic endpoints:
+   - `agda/Metatheory/ChronologicalWindow.agda`
+   - `agda/Metatheory/TwoDFoundations.agda`
    - `agda/Core/AffineRecurrence.agda`
+3. Re-read the Phase 6 active-basis modules only for terminology consistency:
+   - `agda/Metatheory/FiniteInterfaceBasis.agda`
+   - `agda/Metatheory/GlobalActionSemantics.agda`
+   - `agda/Metatheory/ActiveBasisContract.agda`
 
 ## Implementation Sketch
 
-1. In `FiniteInterfaceBasis.agda`, define a finite active-interface basis.
-   - Keep the API proof-relevant: records for interface fields, transparent
-     equivalence, and basis families.
-   - Export `basis-families-exist`,
-     `basis-family-cardinality-invariant`, and
-     `basis-action-equivalence`.
+1. In `SparseDependencyRecurrence.agda`, define the finite sparse footprint.
+   - Introduce `CouplingFootprint n` with an explicit finite dependency
+     surface over previous layers.
+   - Introduce `SparseWindowedContext` with footprint, layer cost, and payload.
+   - Export `sparse-windowed-recurrence`.
 
-2. In `GlobalActionSemantics.agda`, define the payload for a global action.
-   - Model the advertised scope as the whole active interface.
-   - Model totality as acting on every basis site.
-   - Keep this layer free of chronological-window or recurrence imports.
+2. Add zero and sparse examples.
+   - Export `transparent-growth-zero-footprint`.
+   - Export `orthogonal-extension-zero-or-sparse`.
+   - Export `orthogonal-extension-below-full-envelope`.
+   - Keep ordinary orthogonal extensions modeled as sparse cases, not as
+     counterexamples to the recurrence framework.
 
-3. In `ActiveBasisContract.agda`, connect totality to density.
-   - Export `global-action-totality-implies-active-basis-contract`.
-   - Reuse `Metatheory/CanonicityDensity.agda` where possible instead of
-     restating density.
-   - Export `active-basis-contract-entails-density`.
+3. In `FullCouplingEnvelope.agda`, define the maximal full-coupling package.
+   - Build on `Metatheory/UniversalRecurrence.agda`.
+   - Define `full-coupling-envelope` as the footprint containing the whole
+     active previous-window interface.
+   - Export `full-coupling-specializes-sparse-recurrence`.
 
-4. Add the non-circularity examples.
-   - Provide a small coverage model with a UIP/depth-one collapse.
-   - Provide a small coverage model with an artificial depth-three window.
-   - Export `coverage-alone-does-not-imply-depth-two-window`.
-   - Export `coverage-alone-does-not-imply-fibonacci`.
+4. Connect the full endpoint to the existing depth-two affine law.
+   - Export `full-coupling-depth-two-affine-law`.
+   - Make clear in the types that the Fibonacci endpoint consumes a full
+     coupling envelope plus the chronological-window reduction, not mere
+     active-basis coverage.
 
-5. Add `agda/Test/ActiveBasisExamples.agda`.
-   - Import the three new modules.
-   - Alias every Phase 6 expected export so the smoke module catches missing
-     public names.
+5. Add `agda/Test/SparseRecurrenceSmoke.agda`.
+   - Import both new modules.
+   - Alias every Phase 7 expected export so missing public names fail fast.
 
 ## Acceptance Commands
 
 ```bash
 cd agda
-agda --transliterate Metatheory/FiniteInterfaceBasis.agda
-agda --transliterate Metatheory/GlobalActionSemantics.agda
-agda --transliterate Metatheory/ActiveBasisContract.agda
-agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Metatheory/SparseDependencyRecurrence.agda
+agda --transliterate Metatheory/FullCouplingEnvelope.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
 cd ..
 ./scripts/check_coherence_depth_artifact.sh
 ```
 
 ## Guardrails
 
-- Do not import the Fibonacci or exact-depth theorem into the proof of
-  active-basis coverage.
-- If a helper is only a finite counting lemma, keep it in
-  `FiniteInterfaceBasis.agda`; if it mentions global actions, keep it in
-  `GlobalActionSemantics.agda`.
-- Record any new Cubical Agda warning site in `mechanization_plan.md`. The
-  existing `UnsupportedIndexedMatch` warnings from `Obligations` and
-  `TracePrinciple` remain expected.
+- Do not present sparse recurrence as Fibonacci growth.
+- Do not import the Phase 6 active-basis contract as if it implied a
+  chronological window.
+- Keep the sparse/full distinction proof-relevant, with explicit footprints
+  rather than Boolean tags.
+- If a full-coupling proof needs a helper from `UniversalRecurrence.agda`,
+  reuse it instead of restating counted-window arithmetic.

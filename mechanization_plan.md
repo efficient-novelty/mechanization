@@ -44,6 +44,9 @@ Already present and usable:
 - `agda/Metatheory/RawStructuralTyping.agda`
 - `agda/Metatheory/SurfaceNormalizationBridge.agda`
 - `agda/Metatheory/SurfaceToHornImage.agda`
+- `agda/Metatheory/FiniteInterfaceBasis.agda`
+- `agda/Metatheory/GlobalActionSemantics.agda`
+- `agda/Metatheory/ActiveBasisContract.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -57,6 +60,7 @@ Already present and usable:
 - `agda/Test/PresentationInvariance/TransparentAlias.agda`
 - `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 - `agda/Test/SurfaceBridgeSmoke.agda`
+- `agda/Test/ActiveBasisExamples.agda`
 
 These checks currently pass:
 
@@ -71,8 +75,12 @@ agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
 agda --transliterate Metatheory/SurfaceToHornImage.agda
+agda --transliterate Metatheory/FiniteInterfaceBasis.agda
+agda --transliterate Metatheory/GlobalActionSemantics.agda
+agda --transliterate Metatheory/ActiveBasisContract.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
+agda --transliterate Test/ActiveBasisExamples.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
@@ -93,13 +101,9 @@ under transport.
 The following files requested by `paper_improvement_plan.md` are currently
 absent and are the core backlog:
 
-- `agda/Metatheory/FiniteInterfaceBasis.agda`
-- `agda/Metatheory/GlobalActionSemantics.agda`
-- `agda/Metatheory/ActiveBasisContract.agda`
 - `agda/Metatheory/SparseDependencyRecurrence.agda`
 - `agda/Metatheory/FullCouplingEnvelope.agda`
 - `agda/CaseStudies/*.agda`
-- `agda/Test/ActiveBasisExamples.agda`
 - `agda/Test/SparseRecurrenceSmoke.agda`
 
 Supporting documentation and audit artifacts are also absent:
@@ -182,68 +186,21 @@ were introduced; the checks retain only the known `UnsupportedIndexedMatch`
 warnings from `Metatheory/Obligations.agda` and
 `Metatheory/TracePrinciple.agda`.
 
-## Phase 6: Active-Basis Naturality
-
-Goal: show that active-basis coverage follows from global action totality and
-does not smuggle in the depth-two recurrence.
-
-Deliverables:
-
-- `agda/Metatheory/FiniteInterfaceBasis.agda`
-- `agda/Metatheory/GlobalActionSemantics.agda`
-- `agda/Metatheory/ActiveBasisContract.agda`
-- `agda/Test/ActiveBasisExamples.agda`
-
-Core definitions:
-
-```agda
-record ActiveInterface : Set where
-  field
-    fieldCount  : Nat
-    fieldAt     : Fin fieldCount -> InterfaceField
-    transparent : TransparentEquivalence fieldAt
-    basis       : BasisFamily transparent
-
-record GlobalActionPayload (I : ActiveInterface) : Set where
-  field
-    advertisedScope : WholeActiveInterface I
-    actsOnField     : InterfaceFieldOf I -> Set
-
-record ActionTotality {I : ActiveInterface}
-  (X : GlobalActionPayload I) : Set where
-  field
-    actsOnEveryBasisSite : ...
-```
-
-Expected exports:
-
-```agda
-basis-families-exist
-basis-family-cardinality-invariant
-basis-action-equivalence
-global-action-totality-implies-active-basis-contract
-active-basis-contract-entails-density
-coverage-alone-does-not-imply-depth-two-window
-coverage-alone-does-not-imply-fibonacci
-```
-
-Implementation notes:
-
-- Reuse `Metatheory/CanonicityDensity.agda` for the density theorem-facing
-  package where possible.
-- The non-circularity theorem can be proved by two explicit small models:
-  active-basis coverage with UIP depth-one collapse, and active-basis coverage
-  with an artificial depth-three window.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/FiniteInterfaceBasis.agda
-agda --transliterate Metatheory/GlobalActionSemantics.agda
-agda --transliterate Metatheory/ActiveBasisContract.agda
-agda --transliterate Test/ActiveBasisExamples.agda
-```
+Phase 6 active-basis naturality was completed on 2026-05-02. The finite
+active-interface basis is implemented in
+`agda/Metatheory/FiniteInterfaceBasis.agda`, the global advertised-scope and
+deterministic action-totality semantics are implemented in
+`agda/Metatheory/GlobalActionSemantics.agda`, and the active-basis contract,
+density package, and non-circularity examples are implemented in
+`agda/Metatheory/ActiveBasisContract.agda`. The smoke surface
+`agda/Test/ActiveBasisExamples.agda` aliases every Phase 6 expected export.
+The focused checks
+`agda --transliterate Metatheory/FiniteInterfaceBasis.agda`,
+`agda --transliterate Metatheory/GlobalActionSemantics.agda`,
+`agda --transliterate Metatheory/ActiveBasisContract.agda`, and
+`agda --transliterate Test/ActiveBasisExamples.agda` pass. No new warning
+sites were introduced; the checks retain the known `UnsupportedIndexedMatch`
+warning from `Metatheory/Obligations.agda`.
 
 ## Phase 7: Sparse Dependency Recurrence And Full-Coupling Envelope
 
