@@ -46,6 +46,7 @@ require_no_postulates() {
     "$AGDA_DIR/ObligationGraph"
     "$AGDA_DIR/PEN.agda"
     "$AGDA_DIR/Test/MetatheorySmoke.agda"
+    "$AGDA_DIR/Test/PresentationInvariance/Smoke.agda"
     "$AGDA_DIR/Test/ClutchingSmoke.agda"
     "$AGDA_DIR/Test/Fibonacci.agda"
   )
@@ -83,6 +84,7 @@ require_no_postulates() {
 
 run_agda "PEN.agda"
 run_agda "Test/MetatheorySmoke.agda"
+run_agda "Test/PresentationInvariance/Smoke.agda"
 run_agda "Geometry/Clutching.agda"
 run_agda "Test/ClutchingSmoke.agda"
 run_agda "Test/Fibonacci.agda"

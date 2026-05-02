@@ -36,19 +36,25 @@ Already present and usable:
 - `agda/Metatheory/TwoLTTFoundations.agda`
 - `agda/Metatheory/AdjunctionBarrier.agda`
 - `agda/Metatheory/UniversalRecurrence.agda`
+- `agda/Metatheory/CanonicalTelescope.agda`
+- `agda/Metatheory/TraceCostNormalForm.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
 - `agda/Test/MetatheorySmoke.agda`
 - `agda/Test/ClutchingSmoke.agda`
 - `agda/Test/Fibonacci.agda`
+- `agda/Test/PresentationInvariance/Smoke.agda`
 
 These checks currently pass:
 
 ```bash
 cd agda
 agda --transliterate PEN.agda
+agda --transliterate Metatheory/CanonicalTelescope.agda
+agda --transliterate Metatheory/TraceCostNormalForm.agda
 agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
 ```
@@ -65,14 +71,12 @@ absent and are the core backlog:
 
 - `agda/Metatheory/RawStructuralSyntax.agda`
 - `agda/Metatheory/RawStructuralTyping.agda`
-- `agda/Metatheory/CanonicalTelescope.agda`
 - `agda/Metatheory/SurfaceNormalizationBridge.agda`
 - `agda/Metatheory/SurfaceToHornImage.agda`
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
 - `agda/Metatheory/GlobalActionSemantics.agda`
 - `agda/Metatheory/ActiveBasisContract.agda`
 - `agda/Metatheory/PresentationEquivalence.agda`
-- `agda/Metatheory/TraceCostNormalForm.agda`
 - `agda/Metatheory/MuInvariance.agda`
 - `agda/Metatheory/SparseDependencyRecurrence.agda`
 - `agda/Metatheory/FullCouplingEnvelope.agda`
@@ -80,7 +84,11 @@ absent and are the core backlog:
 - `agda/Test/SurfaceBridgeSmoke.agda`
 - `agda/Test/ActiveBasisExamples.agda`
 - `agda/Test/SparseRecurrenceSmoke.agda`
-- `agda/Test/PresentationInvariance/*.agda`
+- `agda/Test/PresentationInvariance/RebundleRecord.agda`
+- `agda/Test/PresentationInvariance/SplitShell.agda`
+- `agda/Test/PresentationInvariance/CurryUncurry.agda`
+- `agda/Test/PresentationInvariance/TransparentAlias.agda`
+- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 
 Supporting documentation and audit artifacts are also absent:
 
@@ -115,65 +123,6 @@ checks the baseline Agda modules and theorem-facing postulate boundary. The
 script uses native `agda` when it is on `PATH` and falls back to
 `powershell.exe` for Agda invocations in Windows Git Bash, because this
 workspace exposes Agda in PowerShell but not necessarily in Bash.
-
-## Phase 1: Canonical Telescope And Trace Cost Normal Forms
-
-Goal: factor out the presentation and counting surface needed by both the raw
-bridge and `mu` invariance.
-
-Deliverables:
-
-- `agda/Metatheory/CanonicalTelescope.agda`
-- `agda/Metatheory/TraceCostNormalForm.agda`
-- `agda/Test/PresentationInvariance/Smoke.agda` or equivalent first smoke
-  import
-
-Core definitions:
-
-```agda
-record CanonicalTelescope : Set where
-  field
-    fieldCount : Nat
-    fieldAt    : Fin fieldCount -> Set
-
-record TraceCostField : Set where
-  field
-    support       : HistoricalSupport
-    arity         : Nat
-    primitiveCost : PrimitiveCost
-
-record CanonicalTraceCostNormalForm : Set where
-  field
-    traceTelescope : CanonicalTelescope
-    traceField     : Fin traceFieldCount -> TraceCostField
-```
-
-Expected exports:
-
-```agda
-canonical-telescope-cardinality
-trace-cost-normal-form-cardinality
-primitive-trace-subtelescope
-derived-trace-subtelescope
-mu-of-trace-cost-normal-form
-```
-
-Implementation notes:
-
-- Align `PrimitiveCost` with the existing cost language in
-  `Metatheory/Obligations.agda`.
-- If existing names do not exactly match the sketch, adapt the new modules to
-  the existing API rather than reshaping the old theorem modules.
-- Keep this layer intentionally finite and syntactic; do not import Cubical HIT
-  machinery here unless unavoidable.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/CanonicalTelescope.agda
-agda --transliterate Metatheory/TraceCostNormalForm.agda
-```
 
 ## Phase 2: Presentation Equivalence And `mu` Invariance
 

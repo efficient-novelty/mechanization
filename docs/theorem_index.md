@@ -11,6 +11,7 @@ This index gives the stable names to search for when checking the Agda side of
 cd agda
 agda --transliterate PEN.agda
 agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Geometry/Clutching.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
@@ -55,6 +56,11 @@ agda --transliterate Test/Fibonacci.agda
 | `refactoring-invariance` | `Metatheory.Refactoring` | coarse refactoring invariance |
 | `global-admissibility-forces-maximal-interface-density` | `Metatheory.CanonicityDensity` | active basis density for global admissibility |
 | `integration-trace-principle` | `Metatheory.TracePrinciple` | payload plus trace decomposition |
+| `canonical-telescope-cardinality` | `Metatheory.CanonicalTelescope` | finite cardinality of a canonical telescope |
+| `trace-cost-normal-form-cardinality` | `Metatheory.TraceCostNormalForm` | finite cardinality of a trace-cost normal form |
+| `primitive-trace-subtelescope` | `Metatheory.TraceCostNormalForm` | primitive trace-field subtelescope |
+| `derived-trace-subtelescope` | `Metatheory.TraceCostNormalForm` | derived trace-field subtelescope |
+| `mu-of-trace-cost-normal-form` | `Metatheory.TraceCostNormalForm` | minimal opaque trace count for a normal form |
 | `computational-replacement-preserves-canonical-presentation` | `Metatheory.ComputationalReplacement` | replacement preserves canonical presentation |
 | `higher-arity-fields-disappear-from-minimal-signature` | `Metatheory.ComputationalReplacement` | higher arity disappears from minimal signature |
 | `higher-arity-computational-replacement` | `Metatheory.ComputationalReplacement` | packaged higher-arity replacement |
@@ -82,4 +88,3 @@ implemented:
 - `coverage-alone-does-not-imply-fibonacci`
 - `sparse-windowed-recurrence`
 - `full-coupling-specializes-sparse-recurrence`
-

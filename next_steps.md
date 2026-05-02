@@ -1,60 +1,73 @@
-# Next Step Plan: Canonical Telescope And Trace Cost Normal Forms
+# Next Step Plan: Presentation Equivalence And Mu Invariance
 
 ## Goal
 
-Implement Phase 1 of `mechanization_plan.md`: the finite canonical telescope
-and trace-cost normal-form layer needed by both the raw surface bridge and
-future `mu` invariance.
+Implement Phase 2 of `mechanization_plan.md`: make the minimal opaque trace
+cost `mu` invariant under an explicit finite set of presentation-equivalence
+generators.
 
 ## Files To Create
 
-- `agda/Metatheory/CanonicalTelescope.agda`
-- `agda/Metatheory/TraceCostNormalForm.agda`
-- `agda/Test/PresentationInvariance/Smoke.agda`
+- `agda/Metatheory/PresentationEquivalence.agda`
+- `agda/Metatheory/MuInvariance.agda`
+- `agda/Test/PresentationInvariance/RebundleRecord.agda`
+- `agda/Test/PresentationInvariance/SplitShell.agda`
+- `agda/Test/PresentationInvariance/CurryUncurry.agda`
+- `agda/Test/PresentationInvariance/TransparentAlias.agda`
+- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 
 ## Preparation
 
-1. Read these existing modules for names and finite-index conventions:
-   - `agda/Core/Nat.agda`
-   - `agda/Metatheory/Obligations.agda`
+1. Read the Phase 1 modules:
+   - `agda/Metatheory/CanonicalTelescope.agda`
+   - `agda/Metatheory/TraceCostNormalForm.agda`
+2. Re-read these existing modules for reusable proof surfaces:
    - `agda/Metatheory/Refactoring.agda`
    - `agda/Metatheory/ComputationalReplacement.agda`
-2. Confirm whether the repo already exposes a `Fin` type and finite sums.
-   Prefer the existing local surface over importing new Cubical library
-   machinery.
-3. Check how `PrimitiveCost`, `HistoricalSupport`, and arity are represented
-   today, then adapt the new normal form to those names.
+   - `agda/Metatheory/TracePrinciple.agda`
+3. Confirm which proof combinators for equality chains and isomorphism
+   composition are already local, and reuse them instead of adding a new
+   abstraction layer.
 
 ## Implementation Sketch
 
-1. `CanonicalTelescope.agda`
-   - define a finite telescope record with a field count and field lookup;
-   - expose cardinality and simple isomorphism/correspondence helpers;
-   - keep the module syntactic and `--safe`.
-2. `TraceCostNormalForm.agda`
-   - define `TraceCostField` with support, arity, and primitive-cost status;
-   - define `CanonicalTraceCostNormalForm`;
-   - define the primitive and derived subtelescope views;
-   - define `mu-of-trace-cost-normal-form` as the primitive trace count.
-3. `Test/PresentationInvariance/Smoke.agda`
-   - import the two new modules;
-   - expose a few top-level aliases so future regressions fail early.
+1. `PresentationEquivalence.agda`
+   - define `PresentationStep` over `CanonicalTraceCostNormalForm`;
+   - include generators for Sigma reassociation, record splitting/bundling,
+     Pi curry/uncurry, transport fields, transparent alias insert/delete, and
+     duplicate derived trace deletion;
+   - define reflexive, symmetric, transitive `PresentationEquivalent`;
+   - expose preservation lemmas for support and primitive cost.
+2. `MuInvariance.agda`
+   - define `TransparentlyGenerated` and `RequiresPrimitive`;
+   - prove `mu-preserved-by-presentation-step`;
+   - lift step preservation to `mu-invariant-under-presentation-equivalence`;
+   - connect derived deletion to the Phase 1 primitive subtelescope and to
+     `ComputationalReplacement` where possible.
+3. Smoke tests
+   - each test module should import the new theorem-facing modules and expose
+     the specific generator/theorem for the named scenario;
+   - keep examples small and finite so failures point at the intended surface.
 
 ## Acceptance Commands
 
 ```bash
 cd agda
-agda --transliterate Metatheory/CanonicalTelescope.agda
-agda --transliterate Metatheory/TraceCostNormalForm.agda
-agda --transliterate Test/PresentationInvariance/Smoke.agda
+agda --transliterate Metatheory/PresentationEquivalence.agda
+agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
+agda --transliterate Test/PresentationInvariance/SplitShell.agda
+agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
+agda --transliterate Test/PresentationInvariance/TransparentAlias.agda
+agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
 cd ..
 ./scripts/check_coherence_depth_artifact.sh
 ```
 
 ## Plan Updates After Completion
 
-- Remove Phase 1 from `mechanization_plan.md`.
-- Add the new modules to `docs/theorem_index.md` under the planned bridge
-  section.
-- Update this file to Phase 2: `PresentationEquivalence.agda` and
-  `MuInvariance.agda`.
+- Remove Phase 2 from `mechanization_plan.md`.
+- Move `PresentationEquivalence.agda`, `MuInvariance.agda`, and their smoke
+  tests from gaps into the current baseline.
+- Add the new theorem names to `docs/theorem_index.md`.
+- Replace this file with the Phase 3 raw structural syntax and typing plan.
