@@ -42,6 +42,7 @@ Already present and usable:
 - `agda/Metatheory/MuInvariance.agda`
 - `agda/Metatheory/RawStructuralSyntax.agda`
 - `agda/Metatheory/RawStructuralTyping.agda`
+- `agda/Metatheory/SurfaceNormalizationBridge.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -54,6 +55,7 @@ Already present and usable:
 - `agda/Test/PresentationInvariance/CurryUncurry.agda`
 - `agda/Test/PresentationInvariance/TransparentAlias.agda`
 - `agda/Test/PresentationInvariance/DuplicateTrace.agda`
+- `agda/Test/SurfaceBridgeSmoke.agda`
 
 These checks currently pass:
 
@@ -66,7 +68,9 @@ agda --transliterate Metatheory/PresentationEquivalence.agda
 agda --transliterate Metatheory/MuInvariance.agda
 agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
+agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
 agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
@@ -87,7 +91,6 @@ under transport.
 The following files requested by `paper_improvement_plan.md` are currently
 absent and are the core backlog:
 
-- `agda/Metatheory/SurfaceNormalizationBridge.agda`
 - `agda/Metatheory/SurfaceToHornImage.agda`
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
 - `agda/Metatheory/GlobalActionSemantics.agda`
@@ -95,7 +98,6 @@ absent and are the core backlog:
 - `agda/Metatheory/SparseDependencyRecurrence.agda`
 - `agda/Metatheory/FullCouplingEnvelope.agda`
 - `agda/CaseStudies/*.agda`
-- `agda/Test/SurfaceBridgeSmoke.agda`
 - `agda/Test/ActiveBasisExamples.agda`
 - `agda/Test/SparseRecurrenceSmoke.agda`
 
@@ -151,62 +153,17 @@ user operations classify as algebraic payload unless a structural role packages
 them as a horn boundary. Both modules type-check and are now included in
 `scripts/check_coherence_depth_artifact.sh`.
 
-## Phase 4: Surface Normalization Bridge
-
-Goal: connect admissible raw declarations to canonical trace presentations.
-
-Deliverables:
-
-- `agda/Metatheory/SurfaceNormalizationBridge.agda`
-- `agda/Test/SurfaceBridgeSmoke.agda`
-
-Core normalizer:
-
-```agda
-record CanonicalNormalizedSignature : Set where
-  field
-    payloadFields : CanonicalTelescope
-    traceFields   : CanonicalTraceCostNormalForm
-
-normalizeRawExtension :
-  (B : LibraryState) ->
-  (e : RawExtension) ->
-  AdmissibleRawExtension B e ->
-  CanonicalNormalizedSignature
-```
-
-Expected exports:
-
-```agda
-raw-extension-elaborates-to-candidate
-raw-extension-normalizes-to-canonical-signature
-raw-trace-normalizes-to-canonical-signature
-normalize-preserves-support
-normalize-preserves-arity
-normalize-preserves-primitive-cost
-normalization-respects-presentation-equivalence
-normalized-signature-matches-counted-interface
-```
-
-Implementation notes:
-
-- This module is the concrete replacement for the current paper-level
-  `rem:bridge-target`.
-- Use `CanonicalTelescope`, `TraceCostNormalForm`, and `MuInvariance`.
-- Connect to `InterfaceCalculus` and `TracePrinciple` for sealed-layer and
-  public-counting interpretation.
-- Keep quotient operations explicit:
-  telescope flattening, record rebundling/splitting, Sigma reassociation,
-  Pi currying/uncurrying, transport along exported equalities, transparent
-  aliases, duplicate derived trace removal.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
-agda --transliterate Test/SurfaceBridgeSmoke.agda
-```
+Phase 4 surface normalization bridge was completed on 2026-05-02. The concrete
+bridge is implemented in
+`agda/Metatheory/SurfaceNormalizationBridge.agda`, with a smoke surface in
+`agda/Test/SurfaceBridgeSmoke.agda`. The normalizer consumes
+`AdmissibleRawExtension`, flattens payload plus algebraic fields into a
+canonical payload telescope, maps `act`/`cmp`/packaged `horn` structural roles
+to a two-layer canonical trace-cost normal form, and exposes the requested
+support, arity, primitive-cost, presentation-equivalence, and counted-interface
+exports. Both files type-check. The checks retain the known
+`UnsupportedIndexedMatch` warnings from existing finite-index helpers in
+`Metatheory/Obligations.agda` and `Metatheory/TracePrinciple.agda`.
 
 ## Phase 5: Surface-To-Horn Image Theorem
 

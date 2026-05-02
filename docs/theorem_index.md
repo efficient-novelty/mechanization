@@ -16,6 +16,8 @@ agda --transliterate Metatheory/PresentationEquivalence.agda
 agda --transliterate Metatheory/MuInvariance.agda
 agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
+agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
 agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
@@ -89,6 +91,16 @@ agda --transliterate Test/Fibonacci.agda
 | `horn-clause-has-higher-boundary-support` | `Metatheory.RawStructuralTyping` | horn clauses classify as packaged higher boundary support |
 | `algebraic-field-is-payload-not-structural-trace` | `Metatheory.RawStructuralTyping` | higher user operations are algebraic payload, not structural trace projections |
 | `naked-higher-face-rejected-or-packaged` | `Metatheory.RawStructuralTyping` | admissible higher structural material is either rejected or packaged as a horn boundary |
+| `CanonicalNormalizedSignature` | `Metatheory.SurfaceNormalizationBridge` | canonical payload plus trace normal form for an admissible raw extension |
+| `normalizeRawExtension` | `Metatheory.SurfaceNormalizationBridge` | normalize the fixed raw extension calculus to a canonical counted signature |
+| `raw-extension-elaborates-to-candidate` | `Metatheory.SurfaceNormalizationBridge` | package an admissible raw extension as a theorem-facing candidate |
+| `raw-extension-normalizes-to-canonical-signature` | `Metatheory.SurfaceNormalizationBridge` | named bridge from admissible raw extension to canonical signature |
+| `raw-trace-normalizes-to-canonical-signature` | `Metatheory.SurfaceNormalizationBridge` | normalize one typed raw structural role to a trace-cost field |
+| `normalize-preserves-support` | `Metatheory.SurfaceNormalizationBridge` | raw normalization preserves the selected trace support |
+| `normalize-preserves-arity` | `Metatheory.SurfaceNormalizationBridge` | normalized arity matches normalized historical support |
+| `normalize-preserves-primitive-cost` | `Metatheory.SurfaceNormalizationBridge` | raw normalization preserves primitive/derived trace cost |
+| `normalization-respects-presentation-equivalence` | `Metatheory.SurfaceNormalizationBridge` | presentation-equivalent normal forms have equal `mu` |
+| `normalized-signature-matches-counted-interface` | `Metatheory.SurfaceNormalizationBridge` | normalized payload and trace counts match the raw counted interface |
 | `computational-replacement-preserves-canonical-presentation` | `Metatheory.ComputationalReplacement` | replacement preserves canonical presentation |
 | `higher-arity-fields-disappear-from-minimal-signature` | `Metatheory.ComputationalReplacement` | higher arity disappears from minimal signature |
 | `higher-arity-computational-replacement` | `Metatheory.ComputationalReplacement` | packaged higher-arity replacement |
@@ -106,8 +118,6 @@ agda --transliterate Test/Fibonacci.agda
 These names are intentionally absent until the remaining bridge phases are
 implemented:
 
-- `raw-extension-elaborates-to-candidate`
-- `raw-trace-normalizes-to-canonical-signature`
 - `surface-to-horn-normal-form`
 - `raw-structural-normalizes-to-horn`
 - `global-action-totality-implies-active-basis-contract`

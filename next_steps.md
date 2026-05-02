@@ -1,101 +1,90 @@
-# Next Step Plan: Surface Normalization Bridge
+# Next Step Plan: Surface-To-Horn Image Theorem
 
 ## Goal
 
-Implement Phase 4 of `mechanization_plan.md`: connect admissible raw
-extensions from `RawStructuralSyntax` and `RawStructuralTyping` to canonical
-trace presentations, without claiming to parse arbitrary Cubical Agda source.
+Implement Phase 5 of `mechanization_plan.md`: prove that admissible raw
+structural clauses from the fixed extension calculus normalize into the
+horn-generated structural obligation language. Keep the scope explicit: this
+is a theorem about `RawStructuralSyntax`/`RawStructuralTyping`, not a parser or
+elaborator for arbitrary Cubical Agda source.
 
-## Files To Create
+## Files To Create Or Update
 
-- `agda/Metatheory/SurfaceNormalizationBridge.agda`
-- `agda/Test/SurfaceBridgeSmoke.agda`
+- Create `agda/Metatheory/SurfaceToHornImage.agda`.
+- Update `agda/Test/SurfaceBridgeSmoke.agda` to import and expose the Phase 5
+  names.
+- After the module type-checks, add the new theorem names to
+  `docs/theorem_index.md`.
+- After completion, remove Phase 5 from `mechanization_plan.md`, move
+  `SurfaceToHornImage.agda` into the current baseline, and leave a dated
+  completion note.
 
 ## Preparation
 
-1. Re-read the just-added raw surface:
+1. Re-read the Phase 4 bridge:
+   - `agda/Metatheory/SurfaceNormalizationBridge.agda`
+2. Re-read the raw classification layer:
    - `agda/Metatheory/RawStructuralSyntax.agda`
    - `agda/Metatheory/RawStructuralTyping.agda`
-2. Re-read the canonical target machinery:
-   - `agda/Metatheory/CanonicalTelescope.agda`
+3. Re-read the horn machinery:
+   - `agda/Metatheory/KanSubsumption.agda`
+   - especially `HornExtensionFiber`, `structural-horn-language`,
+     `structural-integration-horn-reduction`, and
+     `remote-layer-obligation-derived`.
+4. Re-read the computational replacement and normal-form machinery:
    - `agda/Metatheory/TraceCostNormalForm.agda`
-   - `agda/Metatheory/PresentationEquivalence.agda`
+   - `agda/Metatheory/ComputationalReplacement.agda`
    - `agda/Metatheory/MuInvariance.agda`
-3. Re-read the sealed/public counting bridge:
-   - `agda/Metatheory/InterfaceCalculus.agda`
-   - `agda/Metatheory/TracePrinciple.agda`
-4. Keep an eye on the existing `UnsupportedIndexedMatch` warning from
-   `Metatheory/Obligations.agda`; do not hide it or introduce new warnings.
 
 ## Implementation Sketch
 
-1. Define `CanonicalNormalizedSignature`.
-   - Fields:
-     - `payloadFields : CanonicalTelescope`
-     - `traceFields : CanonicalTraceCostNormalForm`
-   - Keep the level and historical-depth indices explicit enough that Phase 5
-     can state horn-image theorems over the normalized trace fields.
+1. Define a theorem-facing horn-image record for one typed raw structural role.
+   It should expose:
+   - the normalized trace-cost field from Phase 4;
+   - whether the role is unary action, binary comparison, or packaged horn;
+   - the historical support selected by the normalizer;
+   - the primitive/derived cost selected by the normalizer.
 
-2. Define raw-to-canonical counting helpers.
-   - Convert `RawTelescope` field counts into `CanonicalTelescope` counts.
-   - Map typed `act` roles to unary trace fields.
-   - Map typed `cmp` roles to binary trace fields.
-   - Map typed `horn` roles to higher derived trace fields backed by the
-     packaged boundary.
-   - Preserve algebraic payload fields as payload/canonical payload material,
-     not structural traces.
+2. Implement `surface-to-horn-normal-form`.
+   - Pattern-match on `TypedStructuralRole`.
+   - `unary-action-role`: connect to unary normalized support.
+   - `binary-comparison-role`: connect to binary normalized support.
+   - `horn-boundary-role`: package the existing typed boundary and mark the
+     normalized field as derived.
 
-3. Implement `normalizeRawExtension`.
-   - Signature:
-     ```agda
-     normalizeRawExtension :
-       (B : LibraryState ℓ) →
-       (e : RawExtension ℓ) →
-       AdmissibleRawExtension B e →
-       CanonicalNormalizedSignature ...
-     ```
-   - The implementation may stay theorem-facing and syntactic, but it must
-     consume the admissibility package rather than ignoring it.
+3. Implement preservation exports:
+   - `surface-to-horn-preserves-support`
+   - `surface-to-horn-preserves-arity`
+   - `surface-to-horn-preserves-primitive-cost`
 
-4. Export the Phase 4 names:
-   - `raw-extension-elaborates-to-candidate`
-   - `raw-extension-normalizes-to-canonical-signature`
-   - `raw-trace-normalizes-to-canonical-signature`
-   - `normalize-preserves-support`
-   - `normalize-preserves-arity`
-   - `normalize-preserves-primitive-cost`
-   - `normalization-respects-presentation-equivalence`
-   - `normalized-signature-matches-counted-interface`
+4. Implement the higher-structural classification exports:
+   - `higher-structural-fields-derived`
+   - `higher-raw-structural-traces-derived`
+   - `raw-syntax-no-naked-higher-structural-projections`
 
-5. Add `agda/Test/SurfaceBridgeSmoke.agda`.
-   - Import `SurfaceNormalizationBridge`.
-   - Include a tiny smoke object if needed to force the main exports to
-     elaborate.
+5. Implement completeness exports:
+   - `horn-image-complete-for-structural-clauses`
+   - `raw-structural-normalizes-to-horn`
 
-## Design Constraints
-
-- The bridge is for the fixed raw extension calculus only.
-- Do not add `postulate`.
-- Keep quotient/presentation operations explicit: flattening, rebundling,
-  splitting, Sigma reassociation, Pi currying/uncurrying, exported equality
-  transport, transparent aliases, and duplicate derived trace deletion should
-  be visible through the existing presentation-equivalence machinery.
-- Do not integrate into `PEN.agda` until the module and smoke test type-check.
+6. Keep the non-tautology boundary visible.
+   - Reuse `algebraic-field-is-payload-not-structural-trace`.
+   - Reuse `naked-higher-face-rejected-or-packaged`.
+   - Do not let arbitrary higher user operations become structural traces
+     unless `RawStructuralTyping` packages them as a horn boundary.
 
 ## Acceptance Commands
 
 ```bash
 cd agda
-agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Metatheory/SurfaceToHornImage.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 cd ..
 ./scripts/check_coherence_depth_artifact.sh
 ```
 
-## Plan Updates After Completion
+## Known Warnings To Track
 
-- Remove Phase 4 from `mechanization_plan.md`.
-- Move `SurfaceNormalizationBridge.agda` and `SurfaceBridgeSmoke.agda` from
-  gaps into the current baseline.
-- Add the exported Phase 4 theorem names to `docs/theorem_index.md`.
-- Replace this file with the Phase 5 surface-to-horn image theorem plan.
+The existing Cubical Agda `UnsupportedIndexedMatch` warnings from
+`Metatheory/Obligations.agda` and `Metatheory/TracePrinciple.agda` may appear
+when importing the Phase 4 bridge. Do not hide them. If Phase 5 adds any new
+warning site, record it in `mechanization_plan.md`.
