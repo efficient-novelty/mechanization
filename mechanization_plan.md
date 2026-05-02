@@ -1,164 +1,741 @@
-# Mechanization Plan For `1_coherence_depth.tex`
+# Mechanization Plan For The Missing Coherence-Depth Agda Bridge
 
-Date: 2026-03-29
+Date: 2026-05-02
 
-This file lists the statements in `1_coherence_depth.tex` that still need
-exact mechanization in Agda, ordered from easier proof-engineering work to
-harder work.
+Target paper: `1_coherence_depth.tex`
 
-The ordering is by estimated implementation difficulty, not by dependency
-order. Several later items depend on extending the now-explicit interface
-calculus further.
+Source plan: `paper_improvement_plan.md`
 
-## Baseline Already Covered
+This plan replaces the older "all complete" backlog with the remaining
+Cubical Agda mechanization needed to make the paper improvement plan true.
+The existing theorem-facing core already type-checks through `agda/PEN.agda`
+and `agda/Test/MetatheorySmoke.agda`; the missing work is the surface bridge
+and its supporting counted-interface machinery.
 
-These are not part of the remaining backlog below.
+The goal is not to parse arbitrary Cubical Agda programs. The goal is to
+mechanize the fixed raw extension calculus defined by the paper and prove that
+admissible raw structural declarations normalize to the canonical
+horn-generated trace interface used by the existing theorem stack.
 
-- `thm:extensional` already has an exact theorem-facing counterpart in
-  `agda/Metatheory/Extensional.agda` via `UIP-forces-depth-1` and
-  `history-truncates-to-one`.
-- `cor:d1` already has an exact theorem-facing counterpart in
-  `agda/Core/DepthOneAffine.agda` via `depth1-affine-growth`,
-  `Delta-depth1-closed`, and `tau-depth1-closed`. The Agda statements use the
-  same bootstrap indexing / subtraction-free natural-number equivalent of the
-  paper formulas.
-- `thm:adjunction` already has an exact theorem-facing counterpart in
-  `agda/Metatheory/AdjunctionBarrier.agda` via
-  `explicit-binary-sealing-obstruction`, `triangle-identity-corollary`, and
-  `adjunction-barrier`.
-- The paper's obligation-language definitions now have a theorem-facing
-  counterpart in `agda/Metatheory/Obligations.agda` via
-  `HistoricalSupport`, `PrimitiveCost`, `ObligationLanguage`,
-  `StabilizesAt`, `HasCoherenceDepth`, `FactorsThroughWindow`, and
-  `HasChronologicalWindowSize`.
-- `lem:horn-reduction` already has an exact theorem-facing counterpart in
-  `agda/Metatheory/KanSubsumption.agda` via `HornExtensionFiber`,
-  `structural-horn-language`, `structural-integration-horn-reduction`, and
-  `remote-layer-obligation-derived`, built on the computational witnesses
-  `arity3-obligation-syntactically-derivable`,
-  `history-beyond-two-algorithmically-subsumed`, and
-  `arity3-open-box-hfilled`.
-- `lem:telescopic` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/KanSubsumption.agda` via `TelescopicTraceChain`,
-  `TelescopicSubsumptionView`, `telescopic-subsumption`, and
-  `telescopic-remote-comparison-derived`, built on the computational witnesses
-  `history-beyond-two-algorithmically-subsumed` and
-  `arity3-open-box-hfilled`.
-- `thm:upper` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/UpperBound.agda` via
-  `structural-obligation-set-equivalence` and
-  `structural-stabilizes-at-two`, built on the canonical horn-extension
-  fiber exposed from `agda/Metatheory/KanSubsumption.agda`.
-- `cor:chrono-window` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/ChronologicalWindow.agda` via
-  `primitive-obligations-factor-through-last-two`,
-  `one-layer-window-insufficient`, `two-layer-chronological-window`, and
-  `chronological-markov-blanket`, built on the horn-reduction,
-  telescopic-subsumption, and upper-bound packages.
-- `cor:d2` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/ExactDepth.agda` via
-  `structural-coherence-depth-exactly-two`,
-  `structural-chronological-window-size-exactly-two`,
-  `cubical-coherence-depth-exactly-two`, and
-  `cubical-chronological-window-size-exactly-two`, with the adjunction lower
-  bound threaded through the same surface as
-  `cubical-binary-sealing-obstruction` and
-  `cubical-triangle-identity-corollary`.
-- `thm:2d-foundations` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/TwoDFoundations.agda` via
-  `FullyCoupled2DFoundation`, `depth-two-law-for-2d-foundations`,
-  `chronological-window-size-two-for-2d-foundations`,
-  `constant-payload-depth-two-law`, and the cubical instantiations
-  `cubical-2d-foundation`,
-  `cubical-depth-two-law-for-2d-foundations`, and
-  `cubical-chronological-window-size-two-for-2d-foundations`.
-- `lem:arity-dimension` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/Obligations.agda` via `Positive`,
-  `CoherenceCellShape`, `historical-arity-forces-cell-dimension`, and
-  `irreducible-obligation-requires-cell`.
-- `prop:transparent` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/InterfaceCalculus.agda` via `LibraryState`,
-  `TransparentDevelopment`, `transparent-growth-keeps-library-state`,
-  `transparent-definitions-preserve-active-interface`,
-  `transparent-definitions-have-zero-integration-latency`, and
-  `transparent-user-level-code-lies-outside-the-recurrence`.
-- `cor:refactoring` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/Refactoring.agda` via `PayloadNormalForm`,
-  `PayloadPresentation`, `ObligationNormalForm`, `ObligationPresentation`,
-  `historical-support-correspondence`, and `refactoring-invariance`, which
-  quotient admissible rebundling/currying/transparent-normalization
-  presentations through a shared counting normal form and expose the induced
-  bijections on atomic payloads, atomic obligations, and historical arities.
-- `thm:canonicity` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/CanonicityDensity.agda` via `HistoricalInterface`,
-  `FullyCoupledFoundation`, `FoundationalCoreExtension`,
-  `NativeCanonicityPreservingTotality`,
-  `PromotedOperationalExhaustiveness`, `MaximalInterfaceDensity`,
-  `CanonicityDensityTheorem`,
-  `primitive-interaction-counting-normal-form`, and
-  `global-admissibility-forces-maximal-interface-density`.
-- `thm:trace` now has an exact theorem-facing counterpart across
-  `agda/Metatheory/InterfaceCalculus.agda` and
-  `agda/Metatheory/TracePrinciple.agda` via the explicit counted sealed-layer
-  surface `ExplicitSealedLayer`,
-  `explicit-sealed-public-interface`,
-  `explicit-sealed-public-size`, and the theorem-facing package
-  `IntegrationTracePrinciple`, `public-counting-normal-form`, and
-  `integration-trace-principle`.
-- `thm:recurrence` now has an exact theorem-facing counterpart in
-  `agda/Metatheory/UniversalRecurrence.agda` via
-  `CountedHistoricalLayer`, `HistoricalWindow`, `historical-interface`,
-  `historical-interface-counting-normal-form`,
-  `ChronologicalRecurrenceContext`, `UniversalAffineRecurrence`, and
-  `universal-affine-recurrence`, built on the explicit counted sealed-layer
-  surface from `agda/Metatheory/InterfaceCalculus.agda` and the per-layer
-  trace package from `agda/Metatheory/TracePrinciple.agda`.
-- The recurrence/shift fragment of `cor:fibonacci` is present in
-  `agda/Core/AffineRecurrence.agda`, and the full bootstrap-indexed paper
-  corollary is now present there via `Delta-bootstrap`, `U-bootstrap-closed`,
-  and `tau-bootstrap-closed`. The Agda statements use the subtraction-free
-  natural-number equivalent of the paper formulas.
-- `thm:clutching` now has an exact theorem-facing counterpart in
-  `agda/Geometry/Clutching.agda` via `CircleClutchingBoundary`,
-  `clutching-family`, `HopfClutchingFamily`,
-  `hopf-binary-clutching-datum`, `hopf-binary-clutching-nontrivial`,
-  `ClutchingHornExtensionFiber`,
-  `clutching-horn-extension-fiber-contractible`, and
-  `clutching-family-theorem`, with a dedicated regression import in
-  `agda/Test/ClutchingSmoke.agda`. Because the repository's theorem package
-  still uses `agda/Core/Nat.agda` while the exact clutching development uses
-  the Cubical library's standard HIT/suspension stack, this topological
-  package is currently checked as a standalone geometry artifact rather than
-  re-exported through `agda/PEN.agda`.
-- The final paper-level mechanization-claim cleanup is now reflected directly
-  in `1_coherence_depth.tex`: the abstract, mechanization section, and
-  conclusion now give an explicit paper-to-Agda theorem map, state the trust
-  boundary (no theorem-facing postulates; Agda plus the declared Cubical
-  library and the repository-local arithmetic surface), and distinguish the
-  exact cubical metatheory from the distilled sealed-interface/counting
-  calculus layered on top of it.
+## Current Baseline
 
-## Remaining Statements, Easy To Hard
+Already present and usable:
 
-No remaining paper-facing theorem/prose gaps are currently tracked here.
+- `agda/Metatheory/Obligations.agda`
+- `agda/Metatheory/InterfaceCalculus.agda`
+- `agda/Metatheory/Refactoring.agda`
+- `agda/Metatheory/CanonicityDensity.agda`
+- `agda/Metatheory/TracePrinciple.agda`
+- `agda/Metatheory/ComputationalReplacement.agda`
+- `agda/Metatheory/Extensional.agda`
+- `agda/Metatheory/KanSubsumption.agda`
+- `agda/Metatheory/UpperBound.agda`
+- `agda/Metatheory/ChronologicalWindow.agda`
+- `agda/Metatheory/ExactDepth.agda`
+- `agda/Metatheory/TwoDFoundations.agda`
+- `agda/Metatheory/TwoLTTFoundations.agda`
+- `agda/Metatheory/AdjunctionBarrier.agda`
+- `agda/Metatheory/UniversalRecurrence.agda`
+- `agda/Geometry/Clutching.agda`
+- `agda/Core/AffineRecurrence.agda`
+- `agda/Core/DepthOneAffine.agda`
+- `agda/Test/MetatheorySmoke.agda`
+- `agda/Test/ClutchingSmoke.agda`
+- `agda/Test/Fibonacci.agda`
 
-## Practical Dependency Notes
+These checks currently pass:
 
-- The completed arity/dimension and horn-reduction/telescopic packages are the first
-  theorem-facing results built directly on the new obligation-language
-  surface.
-- The exact depth-two corollary is now the core theorem-facing wrapper tying
-  the upper-bound, chronological-window, and lower-bound packages together.
-- The canonicity, trace, and universal-recurrence packages now expose a
-  theorem-facing historical interface and counted sealed-layer window surface
-  for later refactoring work.
-- The refactoring package now builds on that explicit interface-calculus
-  surface and extends it from counted-window recurrence to refactoring
-  invariance.
-- The clutching family is now a completed standalone geometry milestone.
-- The paper prose now points the cited theorem package directly at exact Agda
-  theorem names instead of only at computational ingredients or scaffolding.
+```bash
+cd agda
+agda --transliterate PEN.agda
+agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/ClutchingSmoke.agda
+agda --transliterate Test/Fibonacci.agda
+```
 
-## Suggested Execution Order
+Known caveat: these checks emit Cubical Agda `UnsupportedIndexedMatch`
+warnings in several theorem modules. Do not hide those warnings; track whether
+any planned bridge theorem relies computationally on the warned definitions
+under transport.
 
-All items in the current paper-facing mechanization plan are complete.
+## Main Gaps
+
+The following files requested by `paper_improvement_plan.md` are currently
+absent and are the core backlog:
+
+- `agda/Metatheory/RawStructuralSyntax.agda`
+- `agda/Metatheory/RawStructuralTyping.agda`
+- `agda/Metatheory/CanonicalTelescope.agda`
+- `agda/Metatheory/SurfaceNormalizationBridge.agda`
+- `agda/Metatheory/SurfaceToHornImage.agda`
+- `agda/Metatheory/FiniteInterfaceBasis.agda`
+- `agda/Metatheory/GlobalActionSemantics.agda`
+- `agda/Metatheory/ActiveBasisContract.agda`
+- `agda/Metatheory/PresentationEquivalence.agda`
+- `agda/Metatheory/TraceCostNormalForm.agda`
+- `agda/Metatheory/MuInvariance.agda`
+- `agda/Metatheory/SparseDependencyRecurrence.agda`
+- `agda/Metatheory/FullCouplingEnvelope.agda`
+- `agda/CaseStudies/*.agda`
+- `agda/Test/SurfaceBridgeSmoke.agda`
+- `agda/Test/ActiveBasisExamples.agda`
+- `agda/Test/SparseRecurrenceSmoke.agda`
+- `agda/Test/PresentationInvariance/*.agda`
+
+Supporting documentation and audit artifacts are also absent:
+
+- `docs/coherence_depth_trust_boundary.md`
+- `docs/theorem_index.md`
+- `docs/case_studies/coherence_depth_universe_extension.md`
+- `docs/case_studies/coherence_depth_global_modality.md`
+- `docs/case_studies/coherence_depth_promoted_interface.md`
+- `docs/case_studies/coherence_depth_sparse_datatype.md`
+- `docs/reports/coherence_depth_case_study_report.md`
+- `scripts/coherence_depth_audit.py`
+- `scripts/check_coherence_depth_artifact.sh`
+- `runs/coherence_depth_case_studies/*.yaml`
+
+## Invariants For All New Agda Work
+
+- Use `{-# OPTIONS --cubical --safe --guardedness #-}` unless a module has a
+  documented reason not to.
+- Do not introduce `postulate` in theorem-facing modules.
+- Keep the bridge abstract over full CCHM term syntax; formalize the paper's
+  extension-calculus judgments, not all Agda surface syntax.
+- Reuse existing modules rather than duplicating their definitions:
+  `InterfaceCalculus`, `Obligations`, `ComputationalReplacement`,
+  `KanSubsumption`, `ChronologicalWindow`, `Refactoring`,
+  `CanonicityDensity`, and `UniversalRecurrence`.
+- Prefer proof-relevant records over raw Boolean tags for admissibility,
+  primitive/derived status, transparent generation, and presentation
+  equivalence.
+- Every new theorem-facing module must get a smoke import under `agda/Test/`.
+
+## Phase 0: Audit And Trust-Boundary Cleanup
+
+Goal: make the current state auditable before adding new bridge machinery.
+
+Deliverables:
+
+- `docs/coherence_depth_trust_boundary.md`
+- `docs/theorem_index.md`
+- `scripts/check_coherence_depth_artifact.sh`
+
+Tasks:
+
+1. Add a theorem table with columns:
+   paper result, Agda module, theorem name, postulate-free status, bridge
+   dependency.
+2. Add a script that:
+   - runs the current Agda checks;
+   - runs the new bridge checks as they appear;
+   - scans theorem-facing modules for `postulate`;
+   - reports known auxiliary postulates separately, currently
+     `agda/Test/BridgePayloadContract.agda`.
+3. Update `agda/README.md` with the new theorem index and verification
+   commands.
+
+Acceptance:
+
+```bash
+./scripts/check_coherence_depth_artifact.sh
+```
+
+passes for the current baseline before later phases add new checks.
+
+## Phase 1: Canonical Telescope And Trace Cost Normal Forms
+
+Goal: factor out the presentation and counting surface needed by both the raw
+bridge and `mu` invariance.
+
+Deliverables:
+
+- `agda/Metatheory/CanonicalTelescope.agda`
+- `agda/Metatheory/TraceCostNormalForm.agda`
+- `agda/Test/PresentationInvariance/Smoke.agda` or equivalent first smoke
+  import
+
+Core definitions:
+
+```agda
+record CanonicalTelescope : Set where
+  field
+    fieldCount : Nat
+    fieldAt    : Fin fieldCount -> Set
+
+record TraceCostField : Set where
+  field
+    support       : HistoricalSupport
+    arity         : Nat
+    primitiveCost : PrimitiveCost
+
+record CanonicalTraceCostNormalForm : Set where
+  field
+    traceTelescope : CanonicalTelescope
+    traceField     : Fin traceFieldCount -> TraceCostField
+```
+
+Expected exports:
+
+```agda
+canonical-telescope-cardinality
+trace-cost-normal-form-cardinality
+primitive-trace-subtelescope
+derived-trace-subtelescope
+mu-of-trace-cost-normal-form
+```
+
+Implementation notes:
+
+- Align `PrimitiveCost` with the existing cost language in
+  `Metatheory/Obligations.agda`.
+- If existing names do not exactly match the sketch, adapt the new modules to
+  the existing API rather than reshaping the old theorem modules.
+- Keep this layer intentionally finite and syntactic; do not import Cubical HIT
+  machinery here unless unavoidable.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/CanonicalTelescope.agda
+agda --transliterate Metatheory/TraceCostNormalForm.agda
+```
+
+## Phase 2: Presentation Equivalence And `mu` Invariance
+
+Goal: make the phrase "presentation-invariant minimal opaque cost" formally
+credible.
+
+Deliverables:
+
+- `agda/Metatheory/PresentationEquivalence.agda`
+- `agda/Metatheory/MuInvariance.agda`
+- `agda/Test/PresentationInvariance/RebundleRecord.agda`
+- `agda/Test/PresentationInvariance/SplitShell.agda`
+- `agda/Test/PresentationInvariance/CurryUncurry.agda`
+- `agda/Test/PresentationInvariance/TransparentAlias.agda`
+- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
+
+Core definitions:
+
+```agda
+data PresentationStep : CanonicalTraceCostNormalForm ->
+                        CanonicalTraceCostNormalForm -> Set where
+  reassocSigma             : ...
+  splitRecord              : ...
+  bundleRecord             : ...
+  curryPi                  : ...
+  uncurryPi                : ...
+  transportField           : ...
+  transparentAliasInsert   : ...
+  transparentAliasDelete   : ...
+  duplicateDerivedDelete   : ...
+
+data PresentationEquivalent : CanonicalTraceCostNormalForm ->
+                              CanonicalTraceCostNormalForm -> Set where
+  refl  : ...
+  sym   : ...
+  trans : ...
+  step  : PresentationStep Gamma Delta -> ...
+```
+
+Define primitive status semantically:
+
+```agda
+TransparentlyGenerated : CanonicalTraceCostNormalForm -> TraceCostField -> Set
+RequiresPrimitive Gamma phi = Not (TransparentlyGenerated Gamma phi)
+```
+
+Expected exports:
+
+```agda
+presentation-step-preserves-trace-support
+presentation-step-preserves-primitive-cost
+presentation-equivalence-preserves-trace-fields
+presentation-equivalence-preserves-primitive-cost
+mu-preserved-by-presentation-step
+mu-invariant-under-presentation-equivalence
+derived-field-deletion-preserves-mu
+requires-primitive-field-essential
+computational-replacement-preserves-mu
+```
+
+Implementation notes:
+
+- Connect `computational-replacement-preserves-mu` to
+  `Metatheory/ComputationalReplacement.agda` rather than reproving replacement.
+- The essentiality theorem should not be a label-preservation tautology.
+  Primitive means "not transparently generated"; deletion of such a field must
+  break presentation equivalence.
+- The existing `Metatheory/Refactoring.agda` can remain as the coarse older
+  package; this phase supplies the generator-by-generator presentation setoid
+  requested by `paper_improvement_plan.md`.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/PresentationEquivalence.agda
+agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
+agda --transliterate Test/PresentationInvariance/SplitShell.agda
+agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
+agda --transliterate Test/PresentationInvariance/TransparentAlias.agda
+agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
+```
+
+## Phase 3: Raw Structural Syntax And Typing
+
+Goal: formalize the fixed extension calculus surface without claiming to cover
+arbitrary Cubical Agda syntax.
+
+Deliverables:
+
+- `agda/Metatheory/RawStructuralSyntax.agda`
+- `agda/Metatheory/RawStructuralTyping.agda`
+
+Core syntax:
+
+```agda
+record LayerRef : Set where ...
+record BasisSite : Set where ...
+record PayloadField : Set where ...
+record AlgebraicPayloadField : Set where ...
+record RawBoundary : Set where ...
+
+data RawStructuralClause : Set where
+  act  : NewPayloadRef -> BasisSite -> RawStructuralClause
+  cmp  : NewPayloadRef -> BasisSite -> BasisSite -> RawStructuralClause
+  horn : RawBoundary -> RawStructuralClause
+
+record RawExtension : Set where
+  field
+    payload      : RawTelescope PayloadField
+    structural   : RawTelescope RawStructuralClause
+    algebraic    : RawTelescope AlgebraicPayloadField
+    exportPolicy : ExportPolicy
+```
+
+Typing/admissibility:
+
+```agda
+record AdmissibleRawExtension
+  (B : LibraryState) (e : RawExtension) : Set where
+  field
+    payloadWellTyped    : PayloadWellTyped B e
+    structuralWellTyped : StructuralClausesWellTyped B e
+    algebraicWellTyped  : AlgebraicWellTyped B e
+    sealingDerivation   : SealingDerivation B e
+    opacityRespected    : OpacityRespected B e
+    exportPolicySound   : ExportPolicySound B e
+```
+
+Expected exports:
+
+```agda
+raw-extension-payload-fields
+raw-extension-structural-clauses
+raw-extension-algebraic-fields
+act-clause-has-unary-support
+cmp-clause-has-binary-support
+horn-clause-has-higher-boundary-support
+algebraic-field-is-payload-not-structural-trace
+naked-higher-face-rejected-or-packaged
+```
+
+Implementation notes:
+
+- The key reviewer-facing distinction is:
+  raw written clause, typed structural role, and normalized trace field.
+- Higher user operations must be classified as algebraic payload unless they
+  are typed structural integration traces.
+- Avoid making `horn` the only possible higher clause in a way that makes the
+  bridge theorem tautological. The typing layer should explain why a higher
+  structural role has a boundary/filler package.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/RawStructuralSyntax.agda
+agda --transliterate Metatheory/RawStructuralTyping.agda
+```
+
+## Phase 4: Surface Normalization Bridge
+
+Goal: connect admissible raw declarations to canonical trace presentations.
+
+Deliverables:
+
+- `agda/Metatheory/SurfaceNormalizationBridge.agda`
+- `agda/Test/SurfaceBridgeSmoke.agda`
+
+Core normalizer:
+
+```agda
+record CanonicalNormalizedSignature : Set where
+  field
+    payloadFields : CanonicalTelescope
+    traceFields   : CanonicalTraceCostNormalForm
+
+normalizeRawExtension :
+  (B : LibraryState) ->
+  (e : RawExtension) ->
+  AdmissibleRawExtension B e ->
+  CanonicalNormalizedSignature
+```
+
+Expected exports:
+
+```agda
+raw-extension-elaborates-to-candidate
+raw-extension-normalizes-to-canonical-signature
+raw-trace-normalizes-to-canonical-signature
+normalize-preserves-support
+normalize-preserves-arity
+normalize-preserves-primitive-cost
+normalization-respects-presentation-equivalence
+normalized-signature-matches-counted-interface
+```
+
+Implementation notes:
+
+- This module is the concrete replacement for the current paper-level
+  `rem:bridge-target`.
+- Use `CanonicalTelescope`, `TraceCostNormalForm`, and `MuInvariance`.
+- Connect to `InterfaceCalculus` and `TracePrinciple` for sealed-layer and
+  public-counting interpretation.
+- Keep quotient operations explicit:
+  telescope flattening, record rebundling/splitting, Sigma reassociation,
+  Pi currying/uncurrying, transport along exported equalities, transparent
+  aliases, duplicate derived trace removal.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
+```
+
+## Phase 5: Surface-To-Horn Image Theorem
+
+Goal: prove the central missing theorem from `paper_improvement_plan.md`:
+admissible raw structural clauses normalize into the horn-generated structural
+obligation language.
+
+Deliverables:
+
+- `agda/Metatheory/SurfaceToHornImage.agda`
+- updates to `agda/Test/SurfaceBridgeSmoke.agda`
+
+Expected exports:
+
+```agda
+surface-to-horn-normal-form
+surface-to-horn-preserves-support
+surface-to-horn-preserves-arity
+surface-to-horn-preserves-primitive-cost
+higher-structural-fields-derived
+higher-raw-structural-traces-derived
+raw-syntax-no-naked-higher-structural-projections
+horn-image-complete-for-structural-clauses
+raw-structural-normalizes-to-horn
+```
+
+Proof shape:
+
+- Induct on typed structural clauses.
+- `act`: normalizes to unary trace support.
+- `cmp`: normalizes to binary comparison trace support.
+- `horn`: packages the typed boundary and uses
+  `Metatheory/KanSubsumption.agda`'s `HornExtensionFiber` and
+  horn-reduction surface.
+- Higher structural clauses are derived in the canonical trace-cost normal
+  form after the existing computational-replacement theorem is applied.
+
+Non-tautology requirement:
+
+- The theorem must also expose a classification lemma showing that arbitrary
+  higher user operations are payload/algebraic structure, not structural trace.
+- Naked higher remote faces must be rejected by admissibility or packaged as a
+  horn boundary with filler.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/SurfaceToHornImage.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
+```
+
+Paper payoff:
+
+- The mechanization table can change the raw bridge from "paper-level only" to
+  "mechanized for the fixed raw extension calculus".
+- The paper must still say this is not a parser theorem for arbitrary Cubical
+  Agda programs.
+
+## Phase 6: Active-Basis Naturality
+
+Goal: show that active-basis coverage follows from global action totality and
+does not smuggle in the depth-two recurrence.
+
+Deliverables:
+
+- `agda/Metatheory/FiniteInterfaceBasis.agda`
+- `agda/Metatheory/GlobalActionSemantics.agda`
+- `agda/Metatheory/ActiveBasisContract.agda`
+- `agda/Test/ActiveBasisExamples.agda`
+
+Core definitions:
+
+```agda
+record ActiveInterface : Set where
+  field
+    fieldCount  : Nat
+    fieldAt     : Fin fieldCount -> InterfaceField
+    transparent : TransparentEquivalence fieldAt
+    basis       : BasisFamily transparent
+
+record GlobalActionPayload (I : ActiveInterface) : Set where
+  field
+    advertisedScope : WholeActiveInterface I
+    actsOnField     : InterfaceFieldOf I -> Set
+
+record ActionTotality {I : ActiveInterface}
+  (X : GlobalActionPayload I) : Set where
+  field
+    actsOnEveryBasisSite : ...
+```
+
+Expected exports:
+
+```agda
+basis-families-exist
+basis-family-cardinality-invariant
+basis-action-equivalence
+global-action-totality-implies-active-basis-contract
+active-basis-contract-entails-density
+coverage-alone-does-not-imply-depth-two-window
+coverage-alone-does-not-imply-fibonacci
+```
+
+Implementation notes:
+
+- Reuse `Metatheory/CanonicityDensity.agda` for the density theorem-facing
+  package where possible.
+- The non-circularity theorem can be proved by two explicit small models:
+  active-basis coverage with UIP depth-one collapse, and active-basis coverage
+  with an artificial depth-three window.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/FiniteInterfaceBasis.agda
+agda --transliterate Metatheory/GlobalActionSemantics.agda
+agda --transliterate Metatheory/ActiveBasisContract.agda
+agda --transliterate Test/ActiveBasisExamples.agda
+```
+
+## Phase 7: Sparse Dependency Recurrence And Full-Coupling Envelope
+
+Goal: formalize the sparse/full hierarchy so the Fibonacci theorem is the
+maximal fully coupled specialization, not a claim about all library growth.
+
+Deliverables:
+
+- `agda/Metatheory/SparseDependencyRecurrence.agda`
+- `agda/Metatheory/FullCouplingEnvelope.agda`
+- `agda/Test/SparseRecurrenceSmoke.agda`
+
+Core definitions:
+
+```agda
+record CouplingFootprint (n : Nat) : Set where
+  field
+    dependsOn : FiniteSubset (PreviousLayers n)
+
+record SparseWindowedContext : Set where
+  field
+    footprint : (n : Nat) -> CouplingFootprint n
+    layerCost : Nat -> Nat
+    payload   : Nat -> Nat
+```
+
+Expected exports:
+
+```agda
+sparse-windowed-recurrence
+transparent-growth-zero-footprint
+orthogonal-extension-zero-or-sparse
+orthogonal-extension-below-full-envelope
+full-coupling-envelope
+full-coupling-specializes-sparse-recurrence
+full-coupling-depth-two-affine-law
+```
+
+Implementation notes:
+
+- Build on `Metatheory/UniversalRecurrence.agda`.
+- The full-coupling case should recover the existing two-layer affine law after
+  the cubical chronological-window theorem reduces the active footprint to the
+  previous two layers.
+- Sparse recurrence should be stated over an explicit finite footprint, so
+  ordinary orthogonal extensions are modeled rather than dismissed.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate Metatheory/SparseDependencyRecurrence.agda
+agda --transliterate Metatheory/FullCouplingEnvelope.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
+```
+
+## Phase 8: Case Studies And Audit Data
+
+Goal: supply toy-but-explicit examples and nonexamples using the same abstract
+counting machinery.
+
+Deliverables:
+
+- `agda/CaseStudies/UniverseExtension.agda`
+- `agda/CaseStudies/GlobalModality.agda`
+- `agda/CaseStudies/PromotedInterface.agda`
+- `agda/CaseStudies/SparseDatatype.agda`
+- `docs/case_studies/coherence_depth_universe_extension.md`
+- `docs/case_studies/coherence_depth_global_modality.md`
+- `docs/case_studies/coherence_depth_promoted_interface.md`
+- `docs/case_studies/coherence_depth_sparse_datatype.md`
+- `docs/reports/coherence_depth_case_study_report.md`
+- `runs/coherence_depth_case_studies/*.yaml`
+- `scripts/coherence_depth_audit.py`
+
+Each case study must record:
+
+- payload fields;
+- active interface footprint;
+- unary trace obligations;
+- binary trace obligations;
+- higher horn obligations and derived status;
+- whether active-basis totality holds;
+- expected `mu` contribution;
+- whether the transparent, sparse, full-coupling, or no-recurrence law applies.
+
+Minimum examples:
+
+- transparent lemma extension: zero latency;
+- sparse datatype extension: finite local footprint, no full recurrence;
+- promoted interface package: classified by active-basis coverage;
+- global modality or universe extension: full-coupling recurrence;
+- refactored presentation of the same extension: same `mu`.
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate CaseStudies/UniverseExtension.agda
+agda --transliterate CaseStudies/GlobalModality.agda
+agda --transliterate CaseStudies/PromotedInterface.agda
+agda --transliterate CaseStudies/SparseDatatype.agda
+cd ..
+python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
+```
+
+## Phase 9: Top-Level Integration
+
+Goal: make the new bridge part of the repository's theorem-facing surface.
+
+Deliverables:
+
+- update `agda/PEN.agda`;
+- update `agda/Test/MetatheorySmoke.agda`;
+- update `agda/README.md`;
+- update `docs/theorem_index.md`;
+- update `scripts/check_coherence_depth_artifact.sh`.
+
+Add public imports only after the individual modules type-check cleanly:
+
+```agda
+open import Metatheory.CanonicalTelescope public
+open import Metatheory.TraceCostNormalForm public
+open import Metatheory.PresentationEquivalence public
+open import Metatheory.MuInvariance public
+open import Metatheory.RawStructuralSyntax public
+open import Metatheory.RawStructuralTyping public
+open import Metatheory.SurfaceNormalizationBridge public
+open import Metatheory.SurfaceToHornImage public
+open import Metatheory.FiniteInterfaceBasis public
+open import Metatheory.GlobalActionSemantics public
+open import Metatheory.ActiveBasisContract public
+open import Metatheory.SparseDependencyRecurrence public
+open import Metatheory.FullCouplingEnvelope public
+```
+
+Acceptance:
+
+```bash
+cd agda
+agda --transliterate PEN.agda
+agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
+agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
+agda --transliterate Test/ClutchingSmoke.agda
+agda --transliterate Test/Fibonacci.agda
+```
+
+## Phase 10: Paper Rewrite After Mechanization
+
+Goal: make `1_coherence_depth.tex` match the completed mechanization.
+
+Paper edits:
+
+1. Replace "paper-level bridge" with "mechanized bridge for the fixed raw
+   extension calculus" only after `SurfaceToHornImage.agda` and
+   `MuInvariance.agda` type-check.
+2. Keep the explicit limitation:
+   this is not a parser or elaboration theorem for arbitrary Cubical Agda
+   programs.
+3. Add or update the mechanization table with:
+   - raw syntax bridge;
+   - canonical trace and `mu` invariance;
+   - active-basis naturality;
+   - sparse/full recurrence;
+   - case studies and audit data.
+4. Replace broad prose like "reasonable presentations" with:
+   presentations generated by the explicit `PresentationStep` constructors.
+5. Present the Fibonacci law as the fully coupled endpoint of the sparse
+   dependency calculus.
+
+Acceptance:
+
+```bash
+latexmk -pdf 1_coherence_depth.tex
+```
+
+and the final mechanization table names only modules that exist and
+type-check.
+
+## Final Done Criteria
+
+The missing mechanization from `paper_improvement_plan.md` is implemented when:
+
+1. All files listed in the "Main Gaps" section either exist or have been
+   intentionally removed from the paper/plan with a documented reason.
+2. `SurfaceToHornImage.agda` exports the raw-to-horn bridge theorem for the
+   fixed extension calculus.
+3. `MuInvariance.agda` proves `mu` invariance under the explicit presentation
+   equivalence generators.
+4. `ActiveBasisContract.agda` proves active-basis coverage from global action
+   totality and includes a non-circularity example.
+5. `SparseDependencyRecurrence.agda` and `FullCouplingEnvelope.agda` formalize
+   sparse recurrence and the fully coupled specialization.
+6. The new smoke tests type-check.
+7. The theorem-facing modules remain postulate-free.
+8. `1_coherence_depth.tex` no longer overstates or understates the formalized
+   boundary.
+
