@@ -43,6 +43,7 @@ Already present and usable:
 - `agda/Metatheory/RawStructuralSyntax.agda`
 - `agda/Metatheory/RawStructuralTyping.agda`
 - `agda/Metatheory/SurfaceNormalizationBridge.agda`
+- `agda/Metatheory/SurfaceToHornImage.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -69,6 +70,7 @@ agda --transliterate Metatheory/MuInvariance.agda
 agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Metatheory/SurfaceToHornImage.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
@@ -91,7 +93,6 @@ under transport.
 The following files requested by `paper_improvement_plan.md` are currently
 absent and are the core backlog:
 
-- `agda/Metatheory/SurfaceToHornImage.agda`
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
 - `agda/Metatheory/GlobalActionSemantics.agda`
 - `agda/Metatheory/ActiveBasisContract.agda`
@@ -165,63 +166,21 @@ exports. Both files type-check. The checks retain the known
 `UnsupportedIndexedMatch` warnings from existing finite-index helpers in
 `Metatheory/Obligations.agda` and `Metatheory/TracePrinciple.agda`.
 
-## Phase 5: Surface-To-Horn Image Theorem
-
-Goal: prove the central missing theorem from `paper_improvement_plan.md`:
-admissible raw structural clauses normalize into the horn-generated structural
-obligation language.
-
-Deliverables:
-
-- `agda/Metatheory/SurfaceToHornImage.agda`
-- updates to `agda/Test/SurfaceBridgeSmoke.agda`
-
-Expected exports:
-
-```agda
-surface-to-horn-normal-form
-surface-to-horn-preserves-support
-surface-to-horn-preserves-arity
-surface-to-horn-preserves-primitive-cost
-higher-structural-fields-derived
-higher-raw-structural-traces-derived
-raw-syntax-no-naked-higher-structural-projections
-horn-image-complete-for-structural-clauses
-raw-structural-normalizes-to-horn
-```
-
-Proof shape:
-
-- Induct on typed structural clauses.
-- `act`: normalizes to unary trace support.
-- `cmp`: normalizes to binary comparison trace support.
-- `horn`: packages the typed boundary and uses
-  `Metatheory/KanSubsumption.agda`'s `HornExtensionFiber` and
-  horn-reduction surface.
-- Higher structural clauses are derived in the canonical trace-cost normal
-  form after the existing computational-replacement theorem is applied.
-
-Non-tautology requirement:
-
-- The theorem must also expose a classification lemma showing that arbitrary
-  higher user operations are payload/algebraic structure, not structural trace.
-- Naked higher remote faces must be rejected by admissibility or packaged as a
-  horn boundary with filler.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/SurfaceToHornImage.agda
-agda --transliterate Test/SurfaceBridgeSmoke.agda
-```
-
-Paper payoff:
-
-- The mechanization table can change the raw bridge from "paper-level only" to
-  "mechanized for the fixed raw extension calculus".
-- The paper must still say this is not a parser theorem for arbitrary Cubical
-  Agda programs.
+Phase 5 surface-to-horn image theorem was completed on 2026-05-02. The
+theorem-facing horn image record and raw structural normalization package are
+implemented in `agda/Metatheory/SurfaceToHornImage.agda`, and
+`agda/Test/SurfaceBridgeSmoke.agda` now imports and exposes the Phase 5 names.
+The module proves that typed `act` clauses image to unary support, typed `cmp`
+clauses image to binary support, and packaged `horn` clauses image to derived
+canonical trace fields. It also keeps the non-tautology boundary visible:
+higher user operations remain algebraic payload fields, while naked higher
+structural faces are rejected or packaged as horn boundaries by admissibility.
+The focused checks
+`agda --transliterate Metatheory/SurfaceToHornImage.agda` and
+`agda --transliterate Test/SurfaceBridgeSmoke.agda` pass. No new warning sites
+were introduced; the checks retain only the known `UnsupportedIndexedMatch`
+warnings from `Metatheory/Obligations.agda` and
+`Metatheory/TracePrinciple.agda`.
 
 ## Phase 6: Active-Basis Naturality
 

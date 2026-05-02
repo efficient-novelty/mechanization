@@ -17,6 +17,7 @@ agda --transliterate Metatheory/MuInvariance.agda
 agda --transliterate Metatheory/RawStructuralSyntax.agda
 agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Metatheory/SurfaceToHornImage.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
@@ -101,6 +102,16 @@ agda --transliterate Test/Fibonacci.agda
 | `normalize-preserves-primitive-cost` | `Metatheory.SurfaceNormalizationBridge` | raw normalization preserves primitive/derived trace cost |
 | `normalization-respects-presentation-equivalence` | `Metatheory.SurfaceNormalizationBridge` | presentation-equivalent normal forms have equal `mu` |
 | `normalized-signature-matches-counted-interface` | `Metatheory.SurfaceNormalizationBridge` | normalized payload and trace counts match the raw counted interface |
+| `SurfaceHornImage` | `Metatheory.SurfaceToHornImage` | theorem-facing image record for one typed raw structural role |
+| `surface-to-horn-normal-form` | `Metatheory.SurfaceToHornImage` | typed raw structural roles normalize into the horn-image classification |
+| `surface-to-horn-preserves-support` | `Metatheory.SurfaceToHornImage` | horn-image normalization preserves the selected trace support |
+| `surface-to-horn-preserves-arity` | `Metatheory.SurfaceToHornImage` | horn-image normalization preserves support arity |
+| `surface-to-horn-preserves-primitive-cost` | `Metatheory.SurfaceToHornImage` | horn-image normalization preserves primitive/derived trace cost |
+| `higher-structural-fields-derived` | `Metatheory.SurfaceToHornImage` | packaged higher horn fields are derived in the canonical trace normal form |
+| `higher-raw-structural-traces-derived` | `Metatheory.SurfaceToHornImage` | admissible higher raw structural material is rejected or derived through a horn package |
+| `raw-syntax-no-naked-higher-structural-projections` | `Metatheory.SurfaceToHornImage` | admissibility boundary for naked higher structural projections |
+| `horn-image-complete-for-structural-clauses` | `Metatheory.SurfaceToHornImage` | every well-typed raw structural clause has a horn image |
+| `raw-structural-normalizes-to-horn` | `Metatheory.SurfaceToHornImage` | admissible raw structural telescopes normalize to the horn-image package |
 | `computational-replacement-preserves-canonical-presentation` | `Metatheory.ComputationalReplacement` | replacement preserves canonical presentation |
 | `higher-arity-fields-disappear-from-minimal-signature` | `Metatheory.ComputationalReplacement` | higher arity disappears from minimal signature |
 | `higher-arity-computational-replacement` | `Metatheory.ComputationalReplacement` | packaged higher-arity replacement |
@@ -118,8 +129,6 @@ agda --transliterate Test/Fibonacci.agda
 These names are intentionally absent until the remaining bridge phases are
 implemented:
 
-- `surface-to-horn-normal-form`
-- `raw-structural-normalizes-to-horn`
 - `global-action-totality-implies-active-basis-contract`
 - `coverage-alone-does-not-imply-fibonacci`
 - `sparse-windowed-recurrence`
