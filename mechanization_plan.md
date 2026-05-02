@@ -40,6 +40,8 @@ Already present and usable:
 - `agda/Metatheory/TraceCostNormalForm.agda`
 - `agda/Metatheory/PresentationEquivalence.agda`
 - `agda/Metatheory/MuInvariance.agda`
+- `agda/Metatheory/RawStructuralSyntax.agda`
+- `agda/Metatheory/RawStructuralTyping.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -62,6 +64,8 @@ agda --transliterate Metatheory/CanonicalTelescope.agda
 agda --transliterate Metatheory/TraceCostNormalForm.agda
 agda --transliterate Metatheory/PresentationEquivalence.agda
 agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Metatheory/RawStructuralSyntax.agda
+agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
@@ -83,8 +87,6 @@ under transport.
 The following files requested by `paper_improvement_plan.md` are currently
 absent and are the core backlog:
 
-- `agda/Metatheory/RawStructuralSyntax.agda`
-- `agda/Metatheory/RawStructuralTyping.agda`
 - `agda/Metatheory/SurfaceNormalizationBridge.agda`
 - `agda/Metatheory/SurfaceToHornImage.agda`
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
@@ -139,82 +141,15 @@ computational-replacement bridge are implemented in
 modules type-check. The checks retain the existing Cubical Agda
 `UnsupportedIndexedMatch` warning from `Metatheory/Obligations.agda`.
 
-## Phase 3: Raw Structural Syntax And Typing
-
-Goal: formalize the fixed extension calculus surface without claiming to cover
-arbitrary Cubical Agda syntax.
-
-Deliverables:
-
-- `agda/Metatheory/RawStructuralSyntax.agda`
-- `agda/Metatheory/RawStructuralTyping.agda`
-
-Core syntax:
-
-```agda
-record LayerRef : Set where ...
-record BasisSite : Set where ...
-record PayloadField : Set where ...
-record AlgebraicPayloadField : Set where ...
-record RawBoundary : Set where ...
-
-data RawStructuralClause : Set where
-  act  : NewPayloadRef -> BasisSite -> RawStructuralClause
-  cmp  : NewPayloadRef -> BasisSite -> BasisSite -> RawStructuralClause
-  horn : RawBoundary -> RawStructuralClause
-
-record RawExtension : Set where
-  field
-    payload      : RawTelescope PayloadField
-    structural   : RawTelescope RawStructuralClause
-    algebraic    : RawTelescope AlgebraicPayloadField
-    exportPolicy : ExportPolicy
-```
-
-Typing/admissibility:
-
-```agda
-record AdmissibleRawExtension
-  (B : LibraryState) (e : RawExtension) : Set where
-  field
-    payloadWellTyped    : PayloadWellTyped B e
-    structuralWellTyped : StructuralClausesWellTyped B e
-    algebraicWellTyped  : AlgebraicWellTyped B e
-    sealingDerivation   : SealingDerivation B e
-    opacityRespected    : OpacityRespected B e
-    exportPolicySound   : ExportPolicySound B e
-```
-
-Expected exports:
-
-```agda
-raw-extension-payload-fields
-raw-extension-structural-clauses
-raw-extension-algebraic-fields
-act-clause-has-unary-support
-cmp-clause-has-binary-support
-horn-clause-has-higher-boundary-support
-algebraic-field-is-payload-not-structural-trace
-naked-higher-face-rejected-or-packaged
-```
-
-Implementation notes:
-
-- The key reviewer-facing distinction is:
-  raw written clause, typed structural role, and normalized trace field.
-- Higher user operations must be classified as algebraic payload unless they
-  are typed structural integration traces.
-- Avoid making `horn` the only possible higher clause in a way that makes the
-  bridge theorem tautological. The typing layer should explain why a higher
-  structural role has a boundary/filler package.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/RawStructuralSyntax.agda
-agda --transliterate Metatheory/RawStructuralTyping.agda
-```
+Phase 3 raw structural syntax and typing was completed on 2026-05-02. The
+fixed raw extension calculus is implemented in
+`agda/Metatheory/RawStructuralSyntax.agda`; admissibility and the raw
+clause-classification layer are implemented in
+`agda/Metatheory/RawStructuralTyping.agda`. The module distinguishes raw
+written clauses, typed structural roles, and algebraic payload fields; higher
+user operations classify as algebraic payload unless a structural role packages
+them as a horn boundary. Both modules type-check and are now included in
+`scripts/check_coherence_depth_artifact.sh`.
 
 ## Phase 4: Surface Normalization Bridge
 

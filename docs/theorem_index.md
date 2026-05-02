@@ -14,6 +14,8 @@ agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
 agda --transliterate Metatheory/PresentationEquivalence.agda
 agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Metatheory/RawStructuralSyntax.agda
+agda --transliterate Metatheory/RawStructuralTyping.agda
 agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
 agda --transliterate Test/PresentationInvariance/SplitShell.agda
 agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
@@ -79,6 +81,14 @@ agda --transliterate Test/Fibonacci.agda
 | `derived-field-deletion-preserves-mu` | `Metatheory.MuInvariance` | duplicate derived deletion preserves minimal opaque cost |
 | `requires-primitive-field-essential` | `Metatheory.MuInvariance` | primitive fields cannot be transparently generated |
 | `computational-replacement-preserves-mu` | `Metatheory.MuInvariance` | connects `mu` preservation to computational replacement |
+| `raw-extension-payload-fields` | `Metatheory.RawStructuralSyntax` | payload telescope projection for the fixed raw extension calculus |
+| `raw-extension-structural-clauses` | `Metatheory.RawStructuralSyntax` | structural-clause telescope projection for the fixed raw extension calculus |
+| `raw-extension-algebraic-fields` | `Metatheory.RawStructuralSyntax` | algebraic payload telescope projection for the fixed raw extension calculus |
+| `act-clause-has-unary-support` | `Metatheory.RawStructuralTyping` | action clauses classify as unary structural trace support |
+| `cmp-clause-has-binary-support` | `Metatheory.RawStructuralTyping` | comparison clauses classify as binary structural trace support |
+| `horn-clause-has-higher-boundary-support` | `Metatheory.RawStructuralTyping` | horn clauses classify as packaged higher boundary support |
+| `algebraic-field-is-payload-not-structural-trace` | `Metatheory.RawStructuralTyping` | higher user operations are algebraic payload, not structural trace projections |
+| `naked-higher-face-rejected-or-packaged` | `Metatheory.RawStructuralTyping` | admissible higher structural material is either rejected or packaged as a horn boundary |
 | `computational-replacement-preserves-canonical-presentation` | `Metatheory.ComputationalReplacement` | replacement preserves canonical presentation |
 | `higher-arity-fields-disappear-from-minimal-signature` | `Metatheory.ComputationalReplacement` | higher arity disappears from minimal signature |
 | `higher-arity-computational-replacement` | `Metatheory.ComputationalReplacement` | packaged higher-arity replacement |
