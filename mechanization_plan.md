@@ -104,20 +104,14 @@ under transport.
 
 ## Main Gaps
 
-The following files requested by `paper_improvement_plan.md` are currently
-absent and are the core backlog:
+Phase 8 case-study and audit artifacts now exist and type-check. The remaining
+core backlog is top-level integration and the paper rewrite:
 
-- `agda/CaseStudies/*.agda`
-
-Supporting documentation and audit artifacts are also absent:
-
-- `docs/case_studies/coherence_depth_universe_extension.md`
-- `docs/case_studies/coherence_depth_global_modality.md`
-- `docs/case_studies/coherence_depth_promoted_interface.md`
-- `docs/case_studies/coherence_depth_sparse_datatype.md`
-- `docs/reports/coherence_depth_case_study_report.md`
-- `scripts/coherence_depth_audit.py`
-- `runs/coherence_depth_case_studies/*.yaml`
+- Phase 9: update the theorem-facing repository surface so the bridge and
+  case-study modules are visible through the expected smoke checks and artifact
+  script.
+- Phase 10: revise `1_coherence_depth.tex` so its mechanization claims match
+  the completed fixed-extension-calculus boundary.
 
 ## Invariants For All New Agda Work
 
@@ -220,55 +214,20 @@ The focused checks
 sites were introduced; the checks retain the known `UnsupportedIndexedMatch`
 warnings from existing theorem modules.
 
-## Phase 8: Case Studies And Audit Data
-
-Goal: supply toy-but-explicit examples and nonexamples using the same abstract
-counting machinery.
-
-Deliverables:
-
-- `agda/CaseStudies/UniverseExtension.agda`
-- `agda/CaseStudies/GlobalModality.agda`
-- `agda/CaseStudies/PromotedInterface.agda`
-- `agda/CaseStudies/SparseDatatype.agda`
-- `docs/case_studies/coherence_depth_universe_extension.md`
-- `docs/case_studies/coherence_depth_global_modality.md`
-- `docs/case_studies/coherence_depth_promoted_interface.md`
-- `docs/case_studies/coherence_depth_sparse_datatype.md`
-- `docs/reports/coherence_depth_case_study_report.md`
-- `runs/coherence_depth_case_studies/*.yaml`
-- `scripts/coherence_depth_audit.py`
-
-Each case study must record:
-
-- payload fields;
-- active interface footprint;
-- unary trace obligations;
-- binary trace obligations;
-- higher horn obligations and derived status;
-- whether active-basis totality holds;
-- expected `mu` contribution;
-- whether the transparent, sparse, full-coupling, or no-recurrence law applies.
-
-Minimum examples:
-
-- transparent lemma extension: zero latency;
-- sparse datatype extension: finite local footprint, no full recurrence;
-- promoted interface package: classified by active-basis coverage;
-- global modality or universe extension: full-coupling recurrence;
-- refactored presentation of the same extension: same `mu`.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate CaseStudies/UniverseExtension.agda
-agda --transliterate CaseStudies/GlobalModality.agda
-agda --transliterate CaseStudies/PromotedInterface.agda
-agda --transliterate CaseStudies/SparseDatatype.agda
-cd ..
-python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
-```
+Phase 8 case studies and audit data was completed on 2026-05-02. The shared
+case-study summary vocabulary is implemented in `agda/CaseStudies/Common.agda`;
+the four theorem-facing examples are implemented in
+`agda/CaseStudies/UniverseExtension.agda`,
+`agda/CaseStudies/GlobalModality.agda`,
+`agda/CaseStudies/PromotedInterface.agda`, and
+`agda/CaseStudies/SparseDatatype.agda`. The markdown case-study pages, report,
+six YAML fixtures, and `scripts/coherence_depth_audit.py` are present. The
+audit records the transparent zero-latency lemma extension, sparse datatype,
+promoted active-basis interface, full-coupling universe/global examples, and a
+refactored universe presentation with the same `mu`. The focused Agda checks,
+audit script, and `scripts/check_coherence_depth_artifact.sh` pass. The checks
+retain only the known Cubical Agda `UnsupportedIndexedMatch` warnings from
+existing theorem modules.
 
 ## Phase 9: Top-Level Integration
 

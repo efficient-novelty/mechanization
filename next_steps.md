@@ -1,98 +1,93 @@
-# Next Step Plan: Case Studies And Audit Data
+# Next Step Plan: Top-Level Integration
 
 ## Goal
 
-Implement Phase 8 of `mechanization_plan.md`: add toy-but-explicit case
-studies and an audit dataset that exercise the same counting vocabulary used by
-the bridge modules.
+Implement Phase 9 of `mechanization_plan.md`: make the completed bridge,
+counting, sparse/full recurrence, and case-study work part of the repository's
+theorem-facing surface.
 
 ## Files To Create Or Update
 
-- Create `agda/CaseStudies/UniverseExtension.agda`.
-- Create `agda/CaseStudies/GlobalModality.agda`.
-- Create `agda/CaseStudies/PromotedInterface.agda`.
-- Create `agda/CaseStudies/SparseDatatype.agda`.
-- Create `docs/case_studies/coherence_depth_universe_extension.md`.
-- Create `docs/case_studies/coherence_depth_global_modality.md`.
-- Create `docs/case_studies/coherence_depth_promoted_interface.md`.
-- Create `docs/case_studies/coherence_depth_sparse_datatype.md`.
-- Create `docs/reports/coherence_depth_case_study_report.md`.
-- Create `runs/coherence_depth_case_studies/*.yaml`.
-- Create `scripts/coherence_depth_audit.py`.
-- After the Agda and audit checks pass, add case-study commands to
-  `docs/theorem_index.md` and `scripts/check_coherence_depth_artifact.sh`.
+- Update `agda/PEN.agda`.
+- Update `agda/Test/MetatheorySmoke.agda`.
+- Update `agda/README.md`.
+- Review and update `docs/theorem_index.md` if any top-level aliases need
+  additional stable names.
+- Review `scripts/check_coherence_depth_artifact.sh` after `PEN.agda` and the
+  smoke module imports are expanded.
 
 ## Preparation
 
-1. Re-read the bridge/counting modules:
+1. Re-read the public export style in `agda/PEN.agda`.
+   - Keep any broad imports controlled with `using` if names would collide.
+   - Pay special attention to `ActiveInterface`, which is defined in both
+     `Metatheory.InterfaceCalculus` and `Metatheory.FiniteInterfaceBasis`.
+2. Re-read the existing smoke aliases in `agda/Test/MetatheorySmoke.agda`.
+   - Add aliases only for stable theorem-facing names.
+   - Avoid duplicating the dedicated smoke surfaces unless the names should be
+     visible through `PEN.agda`.
+3. Re-read the modules that Phase 9 wants public:
    - `agda/Metatheory/SurfaceNormalizationBridge.agda`
    - `agda/Metatheory/SurfaceToHornImage.agda`
    - `agda/Metatheory/FiniteInterfaceBasis.agda`
+   - `agda/Metatheory/GlobalActionSemantics.agda`
    - `agda/Metatheory/ActiveBasisContract.agda`
    - `agda/Metatheory/SparseDependencyRecurrence.agda`
    - `agda/Metatheory/FullCouplingEnvelope.agda`
-2. Re-read the case-study expectations in `paper_improvement_plan.md` and
-   `1_coherence_depth.tex` so the examples align with the paper vocabulary.
-3. Inspect existing docs/report style under `docs/` before adding the new
-   markdown files.
+   - `agda/CaseStudies/*.agda`
 
 ## Implementation Sketch
 
-1. Create a shared case-study shape inside the Agda case-study modules or a
-   small helper if duplication becomes meaningful.
-   - Record payload fields.
-   - Record active interface footprint.
-   - Record unary, binary, and higher horn obligations.
-   - Record whether higher horn obligations are derived.
-   - Record expected `mu` contribution.
-   - Record which recurrence law applies.
+1. Extend `agda/PEN.agda` with public imports for the bridge modules.
+   - Prefer the explicit list from `mechanization_plan.md`.
+   - If importing `Metatheory.FiniteInterfaceBasis` causes an
+     `ActiveInterface` collision, use a selective `using` list or rename.
+   - Add case-study imports only if they should be part of the public theorem
+     surface; otherwise keep them checked through the artifact script and index.
 
-2. Implement the four Agda examples.
-   - `UniverseExtension`: full-coupling recurrence endpoint.
-   - `GlobalModality`: full-coupling or global active-basis example.
-   - `PromotedInterface`: active-basis coverage without claiming it alone
-     proves a chronological window.
-   - `SparseDatatype`: explicit finite local footprint with no full recurrence
-     claim.
+2. Extend `agda/Test/MetatheorySmoke.agda`.
+   - Add aliases for canonical telescope and trace-cost normal-form exports.
+   - Add aliases for presentation equivalence and `mu` invariance.
+   - Add aliases for raw structural syntax, raw typing, normalization bridge,
+     horn-image theorem, active-basis contract, sparse recurrence, full
+     coupling, and selected case-study summaries if publicly imported.
 
-3. Add markdown case-study pages.
-   - Keep each page aligned to the same headings so the audit script can cross
-     check YAML fields against prose.
-   - Explicitly state payload fields, footprint, trace obligations, derived
-     status, totality, `mu`, and recurrence classification.
+3. Update `agda/README.md`.
+   - Document the fixed raw extension-calculus boundary.
+   - List the new bridge/counting modules and the case-study audit command.
+   - Keep the limitation explicit: this is not an arbitrary Cubical Agda parser
+     or elaboration theorem.
 
-4. Add YAML audit fixtures under `runs/coherence_depth_case_studies/`.
-   - One YAML file per case study.
-   - Use stable keys for all required fields.
-   - Include a refactored-presentation entry that has the same `mu` as its
-     source example.
+4. Re-run and adjust `docs/theorem_index.md`.
+   - Confirm every new top-level smoke alias has a stable theorem-index row.
+   - Confirm the case-study commands and audit command remain present.
 
-5. Implement `scripts/coherence_depth_audit.py`.
-   - Validate required keys.
-   - Check that transparent examples have zero footprint and zero `mu`.
-   - Check sparse examples do not claim full-coupling recurrence.
-   - Check full-coupling examples declare the full envelope.
-   - Check refactored presentations preserve `mu`.
+5. Re-run `scripts/check_coherence_depth_artifact.sh`.
+   - If the PEN import expansion creates name collisions, narrow imports rather
+     than changing existing theorem names.
+   - If new warnings appear in new modules, document them in
+     `mechanization_plan.md`; otherwise leave the known warning caveat as-is.
 
 ## Acceptance Commands
 
 ```bash
 cd agda
-agda --transliterate CaseStudies/UniverseExtension.agda
-agda --transliterate CaseStudies/GlobalModality.agda
-agda --transliterate CaseStudies/PromotedInterface.agda
-agda --transliterate CaseStudies/SparseDatatype.agda
+agda --transliterate PEN.agda
+agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
+agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
+agda --transliterate Test/ClutchingSmoke.agda
+agda --transliterate Test/Fibonacci.agda
 cd ..
-python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
 ./scripts/check_coherence_depth_artifact.sh
 ```
 
 ## Guardrails
 
-- Do not turn case studies into a parser or elaborator for arbitrary Cubical
-  Agda.
-- Do not claim active-basis totality alone implies the Fibonacci law.
-- Keep sparse datatype examples explicitly finite-footprint, not
-  full-envelope.
-- Keep YAML, markdown, and Agda names synchronized so the audit script can be
-  mechanical instead of interpretive.
+- Do not broaden the mechanized claim beyond the fixed raw extension calculus.
+- Do not hide or suppress Cubical Agda warnings.
+- Do not introduce `postulate` in theorem-facing modules.
+- Preserve existing public names in `PEN.agda`; narrow imports around
+  collisions instead of renaming established APIs.
+- Keep the artifact script as the authoritative integration check.

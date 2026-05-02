@@ -23,6 +23,10 @@ agda --transliterate Metatheory/GlobalActionSemantics.agda
 agda --transliterate Metatheory/ActiveBasisContract.agda
 agda --transliterate Metatheory/SparseDependencyRecurrence.agda
 agda --transliterate Metatheory/FullCouplingEnvelope.agda
+agda --transliterate CaseStudies/UniverseExtension.agda
+agda --transliterate CaseStudies/GlobalModality.agda
+agda --transliterate CaseStudies/PromotedInterface.agda
+agda --transliterate CaseStudies/SparseDatatype.agda
 agda --transliterate Test/SurfaceBridgeSmoke.agda
 agda --transliterate Test/ActiveBasisExamples.agda
 agda --transliterate Test/SparseRecurrenceSmoke.agda
@@ -34,6 +38,8 @@ agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
 agda --transliterate Geometry/Clutching.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
+cd ..
+python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
 ```
 
 ## Theorem Names
@@ -88,6 +94,16 @@ agda --transliterate Test/Fibonacci.agda
 | `full-coupling-envelope` | `Metatheory.FullCouplingEnvelope` | maximal footprint containing every previous-window dependency site |
 | `full-coupling-specializes-sparse-recurrence` | `Metatheory.FullCouplingEnvelope` | the full envelope is a specialization of sparse recurrence |
 | `full-coupling-depth-two-affine-law` | `Metatheory.FullCouplingEnvelope` | full depth-two coupling exposes the existing constant-payload affine law |
+| `universe-extension-summary` | `CaseStudies.UniverseExtension` | counted full-coupling universe-extension case-study summary |
+| `universe-refactored-presentation-same-mu` | `CaseStudies.UniverseExtension` | refactored universe-extension presentation records the same `mu` |
+| `global-modality-summary` | `CaseStudies.GlobalModality` | counted full-coupling global-modality case-study summary |
+| `promoted-interface-summary` | `CaseStudies.PromotedInterface` | counted active-basis promoted-interface case-study summary |
+| `transparent-lemma-zero-footprint` | `CaseStudies.PromotedInterface` | transparent lemma extension has zero sparse footprint and zero latency |
+| `coverage-does-not-prove-window` | `CaseStudies.PromotedInterface` | case-study alias for active-basis non-circularity around depth-two windows |
+| `coverage-does-not-prove-fibonacci` | `CaseStudies.PromotedInterface` | case-study alias for active-basis non-circularity around Fibonacci growth |
+| `sparse-datatype-summary` | `CaseStudies.SparseDatatype` | counted sparse datatype case-study summary |
+| `sparse-datatype-recurrence` | `CaseStudies.SparseDatatype` | sparse datatype recurrence over one local dependency in a three-site window |
+| `sparse-datatype-below-full-envelope` | `CaseStudies.SparseDatatype` | sparse datatype footprint is bounded by the full previous-window envelope |
 | `integration-trace-principle` | `Metatheory.TracePrinciple` | payload plus trace decomposition |
 | `canonical-telescope-cardinality` | `Metatheory.CanonicalTelescope` | finite cardinality of a canonical telescope |
 | `trace-cost-normal-form-cardinality` | `Metatheory.TraceCostNormalForm` | finite cardinality of a trace-cost normal form |
@@ -147,6 +163,6 @@ agda --transliterate Test/Fibonacci.agda
 
 ## Planned Names Not Yet Present
 
-The remaining planned names are the Phase 8 case-study and audit artifacts;
-they are intentionally absent until the case-study modules and reports are
-implemented.
+Phase 8 case-study and audit artifacts are now present. The remaining planned
+names are the Phase 9 top-level integration aliases and the Phase 10 paper
+rewrite references.

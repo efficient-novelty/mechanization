@@ -43,6 +43,7 @@ require_no_postulates() {
     "$AGDA_DIR/Core"
     "$AGDA_DIR/Metatheory"
     "$AGDA_DIR/Geometry/Clutching.agda"
+    "$AGDA_DIR/CaseStudies"
     "$AGDA_DIR/ObligationGraph"
     "$AGDA_DIR/PEN.agda"
     "$AGDA_DIR/Test/MetatheorySmoke.agda"
@@ -82,6 +83,25 @@ require_no_postulates() {
   fi
 }
 
+run_case_study_audit() {
+  local runs_dir="$ROOT/runs/coherence_depth_case_studies"
+  local audit_script="$ROOT/scripts/coherence_depth_audit.py"
+  echo "==> python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies"
+  if command -v python3 >/dev/null 2>&1; then
+    python3 "$audit_script" "$runs_dir"
+  elif command -v python >/dev/null 2>&1; then
+    python "$audit_script" "$runs_dir"
+  elif command -v powershell.exe >/dev/null 2>&1; then
+    local win_root
+    win_root="$(to_windows_path "$ROOT")"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \
+      "Set-Location -LiteralPath '$win_root'; python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies"
+  else
+    echo "ERROR: python not found on PATH and powershell.exe fallback unavailable" >&2
+    return 127
+  fi
+}
+
 run_agda "PEN.agda"
 run_agda "Test/MetatheorySmoke.agda"
 run_agda "Test/PresentationInvariance/Smoke.agda"
@@ -96,6 +116,10 @@ run_agda "Metatheory/GlobalActionSemantics.agda"
 run_agda "Metatheory/ActiveBasisContract.agda"
 run_agda "Metatheory/SparseDependencyRecurrence.agda"
 run_agda "Metatheory/FullCouplingEnvelope.agda"
+run_agda "CaseStudies/UniverseExtension.agda"
+run_agda "CaseStudies/GlobalModality.agda"
+run_agda "CaseStudies/PromotedInterface.agda"
+run_agda "CaseStudies/SparseDatatype.agda"
 run_agda "Test/PresentationInvariance/RebundleRecord.agda"
 run_agda "Test/PresentationInvariance/SplitShell.agda"
 run_agda "Test/PresentationInvariance/CurryUncurry.agda"
@@ -118,5 +142,6 @@ if [ -f "$AGDA_DIR/Test/SparseRecurrenceSmoke.agda" ]; then
 fi
 
 require_no_postulates
+run_case_study_audit
 
 echo "coherence-depth artifact check passed"

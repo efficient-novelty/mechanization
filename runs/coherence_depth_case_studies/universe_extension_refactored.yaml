@@ -1,0 +1,16 @@
+id: universe_extension_refactored
+title: Universe Extension Refactored Presentation
+payload_fields: 1
+active_interface_footprint: 2
+unary_trace_obligations: 1
+binary_trace_obligations: 1
+higher_horn_obligations: 1
+higher_horn_derived: true
+active_basis_totality: true
+expected_mu: 2
+recurrence_law: full-coupling
+envelope: full
+agda_module: CaseStudies.UniverseExtension
+doc: docs/case_studies/coherence_depth_universe_extension.md
+presentation_group: universe_extension
+refactors: true

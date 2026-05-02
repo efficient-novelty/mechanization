@@ -1,0 +1,16 @@
+id: transparent_lemma_extension
+title: Transparent Lemma Extension
+payload_fields: 0
+active_interface_footprint: 0
+unary_trace_obligations: 0
+binary_trace_obligations: 0
+higher_horn_obligations: 0
+higher_horn_derived: true
+active_basis_totality: false
+expected_mu: 0
+recurrence_law: transparent-zero
+envelope: none
+agda_module: CaseStudies.PromotedInterface
+doc: docs/case_studies/coherence_depth_promoted_interface.md
+presentation_group: transparent_lemma_extension
+refactors: false

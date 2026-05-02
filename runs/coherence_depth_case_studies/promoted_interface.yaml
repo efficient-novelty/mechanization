@@ -1,0 +1,16 @@
+id: promoted_interface
+title: Promoted Interface
+payload_fields: 1
+active_interface_footprint: 2
+unary_trace_obligations: 2
+binary_trace_obligations: 0
+higher_horn_obligations: 0
+higher_horn_derived: true
+active_basis_totality: true
+expected_mu: 2
+recurrence_law: promoted-active-basis
+envelope: active-basis
+agda_module: CaseStudies.PromotedInterface
+doc: docs/case_studies/coherence_depth_promoted_interface.md
+presentation_group: promoted_interface
+refactors: false

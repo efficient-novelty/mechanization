@@ -1,0 +1,16 @@
+id: global_modality
+title: Global Modality
+payload_fields: 1
+active_interface_footprint: 3
+unary_trace_obligations: 1
+binary_trace_obligations: 2
+higher_horn_obligations: 1
+higher_horn_derived: true
+active_basis_totality: true
+expected_mu: 3
+recurrence_law: full-coupling
+envelope: full
+agda_module: CaseStudies.GlobalModality
+doc: docs/case_studies/coherence_depth_global_modality.md
+presentation_group: global_modality
+refactors: false

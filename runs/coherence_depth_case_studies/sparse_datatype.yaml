@@ -1,0 +1,16 @@
+id: sparse_datatype
+title: Sparse Datatype
+payload_fields: 1
+active_interface_footprint: 1
+unary_trace_obligations: 1
+binary_trace_obligations: 0
+higher_horn_obligations: 0
+higher_horn_derived: true
+active_basis_totality: false
+expected_mu: 1
+recurrence_law: sparse-local
+envelope: sparse
+agda_module: CaseStudies.SparseDatatype
+doc: docs/case_studies/coherence_depth_sparse_datatype.md
+presentation_group: sparse_datatype
+refactors: false
