@@ -38,6 +38,8 @@ Already present and usable:
 - `agda/Metatheory/UniversalRecurrence.agda`
 - `agda/Metatheory/CanonicalTelescope.agda`
 - `agda/Metatheory/TraceCostNormalForm.agda`
+- `agda/Metatheory/PresentationEquivalence.agda`
+- `agda/Metatheory/MuInvariance.agda`
 - `agda/Geometry/Clutching.agda`
 - `agda/Core/AffineRecurrence.agda`
 - `agda/Core/DepthOneAffine.agda`
@@ -45,6 +47,11 @@ Already present and usable:
 - `agda/Test/ClutchingSmoke.agda`
 - `agda/Test/Fibonacci.agda`
 - `agda/Test/PresentationInvariance/Smoke.agda`
+- `agda/Test/PresentationInvariance/RebundleRecord.agda`
+- `agda/Test/PresentationInvariance/SplitShell.agda`
+- `agda/Test/PresentationInvariance/CurryUncurry.agda`
+- `agda/Test/PresentationInvariance/TransparentAlias.agda`
+- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 
 These checks currently pass:
 
@@ -53,8 +60,15 @@ cd agda
 agda --transliterate PEN.agda
 agda --transliterate Metatheory/CanonicalTelescope.agda
 agda --transliterate Metatheory/TraceCostNormalForm.agda
+agda --transliterate Metatheory/PresentationEquivalence.agda
+agda --transliterate Metatheory/MuInvariance.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
+agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
+agda --transliterate Test/PresentationInvariance/SplitShell.agda
+agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
+agda --transliterate Test/PresentationInvariance/TransparentAlias.agda
+agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
 ```
@@ -76,19 +90,12 @@ absent and are the core backlog:
 - `agda/Metatheory/FiniteInterfaceBasis.agda`
 - `agda/Metatheory/GlobalActionSemantics.agda`
 - `agda/Metatheory/ActiveBasisContract.agda`
-- `agda/Metatheory/PresentationEquivalence.agda`
-- `agda/Metatheory/MuInvariance.agda`
 - `agda/Metatheory/SparseDependencyRecurrence.agda`
 - `agda/Metatheory/FullCouplingEnvelope.agda`
 - `agda/CaseStudies/*.agda`
 - `agda/Test/SurfaceBridgeSmoke.agda`
 - `agda/Test/ActiveBasisExamples.agda`
 - `agda/Test/SparseRecurrenceSmoke.agda`
-- `agda/Test/PresentationInvariance/RebundleRecord.agda`
-- `agda/Test/PresentationInvariance/SplitShell.agda`
-- `agda/Test/PresentationInvariance/CurryUncurry.agda`
-- `agda/Test/PresentationInvariance/TransparentAlias.agda`
-- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
 
 Supporting documentation and audit artifacts are also absent:
 
@@ -124,88 +131,13 @@ script uses native `agda` when it is on `PATH` and falls back to
 `powershell.exe` for Agda invocations in Windows Git Bash, because this
 workspace exposes Agda in PowerShell but not necessarily in Bash.
 
-## Phase 2: Presentation Equivalence And `mu` Invariance
-
-Goal: make the phrase "presentation-invariant minimal opaque cost" formally
-credible.
-
-Deliverables:
-
-- `agda/Metatheory/PresentationEquivalence.agda`
-- `agda/Metatheory/MuInvariance.agda`
-- `agda/Test/PresentationInvariance/RebundleRecord.agda`
-- `agda/Test/PresentationInvariance/SplitShell.agda`
-- `agda/Test/PresentationInvariance/CurryUncurry.agda`
-- `agda/Test/PresentationInvariance/TransparentAlias.agda`
-- `agda/Test/PresentationInvariance/DuplicateTrace.agda`
-
-Core definitions:
-
-```agda
-data PresentationStep : CanonicalTraceCostNormalForm ->
-                        CanonicalTraceCostNormalForm -> Set where
-  reassocSigma             : ...
-  splitRecord              : ...
-  bundleRecord             : ...
-  curryPi                  : ...
-  uncurryPi                : ...
-  transportField           : ...
-  transparentAliasInsert   : ...
-  transparentAliasDelete   : ...
-  duplicateDerivedDelete   : ...
-
-data PresentationEquivalent : CanonicalTraceCostNormalForm ->
-                              CanonicalTraceCostNormalForm -> Set where
-  refl  : ...
-  sym   : ...
-  trans : ...
-  step  : PresentationStep Gamma Delta -> ...
-```
-
-Define primitive status semantically:
-
-```agda
-TransparentlyGenerated : CanonicalTraceCostNormalForm -> TraceCostField -> Set
-RequiresPrimitive Gamma phi = Not (TransparentlyGenerated Gamma phi)
-```
-
-Expected exports:
-
-```agda
-presentation-step-preserves-trace-support
-presentation-step-preserves-primitive-cost
-presentation-equivalence-preserves-trace-fields
-presentation-equivalence-preserves-primitive-cost
-mu-preserved-by-presentation-step
-mu-invariant-under-presentation-equivalence
-derived-field-deletion-preserves-mu
-requires-primitive-field-essential
-computational-replacement-preserves-mu
-```
-
-Implementation notes:
-
-- Connect `computational-replacement-preserves-mu` to
-  `Metatheory/ComputationalReplacement.agda` rather than reproving replacement.
-- The essentiality theorem should not be a label-preservation tautology.
-  Primitive means "not transparently generated"; deletion of such a field must
-  break presentation equivalence.
-- The existing `Metatheory/Refactoring.agda` can remain as the coarse older
-  package; this phase supplies the generator-by-generator presentation setoid
-  requested by `paper_improvement_plan.md`.
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate Metatheory/PresentationEquivalence.agda
-agda --transliterate Metatheory/MuInvariance.agda
-agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
-agda --transliterate Test/PresentationInvariance/SplitShell.agda
-agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
-agda --transliterate Test/PresentationInvariance/TransparentAlias.agda
-agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
-```
+Phase 2 presentation equivalence and `mu` invariance was completed on
+2026-05-02. The generator-by-generator presentation layer is implemented in
+`agda/Metatheory/PresentationEquivalence.agda`, `mu` invariance and the
+computational-replacement bridge are implemented in
+`agda/Metatheory/MuInvariance.agda`, and the five named presentation smoke
+modules type-check. The checks retain the existing Cubical Agda
+`UnsupportedIndexedMatch` warning from `Metatheory/Obligations.agda`.
 
 ## Phase 3: Raw Structural Syntax And Typing
 

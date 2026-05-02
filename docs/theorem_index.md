@@ -12,6 +12,13 @@ cd agda
 agda --transliterate PEN.agda
 agda --transliterate Test/MetatheorySmoke.agda
 agda --transliterate Test/PresentationInvariance/Smoke.agda
+agda --transliterate Metatheory/PresentationEquivalence.agda
+agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Test/PresentationInvariance/RebundleRecord.agda
+agda --transliterate Test/PresentationInvariance/SplitShell.agda
+agda --transliterate Test/PresentationInvariance/CurryUncurry.agda
+agda --transliterate Test/PresentationInvariance/TransparentAlias.agda
+agda --transliterate Test/PresentationInvariance/DuplicateTrace.agda
 agda --transliterate Geometry/Clutching.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
@@ -61,6 +68,17 @@ agda --transliterate Test/Fibonacci.agda
 | `primitive-trace-subtelescope` | `Metatheory.TraceCostNormalForm` | primitive trace-field subtelescope |
 | `derived-trace-subtelescope` | `Metatheory.TraceCostNormalForm` | derived trace-field subtelescope |
 | `mu-of-trace-cost-normal-form` | `Metatheory.TraceCostNormalForm` | minimal opaque trace count for a normal form |
+| `presentation-step-preserves-trace-support` | `Metatheory.PresentationEquivalence` | each explicit presentation generator preserves trace support count |
+| `presentation-step-preserves-primitive-cost` | `Metatheory.PresentationEquivalence` | each explicit presentation generator preserves primitive trace count |
+| `presentation-equivalence-preserves-trace-fields` | `Metatheory.PresentationEquivalence` | reflexive/symmetric/transitive closure preserves trace fields |
+| `presentation-equivalence-preserves-primitive-cost` | `Metatheory.PresentationEquivalence` | presentation equivalence preserves primitive trace count |
+| `TransparentlyGenerated` | `Metatheory.MuInvariance` | semantically derived trace fields |
+| `RequiresPrimitive` | `Metatheory.MuInvariance` | fields not transparently generated |
+| `mu-preserved-by-presentation-step` | `Metatheory.MuInvariance` | `mu` is invariant under one presentation generator |
+| `mu-invariant-under-presentation-equivalence` | `Metatheory.MuInvariance` | `mu` is invariant under presentation equivalence |
+| `derived-field-deletion-preserves-mu` | `Metatheory.MuInvariance` | duplicate derived deletion preserves minimal opaque cost |
+| `requires-primitive-field-essential` | `Metatheory.MuInvariance` | primitive fields cannot be transparently generated |
+| `computational-replacement-preserves-mu` | `Metatheory.MuInvariance` | connects `mu` preservation to computational replacement |
 | `computational-replacement-preserves-canonical-presentation` | `Metatheory.ComputationalReplacement` | replacement preserves canonical presentation |
 | `higher-arity-fields-disappear-from-minimal-signature` | `Metatheory.ComputationalReplacement` | higher arity disappears from minimal signature |
 | `higher-arity-computational-replacement` | `Metatheory.ComputationalReplacement` | packaged higher-arity replacement |
@@ -82,8 +100,6 @@ implemented:
 - `raw-trace-normalizes-to-canonical-signature`
 - `surface-to-horn-normal-form`
 - `raw-structural-normalizes-to-horn`
-- `mu-invariant-under-presentation-equivalence`
-- `requires-primitive-field-essential`
 - `global-action-totality-implies-active-basis-contract`
 - `coverage-alone-does-not-imply-fibonacci`
 - `sparse-windowed-recurrence`
