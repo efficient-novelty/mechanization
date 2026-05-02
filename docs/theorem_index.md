@@ -40,6 +40,7 @@ agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
 cd ..
 python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
+./scripts/check_coherence_depth_artifact.sh
 ```
 
 ## Theorem Names
@@ -161,8 +162,22 @@ python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
 | `U-bootstrap-closed` | `Core.AffineRecurrence` | shifted Fibonacci sequence |
 | `tau-bootstrap-closed` | `Core.AffineRecurrence` | cumulative shifted Fibonacci form |
 
+## Top-Level Smoke Alias Surface
+
+`agda/Test/MetatheorySmoke.agda` imports `PEN.agda` and aliases the stable
+top-level surface for the bridge and recurrence work. The Phase 9 aliases now
+cover these groups:
+
+| Alias group | Representative aliases | Source modules |
+|---|---|---|
+| canonical trace normal forms | `canonical-telescope-surface`, `canonical-trace-cost-normal-form-surface`, `mu-normal-form-available` | `Metatheory.CanonicalTelescope`, `Metatheory.TraceCostNormalForm` |
+| presentation and `mu` invariance | `presentation-step-surface`, `presentation-equivalence-surface`, `mu-presentation-equivalence-theorem`, `computational-replacement-mu-theorem` | `Metatheory.PresentationEquivalence`, `Metatheory.MuInvariance` |
+| raw structural bridge | `raw-extension-surface`, `admissible-raw-extension-surface`, `raw-extension-normalization-theorem`, `raw-structural-normalizes-to-horn-theorem` | `Metatheory.RawStructuralSyntax`, `Metatheory.RawStructuralTyping`, `Metatheory.SurfaceNormalizationBridge`, `Metatheory.SurfaceToHornImage` |
+| active-basis naturality | `finite-active-interface-surface`, `global-action-totality-theorem`, `active-basis-density-theorem`, `coverage-fibonacci-noncircularity-example` | `Metatheory.FiniteInterfaceBasis`, `Metatheory.GlobalActionSemantics`, `Metatheory.ActiveBasisContract` |
+| sparse/full recurrence | `sparse-windowed-recurrence-theorem`, `transparent-growth-zero-footprint-theorem`, `full-coupling-specializes-sparse-recurrence-theorem`, `full-coupling-depth-two-affine-law-theorem` | `Metatheory.SparseDependencyRecurrence`, `Metatheory.FullCouplingEnvelope` |
+
 ## Planned Names Not Yet Present
 
-Phase 8 case-study and audit artifacts are now present. The remaining planned
-names are the Phase 9 top-level integration aliases and the Phase 10 paper
-rewrite references.
+Phase 9 top-level integration is now present. The remaining planned names are
+paper-reference updates from the Phase 10 rewrite of `1_coherence_depth.tex`;
+no additional Agda theorem names are currently required for that step.

@@ -48,6 +48,7 @@ agda/
 |- ObligationGraph/
 |- Saturation/
 |- Adjunction/
+|- CaseStudies/
 |- Oracle/
 |- OpSchema/
 |- Geometry/
@@ -66,6 +67,7 @@ The most important directories are:
 - `ObligationGraph/` and `Saturation/`: the older counting/barrier model that
   still supports the recurrence side of the artifact
 - `Adjunction/`: supporting lower-bound scaffolding
+- `CaseStudies/`: theorem-facing coherence-depth examples and audit fixtures
 - `Oracle/` and `OpSchema/`: novelty and capability measurement work
 - `Test/`: lightweight regression modules for the main surfaces
 
@@ -128,6 +130,30 @@ Current theorem-facing modules:
   `universal-affine-recurrence-from-coherence`, making explicit that the
   recurrence law itself uses only the windowed counted-history package while
   exact depth can still be tracked separately.
+- `Metatheory/CanonicalTelescope.agda` and
+  `Metatheory/TraceCostNormalForm.agda` provide the finite canonical
+  telescope and counted trace-cost normal form used by the fixed raw
+  extension-calculus bridge.
+- `Metatheory/PresentationEquivalence.agda` and
+  `Metatheory/MuInvariance.agda` make the explicit presentation generators
+  and the invariant minimal opaque trace count `mu` theorem-facing.
+- `Metatheory/RawStructuralSyntax.agda`,
+  `Metatheory/RawStructuralTyping.agda`,
+  `Metatheory/SurfaceNormalizationBridge.agda`, and
+  `Metatheory/SurfaceToHornImage.agda` mechanize the bridge from the paper's
+  fixed raw extension calculus to the canonical horn-generated trace
+  interface. This is deliberately not a parser or elaboration theorem for
+  arbitrary Cubical Agda programs.
+- `Metatheory/FiniteInterfaceBasis.agda`,
+  `Metatheory/GlobalActionSemantics.agda`, and
+  `Metatheory/ActiveBasisContract.agda` expose the finite active-basis
+  naturality package and its non-circularity examples.
+- `Metatheory/SparseDependencyRecurrence.agda` and
+  `Metatheory/FullCouplingEnvelope.agda` expose sparse dependency recurrence
+  and the fully coupled endpoint used for the Fibonacci specialization.
+- `CaseStudies/*.agda` packages the universe extension, global modality,
+  promoted active-basis interface, and sparse datatype examples checked by
+  the coherence-depth audit script.
 - `Metatheory/Obligations.agda` also now includes the arity-to-dimension
   surface for `lem:arity-dimension`:
   `Positive`, `CoherenceCellShape`,
@@ -225,15 +251,20 @@ What this means in practice:
 - the exact integration trace principle is now mechanized
 - the exact universal affine recurrence is mechanized on an explicit counted
   depth-`d` historical window
+- the fixed raw extension-calculus bridge to horn-generated trace interfaces
+  is mechanized
+- the explicit presentation-equivalence generators preserve `mu`
+- active-basis coverage, sparse recurrence, and the full-coupling envelope are
+  mechanized
+- the theorem-facing case studies and YAML audit fixtures are checked
 - the recurrence side still has the payload-aware arithmetic specializations
   and the depth-1 closed forms
 
 What is still open on the paper-facing coherence-depth plan:
 
-- the remaining backlog in `mechanization_plan.md` now starts at
-  the paper-level mechanization-claim cleanup
-- the final abstract/mechanization/conclusion prose still needs to be tightened
-  so every cited paper theorem points directly at its exact Agda theorem
+- `1_coherence_depth.tex` still needs the Phase 10 prose rewrite so its
+  mechanization claims exactly match the fixed raw extension-calculus
+  boundary and the completed case-study audit.
 
 ### Counting / Oracle Track
 
@@ -269,6 +300,28 @@ If you are trying to orient yourself quickly, start here:
   exports
 - `Metatheory/UniversalRecurrence.agda`: windowed recurrence wrapper for the
   counted historical interface, plus the exact-depth context that extends it
+- `Metatheory/CanonicalTelescope.agda`: canonical finite telescope surface
+- `Metatheory/TraceCostNormalForm.agda`: counted trace-cost normal forms and
+  `mu`
+- `Metatheory/PresentationEquivalence.agda`: explicit presentation-generator
+  equivalence
+- `Metatheory/MuInvariance.agda`: `mu` invariance and computational
+  replacement bridge
+- `Metatheory/RawStructuralSyntax.agda`: fixed raw extension-calculus syntax
+- `Metatheory/RawStructuralTyping.agda`: admissibility and structural role
+  classification
+- `Metatheory/SurfaceNormalizationBridge.agda`: raw extension normalization to
+  canonical signatures
+- `Metatheory/SurfaceToHornImage.agda`: raw structural telescope to horn image
+  theorem
+- `Metatheory/FiniteInterfaceBasis.agda`: counted finite active basis
+- `Metatheory/GlobalActionSemantics.agda`: advertised active-interface action
+  semantics
+- `Metatheory/ActiveBasisContract.agda`: active-basis contract and
+  non-circularity examples
+- `Metatheory/SparseDependencyRecurrence.agda`: sparse footprint recurrence
+- `Metatheory/FullCouplingEnvelope.agda`: fully coupled specialization
+- `CaseStudies/`: checked case-study summaries for the audit data
 - `Metatheory/Extensional.agda`: depth-1 theorem
 - `Metatheory/KanSubsumption.agda`: horn-reduction, telescopic subsumption,
   and arity-3 open-box package
@@ -297,6 +350,9 @@ For the integrated coherence-depth surface:
 cd /mnt/c/dev/pen/agda
 agda --transliterate PEN.agda
 agda --transliterate Test/MetatheorySmoke.agda
+agda --transliterate Test/SurfaceBridgeSmoke.agda
+agda --transliterate Test/ActiveBasisExamples.agda
+agda --transliterate Test/SparseRecurrenceSmoke.agda
 agda --transliterate Geometry/Clutching.agda
 agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
@@ -308,6 +364,7 @@ and scans theorem-facing modules for `postulate`:
 
 ```bash
 ./scripts/check_coherence_depth_artifact.sh
+python scripts/coherence_depth_audit.py runs/coherence_depth_case_studies
 ```
 
 Useful additional checks:
@@ -319,6 +376,19 @@ agda --transliterate Metatheory/Refactoring.agda
 agda --transliterate Metatheory/CanonicityDensity.agda
 agda --transliterate Metatheory/TracePrinciple.agda
 agda --transliterate Metatheory/UniversalRecurrence.agda
+agda --transliterate Metatheory/CanonicalTelescope.agda
+agda --transliterate Metatheory/TraceCostNormalForm.agda
+agda --transliterate Metatheory/PresentationEquivalence.agda
+agda --transliterate Metatheory/MuInvariance.agda
+agda --transliterate Metatheory/RawStructuralSyntax.agda
+agda --transliterate Metatheory/RawStructuralTyping.agda
+agda --transliterate Metatheory/SurfaceNormalizationBridge.agda
+agda --transliterate Metatheory/SurfaceToHornImage.agda
+agda --transliterate Metatheory/FiniteInterfaceBasis.agda
+agda --transliterate Metatheory/GlobalActionSemantics.agda
+agda --transliterate Metatheory/ActiveBasisContract.agda
+agda --transliterate Metatheory/SparseDependencyRecurrence.agda
+agda --transliterate Metatheory/FullCouplingEnvelope.agda
 agda --transliterate Metatheory/Extensional.agda
 agda --transliterate Metatheory/KanSubsumption.agda
 agda --transliterate Metatheory/UpperBound.agda
@@ -339,12 +409,11 @@ can inspect it without reading every module:
   theorem-name, postulate-free status, and whether the result still depends on
   the raw-surface bridge.
 - `docs/theorem_index.md`: searchable theorem-name index for the current
-  coherence-depth package plus planned names that are intentionally absent
-  until the bridge phases are implemented.
+  coherence-depth package plus the remaining paper-reference cleanup notes.
 
-The current missing Agda bridge work is tracked in `mechanization_plan.md`.
-The next executable slice starts with `Metatheory/CanonicalTelescope.agda` and
-`Metatheory/TraceCostNormalForm.agda`.
+The remaining coherence-depth work is tracked in `mechanization_plan.md`.
+After the top-level integration pass, the next executable slice is the Phase
+10 rewrite of `1_coherence_depth.tex`.
 
 ## Known Issues
 

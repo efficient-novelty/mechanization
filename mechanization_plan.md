@@ -104,12 +104,9 @@ under transport.
 
 ## Main Gaps
 
-Phase 8 case-study and audit artifacts now exist and type-check. The remaining
-core backlog is top-level integration and the paper rewrite:
+Phase 9 top-level integration now exists and type-checks. The remaining core
+backlog is the paper rewrite:
 
-- Phase 9: update the theorem-facing repository surface so the bridge and
-  case-study modules are visible through the expected smoke checks and artifact
-  script.
 - Phase 10: revise `1_coherence_depth.tex` so its mechanization claims match
   the completed fixed-extension-calculus boundary.
 
@@ -229,48 +226,19 @@ audit script, and `scripts/check_coherence_depth_artifact.sh` pass. The checks
 retain only the known Cubical Agda `UnsupportedIndexedMatch` warnings from
 existing theorem modules.
 
-## Phase 9: Top-Level Integration
-
-Goal: make the new bridge part of the repository's theorem-facing surface.
-
-Deliverables:
-
-- update `agda/PEN.agda`;
-- update `agda/Test/MetatheorySmoke.agda`;
-- update `agda/README.md`;
-- update `docs/theorem_index.md`;
-- update `scripts/check_coherence_depth_artifact.sh`.
-
-Add public imports only after the individual modules type-check cleanly:
-
-```agda
-open import Metatheory.CanonicalTelescope public
-open import Metatheory.TraceCostNormalForm public
-open import Metatheory.PresentationEquivalence public
-open import Metatheory.MuInvariance public
-open import Metatheory.RawStructuralSyntax public
-open import Metatheory.RawStructuralTyping public
-open import Metatheory.SurfaceNormalizationBridge public
-open import Metatheory.SurfaceToHornImage public
-open import Metatheory.FiniteInterfaceBasis public
-open import Metatheory.GlobalActionSemantics public
-open import Metatheory.ActiveBasisContract public
-open import Metatheory.SparseDependencyRecurrence public
-open import Metatheory.FullCouplingEnvelope public
-```
-
-Acceptance:
-
-```bash
-cd agda
-agda --transliterate PEN.agda
-agda --transliterate Test/MetatheorySmoke.agda
-agda --transliterate Test/SurfaceBridgeSmoke.agda
-agda --transliterate Test/ActiveBasisExamples.agda
-agda --transliterate Test/SparseRecurrenceSmoke.agda
-agda --transliterate Test/ClutchingSmoke.agda
-agda --transliterate Test/Fibonacci.agda
-```
+Phase 9 top-level integration was completed on 2026-05-02.
+`agda/PEN.agda` now publicly exposes the canonical telescope, trace-cost
+normal form, presentation-equivalence, `mu` invariance, raw structural bridge,
+surface-to-horn image, active-basis, sparse recurrence, and full-coupling
+modules. The finite-basis `ActiveInterface` is exported as
+`FiniteActiveInterface` at the `PEN.agda` boundary to avoid colliding with the
+older `LibraryState.ActiveInterface` accessor from
+`Metatheory.InterfaceCalculus.agda`. `agda/Test/MetatheorySmoke.agda` now
+aliases the Phase 9 surface through `open import PEN`; `agda/README.md`,
+`docs/theorem_index.md`, and `scripts/check_coherence_depth_artifact.sh` were
+updated accordingly. The focused Phase 9 checks and the artifact script pass,
+retaining only the known Cubical Agda `UnsupportedIndexedMatch` warnings from
+existing theorem modules.
 
 ## Phase 10: Paper Rewrite After Mechanization
 

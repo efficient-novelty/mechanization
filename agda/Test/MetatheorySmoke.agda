@@ -68,6 +68,99 @@ higher-arity-presented-minimal-elimination-available =
   higher-arity-presented-fields-disappear-from-minimal-signature
 higher-arity-computational-replacement-available =
   higher-arity-computational-replacement
+canonical-telescope-surface = CanonicalTelescope
+canonical-telescope-cardinality-available =
+  canonical-telescope-cardinality
+canonical-trace-cost-normal-form-surface =
+  CanonicalTraceCostNormalForm
+trace-cost-cardinality-available =
+  trace-cost-normal-form-cardinality
+primitive-trace-subtelescope-available =
+  primitive-trace-subtelescope
+derived-trace-subtelescope-available =
+  derived-trace-subtelescope
+mu-normal-form-available = mu-of-trace-cost-normal-form
+presentation-step-surface = PresentationStep
+presentation-equivalence-surface = PresentationEquivalent
+presentation-step-support-theorem =
+  presentation-step-preserves-trace-support
+presentation-step-primitive-cost-theorem =
+  presentation-step-preserves-primitive-cost
+presentation-equivalence-trace-fields-theorem =
+  presentation-equivalence-preserves-trace-fields
+presentation-equivalence-primitive-cost-theorem =
+  presentation-equivalence-preserves-primitive-cost
+transparently-generated-surface = TransparentlyGenerated
+requires-primitive-surface = RequiresPrimitive
+mu-presentation-step-theorem = mu-preserved-by-presentation-step
+mu-presentation-equivalence-theorem =
+  mu-invariant-under-presentation-equivalence
+derived-deletion-mu-theorem = derived-field-deletion-preserves-mu
+primitive-essential-theorem = requires-primitive-field-essential
+computational-replacement-mu-theorem =
+  computational-replacement-preserves-mu
+raw-layer-ref-surface = LayerRef
+raw-payload-ref-surface = NewPayloadRef
+raw-basis-site-surface = RawBasisSite
+raw-export-policy-surface = ExportPolicy
+raw-payload-field-surface = PayloadField
+raw-algebraic-payload-field-surface = AlgebraicPayloadField
+raw-boundary-surface = RawBoundary
+raw-structural-clause-surface = RawStructuralClause
+raw-telescope-surface = RawTelescope
+raw-extension-surface = RawExtension
+raw-payload-fields-projection = raw-extension-payload-fields
+raw-structural-clauses-projection =
+  raw-extension-structural-clauses
+raw-algebraic-fields-projection = raw-extension-algebraic-fields
+typed-structural-role-surface = TypedStructuralRole
+admissible-raw-extension-surface = AdmissibleRawExtension
+act-unary-support-theorem = act-clause-has-unary-support
+cmp-binary-support-theorem = cmp-clause-has-binary-support
+horn-higher-boundary-support-theorem =
+  horn-clause-has-higher-boundary-support
+algebraic-payload-not-structural-theorem =
+  algebraic-field-is-payload-not-structural-trace
+naked-higher-face-boundary-theorem =
+  naked-higher-face-rejected-or-packaged
+canonical-normalized-signature-surface =
+  CanonicalNormalizedSignature
+raw-extension-candidate-surface = RawExtensionCandidate
+normalize-raw-extension-theorem = normalizeRawExtension
+raw-extension-candidate-theorem =
+  raw-extension-elaborates-to-candidate
+raw-extension-normalization-theorem =
+  raw-extension-normalizes-to-canonical-signature
+raw-trace-normalization-theorem =
+  raw-trace-normalizes-to-canonical-signature
+normalization-support-theorem = normalize-preserves-support
+normalization-arity-theorem = normalize-preserves-arity
+normalization-primitive-cost-theorem =
+  normalize-preserves-primitive-cost
+normalization-presentation-theorem =
+  normalization-respects-presentation-equivalence
+normalization-counted-interface-theorem =
+  normalized-signature-matches-counted-interface
+surface-horn-image-surface = SurfaceHornImage
+surface-horn-normal-form-theorem =
+  surface-to-horn-normal-form
+surface-horn-support-theorem =
+  surface-to-horn-preserves-support
+surface-horn-arity-theorem = surface-to-horn-preserves-arity
+surface-horn-primitive-cost-theorem =
+  surface-to-horn-preserves-primitive-cost
+higher-structural-derived-theorem =
+  higher-structural-fields-derived
+higher-raw-structural-derived-theorem =
+  higher-raw-structural-traces-derived
+raw-no-naked-higher-structural-theorem =
+  raw-syntax-no-naked-higher-structural-projections
+horn-image-completeness-theorem =
+  horn-image-complete-for-structural-clauses
+raw-structural-horn-normalization-surface =
+  RawStructuralHornNormalization
+raw-structural-normalizes-to-horn-theorem =
+  raw-structural-normalizes-to-horn
 counted-historical-layer-surface = CountedHistoricalLayer
 historical-window-surface = HistoricalWindow
 historical-interface-counting-available =
@@ -78,6 +171,46 @@ universal-recurrence-package-surface = UniversalAffineRecurrence
 universal-recurrence-theorem-available = universal-affine-recurrence
 universal-recurrence-from-coherence-available =
   universal-affine-recurrence-from-coherence
+finite-active-interface-surface = FiniteActiveInterface
+finite-interface-field-surface = InterfaceField
+transparent-equivalence-surface = TransparentEquivalence
+basis-family-surface = BasisFamily
+basis-families-exist-theorem = basis-families-exist
+basis-family-cardinality-theorem =
+  basis-family-cardinality-invariant
+basis-action-equivalence-theorem = basis-action-equivalence
+whole-active-interface-surface = WholeActiveInterface
+global-action-payload-surface = GlobalActionPayload
+action-totality-surface = ActionTotality
+active-basis-contract-surface = ActiveBasisContract
+active-basis-density-surface = ActiveBasisDensity
+global-action-totality-theorem =
+  global-action-totality-implies-active-basis-contract
+active-basis-density-theorem =
+  active-basis-contract-entails-density
+coverage-depth-window-noncircularity-example =
+  coverage-alone-does-not-imply-depth-two-window
+coverage-fibonacci-noncircularity-example =
+  coverage-alone-does-not-imply-fibonacci
+coupling-footprint-surface = CouplingFootprint
+sparse-windowed-context-surface = SparseWindowedContext
+sparse-windowed-recurrence-surface = SparseWindowedRecurrence
+sparse-windowed-recurrence-theorem =
+  sparse-windowed-recurrence
+transparent-zero-footprint-surface = TransparentZeroFootprint
+transparent-growth-zero-footprint-theorem =
+  transparent-growth-zero-footprint
+orthogonal-zero-or-sparse-surface = ZeroOrSparseFootprint
+orthogonal-extension-zero-or-sparse-theorem =
+  orthogonal-extension-zero-or-sparse
+orthogonal-extension-below-full-envelope-theorem =
+  orthogonal-extension-below-full-envelope
+full-coupling-envelope-surface = FullCouplingEnvelope
+full-coupling-envelope-theorem = full-coupling-envelope
+full-coupling-specializes-sparse-recurrence-theorem =
+  full-coupling-specializes-sparse-recurrence
+full-coupling-depth-two-affine-law-theorem =
+  full-coupling-depth-two-affine-law
 
 extensional-available = history-truncates-to-one
 

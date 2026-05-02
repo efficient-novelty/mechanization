@@ -86,6 +86,235 @@ open import Metatheory.ComputationalReplacement public
         ; higher-arity-presented-fields-disappear-from-minimal-signature
         ; higher-arity-computational-replacement
         )
+open import Metatheory.CanonicalTelescope public
+  using ( CanonicalTelescope
+        ; mkCanonicalTelescope
+        ; FieldIndex
+        ; canonical-telescope-cardinality
+        ; canonical-telescope-field
+        )
+open import Metatheory.TraceCostNormalForm public
+  using ( TraceCostField
+        ; mkTraceCostField
+        ; TraceCostSubtelescope
+        ; mkTraceCostSubtelescope
+        ; CanonicalTraceCostNormalForm
+        ; mkCanonicalTraceCostNormalForm
+        ; traceFieldCount
+        ; trace-cost-normal-form-cardinality
+        ; primitive-trace-subtelescope
+        ; derived-trace-subtelescope
+        ; mu-of-trace-cost-normal-form
+        )
+open import Metatheory.PresentationEquivalence public
+  using ( TraceSupportPreserved
+        ; mkTraceSupportPreserved
+        ; PrimitiveCostPreserved
+        ; mkPrimitiveCostPreserved
+        ; PresentationStep
+        ; PresentationEquivalent
+        ; step-support
+        ; step-primitive-cost
+        ; presentation-step-preserves-trace-support
+        ; presentation-step-preserves-primitive-cost
+        ; presentation-equivalence-preserves-trace-fields
+        ; presentation-equivalence-preserves-primitive-cost
+        ; same-normal-form-support
+        ; same-normal-form-primitive-cost
+        )
+open import Metatheory.MuInvariance public
+  using ( TransparentlyGenerated
+        ; RequiresPrimitive
+        ; mu-preserved-by-presentation-step
+        ; mu-invariant-under-presentation-equivalence
+        ; derived-field-deletion-preserves-mu
+        ; requires-primitive-field-essential
+        ; computational-replacement-preserves-mu
+        )
+open import Metatheory.RawStructuralSyntax public
+  using ( LayerRef
+        ; mkLayerRef
+        ; NewPayloadRef
+        ; mkNewPayloadRef
+        ; ExportDecision
+        ; ExportPolicy
+        ; mkExportPolicy
+        ; PayloadField
+        ; mkPayloadField
+        ; AlgebraicOperationKind
+        ; AlgebraicPayloadField
+        ; mkAlgebraicPayloadField
+        ; RawBoundary
+        ; mkRawBoundary
+        ; RawStructuralClause
+        ; RawTelescope
+        ; mkRawTelescope
+        ; RawExtension
+        ; mkRawExtension
+        ; raw-extension-payload-fields
+        ; raw-extension-structural-clauses
+        ; raw-extension-algebraic-fields
+        )
+  renaming ( BasisSite to RawBasisSite
+           ; mkBasisSite to mkRawBasisSite
+           )
+open import Metatheory.RawStructuralTyping public
+  using ( PayloadTypingWitness
+        ; PackagedHornBoundary
+        ; mkPackagedHornBoundary
+        ; TypedStructuralRole
+        ; UnaryTraceSupport
+        ; mkUnaryTraceSupport
+        ; BinaryTraceSupport
+        ; mkBinaryTraceSupport
+        ; HigherBoundarySupport
+        ; mkHigherBoundarySupport
+        ; AlgebraicNotStructuralTrace
+        ; AlgebraicFieldClassification
+        ; mkAlgebraicFieldClassification
+        ; HigherFaceDisposition
+        ; PayloadWellTyped
+        ; mkPayloadWellTyped
+        ; StructuralClausesWellTyped
+        ; mkStructuralClausesWellTyped
+        ; AlgebraicWellTyped
+        ; mkAlgebraicWellTyped
+        ; SealingDerivation
+        ; mkSealingDerivation
+        ; OpacityRespected
+        ; mkOpacityRespected
+        ; ExportPolicySound
+        ; mkExportPolicySound
+        ; AdmissibleRawExtension
+        ; mkAdmissibleRawExtension
+        ; act-clause-has-unary-support
+        ; cmp-clause-has-binary-support
+        ; horn-clause-has-higher-boundary-support
+        ; algebraic-field-is-payload-not-structural-trace
+        ; naked-higher-face-rejected-or-packaged
+        )
+open import Metatheory.SurfaceNormalizationBridge public
+  using ( twoLayerDepth
+        ; unaryNormalizedSupport
+        ; binaryNormalizedSupport
+        ; derivedHornNormalizedSupport
+        ; CanonicalNormalizedSignature
+        ; mkCanonicalNormalizedSignature
+        ; RawExtensionCandidate
+        ; mkRawExtensionCandidate
+        ; payload-plus-algebraic-count
+        ; normalizedPayloadTelescope
+        ; normalizedTraceTelescope
+        ; supportForRole
+        ; primitiveCostForRole
+        ; traceCostFieldForRole
+        ; normalizeRawExtension
+        ; raw-extension-elaborates-to-candidate
+        ; raw-extension-normalizes-to-canonical-signature
+        ; raw-trace-normalizes-to-canonical-signature
+        ; normalize-preserves-support
+        ; normalize-preserves-arity
+        ; normalize-preserves-primitive-cost
+        ; normalization-respects-presentation-equivalence
+        ; NormalizedSignatureMatchesCountedInterface
+        ; mkNormalizedSignatureMatchesCountedInterface
+        ; normalized-signature-matches-counted-interface
+        )
+open import Metatheory.SurfaceToHornImage public
+  using ( HornImageKind
+        ; SurfaceHornImage
+        ; mkSurfaceHornImage
+        ; horn-image-kind-for-role
+        ; surface-to-horn-normal-form
+        ; surface-to-horn-preserves-support
+        ; surface-to-horn-preserves-arity
+        ; surface-to-horn-preserves-primitive-cost
+        ; higher-structural-fields-derived
+        ; higher-raw-structural-traces-derived
+        ; raw-syntax-no-naked-higher-structural-projections
+        ; horn-image-complete-for-structural-clauses
+        ; RawStructuralHornNormalization
+        ; mkRawStructuralHornNormalization
+        ; trace-image-matches-role
+        ; raw-structural-normalizes-to-horn
+        )
+open import Metatheory.FiniteInterfaceBasis public
+  using ( InterfaceField
+        ; mkInterfaceField
+        ; TransparentEquivalence
+        ; mkTransparentEquivalence
+        ; BasisFamily
+        ; mkBasisFamily
+        ; InterfaceFieldOf
+        ; canonical-transparent-equivalence
+        ; canonical-basis-family
+        ; canonical-active-interface
+        ; basis-families-exist
+        ; basis-family-cardinality-invariant
+        ; basis-action-equivalence
+        )
+  renaming ( ActiveInterface to FiniteActiveInterface
+           ; mkActiveInterface to mkFiniteActiveInterface
+           ; BasisSite to FiniteBasisSite
+           )
+open import Metatheory.GlobalActionSemantics public
+  using ( WholeActiveInterface
+        ; whole-active-interface
+        ; whole-active-interface-scope
+        ; GlobalActionPayload
+        ; mkGlobalActionPayload
+        ; ActionTotality
+        ; mkActionTotality
+        ; total-action-on-field
+        )
+open import Metatheory.ActiveBasisContract public
+  using ( ActiveBasisContract
+        ; mkActiveBasisContract
+        ; ActiveBasisDensity
+        ; mkActiveBasisDensity
+        ; global-action-totality-implies-active-basis-contract
+        ; active-basis-contract-entails-density
+        ; WindowShape
+        ; GrowthShape
+        ; CoverageModel
+        ; mkCoverageModel
+        ; unit-is-prop
+        ; unitCoverageModel
+        ; coverage-with-depth-one-collapse
+        ; coverage-with-artificial-depth-three-window
+        ; WindowShape-code
+        ; GrowthShape-code
+        ; coverage-alone-does-not-imply-depth-two-window
+        ; coverage-alone-does-not-imply-fibonacci
+        )
+open import Metatheory.SparseDependencyRecurrence public
+  using ( sumFin
+        ; CouplingFootprint
+        ; mkCouplingFootprint
+        ; zero-coupling-footprint
+        ; SparseWindowedContext
+        ; mkSparseWindowedContext
+        ; sparse-footprint-cost
+        ; sparse-next-latency
+        ; SparseWindowedRecurrence
+        ; mkSparseWindowedRecurrence
+        ; sparse-windowed-recurrence
+        ; universal-windowed-recurrence-as-sparse-envelope
+        ; TransparentZeroFootprint
+        ; mkTransparentZeroFootprint
+        ; transparent-growth-zero-footprint
+        ; ZeroOrSparseFootprint
+        ; orthogonal-extension-zero-or-sparse
+        ; orthogonal-extension-below-full-envelope
+        )
+open import Metatheory.FullCouplingEnvelope public
+  using ( FullCouplingEnvelope
+        ; mkFullCouplingEnvelope
+        ; full-coupling-envelope
+        ; full-coupling-sparse-context
+        ; full-coupling-specializes-sparse-recurrence
+        ; full-coupling-depth-two-affine-law
+        )
 open import Metatheory.UniversalRecurrence public
   using ( CountedHistoricalLayer
         ; HistoricalWindow
