@@ -1,0 +1,1511 @@
+**Bulk/Boundary from Two-Layer Saturation: A Noether-Charge Derivation of the Area Law, a Covariant Interface Dictionary, and Log-Periodic Ringdown Signatures**
+
+**Subtitle:** *Why an Efficient 2-Coherent Universe Stores Only Its Interface — and How Fibonacci Microsteps Produce Golden-Ratio Echo Combs*
+
+### Aim
+
+This fifth paper in the PEN series explains *why holography is the default architecture* of any universe that (i) optimizes novelty per unit effort and (ii) is built on **2-coherent logic** with the **two-layer integration optimum** (k=2). The thesis is not “AdS/CFT is true,” but: **bulk physics is compressible to boundary bookkeeping, and gravity is the geometrization of that bookkeeping.** From this, the **area law** is not a thermodynamic curiosity but the unique covariant interface bound.
+
+### Starting point (from earlier PEN papers)
+
+* **PEN I (Foundations):** In a 2-coherent foundation, coherence obligations are fundamentally 2D; higher-order coherences are derivable (Dimensional Saturation / two-layer sufficiency). The optimal consistency check depth is (k=2).
+* **PEN V (Gravity):** The **κ↔S bridge** identifies logical effort with action (up to boundary terms), and the Iyer–Wald/Noether-charge machinery yields black-hole entropy as a geometric boundary charge; Euclidean regularity fixes (T_H=\kappa_{sg}/2\pi).
+
+### Core derived results (what this paper claims as *theorems*)
+
+**(D1) Interface Sufficiency Theorem (bulk is compressible to interface).**
+In a 2-coherent, two-layer-integrated universe model, the number of *independent* constraints needed to extend the state at step (n!\to!n+1) is bounded by the size of the **two-layer interface basis** (I^{(2)}_n). Equivalently: there exists a compression map (\mathrm{Comp}_n) from the full history (“bulk derivation tree”) to interface data (active schemas + witnesses) such that extension feasibility depends only on (\mathrm{Comp}_n).
+**Interpretation:** the bulk history is logically redundant for forward consistency; the interface is a sufficient statistic.
+
+**(D2) Logical effort necessarily produces gravitational backreaction.**
+Via the κ↔S bridge, stationarity of the logical effort functional (\mathcal K) is equivalent (modulo boundary terms) to stationarity of the physical action (S). Varying with respect to the metric yields Einstein’s equations with an **effort-stress tensor** (T^{(\kappa)}_{\mu\nu}).
+**Interpretation:** “effort density” is a covariant source of curvature; gravity is ledger backreaction.
+
+**(D3) Holographic Necessity / Area Law as the unique covariant interface bound.**
+Combine (D1) and (D2) with the Noether-charge identity for horizons (PEN V): horizon entropy equals a boundary charge and evaluates to (S_{BH}=A_H/(4G\hbar)). Since the update rule depends only on interface constraints, the maximum information that must be tracked to preserve global consistency is bounded by interface capacity. The Noether-charge machinery identifies that capacity with **area** for causal horizons.
+**Interpretation:** an efficient 2-coherent universe *cannot* store unconstrained bulk information; the only non-redundant ledger is boundary-local. Horizons are where the ledger bound saturates.
+
+### What is added conceptually (but still derived)
+
+* A **covariant bulk/boundary dictionary** in PEN terms:
+
+  * Bulk history ↔ derivation tree / realized structure record
+  * Boundary/interface ↔ active two-layer coherence constraints
+  * Curvature ↔ constraint strain (variation of effort)
+  * Horizon entropy ↔ interface ledger capacity (Noether charge)
+
+This reframes holography as **compression + backreaction** rather than a special duality requiring AdS asymptotics.
+
+### Postulates and model choices (clearly separated)
+
+The paper then considers a *specific microstructure hypothesis* for the interface. These are **not required** for (D1)–(D3):
+
+**(P1) Discrete interface microsteps.**
+Horizon/interface updates occur in discrete entropy increments (\Delta S) (equivalently area steps (\Delta A = 4G\hbar,\Delta S)).
+
+**(P2) Fibonacci universality class.**
+For PEN’s 2-coherent interface growth, the natural microstep is (\Delta S=\ln\varphi) (golden ratio), motivated by Fibonacci scaling of interface basis size in the foundational bookkeeping.
+
+### Falsifiable prediction program (conditional on P1–P2)
+
+If (P1–P2) hold, then the horizon boundary condition acquires **discrete scale invariance** in the Kerr near-horizon frequency (\tilde\omega=\omega-m\Omega_H), producing a **log-periodic modulation** of the ringdown Green’s function. This yields a constrained “echo” family:
+
+* **Observable:** in residuals after subtracting Kerr QNMs, a peak in the autocorrelation of the log-spectrum at (\Delta(\ln \tilde f)=\ln\varphi), where (\tilde f=f-m\Omega_H/2\pi).
+* **Comb:** spectral features at (\tilde f_n=\tilde f_\star,\varphi^{-n}), gated by the photon-sphere WKB barrier.
+* **Scaling (minimal assumption):** if a microstep carries (O(1)) entropy, the residual strain amplitude is suppressed with area roughly (\sim A^{-1/2}) (power (\sim A^{-1})); alternative scalings are explicitly bracketed as model variants.
+
+### Why this matters in the PEN series
+
+PEN VI closes a key loop: the foundational *two-layer sufficiency* becomes a geometric law (area-bounded entropy) once effort is identified with action and horizons are treated via Noether charge. This prepares the next papers:
+
+* **Dark sector:** cosmological horizons and saturation in expanding spacetimes.
+* **Biology:** boundary-local bookkeeping as the prerequisite for stable memory and open-ended novelty in dissipative chemistry.
+
+---
+
+## Abstract (PEN tone: derived vs postulated separated)
+
+We show that the holographic architecture of gravity—information scaling with boundary area rather than bulk volume—is a structural consequence of the Principle of Efficient Novelty (PEN) when combined with 2-coherent foundations and the two-layer integration optimum (k=2). Our central derived result is an **Interface Sufficiency Theorem**: in any 2-coherent, two-layer-integrated universe model, the set of independent constraints required to extend the state is bounded by the size of a two-layer interface basis, and deep bulk history is compressible to that interface data. Using the κ↔S bridge from PEN V (logical effort proportional to action up to boundary terms), we prove that variations of the effort functional induce an **effort-stress tensor** sourcing Einstein backreaction, so geometry becomes the covariant bookkeeping of constraint cost. Combining interface sufficiency with the Iyer–Wald/Noether-charge identity for horizons and Euclidean regularity, we obtain the Bekenstein–Hawking relation (S_{BH}=A_H/(4G\hbar)) as the unique covariant interface-capacity bound at saturation: the bulk is redundant, the boundary ledger is sufficient, and horizons are where this ledger becomes maximal.
+
+Separately (postulated), we introduce a discrete interface microstructure in which horizon updates occur in entropy steps (\Delta S), and we identify a Fibonacci universality class (\Delta S=\ln\varphi) motivated by PEN’s two-layer interface scaling. Under these postulates, the horizon boundary condition acquires discrete scale invariance in the Kerr near-horizon frequency (\tilde\omega=\omega-m\Omega_H), yielding a **log-periodic correction** to the ringdown Green’s function and a constrained “echo comb” in residual spectra with log-period (\ln\varphi), gated by the photon-sphere barrier. We propose a detector-ready observable (a peak at (\ln\varphi) in the autocorrelation of the log-spectrum of whitened ringdown residuals) and a low-parameter template family for falsification.
+
+
+* **Contributions (bullet list)**
+
+  1. *Derived:* Interface Sufficiency Theorem (2-coherent, (k=2) integration) ⇒ bulk history compressible to a two-layer interface.
+  2. *Derived (building on PEN V):* κ↔S + Noether charge ⇒ BH entropy is interface ledger capacity ⇒ area law is the unique covariant interface cost.
+  3. *Derived conditional:* If the horizon interface exhibits discrete scale invariance with step (\Delta S), the ringdown Green’s function acquires a log-periodic correction.
+  4. *Prediction template:* A “golden comb” in ringdown residuals at (\tilde\omega=\omega-m\Omega_H) with log-period (\ln\varphi), gated by the photon-sphere WKB barrier.
+  5. *Methods:* A data-analysis observable (log-spectrum autocorrelation peak at (\ln\varphi)) and a low-parameter waveform template family.
+
+* **Reader’s guide / dependencies**
+
+  * Depends on PEN I (Foundations) for 2-coherence and dimensional saturation logic.
+  * Depends on PEN V (Gravity) for κ↔S, Euclidean regularity (T_H=\kappa_{sg}/2\pi), Wald/Noether-charge entropy (S=A/4G\hbar).
+
+---
+
+## 1. Motivation and scope
+
+Holography is usually presented as a surprising *feature of gravity*: the maximum information content of a region appears to scale with the area of its boundary rather than its volume. In mainstream physics, the sharpest realizations of this idea come from explicit dualities (most famously AdS/CFT) and from semiclassical black-hole thermodynamics. What is still missing—despite decades of progress—is a generally satisfying answer to the architectural question:
+
+**Why should a universe with a “bulk” description behave as though its fundamental memory lives on a boundary?**
+
+The PEN program approaches that question from the opposite direction. Instead of taking holography as a gravitational miracle and then searching for its microscopic explanation, we ask whether holography is a **generic consequence of efficient computation under 2-coherent logic**. In this paper we argue it is: **bulk is compressible to boundary because the consistency obligations of a 2-coherent universe are interface-local**, and gravity is the covariant bookkeeping of the effort required to maintain that interface.
+
+### 1.1 What “holography” means here
+
+In this paper, “holography” does **not** mean “assume AdS/CFT” or assume any specific boundary CFT, string construction, or asymptotic structure. Our use is structural:
+
+> **Holography = bulk description is a compression/projection of a boundary ledger that is sufficient for consistent forward evolution.**
+
+This definition is deliberately minimal, because it isolates the part of holography that matters for the PEN logic: **where must the universe pay the cost of consistency?**
+
+We distinguish two levels:
+
+**Weak holography (area bounds).**
+A theory exhibits weak holography if the information required to specify—or the entropy that can be consistently maintained for—a region is bounded by the area of an appropriate boundary (typically a causal boundary: horizon, light-sheet, or codimension-1 cut adapted to the causal structure). Weak holography is the content of black-hole entropy scaling and covariant entropy bounds. It is primarily a statement about **capacity**.
+
+**Strong holography (constructive duality).**
+A theory exhibits strong holography if there exists a *constructive* boundary theory whose states and dynamics reproduce bulk correlators (and ideally reconstruct the bulk geometry) by a precise dictionary. Strong holography is not merely a bound; it is an *equivalence of descriptions*. AdS/CFT is the canonical exemplar.
+
+**PEN VI aims to derive weak holography as a necessity** of 2-coherent, two-layer-integrated evolution, and then to provide the beginnings of a **PEN-native bulk/boundary dictionary**. We do not claim a complete strong holographic duality in this paper; rather, we clarify what additional ingredients would be needed to upgrade the interface ledger into a full constructive boundary theory.
+
+### 1.2 The problem: why area, not volume
+
+The area law is puzzling because it clashes with the naive “memory in the bulk” intuition. In ordinary systems, the number of degrees of freedom tends to grow with volume: doubling each linear dimension typically multiplies the number of independent “slots” for information. Black holes invert this expectation. The Bekenstein–Hawking formula identifies a region’s maximal entropy (at saturation) with **a quarter of its horizon area in Planck units**, suggesting that interior detail is either inaccessible, redundant, or physically unreal in the bookkeeping that matters.
+
+Mainstream explanations typically come in one of two styles:
+
+1. **Thermodynamic/semiclassical:** entropy is associated to horizons and emerges from quantum fields/gravity in a way that depends on causal structure and UV regularization.
+2. **Microscopic/dual:** entropy counts microstates in an underlying theory where “bulk” degrees of freedom are already reorganized into boundary ones.
+
+PEN asks a different question:
+
+> If reality is an optimization process, what storage architecture minimizes effort while preserving global consistency and maximal novelty-generation?
+
+This turns “why area?” into a design constraint. In a 2-coherent universe, the fundamental burden is not “store everything that happened,” but “store enough to **validate the next step**.” If the logic of consistency implies that validating the next step depends only on a bounded interface (a two-layer boundary in the PEN integration scheme), then storing deep bulk history is **redundant**. An efficient universe will compress the bulk into whatever interface data is sufficient to guarantee coherent continuation.
+
+The remaining step is to explain why this interface, when realized geometrically in a gravitational theory, becomes an **area**. That is where the κ↔S bridge and Noether-charge machinery enter: once effort is identified with action, and horizon entropy is identified with a boundary Noether charge, the unique covariant measure of “interface capacity” in gravity is precisely the horizon area. In short:
+
+* **Interface sufficiency** explains why the bulk is compressible to a boundary ledger.
+* **Gravitational backreaction bookkeeping** explains why the ledger’s capacity is measured by area at horizons.
+
+This is the conceptual hinge that turns a logical compression theorem into the physical area law.
+
+### 1.3 Scope and claims
+
+To keep the paper falsifiable and internally disciplined, we separate claims into three categories: **Derived**, **Postulated**, and **Predicted/Testable**.
+
+#### Derived within the PEN stack (proved or reduced to previous PEN theorems)
+
+**(D1) Interface Sufficiency (logical compression).**
+In a 2-coherent foundation under the two-layer integration optimum (k=2), the number of independent constraints needed to extend the state is bounded by the size of a two-layer interface basis. Bulk history is compressible to the interface data required for the next step.
+
+**(D2) Effort produces backreaction (κ↔S hinge).**
+Under the κ↔S bridge (effort proportional to action up to boundary terms), variations of logical effort induce an effective stress tensor sourcing gravitational backreaction. Geometry is the covariant bookkeeping of constraint cost.
+
+**(D3) Area law as interface capacity at saturation.**
+Using the Noether-charge/first-law identity at horizons (from the PEN gravity paper), the entropy associated to a horizon is a boundary charge that evaluates to (S_{BH}=A/(4G\hbar)). Combined with (D1) and (D2), this yields weak holography: **maximal consistent information scales with boundary area**, and horizons are where the interface capacity bound saturates.
+
+These are the core deliverables: they explain *why* holography is expected in the PEN architecture without assuming AdS/CFT or importing an external duality.
+
+#### Postulated microstructure (not required for the area law derivation)
+
+Beyond weak holography, one may ask what the interface “bits” are and whether the boundary ledger leaves observable fingerprints. Here we introduce explicit postulates that are *optional* extensions:
+
+**(P1) Discrete interface microsteps.**
+Horizon/interface updates occur in discrete entropy increments (\Delta S) (equivalently area steps (\Delta A = 4G\hbar,\Delta S)).
+
+**(P2) Fibonacci universality class.**
+Motivated by PEN’s two-layer interface scaling, we consider the special case (\Delta S=\ln\varphi), where (\varphi) is the golden ratio.
+
+These postulates do not affect the necessity of the area law; they only sharpen the microphysics and generate constrained signatures.
+
+#### Testable predictions (conditional on postulates)
+
+Assuming (P1)–(P2), the horizon boundary condition becomes discretely scale-invariant in the Kerr near-horizon frequency (\tilde\omega=\omega-m\Omega_H). This implies a **log-periodic modulation** of the ringdown Green’s function and hence a constrained “echo comb” in ringdown residuals:
+
+* A comb in (\tilde\omega) (equivalently in the observed GW frequency shifted by (m\Omega_H)) with **log period (\ln\varphi)**;
+* A detector-ready statistic: a peak at (\ln\varphi) in the autocorrelation of the log-spectrum of whitened ringdown residuals;
+* A physically motivated envelope: the comb is gated by the photon-sphere barrier (mode-dependent, approximable by WKB).
+
+These signatures are deliberately formulated so they can be falsified with existing and future gravitational-wave data, and so that the “derived core” of the paper remains intact even if the microstructure postulates fail.
+
+---
+
+**Summary of this chapter:**
+PEN VI treats holography as a consequence of **efficient consistency**, not as an assumed duality. The bulk/boundary relationship arises because a 2-coherent universe needs only an interface ledger to evolve coherently, and gravity turns the cost of that ledger into geometry. The remainder of the paper develops this derivation and then, optionally, proposes a concrete interface microstructure whose imprint could be searched for in ringdown data.
+
+---
+
+## 2. Recap of PEN primitives needed for holography
+
+This chapter records only the minimum PEN machinery required to make the holography argument precise. We treat the foundational objects (effort, novelty, sealing) as *bookkeeping primitives*, then recall the structural reason that **two layers suffice** in 2-coherent logic, and finally restate how PEN V turns that bookkeeping into geometry via the κ↔S bridge and Noether charge.
+
+---
+
+### 2.1 Effort, novelty, and the (k=2) integration optimum
+
+**State evolution as sealing.**
+In PEN, “time” is modeled as a sequence of realizations (L_1,L_2,\dots) (integration layers). Moving from (L_n) to (L_{n+1}) is not a free append; it is a **sealing** step: the new layer must be made coherent relative to a chosen window of prior layers. The choice of window depth is the **integration strategy** (S_k): at step (n+1), verify coherence of (L_{n+1}) against (L_n,L_{n-1},\dots,L_{n-k+1}).
+
+**Effort (\kappa).**
+Effort is the cost of construction required to seal the new layer—operationally, the number (or weighted count) of essential coherence witnesses that must be provided. Under the unit-cost model used in CST-style arguments, each required witness costs 1, so the integration effort is the size of the obligation set exposed by the interface basis. 
+
+**Novelty (\nu).**
+Novelty is the value of a realization in terms of what it enables: new constructions, new degrees of freedom, or new inference power. Crucially for the (k)-selection argument below, verifying *additional derived coherences* does not create new capabilities; it merely rechecks what already follows from the 2D axioms.
+
+**Efficiency (\rho=\nu/\kappa)** and the selection criterion.
+PEN’s selection criterion chooses realizations that maximize (\rho) (equivalently minimize effort for fixed enablement) subject to the coherence constraints.
+
+**Why (k=2) is optimal.**
+The core point is that in a 2-coherent foundation:
+
+* Moving from (k=2) to (k>2) strictly enlarges the interface basis (I^{(k)}_n \supset I^{(2)}_n), so it strictly increases the number of required witnesses, hence increases effort: (\kappa^{(k)}(X)>\kappa^{(2)}(X)). 
+* But those additional checks are for coherences that are **already guaranteed** by the local 2D axioms (they are derived theorems ensured by the coherence theorem), so they add *no new constructions*: (\nu^{(k)}(X)=\nu^{(2)}(X)). 
+* Therefore efficiency decreases with (k>2): (\rho^{(k)}(X)<\rho^{(2)}(X)), and PEN selects (k=2). 
+
+This is the “integration optimum”: **two-layer integration is the minimal depth that is both necessary and sufficient** for coherent evolution in a 2-coherent universe model. 
+
+This optimality is the first ingredient for holography: it already suggests that the “relevant past” is not volumetric (deep history), but a bounded interface window.
+
+---
+
+### 2.2 2-coherent logic as “dimension-2 sufficiency”
+
+The second ingredient is the structural reason that (k=2) suffices: in a 2-coherent foundation, genuinely independent coherence obligations are fundamentally **two-dimensional**.
+
+**Intensional identity and path structure.**
+In intensional type theory (HoTT/CTT style), equality is not a truth value but a *structure*: a term (p:x=y) is a path/witness, and there can be paths between paths. This makes “being equal” itself an object with internal geometry. PEN packages this as **2D coherence structure**: primitive coherence laws are 2-cells (and their boundaries), not higher-dimensional axioms.
+
+**Dimensional Saturation (no irreducible three-way obligations).**
+The key lemma is that a foundational system whose primitive coherence is 2D cannot generate an *irreducible* atomic obligation whose boundary simultaneously depends on three distinct integration layers ({L_{n+1},L_n,L_{n-1}}). 
+
+The proof idea is the one you will reuse repeatedly in the holography argument:
+
+* a would-be 3-way obligation is the boundary of a 3-cell (C);
+* its “historical” face between (L_n) and (L_{n-1}) was already sealed in the previous step, hence already has witnesses;
+* the remaining faces are fillable using 2D primitives;
+* therefore the 3-cell filler exists by the coherence theorem, so the obligation was not irreducible. 
+
+This yields a sharp operational consequence: **all atomic obligations required to seal (L_{n+1}) factor through pairs of layers** ({L_{n+1},L_n}) or ({L_{n+1},L_{n-1}}). 
+
+The conceptual rephrasing (important for holography) is:
+
+> Two-dimensional coherence is not merely sufficient; it is *saturating*. Checking 2D axioms locally guarantees higher coherences without access to arbitrarily deep context. 
+
+This is the second ingredient for holography: it implies that the independent “consistency burden” of the next step is concentrated on a **two-layer boundary** (an interface), not distributed through the full bulk history.
+
+---
+
+### 2.3 Spacetime emergence interface
+
+The third ingredient is the physics-side identification of the ledger with geometry, established in PEN V.
+
+**PEN V thesis (one-paragraph recap).**
+PEN V implements PEN’s selection principle inside the R11–R16 stack (cohesion, bundles/curvature, metric/variation, and the Dynamical Cohesive Topos, DCT) and derives a (3+1)-dimensional Lorentzian gravitational phase. It fixes the Einstein–Hilbert normalization without numerology, then establishes a **κ↔action bridge**: PEN selection over histories yields the quantum phase weight (e^{iS/\hbar}) with (\hbar) fixed by unitarity of DCT evolution.  In this same framework, black-hole thermodynamics is recovered internally: Euclidean regularity at a Killing horizon fixes the Hawking temperature (T_H=\kappa_{sg}/(2\pi)), and the Wald/Iyer–Wald Noether-charge construction yields (S_{BH}=A/(4G\hbar)) with the same normalizations fixed upstream.
+
+For holography, the essential message of this recap is the interface interpretation:
+
+* The **logical ledger** (effort bookkeeping across coherent updates) is not merely an analogy; via the κ↔S bridge it *is* the variational object whose stationarity determines dynamics. 
+* The **horizon entropy** is not introduced as an external thermodynamic axiom; it emerges as a **boundary Noether charge** evaluated on a horizon cross-section, hence a geometric measure of boundary capacity. 
+
+PEN VI will combine this physics interface (Noether-charge capacity measured by area) with the foundational interface (two-layer sufficiency) to argue that **bulk physics is a projection/compression of a boundary ledger**, and that the area law is the unique covariant expression of the ledger’s maximal capacity at saturation.
+
+
+---
+
+## 3. The Interface Sufficiency Theorem (core logical result)
+
+This chapter isolates the foundational mechanism that will later become “weak holography” once we couple it to gravity: **in a 2-coherent universe with optimal two-layer integration, the forward consistency burden is interface-local.** The bulk history is therefore compressible to a bounded boundary ledger.
+
+### 3.1 Definitions
+
+We work in the canonical PEN evolution model: a state grows by **integration layers** (L_1,L_2,\dots), where sealing a new layer (L_{n+1}) means constructively establishing its compatibility with the recent context (integration strategy (k=2)). 
+
+#### Integration layers
+
+Fix three successive layers
+[
+L_{n-1},;L_n,;L_{n+1}.
+]
+At step (n+1), the system attempts to realize a candidate structure (X_{n+1}) inside (L_{n+1}) and **seal** it against the previous two layers (L_n) and (L_{n-1}). 
+
+#### Atomic coherence obligations and dependency sets
+
+An **atomic coherence obligation** is a concrete instance of a primitive 2D coherence law that must be witnessed by a filler/witness.  Formally:
+
+* Let (\mathcal O) be the set of all atomic obligations.
+* Define the **dependency function**
+  [
+  D:\mathcal O \to \mathcal P({L_{n-1},L_n,L_{n+1}}),
+  ]
+  mapping an obligation (o) to the subset of layers needed to specify its boundary data. 
+* Let (W_{n+1}\subset\mathcal O) be the set of obligations that must be discharged to seal (L_{n+1}). By definition, (L_{n+1}\in D(o)) for all (o\in W_{n+1}). 
+
+It is often useful to phrase obligations in terms of **contextualized coherence schemas** (“schemas”), which pin an abstract 2D coherence law (\varphi) to an instantiation context and an origin layer; this bookkeeping prevents double-counting and makes interface locality precise.
+
+#### Interface basis (I^{(2)}_n)
+
+Under two-layer integration, the **interface basis** (I^{(2)}_n) is the set of coherence schemas exposed by the last two layers that are relevant for sealing the next layer. In the CST bookkeeping, its size is denoted
+[
+\sigma_n ;:=; |I^{(2)}_n|,
+]
+where (I^{(2)}*n) is “derived from (L_n\cup L*{n-1}).”
+
+Operationally, sealing proceeds by (i) identifying (I^{(2)}*n), (ii) matching a candidate (X*{n+1}) against that interface to obtain an **interaction profile** (J(X_{n+1},B_n)\subseteq I^{(2)}_n), and (iii) generating/discharging the corresponding obligations. 
+
+#### Bulk history (B_n)
+
+Let the **bulk history** (B_n) denote the entire realized record up to time (n): all declarations, derived terms, lemmas, witnesses, and dependency/timestamp information accumulated across layers ({L_1,\dots,L_n}). In the mechanized account this is literally maintained as a persistent cumulative record with timestamps and dependencies. 
+
+Intuitively:
+
+* **Bulk** (B_n): the full derivation tree / realized structure history.
+* **Interface** (I^{(2)}_n): the active two-layer boundary data that governs admissible extension.
+
+---
+
+### 3.2 Dimensional Saturation Lemma (recap)
+
+The key structural fact is that **2D coherence saturates**: it cannot generate genuinely new irreducible obligations that *essentially require three layers at once*.
+
+**Lemma 3.0 (Dimensional Saturation).** In a foundational system (F) with two-dimensional coherence structure, there cannot exist an irreducible atomic obligation (o\in\mathcal O) whose dependency set spans three distinct integration layers:
+[
+D(o)={L_{n+1},L_n,L_{n-1}}.
+]
+Equivalently, any atomic obligation required to seal (L_{n+1}) must satisfy
+[
+D(o)\in\big{{L_{n+1},L_n},;{L_{n+1},L_{n-1}}\big}.
+]
+
+The proof mechanism is exactly what we will reuse later: any would-be 3-cell boundary whose “historical face” between (L_n) and (L_{n-1}) was already sealed must be fillable by composing 2D primitives; hence it cannot be irreducible.
+
+---
+
+### 3.3 Theorem 3.1 — Interface Sufficiency
+
+We can now state the core “holography precursor” result.
+
+#### Statement
+
+**Theorem 3.1 (Interface Sufficiency).** Fix a 2-coherent foundation (F) and the optimal two-layer integration strategy (k=2).
+
+1. (**Interface bound on independent constraints.**) For any candidate extension (X_{n+1}) at step (n+1), the number of *independent* coherence constraints that must be witnessed to seal (L_{n+1}) is bounded by the interface size:
+   [
+   N_{\mathrm{indep}}(X_{n+1}\mid B_n);\le;|I^{(2)}_n|.
+   ]
+   Under unit-cost accounting, the integration effort contributed by coherence witnessing is therefore bounded by (|I^{(2)}_n|).
+
+2. (**Compression / sufficient statistic.**) There exists a compression map
+   [
+   \mathrm{Comp}*n:; B_n \longrightarrow \widehat B_n
+   ]
+   such that the sealability (and hence certifiability) of any candidate extension depends only on the compressed interface state:
+   [
+   \text{“(X*{n+1}) is sealable over (B_n)”}\quad\Longleftrightarrow\quad
+   \text{“(X_{n+1}) is sealable over (\widehat B_n=\mathrm{Comp}_n(B_n))”}.
+   ]
+   A canonical choice is:
+   [
+   \widehat B_n ;=; \big(I^{(2)}_n,;\mathcal W(I^{(2)}_n)\big),
+   ]
+   i.e. the interface basis together with the minimal witness assignments required to certify the interface schemas already established.
+
+Beyond bootstrap, if (X_{n+1}) is PEN-selected, **interface saturation** typically yields equality (N_{\mathrm{indep}}=|I^{(2)}_n|) (every interface schema is exercised).
+
+#### Proof
+
+**Step 1: Independent obligations factor through the two-layer boundary.**
+By Dimensional Saturation, no irreducible atomic obligation can have (D(o)={L_{n+1},L_n,L_{n-1}}). Hence every irreducible (o\in W_{n+1}) depends on exactly one of the two “previous” layers:
+[
+D(o)\in\big{{L_{n+1},L_n},{L_{n+1},L_{n-1}}\big}.
+]
+So there are no genuinely new “three-way” constraint terms.
+
+**Step 2: Obligations correspond to interface schemas; redundant witnesses are excluded.**
+Sealing is implemented by identifying the interface basis (I^{(2)}*n), generating the interaction profile (J(X*{n+1},B_n)\subseteq I^{(2)}_n), and then generating/discharging one coherence obligation per applicable schema. 
+
+Moreover, PEN’s effort minimization implies **non-redundancy**: there are no duplicate witnessing events for the same schema in a selected realization, because that would strictly increase effort without increasing novelty and would be dominated by a cheaper alternative. 
+
+The witness–schema bookkeeping is therefore tight: the independent coherence obligations introduced by (X_{n+1}) are in one-to-one correspondence with the (distinct) schemas in its interaction profile (J(X_{n+1},B_n)).
+
+**Step 3: The interface bound.**
+Since (J(X_{n+1},B_n)\subseteq I^{(2)}*n),
+[
+N*{\mathrm{indep}}(X_{n+1}\mid B_n)
+= |J(X_{n+1},B_n)|
+\le |I^{(2)}_n|,
+]
+which proves part (1). (Under unit-cost integration accounting, the same inequality bounds the coherence-witness component of effort.)
+
+**Step 4: Compression (no deep context required).**
+By construction, the sealing procedure consults only:
+
+* the interface basis (I^{(2)}*n) (schemas exposed by (L_n,L*{n-1})),
+* their instantiation contexts (which are part of what it means to be a contextualized schema),
+* and the candidate (X_{n+1}) itself,
+  to generate and discharge the required obligations.
+
+Dimensional Saturation strengthens this from an implementation fact to a structural one: any coherence obligation that *appears* to require deeper history must be a derived coherence already guaranteed by the 2D axioms checked at depth (k=2); deeper-layer checks are redundant and can be reconstructed from the two-layer interface.
+
+Therefore, the only history-dependent data that matters for sealability at step (n+1) is precisely the interface record (\widehat B_n=(I^{(2)}_n,\mathcal W(I^{(2)}*n))). Any two bulk histories with the same (\widehat B_n) induce the same set of generated obligations and the same success/failure outcomes for sealing (X*{n+1}). This proves part (2).
+
+**Step 5: Tightness under PEN selection (optional).**
+Beyond bootstrap, PEN selection compels maximal context interaction: a candidate that interacts with more interface schemas has strictly higher efficiency than one that interacts with fewer (under the uniformity/transport stability assumptions in CST), so selected candidates saturate (I^{(2)}_n).
+
+That yields equality (N_{\mathrm{indep}}=|I^{(2)}*n|) for PEN-selected (X*{n+1}) beyond bootstrap.
+
+This completes the proof. ∎
+
+---
+
+### 3.4 Corollary: Two-layer Markov property
+
+Interface sufficiency can be restated as a “finite memory” law for the dynamics.
+
+**Corollary 3.2 (Two-layer Markov property).** Let (\mathcal K) denote the PEN update kernel (“which candidates are certifiable and selected next”). Under (k=2) integration in a 2-coherent foundation, the conditional distribution (or deterministic selection) of the next layer depends on the past only through the last two layers (equivalently through the interface state):
+[
+\mathcal K\big(,\cdot\mid B_n\big)=\mathcal K\big(,\cdot\mid L_n,L_{n-1}\big)
+=\mathcal K\big(,\cdot\mid \widehat B_n\big).
+]
+This is exactly the operational content of “two-layer optimality”: certification and sealing consult only (L_n) and (L_{n-1}), and deeper checks are redundant theorems.
+
+---
+
+### 3.5 Interpretation
+
+Theorem 3.1 is the purely logical precursor of holography.
+
+* The **bulk history** (B_n) is a rich internal object (a derivation tree / realized structure record), but it contains large amounts of *redundant* information from the perspective of forward consistency.
+* The **boundary/interface** (I^{(2)}_n) is the minimal object that still carries the full set of *independent* constraints needed to validate the next step.
+
+In statistical language: **the interface is a sufficient statistic for extension feasibility.** In computational language: **the bulk is compressible** to the interface ledger without loss of forward certifiability.
+
+PEN VI will now add the physics hinge: once logical effort is identified with action and horizon entropy with a Noether boundary charge, the size of this “interface ledger” becomes geometrized. That is where “interface-local consistency” turns into “entropy is area-bounded.”
+
+
+## 4. From logical effort to gravitational backreaction (the hinge)
+
+Chapter 3 showed that, in a 2-coherent universe with (k=2) integration, the *logical* consistency burden of extension is interface-local: bulk history is compressible to an interface ledger. To turn that into a *physical* area bound we need one additional ingredient: **geometry must respond to the effort carried by the ledger.** This is the role of the κ↔S bridge and the Noether-charge (Wald/Iyer–Wald) bookkeeping at horizons.
+
+### 4.1 κ↔S bridge (recap from PEN V)
+
+PEN V introduces a history functional (\mathcal K[\gamma]) (“effort along a flow/history (\gamma)”) that is additive under temporal concatenation and minimal/local under two-layer coherence, and then postulates/derives an affine identification with the usual variational action (S[\gamma]): 
+
+[
+\boxed{\qquad S[\gamma] ;=; \alpha,\mathcal K[\gamma];+;B[\gamma]\qquad}
+]
+where (\alpha>0) is a constant conversion factor (“action per unit effort”) and (B[\gamma]) is a boundary functional (exact in time; packages surface terms/topological addenda). 
+
+Two points matter for holography:
+
+1. **Equations of motion don’t care whether we vary (S) or (\mathcal K)** (up to boundary conditions). If (S=\alpha\mathcal K+B), then for variations with fixed boundary data (or compact support), (\delta B=0) and extremizing (S) is equivalent to extremizing (\mathcal K).
+
+2. **Unitarity fixes the scale**: PEN V argues that requiring unitary temporal evolution in DCT pins (\alpha) uniquely up to conventional units and thereby identifies (\hbar), yielding the standard quantum weight (w[\gamma]\propto e^{iS[\gamma]/\hbar}). 
+
+This bridge is the hinge: once effort is action, **effort gradients source fields** via the same variational calculus that sources gravity.
+
+---
+
+### 4.2 Lemma 4.1 — Effort-stress and backreaction
+
+We now make “effort density curves geometry” into a precise lemma.
+
+#### Definition (effort-stress tensor)
+
+Split the effort functional into gravitational and matter parts,
+[
+\mathcal K[\gamma];=;\mathcal K_{\rm grav}[g];+;\mathcal K_{\rm m}[g,\Psi],
+]
+and define the **effort-stress tensor** (T^{(\kappa)}*{\mu\nu}) by
+[
+\boxed{
+T^{(\kappa)}*{\mu\nu}
+;:=;
+-\frac{2}{\sqrt{-g}},
+\frac{\delta\big(\alpha,\mathcal K_{\rm m}\big)}{\delta g^{\mu\nu}}
+}
+]
+(so that if (S_{\rm m}=\alpha\mathcal K_{\rm m}+B_{\rm m}) with (\delta B_{\rm m}=0) under the relevant boundary conditions, then (T^{(\kappa)}*{\mu\nu}) coincides with the usual stress tensor derived from (S*{\rm m})).
+
+#### Lemma 4.1 (effort stationarity ↔ Einstein backreaction)
+
+Assume the κ↔S bridge (S=\alpha\mathcal K+B) and fix boundary data so (\delta B=0). Then stationarity of (\mathcal K) with respect to metric variations is equivalent to stationarity of (S), and yields the Einstein equation with effort-stress source:
+[
+\boxed{
+\frac{\delta \mathcal K}{\delta g^{\mu\nu}}=0
+\quad\Longleftrightarrow\quad
+G_{\mu\nu}=8\pi G,T^{(\kappa)}_{\mu\nu}.
+}
+]
+
+#### Proof (PEN-style, using PEN V results)
+
+1. By the bridge,
+   [
+   \delta S = \alpha,\delta \mathcal K + \delta B.
+   ]
+   With fixed boundary data, (\delta B=0), hence (\delta S=0 \iff \delta\mathcal K=0). 
+
+2. PEN V fixes the gravitational action to the Einstein–Hilbert functional with the precise normalization
+   [
+   S_{\rm EH}[g]=\frac{1}{16\pi G}\int_M R,dV_g,
+   ]
+   obtained internally by Chern–Weil normalization plus Newtonian limit calibration. 
+
+3. Varying the properly normalized Hilbert–Palatini / Einstein–Hilbert action plus minimally coupled matter yields Einstein’s equation
+   [
+   G_{\mu\nu}=8\pi G,T_{\mu\nu}.
+   ]
+   PEN V states this explicitly as the outcome of the Palatini variation and shows the Newtonian limit fixes the same (G). 
+
+4. Since (S_{\rm m}=\alpha\mathcal K_{\rm m}+B_{\rm m}) and (\delta B_{\rm m}=0) under the same boundary conditions, the stress tensor derived from (S_{\rm m}) equals (T^{(\kappa)}*{\mu\nu}) by definition. Therefore the field equation can be written as (G*{\mu\nu}=8\pi G,T^{(\kappa)}_{\mu\nu}).
+
+This proves the lemma. ∎
+
+**Interpretation.** The lemma is the promised hinge: **logical effort density is not merely an accounting variable—it is a variational source.** Changing the effort carried by matter/fields changes (T^{(\kappa)}_{\mu\nu}), and the geometry must respond (backreact) to maintain stationarity.
+
+---
+
+### 4.3 Noether-charge bookkeeping at horizons
+
+Backreaction alone doesn’t yet give an area law; we need a *geometric measure of boundary ledger capacity*. PEN V supplies this via two internal results:
+
+#### Euclidean regularity fixes temperature
+
+At a Killing horizon, demanding cohesive smoothness of the Euclideanized geometry enforces a unique Euclidean time period (\beta=2\pi/\kappa_{\rm sg}), hence Hawking temperature
+[
+\boxed{
+T_H=\beta^{-1}=\frac{\kappa_{\rm sg}}{2\pi}.
+}
+]
+This is Lemma 8.1 in PEN V. 
+
+#### Wald/Iyer–Wald entropy as Noether charge
+
+Using the Einstein–Hilbert Lagrangian density
+[
+L_{\rm EH}=\frac{1}{16\pi G}R,\varepsilon
+]
+(with normalization fixed earlier), PEN V constructs the diffeomorphism Noether current (J_\xi) and the Noether charge 2-form (Q_\xi) satisfying (J_\xi=dQ_\xi) on shell, and finds (for EH)
+[
+Q_\xi=-\frac{1}{16\pi G}\star d\xi^\flat,
+\qquad
+\oint_B Q_\xi=\frac{\kappa_{\rm sg}}{8\pi G}A_H
+]
+on a bifurcation surface (B) of a Killing horizon. 
+
+Dividing by the Hawking temperature from Lemma 8.1 yields the entropy:
+[
+\boxed{
+S_{\rm BH}
+=\frac{2\pi}{\hbar,\kappa_{\rm sg}}\oint_B Q_\xi
+=\frac{A_H}{4G\hbar}.
+}
+]
+This is Theorem 8.2 in PEN V. 
+
+---
+
+### 4.4 Corollary 4.2 — Interface ledger capacity is geometric
+
+We can now state the result that makes Chapter 3 “about holography” rather than “about proof compression.”
+
+#### Corollary 4.2 (geometric interface capacity)
+
+In the PEN V gravitational phase (EH normalization fixed; κ↔S bridge fixed), the maximal ledger capacity associated with a causal horizon is measured by horizon area:
+[
+\boxed{
+S_{\rm interface} ;=; S_{\rm BH};=;\frac{A_H}{4G\hbar},
+\qquad
+(\text{bits})=\frac{A_H}{4G\hbar,\ln 2}.
+}
+]
+Equivalently: **the covariant “size” of the interface ledger is area.**
+
+#### Why this is exactly the holography hinge
+
+* Chapter 3 gave **interface sufficiency**: the *independent* constraints needed for consistent evolution live on a two-layer boundary ledger, not in deep bulk history.
+* Lemma 4.1 says **ledger effort backreacts**: effort is action, and its variation sources curvature.
+* The Noether-charge result says **ledger capacity is geometric**: at saturation (a horizon), the boundary bookkeeping content is literally a boundary charge whose value is proportional to area. 
+
+So when we later claim “entropy is area-bounded,” it is not introduced as an external thermodynamic axiom. It is the consequence of (i) *what must be remembered to remain coherent* (interface sufficiency) and (ii) *how that memory cost is encoded covariantly* (Noether charge / horizon area).
+
+In the next chapter we combine these pieces into the “Holographic Necessity” theorem: **bulk is a compressible record; boundary is the sufficient statistic; and gravity turns the cost of that statistic into an area capacity bound.**
+
+
+## 5. Holographic Necessity Theorem (area law as interface bound)
+
+Chapters 3–4 established the two ingredients that, in PEN, replace “holography as a mysterious fact about gravity” with “holography as a structural inevitability”:
+
+1. **Interface sufficiency (logic):** consistent extension depends only on a bounded two-layer interface, so bulk history is compressible to an interface ledger (Thm 3.1).
+2. **Geometric bookkeeping (gravity):** via κ↔S and Noether charge, the maximal boundary ledger capacity at a horizon is measured by area (Sec. 4).
+
+This chapter packages the combined consequence: **in an efficient 2-coherent universe, maximum consistent information scales with boundary area, not volume.**
+
+---
+
+### 5.1 Definition: interface capacity and logical ports
+
+We formalize “how much must be stored to evolve coherently” as a capacity concept.
+
+**Definition 5.1 (logical port).**
+A **logical port** is one independent coherence-constraint channel across an interface: one degree of freedom in the interface basis whose witness data can vary independently while remaining consistent with the already sealed history.
+
+Equivalently, in the unit-cost bookkeeping used throughout the CST analysis, one port corresponds to one *independent* atomic coherence obligation schema that may be activated in a sealing step.
+
+**Definition 5.2 (interface basis and capacity).**
+Given a region or subsystem (R) at step (n), let (I_R) denote the set of interface schemas/constraints exposed at the cut separating (R) from its complement (in the purely logical model: the interface basis governing admissible extensions of (R) consistent with the global ledger). Define the **interface capacity**
+[
+C(R);:=;\log \big|\mathcal H(I_R)\big|,
+]
+where (\mathcal H(I_R)) is the set (or Hilbert space, in the DCT/quantum phase) of admissible interface witness assignments compatible with the already sealed constraints.
+
+Under the common “one independent port ≈ one bit” approximation (unit-cost, binary witness choice), this reduces to
+[
+C(R)\approx |I_R| \quad \text{bits},
+]
+but we will not assume binary; what matters is: **capacity scales with the number of independent ports**.
+
+**Remark (saturation).**
+A region is **interface-saturated** when its internal complexity/novelty has grown to the point where (i) the admissible bulk states consistent with the exterior are maximally numerous given the interface, and (ii) further internal distinctions cannot be represented without increasing interface capacity. In gravity this corresponds to horizon formation: a maximal-entropy state for given macroscopic charges.
+
+---
+
+### 5.2 Theorem 5.1 — Area law from interface sufficiency + gravitational bookkeeping
+
+We now state the central result of this paper.
+
+#### Statement
+
+**Theorem 5.1 (Holographic Necessity / area law as interface bound).**
+Consider a PEN universe in its gravitational phase (PEN V): κ↔S bridge fixed, Einstein–Hilbert normalization fixed, Noether-charge entropy defined. Let (R) be any causally well-defined region (e.g. a causal diamond, trapped region, or any region whose evolution relative to the exterior is mediated through an interface cut). Then:
+
+1. (**Interface bound on consistent information.**)
+   The maximal information required to maintain global consistency of (R) (equivalently: the maximal entropy of (R) relative to the exterior) is bounded by the capacity of its interface:
+   [
+   S(R);\le; C(R).
+   ]
+
+2. (**Geometrization of capacity in gravity.**)
+   When the interface becomes a causal horizon (H) (i.e. at saturation), the interface capacity is geometrized by the horizon Noether charge and equals the Bekenstein–Hawking value:
+   [
+   C(H)=S_{BH}(H)=\frac{A_H}{4G\hbar}.
+   ]
+
+Therefore, at saturation one obtains the holographic (area) bound:
+[
+\boxed{\qquad S(R);\le;\frac{A(\partial R)}{4G\hbar}\qquad}
+]
+with equality at horizons.
+
+This is “holography as necessity”: **bulk information is constrained by boundary capacity because the update rule is interface-local, and in gravity the interface capacity is area.**
+
+#### Proof sketch (derived within PEN)
+
+**Step (i): Logical compressibility implies an interface entropy bound.**
+By Theorem 3.1, the forward-consistency constraints for extension of a subsystem depend only on an interface basis (in the minimal evolution case, the last two layers; more generally, the cut’s interface constraints). Bulk history is compressible to interface witness data without affecting extension feasibility.
+
+This means: for fixed exterior state, two bulk microstates of (R) that induce the same interface witness assignment are indistinguishable to the global ledger with respect to admissible evolution. Conversely, distinctions that affect future compatibility must register as distinct interface assignments. Hence, the number of globally admissible distinguishable states of (R) is bounded by the number of admissible interface assignments:
+[
+#{\text{distinguishable bulk states of }R};\le;|\mathcal H(I_R)|.
+]
+Taking logs gives
+[
+S(R)\le \log|\mathcal H(I_R)|=C(R).
+]
+
+This is the purely logical form of “entropy is bounded by interface capacity.”
+
+**Step (ii): Noether charge identifies interface capacity with area at horizons.**
+In the gravitational phase, PEN V identifies horizon entropy with the Iyer–Wald Noether charge and Euclidean regularity, yielding
+[
+S_{BH}(H)=\frac{A_H}{4G\hbar}.
+]
+
+At saturation, the interface cut is a causal horizon, and the maximal ledger capacity compatible with the exterior is precisely (S_{BH}(H)). Thus (C(H)=A_H/(4G\hbar)), and the interface bound becomes the area law.
+
+∎
+
+**Interpretation.**
+The theorem should be read as an architecture statement:
+
+* **Logical side:** A 2-coherent universe only needs to remember the boundary ledger; bulk is compressible.
+* **Gravitational side:** In GR, the covariant measure of maximal ledger capacity is horizon area via Noether charge.
+
+So “why area, not volume?” becomes: because *what must be stored* to evolve coherently is interface-local, and *what counts as capacity* in a covariant gravitational theory is area.
+
+---
+
+### 5.3 Relation to covariant entropy bounds
+
+PEN’s interface bound is naturally **covariant** because it is not tied to a preferred slicing; it is tied to what can causally mediate consistency between a region and its complement.
+
+A standard covariant entropy bound (Bousso-like in spirit) asserts that the entropy on a suitable light-sheet (L) generated from a surface (\Sigma) is bounded by (A(\Sigma)/(4G\hbar)). PEN does not assume this bound; it re-derives the architectural reason such bounds are expected:
+
+* In PEN, **information that matters for global evolution must cross the interface**.
+* Light-sheets and horizons are precisely the causal structures that define which data can cross.
+* At saturation (when the interface becomes a horizon), PEN V fixes the capacity as (A/4G\hbar) via Noether charge.
+
+Thus, PEN implies a covariant bound of the same form: given any surface (\Sigma) that acts as a cut between “inside” and “outside,” the globally consistent distinguishable states of the interior are bounded by the capacity of that cut, and when the cut is a horizon the capacity is (A(\Sigma)/(4G\hbar)). The “light-sheet” formalism is a convenient way to package the causal admissibility conditions, but the conceptual source in PEN is **interface-local consistency**, not a postulated entropy inequality.
+
+(We emphasize: this paper does not attempt to reproduce every technical hypothesis in the covariant-bound literature. Our claim is structural: PEN supplies the *reason* covariant bounds exist whenever horizons/light-sheets act as consistency bottlenecks.)
+
+---
+
+### 5.4 What holography is *not* claiming here
+
+Because “holography” has become overloaded, we explicitly mark what Theorem 5.1 does **not** assert.
+
+1. **No assumption of AdS/CFT or any specific boundary CFT.**
+   We do not assume a stringy UV completion or AdS asymptotics. The theorem is about **capacity and compression**, not about a known dual field theory.
+
+2. **Not yet a full constructive bulk reconstruction theorem.**
+   Interface sufficiency shows that the interface ledger is sufficient for *consistency of extension*; it does not, by itself, provide an explicit algorithm that reconstructs local bulk operators or correlators everywhere in the interior. That “strong holography” upgrade requires additional structure (e.g., error-correcting encoding properties, reconstruction kernels, and a detailed boundary dynamics).
+
+3. **No claim that all bulk degrees are “illusory.”**
+   Bulk descriptions remain useful and often necessary as effective theories. PEN’s claim is more precise: **bulk distinctions beyond interface capacity are not independently trackable by the globally consistent ledger**. That is a statement about what the universe can *certify and propagate*, not about the psychological status of “interior reality.”
+
+4. **No numerology requirement.**
+   The area coefficient (1/(4G\hbar)) is not fit; it is inherited from PEN V’s normalization and Noether-charge derivation.
+
+In summary: Theorem 5.1 establishes **weak holography as necessary** in PEN. Strong holography—explicit dual dynamics and full reconstruction—is an intended direction, but it is a separate constructive project that this paper prepares rather than completes.
+
+
+---
+
+## 6. Constructive bulk/boundary dictionary in PEN terms
+
+Chapters 3–5 established **weak holography** in PEN: the bulk is compressible to an interface ledger, and in gravity the ledger capacity is measured by area. In this chapter we move one step toward **stronger holography** by giving a *constructive dictionary*—a PEN-native way to translate between “bulk objects” and “boundary/interface objects.”
+
+We emphasize from the start: this dictionary is **not yet a full duality**. It is a disciplined proposal for what the boundary must contain, how it updates, and what that implies about what can (and cannot) be reconstructed about the bulk.
+
+### 6.1 Dictionary table
+
+The basic translation is:
+
+* Bulk is the **realized derivation/history** (a compressible record).
+* Boundary is the **active constraint interface** (a sufficient statistic for extension).
+* Gravity is the **geometry of the ledger** (effort gradients as curvature).
+
+The table below summarizes the main correspondences used in PEN VI.
+
+| Bulk / GR language                                   | PEN language                                                | Meaning in this paper                                                                      |
+| ---------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Bulk region** (R) (spatial region, causal diamond) | **Subsystem history** (B_R) + internal realizations         | The interior record of constructions realized “inside” the cut                             |
+| **Boundary / cut** (\partial R) (codim-1 surface)    | **Interface cut** with active constraint set (I_R)          | The set of constraints/witnesses that mediate consistency between inside and outside       |
+| **Horizon / light-sheet**                            | **Saturation interface** (capacity bottleneck)              | A causal cut where interface capacity becomes maximal and bulk distinctions are compressed |
+| **Bulk microstate**                                  | **Bulk derivation tree instance** consistent with interface | Internal detail that may or may not be registered at the interface                         |
+| **Boundary state** (in strong holography)            | **Interface ledger state** ((I_R,\mathcal W(I_R)))          | The sufficient data for certifiable forward evolution                                      |
+| **Local bulk fields** (\Phi(x))                      | **Compressed boundary data + reconstruction kernel**        | Bulk observables recovered (when possible) from boundary ledger + update dynamics          |
+| **Curvature** (R_{\mu\nu\rho\sigma},,G_{\mu\nu})     | **Ledger strain / constraint gradient**                     | Geometry as the response of the ledger to effort-stress (κ↔S + variation)                  |
+| **Stress-energy** (T_{\mu\nu})                       | **Effort-stress** (T^{(\kappa)}_{\mu\nu})                   | The variational density of effort that sources geometry                                    |
+| **BH entropy** (S_{BH})                              | **Interface capacity** (C(H))                               | Capacity of the boundary ledger at saturation; geometrized as (A/4G\hbar)                  |
+| **Bulk evolution** (Einstein + matter)               | **Ledger update rule** (sealability + selection)            | Dynamics emerges as the projection of constraint bookkeeping                               |
+
+Three lines in this table are the conceptual heart:
+
+1. **Region ↔ interface cut:** a “region” is defined by a cut, and what matters for consistency is the active constraint set on that cut.
+2. **Fields ↔ compressed data + kernel:** a bulk field description is an effective reconstruction from boundary data plus the update rule.
+3. **Curvature ↔ ledger strain:** curvature is the covariant footprint of effort gradients—how costly it is to maintain coherence under the chosen history.
+
+This dictionary is deliberately phrased so it survives beyond special spacetimes (no AdS assumption). The “boundary” is whatever **causally mediates** the consistency relation between inside and outside—horizons and light-sheets are the canonical saturating cases.
+
+---
+
+### 6.2 Reconstruction principle (conditional)
+
+Weak holography only says “boundary data bounds bulk information.” Stronger holography would say “boundary data determines the bulk (up to redundancy).” In PEN, the right reconstruction statement is conditional and naturally comes with a *gauge clause*.
+
+#### Reconstruction principle (PEN form)
+
+Fix a cut separating “inside” and “outside,” and let the interface ledger state be
+[
+\widehat B_R := (I_R,,\mathcal W(I_R)),
+]
+where (\mathcal W(I_R)) denotes the minimal witness assignment/certificate set for the active interface constraints.
+
+Let (\mathcal U) be the *update rule* (sealability + PEN selection) acting on interface states.
+
+**Principle 6.1 (conditional reconstruction).**
+Given (\widehat B_R) and (\mathcal U), the bulk inside (R) is reconstructible **up to gauge/redundancy** to the extent that bulk features affect future certifiable evolution across the cut. Concretely:
+
+* If a bulk feature (F) has no effect on which future interface states are reachable under (\mathcal U), then (F) is not reconstructible (it is “pure bulk redundancy” from the ledger’s perspective).
+* If (F) does affect reachable interface states (i.e., it changes the update kernel), then (F) is reconstructible from ((\widehat B_R,\mathcal U)) in principle.
+
+This is just Interface Sufficiency generalized: the interface is sufficient for *consistency*, and thus only “interface-relevant” bulk distinctions are objective at the level of the global ledger.
+
+#### What is uniquely reconstructible vs gauge?
+
+PEN naturally partitions bulk data into three classes:
+
+**(R1) Interface-determined (unique up to gauge).**
+Macroscopic charges and features that couple to constraints crossing the cut are encoded in (\widehat B_R). In gravity, this includes horizon area/Noether charge (entropy), ADM-like charges where defined, and any data that affects the causal/energetic backreaction observed externally.
+
+**(R2) Reconstructible with extra structure (choice of kernel / code).**
+Local bulk operator reconstruction typically requires additional structure beyond mere capacity:
+
+* a notion of locality/emergent distance,
+* an error-correcting encoding map,
+* a reconstruction kernel (HKLL-like in AdS/CFT).
+  In PEN terms, this corresponds to needing a richer specification of (\mathcal U) (the dynamics), not just the interface constraint set.
+
+**(R3) Pure redundancy (not reconstructible).**
+Bulk differences that never change interface reachability are gauge-like. This includes many “deep interior” details behind horizons and any distinctions smaller than interface resolution. In gravitational language: if it cannot influence the exterior without violating causal/interface constraints, the ledger has no channel to encode it.
+
+This is not philosophical; it’s operational. “Reconstructible” means “the global ledger can, in principle, distinguish it through its permitted interfaces and update rule.”
+
+---
+
+### 6.3 Connection to standard holographic ideas
+
+It is useful to situate this PEN dictionary relative to known holographic structures.
+
+**AdS/CFT as existence proof of strong holography.**
+AdS/CFT demonstrates that, at least in special settings, a boundary theory can reproduce bulk correlators and encode bulk geometry nontrivially (often as a quantum error-correcting code). This is a concrete construction showing that *strong holography is possible* in quantum gravity.
+
+**What PEN adds (and what it does not).**
+PEN does not assume AdS/CFT; it aims to explain why the architecture is expected even without it:
+
+* **Why boundary at all?** Because 2-coherent evolution is interface-local: the boundary ledger is the sufficient statistic for certifiable continuation (Thm 3.1).
+* **Why area?** Because gravitational bookkeeping geometrizes capacity as a Noether charge, yielding (S\sim A) at saturation (Thm 5.1).
+* **Why “encoding” language is natural?** Because the bulk is literally a compressible derivation record; compression implies an encoding map exists, at least at the level of coarse-grained consistency classes.
+
+What PEN does *not* claim yet is a full dual boundary dynamics with a complete correlator dictionary in arbitrary spacetimes. In PEN terms, that requires constructing an explicit boundary evolution rule (\mathcal U_{\partial}) and a reconstruction kernel with controlled gauge redundancies. AdS/CFT supplies one such ((\mathcal U_{\partial},\text{kernel})) pair in a specific asymptotic geometry; PEN supplies the deeper reason that such pairs are not accidents but natural consequences of interface-local consistency under efficient evolution.
+
+**Bottom line.**
+AdS/CFT shows strong holography can be realized. PEN explains why holography—at least in its weak, capacity-bound form—is **inevitable** in any efficient 2-coherent universe, and it provides a principled, covariant way to talk about “the boundary data that matters” even when no AdS boundary exists.
+
+In the next section (microstructure and ringdown probes), we will propose a concrete model for what the interface degrees of freedom might be and how their discrete structure could leave observable imprints in gravitational-wave ringdown as log-periodic “echo combs.”
+
+
+---
+
+## 7. Microstructure model (clearly marked as conjectural)
+
+Chapters 3–6 established the **derived** core of PEN VI: (i) bulk evolution is interface-local in a 2-coherent universe, and (ii) in the gravitational phase the capacity of a saturated interface is geometrized as horizon area, yielding the Bekenstein–Hawking law. None of that requires any claim about *what the interface is made of*.
+
+This chapter introduces a concrete microstructure model for the interface. It is explicitly **conjectural**: it is offered because it is natural given PEN’s foundational scaling results and because it yields **sharply testable** signatures (developed in Chapter 8). If it fails empirically, it does not weaken Theorem 5.1; it only falsifies a proposed microscopic realization.
+
+---
+
+### 7.1 Postulate A — Discrete interface microsteps
+
+**Postulate A (discrete interface microsteps).**
+A causal horizon interface does not grow (or update its internal bookkeeping) continuously, but in discrete increments of interface entropy:
+[
+\boxed{\Delta S ;=; \text{constant microstep},\qquad S_{n+1}=S_n+\Delta S.}
+]
+Equivalently, since (S_{BH} = A/(4G\hbar)), this implies discrete area increments
+[
+\boxed{\Delta A = 4G\hbar,\Delta S,\qquad A_{n+1}=A_n+\Delta A.}
+]
+
+**Motivation (PEN-native).**
+In PEN, state extension proceeds by a finite set of independent coherence obligations (logical ports), and the interface is the ledger of those obligations. A discrete “sealing” step naturally corresponds to adding a finite number of ports/witness degrees of freedom, so the minimal extension of the interface should be discrete.
+
+**Motivation (physics-native).**
+Many approaches to quantum gravity suggest some form of horizon area/entropy quantization (though not in a single universally accepted way). PEN’s additional contribution is to interpret “quantization” not as an arbitrary microscopic property but as the natural granularity of interface bookkeeping.
+
+**Clarification.**
+This postulate does *not* claim that the macroscopic classical area must visibly jump in time during mergers. The horizon is a coarse-grained object; the discrete microsteps may be washed out in classical observables except through carefully targeted spectral signatures (Chapter 8).
+
+---
+
+### 7.2 Postulate B — Fibonacci universality class
+
+Postulate A specifies *discreteness* but not *the step size*. PEN’s foundational work provides a distinguished candidate.
+
+**Postulate B (Fibonacci microstep / golden universality class).**
+In a 2-coherent PEN universe, the effective interface-state counting belongs to a Fibonacci universality class. The minimal entropy increment is
+[
+\boxed{\Delta S = \ln\varphi,\qquad \varphi=\frac{1+\sqrt5}{2}.}
+]
+Equivalently,
+[
+\boxed{\Delta A = 4G\hbar,\ln\varphi.}
+]
+
+**Motivation (from PEN scaling).**
+In the foundational bookkeeping (CST / two-layer interface basis), the size of the interface basis (\sigma_n=|I^{(2)}*n|) satisfies a Fibonacci recursion asymptotically:
+[
+\sigma*{n+1} \approx \sigma_n + \sigma_{n-1},
+]
+so the growth rate approaches (\varphi). This is the structural marker of the universality class: the number of distinct interface configurations grows as (\varphi^{N}) at large (N). In that case, adding one “elementary interface degree” multiplies the dimension of the admissible interface state space by (\varphi), hence adds entropy (\ln\varphi).
+
+This is exactly the microstep statement:
+[
+\dim\mathcal H \mapsto \varphi,\dim\mathcal H
+\quad\Rightarrow\quad
+S=\ln\dim\mathcal H \mapsto S+\ln\varphi.
+]
+
+**Status.**
+The Fibonacci scaling of the *interface basis size* is derived within the foundational PEN analysis; the identification of that scaling with the *horizon microstate counting step* is a conjectural bridge, proposed because it is the simplest way to translate a derived universality class into a microscopic entropy increment.
+
+---
+
+### 7.3 Discussion: why Fibonacci anyons are a plausible effective model
+
+The postulates above specify an entropy step (\Delta S=\ln\varphi). A natural question is: *what kind of physical degrees of freedom realize that counting?* One known effective mechanism in quantum many-body physics is **topological order** with Fibonacci fusion rules.
+
+This discussion is **motivation only**: it is not required for Theorems 3.1 or 5.1, and the predictions in Chapter 8 can be phrased directly in terms of discrete scale invariance without committing to anyonic microphysics.
+
+#### Why anyons enter the conversation at all
+
+Holography in PEN is fundamentally an **interface theory**: the physically relevant degrees of freedom live on a 2D boundary (the horizon cross-section). In 2D quantum systems, topological phases and anyonic excitations are a canonical way to obtain robust, nonlocal state spaces whose dimension scales in controlled, non-integer ways.
+
+#### Why Fibonacci anyons specifically
+
+A Fibonacci anyon type (\tau) is characterized by the fusion rule
+[
+\tau\times\tau = 1 + \tau,
+]
+and has quantum dimension (d_\tau=\varphi). The Hilbert space dimension of (N) anyons grows asymptotically like (\varphi^N), which implies an entropy increment per added anyon of (\ln\varphi). This matches Postulate B exactly at the level of counting.
+
+So Fibonacci anyons provide a concrete physical archetype of an interface whose state count obeys golden-ratio scaling. In that sense, they are a plausible *effective model class* for the horizon interface—“plausible” meaning: they realize the required universality class with minimal structure.
+
+#### What we are (and are not) claiming
+
+* **We are claiming (conjectural):** the horizon interface may belong to a universality class whose microscopic state count grows like (\varphi^N), yielding (\Delta S=\ln\varphi).
+* **We are not claiming:** the horizon literally hosts condensed-matter Fibonacci anyons in the usual laboratory sense, nor that topological quantum computing language is necessary for the derived area law.
+
+The purpose of this section is to make the conjecture *non-mystical*: it is not numerology; it is a pointer to a known mathematical mechanism that naturally produces (\ln\varphi) entropy increments on a 2D boundary.
+
+#### Why this matters for phenomenology
+
+The microstep (\Delta S) is not merely an internal counting statement. When combined with the Kerr near-horizon frequency shift (\tilde\omega=\omega-m\Omega_H), discrete entropy steps naturally produce **discrete scale invariance** in the boundary response (\mathcal R_H(\tilde\omega)). That invariance implies **log-periodic corrections** to the ringdown Green’s function and yields a constrained “golden comb” in ringdown residual spectra. Chapter 8 develops those predictions and their observational tests.
+
+---
+
+**Summary of Chapter 7.**
+Postulate A (discrete microsteps) and Postulate B (Fibonacci/golden step (\Delta S=\ln\varphi)) propose a specific microscopic universality class for the horizon interface. This is not required for the derived holographic necessity result, but it produces a tightly constrained and falsifiable observational program.
+
+
+---
+
+## 8. Ringdown as an interface probe: log-periodic corrections
+
+*(This is where the new “golden echoes” work lands, with a real observable.)*
+
+8.1 **Near-horizon frequency and Kerr parameters**
+
+* Define (\tilde\omega=\omega-m\Omega_H(M_f,\chi_f)).
+* Give explicit Kerr formulas for (\Omega_H) and (\kappa_{sg}).
+
+8.2 **Lemma 8.1 — Discrete scale invariance ⇒ log-periodic reflectivity**
+
+* If (\mathcal R_H(e^{\Delta S}\tilde\omega)=\mathcal R_H(\tilde\omega)), then
+  [
+  \mathcal R_H(\tilde\omega)=\sum_k c_k \exp!\Big(i,2\pi k,\frac{\ln(\tilde\omega/\kappa_{sg})}{\Delta S}\Big),
+  ]
+  hence log-periodic in (\ln \tilde\omega).
+
+8.3 **Green’s function with a partially reflective horizon**
+
+* Write
+  [
+  G(\omega)=\frac{G_{GR}(\omega)}{1-\mathcal R_{ps}(\omega),\mathcal R_H(\tilde\omega),e^{2i\tilde\omega\Delta t}}.
+  ]
+
+8.4 **Photon-sphere barrier: explicit WKB/parabolic approximation**
+
+* Provide a concrete (\mathcal R_{ps}(\omega)) envelope:
+
+  * Logistic/Fermi-step in (\omega) around (\omega_c\approx m\Omega_{ph}).
+  * Define (\Omega_{ph}(M_f,\chi_f)), (\gamma_{ph}(M_f,\chi_f)) (light-ring instability) and use them as WKB parameters.
+
+8.5 **Specialize to (m=2), (220) channel and measured frequency (f)**
+
+* Define (f_H=\Omega_H/\pi) and (f_\kappa=\kappa_{sg}/2\pi).
+* Comb in observed frequency:
+  [
+  f_n = f_H + (f_\star-f_H),\varphi^{-n},\qquad (m=2),
+  ]
+  with (f_\star) anchored either to (f_{220}) or to (\kappa_{sg}) via a dimensionless (\Lambda(\chi_f)).
+
+8.6 **Observable and detection statistic**
+
+* Primary observable: peak in log-spectrum autocorrelation at (\ln\varphi).
+* Secondary observable: direct comb teeth in the residual spectrum gated by (\mathcal R_{ps}).
+
+8.7 **Amplitude scaling**
+
+* Derived conditional scaling under “single-step (\Delta S\sim O(1))” assumption:
+
+  * strain residual scaling (\sim A^{-1/2}) (or power (\sim A^{-1})).
+* Put alternatives (collective vs incoherent) as clearly stated model variants.
+
+---
+
+## 9. Falsifiability and experimental program
+
+9.1 **Parameter-free falsifier**
+
+* If no peak at (\ln\varphi) in stacked events after controlling systematics, Fibonacci microstep model disfavored.
+
+9.2 **Event selection**
+
+* Where you expect most teeth in-band (e.g., (M_f\sim 30–60,M_\odot) for ground detectors).
+
+9.3 **Pipeline sketch**
+
+* Fit Kerr QNMs → whiten residual → compute (P(\ln f)) → search periodicity at (\ln\varphi).
+* Null tests: off-source, time slides, randomized (\varphi), etc.
+
+9.4 **Forecasting**
+
+* Minimal SNR requirements, stacking gains.
+
+---
+
+## 10. Relation to competitors and positioning
+
+PEN VI sits in an unusual spot: it tries to explain holography *architecturally* (as an inevitability of 2-coherent, two-layer optimal computation) while remaining compatible with—rather than competing directly against—most existing *microscopic* accounts of black-hole entropy. The guiding distinction is:
+
+* **PEN’s derived core**: *why* bulk degrees are compressible to an interface ledger, and *why* the interface capacity becomes area in gravity.
+* **Most competitor stories**: *what* degrees of freedom are being counted (fields near the horizon, entanglement across a cut, boundary CFT microstates, etc.).
+
+### 10.1 Versus AdS/CFT
+
+**What AdS/CFT provides.**
+AdS/CFT is the premier example of **strong holography**: a concrete boundary theory (a CFT) reproduces bulk gravity observables in asymptotically AdS spacetimes. It is an explicit constructive duality, originally proposed by Maldacena in 1997 ([arXiv][1]) and widely reviewed since. ([arXiv][2])
+
+**What PEN VI contributes (and how it differs).**
+
+* **PEN explains why holography should be expected at all** in a broad class of universes: two-layer sufficiency makes the bulk compressible to an interface ledger; κ↔S plus Noether charge makes interface capacity geometric (area). This is a *reason* holography is natural, even without AdS asymptotics.
+* **PEN does not claim an AdS/CFT-style full duality** in general spacetimes in this paper. Instead, it supplies the *selection principle and bookkeeping mechanism* that makes a boundary description inevitable in any efficient 2-coherent gravitational phase.
+
+**How to read them together.**
+AdS/CFT can be viewed as an **existence proof** that strong holography is possible; PEN aims to supply the deeper inevitability argument: if strong holography exists anywhere, it should not be accidental—it should be the natural endpoint of interface-local consistency under efficient evolution.
+
+### 10.2 Versus quantum atmosphere, brick wall, and entanglement-entropy accounts
+
+There is a long-standing cluster of ideas that try to explain the area law by identifying the “counted” degrees of freedom.
+
+**Brick wall models.**
+The brick wall approach (’t Hooft) counts quantum field modes near the horizon with a short-distance cutoff; it produces an area-proportional entropy but introduces regulator dependence. Modern work still revisits and stress-tests the approach as a calculational scheme. ([DIVA Portal][3])
+
+**Entanglement entropy accounts.**
+Entanglement-based explanations emphasize that tracing out degrees of freedom across a spatial cut generically yields an **area law** in QFT (early black-hole-focused discussions include Bombelli et al. 1986 and Srednicki 1993). ([APS Link][4]) Reviews such as Solodukhin’s summarize how renormalization of Newton’s constant can render the entropy finite and tie it to the semiclassical value. ([PMC][5])
+
+**Quantum atmosphere.**
+The “quantum atmosphere” viewpoint argues that Hawking quanta effectively originate from a region extending outside the horizon by an (\mathcal O(r_H)) scale (e.g. discussions around Giddings’ proposal and follow-up analyses by Hod and others). ([arXiv][6])
+
+**PEN’s positioning relative to all three.**
+
+* **Compatibility, not contradiction.** PEN’s derived result is not “the entropy must come from *this* microscopic subsystem,” but: *whatever the microphysics is, the only non-redundant bookkeeping that can constrain future evolution is interface-local, and in gravity the saturated interface capacity is a boundary Noether charge (area).* The microphysical stories above can be interpreted as **candidate realizations** of that interface bookkeeping.
+* **What PEN adds that these accounts usually don’t:** a *logical necessity claim*. In PEN, interface locality is not a property of QFT near horizons; it follows from 2-coherence + two-layer integration optimality (Dimensional Saturation / Interface Sufficiency), and then gravity geometrizes the ledger via κ↔S and Noether charge (PEN V). The area scaling is therefore not primarily a statement about UV field modes; it is a statement about what information the universe must carry forward to remain coherent.
+* **How PEN reinterprets “regulators.”** Cutoffs in brick wall or entanglement calculations can be seen, in PEN language, as choices about the effective granularity of logical ports—i.e. the map between microscopic degrees and independent interface channels. The geometric result (S_{BH}=A/(4G\hbar)) pins the *renormalized* capacity; microphysical accounts explain how that capacity is realized or renormalized.
+
+So: brick wall / entanglement / atmosphere approaches are best read as *microphysical models for the interface degrees*, while PEN VI supplies the architectural argument that an interface description is unavoidable and that its saturated capacity is geometric.
+
+### 10.3 Versus echo phenomenology
+
+**What “echoes” usually mean in the literature.**
+In gravitational-wave phenomenology, “echoes” often refer to late-time, repeating time-domain features caused by partial reflections between the photon-sphere barrier and a near-horizon modification (or an exotic compact object surface). Reviews and papers by Cardoso, Pani, and collaborators develop this framework and model families. ([arXiv][7])
+
+**How the PEN ‘golden comb’ differs.**
+
+* **Not generic time-delayed repeats.** The PEN signature is primarily **frequency-domain**: a *log-periodic modulation* of the response in the horizon co-rotating frequency (\tilde\omega=\omega-m\Omega_H), implying a geometric comb in (\tilde\omega) (or (\tilde f)) rather than evenly spaced echoes in time.
+* **A constrained symmetry, not a flexible template zoo.** Standard echo searches often allow a wide variety of reflectivities, time delays, and waveform morphologies. PEN’s Fibonacci specialization fixes a very specific structure: periodicity in (\ln(\tilde\omega/\kappa_{\mathrm{sg}})) with period (\ln\varphi). That makes the hypothesis **highly falsifiable** (Section 9): look for a peak at (\ln\varphi) in a Kerr-scaled log-spectrum autocorrelation.
+* **Kerr-aware by construction.** The PEN prediction insists on using the correct near-horizon variable (\tilde\omega=\omega-m\Omega_H) and horizon scale (\kappa_{\mathrm{sg}}), whereas some phenomenological echo templates operate directly in detector frequency or time with weaker geometric anchoring.
+* **Barrier gating is explicit.** PEN treats the photon-sphere barrier as a WKB/parabolic filter that gates visibility; this naturally predicts where in frequency the comb can appear, aligning with the standard scattering picture used in echo phenomenology. ([arXiv][7])
+
+**Important discipline point.**
+Failure to detect the (\ln\varphi) feature does **not** refute the derived holography result of PEN VI (Theorem 5.1). It refutes only the *conjectural microstructure specialization* (\Delta S=\ln\varphi) (and/or the assumption that this microstructure couples observably to ringdown).
+
+---
+
+**Net positioning in one paragraph.**
+AdS/CFT shows that strong holography can be realized in special settings. Brick wall, entanglement entropy, and quantum-atmosphere stories offer different microphysical mechanisms that can reproduce area scaling. Echo phenomenology explores how near-horizon modifications might imprint on ringdown. PEN VI’s distinctive claim is upstream of all of these: holography is expected because efficient 2-coherent evolution is interface-local, and gravity geometrizes the interface ledger via Noether charge—making the area law the natural saturation bound. The “golden comb” is a deliberately narrow, Kerr-scaled, log-periodic echo family proposed as a falsifiable microstructure test, not as a requirement for holography itself.
+
+[1]: https://arxiv.org/abs/hep-th/9711200?utm_source=chatgpt.com "The Large N Limit of Superconformal Field Theories and ..."
+[2]: https://arxiv.org/pdf/1501.00007?utm_source=chatgpt.com "The AdS/CFT Correspondence"
+[3]: https://www.diva-portal.org/smash/get/diva2%3A1981888/FULLTEXT01.pdf?utm_source=chatgpt.com "[PDF] Stress-testing the brick wall model for black hole entropy near ..."
+[4]: https://link.aps.org/doi/10.1103/PhysRevD.34.373?utm_source=chatgpt.com "Quantum source of entropy for black holes | Phys. Rev. D"
+[5]: https://pmc.ncbi.nlm.nih.gov/articles/PMC5255889/?utm_source=chatgpt.com "Entanglement Entropy of Black Holes - PMC - PubMed Central"
+[6]: https://arxiv.org/abs/1607.02510?utm_source=chatgpt.com "Hawking radiation and the Stefan-Boltzmann law: The effective radius of the black-hole quantum atmosphere"
+[7]: https://arxiv.org/pdf/1902.08180?utm_source=chatgpt.com "[PDF] arXiv:1902.08180v1 [gr-qc] 21 Feb 2019"
+
+
+---
+
+## 11. Discussion and outlook
+
+11.1 **What is now “derived” in the PEN stack**
+
+* Holography as necessity of efficient 2-coherent updating.
+* Area law as interface ledger capacity.
+
+11.2 **What remains open**
+
+* Constructive strong dual boundary theory (beyond interface bookkeeping).
+* Microstructure: deriving (\Delta S=\ln\varphi) from first principles (rather than postulate).
+
+11.3 **Interfaces to upcoming PEN papers**
+
+* **Dark Sector:** cosmic horizons (de Sitter, apparent horizons) as interfaces; entropy bounds in cosmology.
+* **Biology:** why boundary-local constraints matter for emergence and memory in dissipative systems.
+
+---
+
+## Appendices (worth doing; they make it “real”)
+
+---
+
+# A1. Boundary kinematics from the interface ledger (no dynamics yet)
+
+## A1.1 Boundary state = ledger state
+
+### A1.1.1 Interfaces as *sets of atomic 2D obligations*
+
+**PEN input.** In the CST formalism, the unit objects that must be “sealed” are **atomic coherence obligations** and their **dependency sets**; crucially, in a two-dimensional coherent foundation the primitive obligations are 2D and their dependence is controlled by two-layer integration. The CST appendix makes this explicit by defining atomic obligations as instances of fundamental 2D coherence axioms, together with a dependency function tracking which layers are needed to define their boundary data. 
+
+**Gravity-phase translation.** Fix a spacetime region (R) whose boundary contains a (spatial) **cut** (\Sigma) (think: a codimension-2 “screen” or corner; in the horizon case, (\Sigma) is a bifurcation or cross-section). Define the **interface basis** (I_\Sigma) to be the set of *independent atomic obligations whose boundary data straddles the cut*—i.e. the “ports” through which consistency between interior/exterior degrees is mediated.
+
+* Abstractly: (I_\Sigma) is a finite (after discretization) set of *schema instances* (CST’s contextualized schemas) supported on (\Sigma).
+* Intuitively: each (p\in I_\Sigma) is one independent “coherence channel” the boundary must carry to make the next update well-defined.
+
+This is the direct geometric analog of CST’s interface basis (I_n^{(2)}) that controls two-layer sealing effort (where the integration gap is literally (|I_n^{(2)}|)). 
+
+### A1.1.2 Witness assignments
+
+For each port (p\in I_\Sigma), let (W_p) be the set of **minimal witnesses** that satisfy that port’s obligation (in CST language: 2-cells/fillers witnessing the schema instance). Define the **witness-assignment space**
+[
+W(I_\Sigma);:=;\Big{, w:I_\Sigma\to \bigsqcup_{p\in I_\Sigma}W_p\ \Big|\ \text{(w(p)\in W_p) and all sealed relations are satisfied}\Big}.
+]
+
+* “Sealed relations” are the coherence equalities already guaranteed by the two-dimensional foundation; they are **2D** constraints, not new higher axioms (Theorem 4.5 / coherence theorem logic). 
+
+### A1.1.3 Hilbert space from ledger states
+
+Define the boundary/interface Hilbert space on (\Sigma) by
+[
+\boxed{\quad \mathcal H_\Sigma\ :=\ \ell^2!\big(W(I_\Sigma)\big)\ \cong\ \mathrm{Span}{\ |w\rangle:\ w\in W(I_\Sigma)\ }\quad}
+]
+with the computational basis ({|w\rangle}) orthonormal.
+
+This matches your proposed definition ( \mathcal H_\Sigma := \mathrm{Span}{|w\rangle : w\in W(I_\Sigma)}), with the mild technical upgrade that we choose the standard (\ell^2) completion so operator norms and partial traces exist.
+
+---
+
+## A1.1.4 Functoriality under refinement and coarse-graining
+
+To make (\Sigma \mapsto \mathcal H_\Sigma) **functorial**, we do what lattice gauge theory / cylindrical LQG do: treat discretizations as a directed system.
+
+### Category of discretized cuts
+
+Let (\mathbf{Disc}(\Sigma)) be the directed poset of finite cell decompositions (D) of (\Sigma), ordered by refinement (D'\succeq D). For each (D), define ports (I_{\Sigma,D}) and witness assignments (W(I_{\Sigma,D})), hence (\mathcal H_{\Sigma,D}=\ell^2(W(I_{\Sigma,D}))).
+
+### Refinement maps
+
+Given a refinement (r:D'\to D), there is a canonical **restriction** (forgetful) map on witness assignments:
+[
+\mathrm{res}*r:\ W(I*{\Sigma,D'})\to W(I_{\Sigma,D})
+]
+obtained by forgetting witnesses on the additional fine ports and restricting constraints.
+
+Define the associated **coarse-graining channel**
+[
+\boxed{\quad \Pi_r:\ \mathcal H_{\Sigma,D'}\to \mathcal H_{\Sigma,D},\qquad
+(\Pi_r\psi)(w)\ :=\ \sum_{w':,\mathrm{res}_r(w')=w}\ \psi(w')\quad}
+]
+(this is the “sum over fine microstates compatible with the coarse ledger state”).
+
+Define also a canonical **refinement embedding** (one convenient isometric choice):
+[
+\boxed{\quad \iota_r:\ \mathcal H_{\Sigma,D}\hookrightarrow \mathcal H_{\Sigma,D'},\qquad
+\iota_r|w\rangle\ :=\ \frac{1}{\sqrt{N_r(w)}}\sum_{w':,\mathrm{res}_r(w')=w}\ |w'\rangle\quad}
+]
+where (N_r(w)) is the number of fine extensions of (w). (If the number of new-port witness choices is uniform, then (N_r(w)) is constant and the normalization is trivial.)
+
+### Proposition A1 (Functorial ledger kinematics)
+
+The assignment
+[
+D\ \mapsto\ \mathcal H_{\Sigma,D},\qquad r\ \mapsto\ \iota_r
+]
+is an inductive system in (\mathbf{Hilb}), and (r\mapsto \Pi_r) is a projective system of coarse-graining channels, satisfying:
+[
+\iota_{r\circ s}=\iota_s\circ\iota_r,\qquad
+\Pi_{r\circ s}=\Pi_r\circ\Pi_s,\qquad
+\Pi_r\circ\iota_r=\mathrm{id}.
+]
+
+**Proof.** Immediate from the set-theoretic identities
+[
+{w'':\mathrm{res}*{r\circ s}(w'')=w}
+;=;
+\bigsqcup*{w':\mathrm{res}_r(w')=w}{w'':\mathrm{res}_s(w'')=w'},
+]
+and the chosen normalization (which can be arranged to respect composition whenever extension counts factorize under refinement). □
+
+### Continuum cut space
+
+Define the continuum Hilbert space as the inductive limit
+[
+\boxed{\quad \mathcal H_\Sigma\ :=\ \varinjlim_{D\in\mathbf{Disc}(\Sigma)}\ \mathcal H_{\Sigma,D}\quad}
+]
+and interpret coarse-graining as the compatible family of (\Pi_r) maps.
+
+This is the cleanest “PEN-style” way to say: **the interface ledger is a boundary kinematic system with a consistent refinement/coarse-graining calculus.**
+
+---
+
+## A1.2 Boundary operator algebra (\mathcal A_\Sigma)
+
+We now give an explicit presentation.
+
+### A1.2.1 Unconstrained port algebra
+
+Fix a discretization (D). For each port (p\in I_{\Sigma,D}), define the local Hilbert space
+[
+\mathcal h_p := \ell^2(W_p),
+]
+and the unconstrained boundary space
+[
+\mathcal H^{\mathrm{unc}}*{\Sigma,D}:=\bigotimes*{p\in I_{\Sigma,D}}\mathcal h_p.
+]
+Let the **local port algebra** be (\mathcal A_p:=\mathrm{End}(\mathcal h_p)). The unconstrained algebra is
+[
+\mathcal A^{\mathrm{unc}}*{\Sigma,D}:=\bigotimes*{p\in I_{\Sigma,D}} \mathcal A_p.
+]
+
+### A1.2.2 Constraint projectors (the “sealed relations”)
+
+Let (\mathcal R_{\Sigma,D}) be the set of **2D coherence relations** among ports induced by the already-sealed structure (e.g., compatibility of adjacent witnesses, gauge-gluing identities, etc.). Define for each (r\in\mathcal R_{\Sigma,D}) an orthogonal projector
+[
+P_r:\mathcal H^{\mathrm{unc}}*{\Sigma,D}\to \mathcal H^{\mathrm{unc}}*{\Sigma,D}
+]
+which enforces (r) on basis states.
+
+Define the total projector (P_{\mathrm{phys}}:=\prod_{r\in\mathcal R_{\Sigma,D}}P_r) and the constrained (“ledger-valid”) space
+[
+\mathcal H_{\Sigma,D} := P_{\mathrm{phys}}\mathcal H^{\mathrm{unc}}_{\Sigma,D}.
+]
+
+### A1.2.3 Symmetry generators
+
+Let (\mathcal G_\Sigma) be the boundary symmetry group (diffeomorphisms of (\Sigma), internal gauge transformations, etc.). Represent it by unitaries (U_g) on (\mathcal H^{\mathrm{unc}}_{\Sigma,D}) acting by pullback/permutation on port labels and witnesses.
+
+### Definition A2 (Boundary algebra, explicit presentation)
+
+Define (\mathcal A_{\Sigma,D}) to be the *-algebra generated by:
+
+1. local port operators in (\mathcal A^{\mathrm{unc}}_{\Sigma,D}),
+2. constraint projectors ({P_r}*{r\in\mathcal R*{\Sigma,D}}),
+3. symmetry unitaries ({U_g}*{g\in\mathcal G*\Sigma}),
+
+modulo relations:
+
+* (P_r^2=P_r=P_r^\dagger),
+* (U_gU_h=U_{gh}), (U_g^\dagger=U_{g^{-1}}),
+* covariance of constraints: (U_g P_r U_g^{-1}=P_{g\cdot r}),
+* locality: operators on disjoint port sets commute.
+
+Finally define the **physical boundary algebra**
+[
+\boxed{\quad \mathcal A_{\Sigma,D}^{\mathrm{phys}} := P_{\mathrm{phys}},\mathcal A_{\Sigma,D},P_{\mathrm{phys}}\quad}
+]
+and take the inductive limit over refinements (D).
+
+### Why “2‑coherence” shows up as operator identities
+
+CST’s core structural theorem is that the primitive coherence laws are fundamentally **2D**, and checking those 2D laws suffices to guarantee all higher coherences constructively.  This is exactly what makes it consistent to impose only the (P_r) corresponding to 2D relations: higher “would-be” relations correspond to derived constraints and do not need independent projectors.
+
+---
+
+# A2. Boundary dynamics from (\kappa!\leftrightarrow!S) and Iyer–Wald covariant phase space
+
+This is the “engine”: in gravity, **the variational principle induces a boundary symplectic form and a boundary Hamiltonian**.
+
+## A2.1 Boundary phase space from covariant phase space
+
+### A2.1.1 PEN input: (\kappa!\leftrightarrow!S) gives you an action principle
+
+In PEN V, the effort functional (\mathcal K) along a DCT flow segment is related to an action by an affine map
+[
+S[\gamma] = \alpha,\mathcal K[\gamma] + B[\gamma],
+]
+with (B) a boundary term, and the construction is constrained by additivity, reversal, and locality/minimality (two-layer coherence). 
+
+So: **we are allowed to use standard variational calculus**, and “boundary terms matter” is not an extra assumption—it is built into the bridge.
+
+### A2.1.2 Covariant phase space: (\Theta), (\omega), and boundary terms
+
+Now we import the standard Iyer–Wald covariant phase space framework:
+
+* A diffeo-invariant Lagrangian (n)-form (L(\phi)) varies as
+  [
+  \delta L = E(\phi)\cdot \delta\phi + d\Theta(\phi,\delta\phi),
+  ]
+  defining the presymplectic potential (\Theta).
+
+* The symplectic current is
+  [
+  \omega(\phi;\delta_1\phi,\delta_2\phi)=\delta_1\Theta(\phi,\delta_2\phi)-\delta_2\Theta(\phi,\delta_1\phi),
+  ]
+  and the symplectic form on a hypersurface (C) is (\Omega_C=\int_C\omega). ([APS Link][1])
+
+When (C) has a boundary (\partial C=\Sigma), the would-be symplectic form is not gauge-invariant unless one properly accounts for boundary/edge degrees of freedom (corner terms). This is the modern “edge mode” story in gravity. ([arXiv][2])
+
+### Deliverable A3: explicit boundary symplectic form (\Omega_\Sigma)
+
+There are two equivalent ways to state the deliverable.
+
+#### (i) General (theory-agnostic) statement
+
+Define the **boundary symplectic form** (\Omega_\Sigma) by isolating the piece of (\Omega_C) supported at (\Sigma) after the standard edge-mode completion:
+[
+\boxed{\quad \Omega_C^{\mathrm{ext}} = \Omega_C^{\mathrm{bulk}} + \Omega_\Sigma,\quad \text{with }\ \Omega_\Sigma\ \text{supported on }\Sigma\quad}
+]
+and (\Omega_\Sigma) is determined by the boundary term(s) in (\Theta) (equivalently, by the corner term needed for a well-posed variational principle).
+
+This is “explicit” once you pick a formulation (metric vs tetrad) and boundary conditions.
+
+#### (ii) Einstein–Hilbert gravity: the canonical corner pair
+
+For Einstein–Hilbert gravity, the corner symplectic structure contains a universal conjugate pair:
+
+* an **area density** (or area 2-form) (\epsilon_\Sigma) on the corner (\Sigma),
+* a **boost angle** variable (\eta) (Lorentzian) associated with the relative embedding of hypersurfaces meeting at (\Sigma).
+
+In the edge-mode literature this appears as: **boost angle is conjugate to area form at the corner**, giving a corner symplectic term of the schematic form
+[
+\boxed{\quad \Omega_\Sigma \ \supset\ \frac{1}{8\pi G}\int_\Sigma \delta\epsilon_\Sigma \wedge \delta\eta\quad}
+]
+(up to conventions and additional diffeo/surface-diffeo pieces). ([arXiv][2])
+
+This is exactly what you want in PEN language: **“interface capacity” (area/entropy) is a canonical boundary variable**.
+
+---
+
+## A2.2 Boundary Hamiltonian = generator of evolution
+
+This is the standard “Hamiltonian is a boundary term” fact in gravity, but we now rewrite it in ledger variables.
+
+### A2.2.1 Iyer–Wald identity for the Hamiltonian generator
+
+For a vector field (\xi) generating a flow, Iyer–Wald give the on-shell relation
+[
+\delta H_\xi ;=;\int_C \omega(\phi;\delta\phi,\mathcal L_\xi \phi)
+;=;\oint_{\partial C}\big(\delta Q_\xi - \iota_\xi \Theta(\phi,\delta\phi)\big),
+]
+where (Q_\xi) is the Noether charge ((n!-!2))-form. ([APS Link][1])
+
+### A2.2.2 PEN V anchor: explicit (Q_\xi), and entropy as Noether charge
+
+PEN V explicitly writes (for EH gravity) the Noether charge density as
+[
+Q_\xi = -\frac{1}{16\pi G},\star d\xi^\flat,
+]
+and on a bifurcation surface (B) of a Killing horizon,
+[
+\oint_B Q_\xi = \frac{\kappa_{\mathrm{sg}}}{8\pi G}A_H,
+]
+leading to the theorem (using Euclidean regularity for (T_H)) that
+[
+S_{\mathrm{BH}}=\frac{A_H}{4G\hbar}.
+]
+
+
+Moreover the same section explicitly states the first-law identity as a symplectic statement for (\xi)-Hamiltonians. 
+
+### Deliverable A4: boundary evolution rule on (\mathcal H_\Sigma)
+
+Define the boundary Hamiltonian operator (\widehat H_\xi) as the quantization of the classical charge (H_\xi) induced by (\Omega_\Sigma) (geometric quantization in DCT is already part of the toolkit). PEN V explicitly packages quantization as a functorial map from ((H,\omega,\nabla,\mathcal P)) to operators (\widehat H) and gives the induced unitary flow (U(t)) with (\dot U(t)=-(i/\hbar)\widehat H,U(t)). 
+
+So we define
+[
+\boxed{\quad U_\partial(\Delta t)\ :=\ \exp!\Big(-\frac{i}{\hbar},\widehat H_\xi,\Delta t\Big)\quad}
+]
+acting on (\mathcal H_\Sigma), with:
+
+* **Gauge constraints**: implemented by the constraint projectors (P_r) and group averaging over (\mathcal G_\Sigma).
+* **Physical subspace**: (\mathcal H_\Sigma^{\mathrm{phys}}\subset \mathcal H_\Sigma) is the joint kernel of constraints / the invariant subspace under boundary gauge.
+* **Ledger locality / (k=2) Markov locality**: because the fundamental coherence obligations are 2D and saturating, the generator can be written as a **sum of local update moves** on (\Sigma) involving only 2D neighboring port data (precisely the same structural reason CST gives for “no irreducible three-layer obligations”). 
+
+> In other words: the same theorem that makes the *logical update* two-layer-local makes the *boundary Hamiltonian* a 2D-local operator (up to gauge redundancy).
+
+---
+
+# A3. Bulk reconstruction in the linearized regime (prove it first)
+
+Now we build the reconstruction map (R) in the regime where PDE existence/uniqueness is clean.
+
+## A3.1 Linearized fields about fixed backgrounds: reconstruction kernels
+
+### Setup
+
+Pick a background ((M,g_0)) in one of the tractable classes you listed:
+
+1. **AdS patch / AdS–Schwarzschild** (strong-holography bridge),
+2. **stationary Kerr exterior** (ringdown regime),
+3. **Rindler wedge** (local horizon limit).
+
+Consider a linear field (\Phi) satisfying a hyperbolic equation
+[
+P\Phi = 0
+]
+(where (P) is Klein–Gordon, Maxwell in a gauge, or the linearized Einstein operator in a gauge).
+
+### The PDE fact we import (standard, but essential)
+
+For linear PDEs with suitable boundary conditions, solutions can be represented by boundary integrals against Green’s functions. A prototypical statement (in elliptic form) is the Green’s representation formula that expresses bulk solutions via boundary data and the Green’s kernel. ([Stanford University][3])
+The hyperbolic version uses retarded/advanced Green’s functions and is the standard route to reconstruction in causal domains.
+
+### Deliverable A5: explicit reconstruction kernel(s)
+
+#### A5.1 Scalar field (prototype)
+
+Let (G_R(x;y)) be the retarded Green’s function for (P). Then for (x) in the domain determined by the boundary data, one has the representation
+[
+\boxed{\quad
+\Phi(x)=\int_{\partial R}!\Big(G_R(x;y),\partial_{n_y}\Phi(y);-;\Phi(y),\partial_{n_y}G_R(x;y)\Big),d\Sigma_y
+\quad}
+]
+(plus source terms if present). This is the canonical “boundary-to-bulk” kernel form; the bracket defines the kernel (K(x;y)). ([Stanford University][3])
+
+Now define the **boundary operator** (O_\partial(y)) to be the quantization of the boundary datum (Dirichlet/Neumann combination determined by the variational principle / polarization). Then define the reconstruction map on the generating field observable by
+[
+\boxed{\quad R(\Phi(x))\ :=\ \int_{\partial R}K(x;y),O_\partial(y),dy\quad}
+]
+and extend by linearity / operator products within a code subspace.
+
+#### A5.2 AdS: match to HKLL
+
+In AdS (or AdS–Schwarzschild), the above construction becomes the HKLL smearing representation: bulk local fields are represented by a boundary integral of a smearing kernel against boundary operators (in the semiclassical/free limit). ([arXiv][4])
+
+This gives you a ready-made “existence proof” that your reconstruction map is not just formal: it is already constructible in a well-studied setting.
+
+#### A5.3 Maxwell / graviton (linear gauge fields)
+
+For gauge fields, the clean way to state reconstruction is in terms of **gauge-invariant observables**:
+
+* Maxwell: reconstruct (F_{\mu\nu}(x)) from boundary electric/magnetic data (or boundary currents) via the Green’s operator for the gauge-fixed Maxwell system.
+* Linearized gravity: reconstruct curvature invariants (e.g., linearized Weyl components, or gauge-fixed metric perturbations modulo pure gauge) via the corresponding Green’s operator.
+
+Formally the kernels exist by the same Green-operator construction once the gauge is fixed and constraints are handled; the “non-reconstructible” directions are precisely gauge (next subsection).
+
+### What region is reconstructible?
+
+The reconstruction kernel built from (G_R) reconstructs points in the **causal wedge/domain of dependence** determined by the boundary portion on which data is supplied—this is the standard PDE causality statement.
+
+---
+
+## A3.2 Code subspace and redundancy: kernel of (R)
+
+This is where you translate “bulk non-uniqueness” into PEN’s “ledger equivalence”.
+
+### Definition (PEN code subspace)
+
+Define (\mathcal H_{\mathrm{code}}\subset\mathcal H_\partial) to be the subspace of boundary ledger states whose semiclassical limit corresponds to **small fluctuations** around the chosen background:
+
+* “small” means: (i) linearized equations are valid, (ii) boundary conditions are stable, (iii) backreaction stays within the controlled regime (perturbative in (\hbar) or in (G)).
+
+This is exactly the regime in which the (\kappa!\leftrightarrow!S) bridge yields standard unitary QFT propagation on a background geometry. 
+
+### Deliverable A6: what cannot be reconstructed = kernel of (R)
+
+#### Proposition A6 (Kernel = redundancies)
+
+Within (\mathcal H_{\mathrm{code}}), the reconstruction map (R) is unique **up to gauge**, meaning:
+[
+R_1(\mathcal O_{\mathrm{bulk}})-R_2(\mathcal O_{\mathrm{bulk}})\ \in\ \mathcal N,
+]
+where (\mathcal N) is the ideal of operators that act trivially on (\mathcal H_{\mathrm{code}}) (equivalently, vanish in all code-subspace correlators). One can identify (\mathcal N) with the closure of:
+
+1. **pure gauge** generators (bulk diffeos / internal gauge transformations) that do not change boundary data,
+2. **constraint-trivial / edge-mode relabelings**: different bulk descriptions that correspond to the same boundary ledger state.
+
+**Proof sketch.**
+
+* Existence of (R): given by the Green’s-kernel construction above (or HKLL in AdS), which produces a boundary functional with the same bulk correlators in the semiclassical/free regime. ([arXiv][4])
+* Non-uniqueness: if (R_1-R_2) has vanishing boundary data in the sense relevant to the PDE, then it solves the homogeneous equation with zero boundary support; in a gauge theory this implies it is pure gauge (or constraint-trivial), hence invisible on gauge-invariant observables and on the code subspace.
+* Therefore the kernel is exactly the redundancy class.
+
+This is the PEN statement of “bulk effective QEC”: multiple bulk representatives map to the same boundary ledger state because the ledger already quotients by redundancies.
+
+---
+
+# Assembling the Target Theorem (minimal strong holography, PEN form)
+
+With A1–A3 in place, the target statement can be packaged as:
+
+### Theorem (Minimal constructive holography in PEN form; linear regime)
+
+Fix a background class (e.g., AdS patch, stationary horizon exterior, Rindler wedge) and a bulk operator class generated by linear fields (\Phi) (and gauge-invariant composites) supported in the reconstructible region. Then:
+
+1. there exists a boundary Hilbert space (\mathcal H_\partial) constructed functorially from interface ledger data (\Sigma\mapsto \mathcal H_\Sigma) (A1);
+2. there exists an induced boundary dynamics (U_\partial) generated by the Iyer–Wald boundary Hamiltonian (\widehat H_\xi) arising from the (\kappa!\leftrightarrow!S) variational principle and the corner symplectic form (A2);
+3. there exists a reconstruction map (R:\mathcal O_{\mathrm{bulk}}\to\mathcal A_\partial) defined by boundary-to-bulk Green kernels / HKLL-type smearing in the linear regime (A3);
+
+such that for all (|\psi\rangle\in\mathcal H_{\mathrm{code}}\subset \mathcal H_\partial),
+[
+\langle\psi|\ \mathcal O_{\mathrm{bulk}}\ |\psi\rangle_{\mathrm{bulk}}
+======================================================================
+
+\langle\psi|\ R(\mathcal O_{\mathrm{bulk}})\ |\psi\rangle_{\partial},
+]
+and (R) is unique modulo the redundancy ideal (\mathcal N) (kernel = gauge/edge redundancies).
+
+---
+
+[1]: https://link.aps.org/doi/10.1103/PhysRevD.50.846?utm_source=chatgpt.com "Some properties of the Noether charge and a proposal for ..."
+[2]: https://arxiv.org/abs/2006.12527?utm_source=chatgpt.com "Edge modes of gravity -- I: Corner potentials and charges"
+[3]: https://web.stanford.edu/class/math220b/handouts/greensfcns.pdf?utm_source=chatgpt.com "4 Green's Functions"
+[4]: https://arxiv.org/abs/hep-th/0506118?utm_source=chatgpt.com "Local bulk operators in AdS/CFT: a boundary view of horizons and locality"
+
+
+* **Appendix A:** Formal proof of Interface Sufficiency (full details, schema/exposure lemmas).
+* **Appendix B:** κ↔S and effort-stress derivation (clean variational calculus).
+* **Appendix C:** Iyer–Wald/Noether-charge summary (as used, no re-derivation).
+* **Appendix D:** WKB/parabolic barrier derivation for (\mathcal R_{ps}(\omega)) and link to ((\Omega_{ph},\gamma_{ph})).
+* **Appendix E:** Data-analysis templates and priors (ready for a public repo notebook).
+* **Appendix F:** Claim ledger (Derived / Postulated / Falsifiable) — your “derived vs assumed” style.
+
+---
+

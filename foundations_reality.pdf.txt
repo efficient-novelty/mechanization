@@ -1,0 +1,1587 @@
+                   Coherent Possibility and Selective Actualization:
+
+              A Two-Level Framework for Foundational Explanation
+
+                                             Halvor S. Lande
+
+                                                 April 2026
+
+
+                                                  Abstract
+         A structural or mathematical account can explain admissibility, but it does not yet explain why
+     a determinate world is actual, why actuality is historically articulated, or how becoming proceeds
+     without appeal to a brute selector. This paper argues that the resulting gap is best understood
+     as a problem for foundational explanation. Any adequate foundational account of a nontrivial,
+     dynamically stable, historically articulated world must distinguish two irreducible explanatory
+     roles. The first is constitutive constraint: the conditions under which a candidate structure
+     counts as coherently realizable at all. The second is selective actualization: the conditions
+     under which one admissible continuation rather than another becomes integrated into realized
+     history. I develop the constitutive role in presentation-independent terms through coherent
+     realizability, equivalence-invariance, canonicity, and local satisfiability of coherence burdens. I
+     then propose a localist, regulative characterization of the selective role in terms of commitment,
+     admissibility, local generative affordance, stabilization burden, sufficiency, constructive primeness,
+     and integration. The aim is not to derive a complete ontology or a finished dynamics, but to
+     clarify the explanatory architecture that any adequate foundational explanation must exhibit and
+     to distinguish argued constraints from stronger proposals, unique algorithmic implementations,
+     and deferred formal development.
+
+Keywords: actualization; laws of nature; structural realism; modality; process ontology; philosophy
+of science
+
+
+1    Introduction: the problem of actualization
+
+Accounts of reality that emphasize structure, mathematics, or modal order promise an explanation
+of what kinds of world are admissible. They do not yet explain why one admissible continuation is
+actual, why actuality is historically articulated rather than merely catalogued, or how determinate
+becoming can proceed without appeal to a brute selector. The gap between admissibility and
+actuality is the problem addressed in this paper.
+   The attraction of structural or mathematical metaphysics is nevertheless real. If reality has
+any intelligible order at all, then it must answer in some way to structure. The hope behind the
+Mathematical Universe Hypothesis is that the world is not merely described by mathematics, but is
+mathematics in a sufficiently robust sense (Tegmark, 2008). That ambition belongs to a broader
+structuralist family in which invariant form does the primary explanatory work (Worrall, 1989;
+
+                                                       1
+Ladyman, 1998; Shapiro, 1997; French, 2014; Ladyman et al., 2007). The difficulty is that form
+alone seems to explain, at most, a space of coherent possibility. It does not by itself explain why
+one possibility is actual, why actuality unfolds through determinate transitions, or why realized
+history is more than an undifferentiated collection of admissible forms.
+   The central claim advanced here is therefore not that a final ontology has already been reduced
+to a definitive pair of laws. It is instead that any adequate foundational explanation of a nontrivial,
+dynamically stable, historically articulated world must distinguish two irreducible explanatory
+roles. The first is constitutive constraint: it determines what can count as a coherently realizable
+candidate for existence at all. The second is selective actualization: it determines how one admissible
+continuation rather than another becomes integrated into realized history. The paper argues that
+these roles are explanatorily distinct even when any later formal theory may articulate them by
+many principles rather than two single axioms. The proposal is framed at a level prior to familiar
+disputes over governing, anti-governing, dispositional, and modal accounts of lawhood (Armstrong,
+1983; Dretske, 1977; Tooley, 1977; van Fraassen, 1989; Bird, 2007; Ellis, 2001; Mumford, 2004;
+Maudlin, 2007).
+   The resulting framework can be stated compactly:
+
+      Constitutive constraint: the explanatory role that fixes admissible structure.
+      Selective actualization: the explanatory role that governs actual integration into
+      history.
+
+   The second role is local in a specific sense that will matter throughout. Locality here is not spatial
+locality; it is locality to the present continuation cone of realized history. Actualization must proceed
+by features readable in the realized present and its immediately admissible continuations, rather
+than by dependence on continuations beyond that field. The proposal is therefore path-dependent
+without being globally foresighted. As Section 5.1 will make explicit, this locality operates at a
+level prior to dynamics on a fixed state space, which blocks a natural but mistaken reading of the
+selective role as a forward-simulating rule.
+   This paper is a contribution to foundational explanation in philosophy of science, not a complete
+metaphysical system. It does not introduce a finished evaluator or a cosmology. Its aim is limited:
+to identify the explanatory architecture required if a determinate world is to be both admissible
+and actualized, to formulate restrained candidate statements of the two roles, and to distinguish
+argued constraints from stronger proposals and deferred formal development.
+   The two laws are offered as regulative characterizations of what any adequate foundational
+explanation must achieve, rather than as unique algorithmic specifications. This scoping is defended
+explicitly in subsection 3.3 and, for the selective role in particular, in subsection 5.9.
+   The immediate target is not every conceivable universe whatsoever, but any world stable enough
+to preserve determinate identity through change, dynamic enough to exhibit genuine becoming, and
+rich enough to sustain nontrivial historical articulation. On that target, the paper proceeds as follows.
+Section 2 situates the proposal among familiar distinctions and identifies the remaining explanatory
+gap. Section 3 argues that foundational explanation must separate constitutive admissibility from
+selective actualization. The subsequent sections develop each role in turn, clarify what the framework
+adds, and conclude by distinguishing what is argued, what is proposed, and what is deferred.
+
+                                                   2
+2     Existing distinctions and the remaining gap
+
+Several familiar distinctions already mark genuine structure in debates about laws, modality, and
+world-description. One can distinguish a space of states from a dynamics defined on that space,
+laws from initial conditions, structural description from realized history, and local evolution from
+whole-history or global-consistency formulations (Cartwright, 1983; van Fraassen, 1989; Maudlin,
+2007; Price, 1996). These contrasts are indispensable, but they do not yet resolve the present problem.
+Even where they explain how a world may be represented, evolved, or globally characterized, they
+do not by themselves explain why an admissible world is actual or how actualization is articulated
+from within realized history.
+
+
+2.1   State spaces, dynamics, and initial conditions
+
+The distinction between state space and dynamics captures an important feature of scientific
+explanation. A state space tells us what kinds of states are being considered; a dynamics tells us
+how those states evolve (Cartwright, 1983; Maudlin, 2007). But this familiar contrast ordinarily
+presupposes that the relevant state space has already been specified and that the states within
+it are intelligible candidates for realization. Constitutive constraint asks a prior question: what
+makes a candidate structure coherently realizable at all, rather than a merely formal placeholder or
+a contradictory pseudo-world? For that reason constitutive constraint is not simply a relabeling of
+state space.
+   Nor is selective actualization simply a relabeling of dynamics. A dynamical law characteristically
+maps states to later states, or to trajectories, within an already given framework. By contrast,
+selective actualization concerns the explanatory role by which one admissible continuation rather
+than another becomes part of realized history. In a branching setting, or in any setting where
+multiple admissible continuations remain open, the mere presence of a dynamics does not yet
+explain actuality. At most it specifies permitted development conditional on an already fixed history.
+The present proposal therefore cuts across the familiar distinction rather than repeating it. The
+selective role operates at a level prior to dynamics on a fixed state space: it concerns how admissible
+continuations become integrated into realized history, thereby contributing to determining what the
+next state space is, rather than evolving states within an already given one.
+    The same point holds for the distinction between laws and initial conditions. A law-plus-initial-
+condition picture may identify a unique trajectory once a starting point is given. But the explanatory
+burden then shifts to the actuality of that starting point, or to the actuality of the complete boundary
+data, rather than disappearing (Armstrong, 1983; Dretske, 1977; Tooley, 1977; Bird, 2007). If the
+initial condition is simply stipulated, the transition from admissibility to actuality remains brute. If
+it is folded into the law, the distinction between constitutive admissibility and selective actualization
+is still needed to explain what makes the stipulated history both coherent and actual.
+
+
+2.2   Structural realism and mathematical description
+
+Structural realism and related mathematical conceptions of reality rightly emphasize that description
+should track invariant structure rather than merely superficial presentation (Worrall, 1989; Ladyman,
+1998; Shapiro, 1997; French, 2014; Ladyman et al., 2007). That emphasis is closely aligned with one
+
+                                                   3
+central part of the present proposal. Constitutive constraint is presentation-independent and insists
+that equivalent descriptions should not be counted as different in being merely because they differ
+syntactically or coordinatize the same structure differently.
+   Yet constitutive constraint is not exhausted by structural realism. The present proposal is
+concerned not only with invariant description, but also with coherent realizability, canonicity, and
+the local dischargeability of coherence burdens. A candidate world must not only have structure; it
+must be a structure that can count as realizable rather than permanently schematic, contradictory,
+or dependent on indefinitely deferred repair. More importantly, structural description alone still
+leaves open the problem of actuality. Even a fully articulated structural ontology seems, by itself,
+to describe an admissible space rather than explain why one history within that space is actual.
+   Tegmark’s Mathematical Universe Hypothesis makes the pressure point especially clear. It supplies
+a constitutive story in terms of mathematical structure, but by treating admissible mathematical
+structure as already exhaustively real it leaves no selective role to explain why actuality is historically
+articulated rather than an undifferentiated plurality (Tegmark, 2008).
+   Everettian and branching-multiverse interpretations of quantum mechanics are a distinct class
+of positions on which admissibility and actuality are not distinguished at the fundamental level.
+The question of whether such views can reconstruct the target explanandum within a branch,
+and whether such reconstruction covertly imports a selective role, is a question about physical
+implementation rather than foundational architecture, and is taken up elsewhere.
+
+
+2.3   Primitive actuality and brute selection
+
+One response to the foregoing difficulty is to stop asking for further explanation and to treat actuality
+itself as primitive. On that picture, one world, history, or total configuration is simply actual, and
+no deeper account of the transition from possibility to actuality is needed (Lewis, 1986; Plantinga,
+1974). Such a move has the virtue of clarity, and any complete account may eventually have to
+reach some explanatory terminus. But as a strategy for foundational explanation it leaves too much
+of the present problem untouched.
+   If actuality is treated as primitive in that strong sense, then the selection of one admissible
+continuation rather than another is no longer illuminated but merely named. The present framework
+does not deny that actuality is basic in the sense of being irreducible to mere description. It
+argues, rather, that the explanatory role of actuality can still be constrained. Selective actualization
+is proposed precisely as an account of what such constraint must look like if actuality is not to
+enter the story as an unconstrained brute selector. In that respect the proposal is closer to recent
+grounding-based attempts to articulate dependence relations without collapsing them into simple
+reduction (Fine, 2012; Schaffer, 2009; Rosen, 2010). The role must remain tied to admissibility,
+path-dependent history, local generative affordance, and integration into what follows, and it must
+do so at the explanatory level appropriate to a role that fixes, rather than presupposes, the next
+stage of history.
+
+
+
+
+                                                    4
+2.4   Whole-history and global-consistency views
+
+Whole-history and global-consistency views identify another genuine insight. The actual world may
+not be understandable one step at a time if large-scale consistency conditions, variational principles,
+or complete-history constraints are constitutively relevant (Price, 1996; Wheeler and Feynman, 1945,
+1949; Cartwright, 1999). The present proposal does not deny that possibility. A global constraint
+may well help determine what counts as an admissible history, and in that sense such views may
+contribute to the constitutive side of foundational explanation.
+   What they do not yet provide, at least not by themselves, is an account of local articulation.
+If actuality had to proceed by surveying complete histories as complete histories before any local
+becoming could occur, then the explanation of becoming would become either teleological in
+formulation or opaque in operation. The localizability requirement defended later in the paper is
+meant to block that result without caricaturing holistic alternatives. The claim is not that global
+constraints are irrelevant; it is that any adequate account of an actual, historically articulated world
+must also explain how actuality is readable from within the present continuation cone rather than
+only from a finished God’s-eye view of total history.
+
+
+2.5   The governing/anti-governing debate and the level of the present proposal
+
+The distinctions canvassed so far are distinctions within philosophy of science about how laws should
+be understood once one already has a world in which laws can be stated. A further debate concerns
+the ontological status of laws themselves. Governing accounts hold that laws are entities or relations
+distinct from the particulars whose behavior they constrain, and that laws genuinely govern such
+behavior by standing in a primitive necessitation relation to it (Armstrong, 1983; Dretske, 1977;
+Tooley, 1977; Maudlin, 2007). Anti-governing accounts, most influentially the Humean best-system
+tradition, hold that laws are nothing over and above the most efficient systematization of the
+particular facts that make up the history of the world (Lewis, 1986; Loewer, 1996; Hall, 2015).
+Dispositional essentialism, by contrast, grounds laws in the natures or essences of properties and
+objects, so that the regularities laws describe express what it is to be the kinds of things the world
+contains (Bird, 2007; Ellis, 2001; Mumford, 2004).
+   The two-role framework developed in this paper is deliberately prior to this debate. It is not
+offered as a fourth position alongside governing, anti-governing, and dispositional accounts. It is a
+proposal about the explanatory architecture that any such position must exhibit if it is to account
+for a determinate, historically articulated world.
+   The reason can be stated directly. Each of the three positions is a proposal about what the
+relation is between laws and particulars within realized history. The Humean says the relation is
+one of summarization. The governing theorist says it is one of necessitation. The dispositional
+essentialist says it is one of essential grounding. But all three positions presuppose, and do not by
+themselves explain, two prior questions. What makes something a candidate for being a particular
+in the first place, what distinguishes a coherent, realizable structure from a pseudo-structure that
+could not be a particular at all? And what determines which of the admissible candidates become
+integrated into realized history rather than another, what distinguishes the particular facts that
+constitute the world’s history from the ones that remain merely possible?
+
+
+
+                                                   5
+   These are the constitutive and selective questions respectively. Each of the three positions takes
+for granted that some answer to both is available. The Humean presupposes a history of particular
+facts to be systematized, which presupposes both that such facts are coherent candidates for being
+and that they have become actual rather than merely possible. The governing theorist presupposes
+that there are particulars for laws to govern, which likewise presupposes answers to both prior
+questions. The dispositional essentialist presupposes that there are property-instances with essences,
+which again presupposes both coherent admissibility and selective actualization of those instances.
+   This clarifies the relation to Maudlin in particular. Maudlin is a near neighbor because he rightly
+insists that laws must do more than summarize already-given facts and must help account for
+determinate history (Maudlin, 2007). The present proposal departs from his view at two points.
+It separates constitutive constraint from selective actualization, whereas Maudlin’s primitivism
+does not sharply divide those explanatory burdens. And it locates selective actualization at a level
+prior to dynamics on a fixed state space, rather than treating primitive law as a governing relation
+internal to an already given state space with a fundamental temporal direction.
+    It follows that the two-role framework neither competes with nor depends on any particular
+answer to the governing debate. It operates at a level prior to the debate by articulating what
+the debate takes for granted. A Humean, a governing theorist, and a dispositional essentialist can
+all accept the two-role architecture while disagreeing about what laws are within realized history,
+because the two-role architecture concerns the conditions of there being realized history at all rather
+than the internal structure of the laws that describe it.
+   This positioning has a further consequence worth making explicit. It is sometimes said against
+the Humean tradition that it cannot explain why one particular history is actual rather than another,
+because the best-system account only systematizes the history that in fact obtains and does not
+explain the obtaining (Maudlin, 2007). The two-role framework clarifies what this complaint is
+and is not. If the complaint is that the Humean cannot locate the explanation of actualization
+within the theory of laws, then the two-role framework agrees but generalizes the point: no theory
+of laws can locate that explanation within itself, because the selective role is a distinct explanatory
+role operating at a prior level. The governing theorist is not in a better position than the Humean
+on this question, despite appearances. Primitive necessitation between universals and particulars
+presupposes that there are particulars to be necessitated, which is already a fact about selective
+actualization rather than about governing.
+   The same reframing applies to the debate over whether laws are metaphysically prior to particulars
+or vice versa. Both sides presuppose a distinction between what is admissible and what is actual,
+and both sides presuppose that this distinction is articulated by some structural architecture. The
+two-role framework makes that architecture explicit and proposes that any adequate metaphysics of
+laws, Humean, governing, dispositional, or otherwise, must exhibit it.
+
+
+2.6   Scope and presentation-independence
+
+The remaining gap can now be stated more precisely. The problem is not just how to distinguish
+possibilities from actualities in the abstract. It is how to explain the architecture by which coherent
+admissibility and realized actuality belong together in one determinate world. Constitutive constraint
+concerns what can count as a coherently realizable candidate for existence in the first place. Selective
+
+
+                                                   6
+actualization concerns the integration of one admissible continuation rather than another into realized
+history. Those questions arise at the level of foundational explanation rather than at the level of
+already-given physical models.
+    The present argument therefore concerns foundational explanation rather than any privileged
+implementation. It is not the claim that reality is literally “written” in any one human formalism,
+still less that the world is a proof assistant or that its source code can be identified with a particular
+syntactic calculus. Human logical systems are at best presentations of deeper invariant content.
+They matter here only insofar as they provide partial insight into what constitutive admissibility
+and selective actualization would have to preserve. Constructive type theory is useful because it
+treats existence as witness-bearing and because it makes the passage from possibility to actuality
+formally visible in the judgmental form Γ ⊢ a : A (Martin-Löf, 1984). Homotopy type theory is
+useful because it exhibits a presentation in which identity carries internal structure and equivalence
+can be elevated to ontological significance (The Univalent Foundations Program, 2013). But the
+paper does not assume that reality is identical with either presentation. It seeks the invariant
+content beneath them.
+   Talk of a foundational law in what follows is shorthand for a role in foundational explanation, not
+yet a contingent regularity of a particular physical cosmos. The paper does not introduce a specific
+evaluator, local-actualization rule, or cosmological mechanism. It argues only that foundational
+explanation must separate two roles and that these roles must have a certain structural shape.
+It also does not treat arithmetic as a third primitive; stagewise language is used only as a weak
+convenience for speaking about cumulative history.
+
+
+3     A Two-Level Framework for Foundational Explanation
+
+3.1   The insufficiency of constitutive order alone
+
+Suppose there were only a constitutive order: a realm of coherent forms, structures, or possibilities.
+Then one of three things must happen. Either nothing becomes actual, in which case no world
+exists. Or every coherent possibility is equally actual, in which case actuality is indistinguishable
+from undifferentiated possibility and there is no determinate history. Or one possibility is actual
+rather than another for no reason internal to the ontology, in which case actuality is brute.
+   None of these options is satisfactory. The first yields no world. The second yields no articulated
+world. The third abandons explanation precisely where ontology should begin. A constitutive order
+alone is therefore incomplete.
+
+
+3.2   The insufficiency of actualization alone
+
+Now suppose there were only an order of actualization. An actualizing principle presupposes
+something to be actualized. If there is no prior distinction between coherent and incoherent,
+admissible and inadmissible, meaningful and meaningless, then the very idea of actualization is
+empty. An “actualization” that can equally well realize contradiction, incoherence, or indeterminacy
+is no law of reality at all.
+
+
+
+                                                    7
+  Hence actualization cannot be primitive in isolation. It presupposes a prior order of coherent
+possibility.
+   These paired insufficiencies support the paper’s core thesis. Any adequate foundational explana-
+tion of a determinate and historically articulated world must distinguish at least two irreducible
+explanatory roles: one that constrains what can coherently count as admissible structure, and one
+that governs selective actualization from among admissible continuations. The claim is architectural
+rather than axiomatic. It concerns the explanatory work that must be done, not the final number
+of principles in a completed formal theory.
+
+
+3.3     Why putative third roles do not add a new explanatory level
+
+The claim that, for the target explanandum fixed in Section 1, foundational explanation requires
+exactly two irreducible roles is strong, and it invites a natural objection. Could there not be a
+third primitive role, a role of modal structure, of individuation, of normativity, or of something else,
+that operates at the same foundational level as constitutive constraint and selective actualization
+without reducing to either? If such a role is possible, the architectural thesis of Sections 3.1 and 3.2
+is incomplete. This subsection argues that the two-role architecture is exhaustive for that indexed
+explanandum, and clarifies what that indexed exhaustiveness claim does and does not assert.
+   The argument proceeds in three stages. First, it characterizes what foundational explanation is
+trying to do and shows that the explanandum decomposes into exactly two irreducible questions.
+Second, it identifies three categories into which putative third roles fall on examination: structural
+consequences of how the two roles operate, derived features of cumulative actualization, and scope
+questions that lie outside foundational inquiry rather than expanding its internal architecture.
+Third, it tests this classification against the most pressing candidates, above all modal structure
+and individuation, while also indicating how temporal directionality, probabilistic refinement, and
+observer-style proposals are to be located.
+
+
+3.3.1    The structure of the explanandum
+
+Foundational explanation, as understood here, asks what must be the case for there to be a
+determinate, historically articulated world at all. This question is not a question about the content
+of physics, about the structure of any particular domain, or about which features of reality are
+contingent. It is a question about what any world of the relevant kind must exhibit in order to be
+such a world. The question is therefore prior to the specification of any particular ontology and
+answers to no empirical inquiry.
+   So characterized, the explanandum decomposes into two irreducible sub-questions.
+   The first concerns admissibility. What makes something a candidate for being at all? What
+distinguishes a coherent, realizable structure from a pseudo-structure that only seems to specify a
+possible way for things to be? This is the constitutive question, and Section 3.1 argued that any
+adequate account must answer it.
+  The second concerns actualization. Among the candidates that pass the first filter, what deter-
+mines which are integrated into realized history? What distinguishes one admissible continuation’s
+becoming actual from another’s? This is the selective question, and Section 3.2 argued that any
+
+                                                   8
+adequate account must answer it as well.
+    The indexed exhaustiveness thesis is that these two questions exhaust the foundational explanan-
+dum as that explanandum has been delimited here. There is no third foundational question a third
+primitive role could answer to within that target. This is not a claim that metaphysics contains only
+two topics; metaphysics contains many topics. It is a claim that at the level at which constitutive
+and selective roles operate, there are exactly two irreducible questions, and any further question
+either reduces to a sub-question of these, emerges as a structural feature of how they operate, or
+lies outside the scope of foundational explanation altogether.
+   This thesis is indexed to a particular conception of what foundational explanation is. A philosopher
+who takes normativity, teleology, intentionality, or value to be foundational in the sense relevant
+here would reject the thesis. The present argument does not attempt to defeat that philosopher on
+their own terms. It claims only that, on the conception of foundational explanation operative in
+this paper, a conception concerned with the conditions of there being a determinate, historically
+articulated world rather than with the normative, axiological, or intentional structure of such a
+world, the two-question decomposition is exhaustive.
+   This indexing is not an evasion. All foundational philosophy operates from some characterization
+of what foundational inquiry is for, and Kant’s distinction between constitutive and regulative
+principles, as reconstructed in Friedman’s work on the relativized a priori, is the paradigmatic
+acknowledgment that foundational claims are indexed to a prior characterization of the domain
+to be grounded (Friedman, 2001). The thesis developed here is indexed to a characterization it
+shares with much of the structural realist tradition, which treats the question of what structure a
+determinate world must exhibit as the proper locus of foundational inquiry (Ladyman et al., 2007;
+French, 2014).
+    This indexed formulation also helps locate several familiar candidates for a third role. A
+fundamental temporal direction of actualization, if posited, does not answer a third question over
+and above admissibility and actualization. It specifies an asymmetry in how the selective role
+operates: realized history is preserved and extended rather than erased or actualized backwards.
+Likewise a probabilistic measure, amplitude rule, or tie-breaking distribution over equally eligible
+continuations does not answer a third foundational question. It is a more articulated answer to
+the selective question, because it refines how one admissible continuation rather than another
+becomes actual once the foundational non-dominance conditions are fixed. Appeals to observers or
+consciousness divide in the same way. If consciousness helps determine what counts as an admissible
+candidate, it belongs on the constitutive side. If it helps determine which admissible continuation
+is realized, it belongs on the selective side. Only if one insists that consciousness, normativity, or
+value is a third irreducible kind of foundational explanation does the present thesis cease to apply,
+and that is exactly the indexed disagreement just noted.
+
+
+3.3.2   How putative third roles are to be classified
+
+Given the two-question characterization of the explanandum, any candidate for a third primitive
+role must either answer one of the two questions more specifically, redescribe the results of their
+interaction, or stand outside the framework altogether. This yields a three-part classification of
+candidate third roles.
+
+
+                                                  9
+   The first category consists of roles that, on examination, are structural consequences of how
+constitutive constraint and selective actualization operate rather than additional primitive roles
+alongside them. Such roles describe real features of the two-role architecture, but they are not
+themselves foundational primitives. Modal structure, examined below, falls into this category.
+   The second category consists of roles that are derived features of cumulative actualization, roles
+that describe aspects of realized history as it accumulates, and that are explained by the path-
+dependent operation of the selective role together with the constitutive constraints on what can be
+realized. Such roles are real features of historically articulated worlds, but they are not primitive
+because they are explained by the cumulative character of selective actualization already captured in
+Section 5.3 under the notion of commitment. Individuation, examined below, falls into this category.
+   The third category consists of scope questions, questions that appear to demand a foundational role
+but that actually lie outside the scope of foundational explanation as characterized in subsubsection
+3.3.1. These are questions whose answers would presuppose the very roles they are trying to explain.
+Asking what grounds the constitutive role would require an explanation operating prior to the
+conditions of coherent realizability, which is incoherent because any explanation presupposes such
+conditions. Asking what grounds the selective role would require an explanation operating prior to
+the conditions of actualization, which is likewise self-undermining because any explanatory move is
+itself a move within the space of actualizable claims. Questions of this kind are not left unanswered
+because the framework is incomplete; they are recognized as standing outside the framework in a
+principled sense, for reasons that are themselves articulable within foundational philosophy.
+   This third category deserves direct attention because it is often the source of the impression
+that the two-role architecture is incomplete. The impression arises when one expects foundational
+explanation to ground not only the structure of any determinate world but also the possibility of
+there being such structure at all. That further demand is intelligible, but it is not a demand that
+can be met by adding a third role. A third role would still be one constituent within the architecture
+and would therefore still presuppose the very framework whose instantiation is being asked about.
+The residual demand is instead for an account of the instantiation of the architecture rather than
+for another within-framework primitive. Later Wittgenstein and contemporary structural realism
+make adjacent points about boundary propositions and stopping-points of inquiry, but the present
+claim does not stand or fall with those analogies (Wittgenstein, 1969; Ladyman et al., 2007; French,
+2014).
+   The two-role thesis therefore does not claim that the framework explains everything that might
+be called a foundational matter. It claims that at the level of foundational explanation, properly
+scoped, exactly two irreducible roles are needed, and that apparent demands for a third role resolve
+into one of the three categories above.
+
+
+3.3.3   The case of modal structure
+
+Modal structure is the most natural candidate for a third primitive role. A critic might say:
+constitutive constraint fixes what is admissible, and selective actualization governs what becomes
+actual, but neither tells us how admissible alternatives relate to one another as alternatives. That
+relation, the modal texture of the space of admissibility, appears to be a primitive structural feature,
+neither reducible to admissibility itself nor to the selective operations that integrate some admissible
+
+
+                                                  10
+candidates into history.
+   This is a substantive challenge, but modal structure does not in fact require a third primitive
+role. To see why, consider what it is for two admissible candidates to be alternatives to one another.
+The relation has two components. The first is that both candidates are admissible, that they pass
+the constitutive filter. The second is that their joint realization is excluded by how actualization
+operates, that integrating one into history excludes the integration of the other at the same stage.
+The first component is constitutive. The second is selective. The modal relation of being an
+alternative to is therefore not a further primitive fact over and above these two components; it is
+exactly the conjunction of a constitutive fact and a selective fact.
+   This is the first category of the classification: modal structure is a structural consequence of
+how the two roles operate, not an independent primitive. The point generalizes. Richer modal
+relations, relations of comparative accessibility, of relative necessity, of counterfactual dependence,
+are similarly analyzable as structural features of the admissibility space and the selective operations
+that determine integration. A putative primitive modal role would have to attach to some modal
+fact not captured by constitutive plus selective resources, and the burden on the proponent of
+such a role is to specify what that fact is. Lewis-style modal realism, Finean grounding-theoretic
+approaches, and dispositional essentialist treatments of modality have each attempted to identify
+such a fact, and each has faced the persistent difficulty that the modal facts they propose turn out
+either to be analyzable in terms already available within a constitutive-plus-selective architecture or
+to presuppose such an architecture in order to be stateable (Lewis, 1986; Fine, 2012; Bird, 2007).
+   The thesis is therefore not that modal structure is unimportant or that modal questions are
+misguided. It is that the work done by modal structure at the foundational level is work that
+constitutive and selective roles, operating together, already do. Adding a third primitive modal role
+would be redundant rather than explanatory.
+
+
+3.3.4   The case of individuation
+
+A harder candidate is individuation. The Selective Law as developed in Section 5 operates on a
+particular realized history H and its admissible continuation cone A(H). But what makes this
+continuation cone rather than another the relevant one? Why is H the realized history to which the
+selective role is applied, rather than some other admissible history? The question appears to call
+for a third role, a role of individuation that selects which realized history is the subject of further
+actualization in the first place.
+    This candidate repays careful examination. The individuation question presupposes that there is
+a “this” realized history that has been distinguished from alternatives, and it asks what distinguishes
+it. The answer available within the two-role framework is that H is distinguished as the cumulative
+product of prior applications of the selective role to prior realized histories, tracing back through
+the path-dependent accumulation of actualization. At each prior stage, one admissible continuation
+was integrated rather than another, by the operation of the selective role. The present realized
+history is nothing over and above this cumulative path. No third role is required to individuate
+it, because its individuation is exhausted by the cumulative, path-dependent character of selective
+actualization itself, what Section 5.3 identifies as commitment.
+   This is the second category of the classification: individuation is a derived feature of cumulative
+
+                                                  11
+actualization, not an independent primitive. The relevant continuation cone is this one because
+the selective role has operated in the particular path-dependent way it has, and commitment,
+the preservation of realized history as a determinate context for further selection, secures the
+individuation of H without requiring additional primitive structure.
+   But the examination is not yet complete, because a sharper version of the individuation worry
+remains. Even granting that each realized history individuates later continuation cones via commit-
+ment, what individuates the first realized history, the starting point of the whole path-dependent
+process? If individuation reduces to commitment, and commitment requires something to commit
+to, then the origin of the first realized state appears to require something beyond what the two roles
+can provide.
+   This is where the initiation question has to be split rather than merely named. One version asks
+what could count as an admissible initial stage. That is a constitutive question. Another asks, if
+more than one initial stage is admissible, what could order their realization without global survey
+or brute stipulation. That is a selective question, simply posed at a boundary case in which the
+inherited history is minimal. In that limited but important sense the framework does answer the
+initiation question: any initial actuality must lie within the constitutively admissible space, and
+any nontrivial choice among admissible initial candidates must be governed by the same kind of
+selective discipline that governs later stages. There is no third task of “getting actualization started”
+over and above fixing admissible initial candidates and ordering their realization.
+   What remains is the genuine boundary question why there is any realized history at all rather
+than none, or why one admissible initial candidate rather than another is realized when the
+implementation-level refinement of the selective role is left unspecified. That residue should not
+be denied. But it is not evidence for a third primitive role. The first part asks for the existence
+of actuality rather than for the internal architecture of actualization. The second asks for a more
+determinate articulation of the selective role than the foundations paper undertakes. Both outrun
+the present target explanandum, though in different directions.
+   The honest treatment of initiation is therefore neither to pretend the framework answers every
+boundary question nor to infer a new role from the leftover residue. It is to mark a limiting case.
+The framework constrains initial actuality from within, but it does not purport to explain why
+the architecture is instantiated at all. That residual question is principled because answering it
+would require a theory of the instantiation of the architecture, not a third constituent within the
+architecture itself. The later Wittgenstein is at most corroborative here rather than load-bearing: not
+every legitimate boundary condition becomes a further within-framework primitive (Wittgenstein,
+1969).
+
+
+3.3.5   The shape of the exhaustiveness thesis
+
+Taken together, the preceding examinations support a more precise statement of the exhaustiveness
+thesis than subsection 3.3 as originally formulated offered. The thesis is this. At the level of
+foundational explanation characterized in subsubsection 3.3.1, and for the target kind of world
+fixed in Section 1, the architecture of any adequate account must exhibit exactly two irreducible
+roles, one answering to each of the two sub-questions into which the foundational explanandum
+decomposes. Apparent demands for a third role admit of a principled three-part classification: some
+
+
+                                                   12
+candidate roles are structural consequences of how the two roles operate, some are derived features
+of cumulative actualization, and some are scope questions lying outside foundational explanation
+rather than expanding its internal architecture. The two cases examined, modal structure and
+individuation, exemplify the first and second categories respectively, and the discussion of initiation
+illuminates the third.
+   The classification is not a proof that no future candidate third role could evade it. It is a structural
+proposal and a stress-tested schema: that any candidate third role, when properly examined, will
+fall into one of the three categories, and that no candidate has yet been offered that succeeds
+in occupying a genuine fourth position. The thesis is defended by the structural argument of
+subsections 3.3.1 and 3.3.2 rather than by exhaustive enumeration, and its vulnerability is to the
+production of a putative foundational role that cannot be classified into any of the three categories.
+The burden on the proponent of such a role is to specify what foundational question the role answers
+to and to show that the question is neither a sub-question of admissibility or actualization, nor a
+structural consequence of their operation, nor a scope question about the framework itself.
+   Until such a role is articulated, the two-role architecture is the best-supported architecture for
+the indexed explanandum identified here. That is the sense in which the thesis is exhaustive. It is an
+exhaustiveness claim about the explanatory architecture of a delimited target, not an unconditional
+guarantee that no richer metaphysical outlook could adopt a wider foundational basis.
+
+Remark 1 (Explanatory level). Both roles identified here operate at the level of foundational
+explanation rather than at the level of dynamics within an already specified state space. The
+constitutive role fixes what counts as an admissible candidate; the selective role governs which
+admissible continuation becomes integrated into realized history. Neither is a rule for evolving states
+within a pre-existing arena. This is not a terminological point. It affects how the two roles should
+be assessed: objections that presuppose a state-space-plus-dynamics framing may succeed against
+proposals at that level without touching the present thesis. Section 5.1 will return to this point in
+connection with the locality of the selective role.
+
+
+4     Constitutive Constraint
+
+4.1    Why possibility must be coherent
+
+The minimal requirement on a possible world is not merely that it be thinkable, but that it be
+coherently realizable. An entity or process cannot count as genuinely possible if its very being
+depends on unresolved contradiction. A square circle does not fail because it is unusual; it fails
+because the conditions required to specify it cancel one another.
+   Yet bare non-contradiction is too weak. A world is not constituted by a list of propositions
+that happen not to clash. It is constituted by structures that must compose, persist, and interact.
+Constructive approaches are helpful here because they refuse to identify existence with mere verbal
+consistency and instead require something closer to witness-bearing realizability (Martin-Löf, 1984;
+The Univalent Foundations Program, 2013). Thus possibility must be understood as coherent
+realizability: the mutual satisfiability of the structure’s internal and external conditions of being.
+
+Definition 1 (Coherent realizability). A candidate structure is coherently realizable when its
+
+                                                    13
+constituents, relations, and operations can be jointly determined without unresolved contradiction or
+indefinite suspension of compatibility conditions.
+
+
+4.2   Identity, equivalence, and invariance
+
+A second constitutive requirement concerns identity. If reality is structured, then sameness cannot
+be treated as a merely flat predicate detached from the internal relations that make a thing what it
+is. The identity of a structure must be rich enough to support the preservation and transport of its
+organization across admissible variation.
+   This does not yet force any one formal doctrine of identity, but it does force a principle of
+equivalence-invariance. If two presentations differ only in ways that make no invariant structural
+difference, then the difference cannot be ontologically fundamental. Reality cannot count as different
+what differs only by representational dressing. In that respect the present argument aligns with
+structural realist and mathematical structuralist insistence that ontology should answer to invariant
+organization rather than accidental encoding (Worrall, 1989; Ladyman, 1998; French, 2014; Shapiro,
+1997).
+
+Definition 2 (Equivalence-invariance). A constitutive order is equivalence-invariant when represen-
+tationally distinct but structurally equivalent candidates are not counted as different in being.
+
+  This principle is important because without it ontology becomes hostage to presentation. The
+same world would be multiply overcounted merely by redescribing it. A genuine constitutive law
+must cut deeper than syntax.
+
+
+4.3   Canonicity and executability
+
+A third requirement is canonicity. A possible world cannot be built from permanently stuck
+pseudo-objects whose closed realization never becomes determinate. If a construction is genuinely
+closed, reality must determine what it is. Otherwise the candidate remains an unresolved schematic
+placeholder rather than an executable world-constituent. This is one reason constructive formalisms
+remain philosophically instructive even when the present paper does not identify reality with any
+one of them (Martin-Löf, 1984; The Univalent Foundations Program, 2013).
+
+Definition 3 (Canonicity). A constitutive order satisfies canonicity when closed constructions
+admit determinate realization rather than remaining indefinitely non-canonical.
+
+   The language of executability is not meant computationally in any narrow machine sense. The
+point is ontological: a world must be capable of running as a world. A purely schematic form that
+never resolves into determinate being is not enough.
+
+
+4.4   Local satisfiability of coherence burdens
+
+A fourth requirement concerns scale. Any genuine structure carries compatibility conditions. If
+these coherence burdens can grow without local discharge, then no stable world is possible. There
+
+
+
+                                                 14
+would be only an ever-accumulating debt of unresolved compatibility, and reality would collapse
+into non-executability.
+   Hence a constitutive law must require that coherence burdens be locally satisfiable. New structure
+may introduce new conditions, but those conditions must be dischargeable within the world rather
+than indefinitely deferred.
+
+Definition 4 (Local satisfiability). A constitutive order satisfies local satisfiability when the compat-
+ibility burdens introduced by new structure are locally dischargeable rather than requiring indefinitely
+unresolved global repair.
+
+
+4.5    Canonical formulation
+
+We may now state the constitutive law in its strongest compact form.
+
+Theorem 1 (Constitutive Law). A universe of the target kind can exist only as a coherent,
+equivalence-invariant, canonically executable structure whose identity and compatibility conditions
+are locally satisfiable.
+
+  This statement is intentionally presentation-independent. It does not identify the law with any
+one proof theory or any one formal semantics. Rather, it names the invariant content that any
+adequate presentation must preserve.
+
+
+4.6    Why weaker alternatives fail
+
+The constitutive law has the shape above because weaker candidates fail.
+    Bare consistency is too weak. One can imagine a body of non-contradictory descriptions that
+nevertheless never becomes an executable world because its constructions remain non-canonical or
+its compatibilities remain unresolved.
+   Flat identity is too weak. If sameness is treated as a purely extensional yes-or-no fact detached
+from structural transport, ontology becomes blind to the internal articulation of identity and loses
+the ability to distinguish genuine sameness from accidental coding.
+   Representation-sensitive ontology is too weak. If structurally equivalent presentations count as
+different worlds, being becomes hostage to syntax.
+  Unbounded coherence debt is too weak. If new structure may indefinitely accumulate unresolved
+compatibility burdens, then no stable world can be realized.
+   Taken together, these failures force the stronger constitutive statement above.
+   The constitutive law should also be read regulatively rather than algorithmically. It characterizes
+what any adequate foundational constitution must achieve, coherent realizability, equivalence-
+invariance, canonical executability, and local satisfiability, without claiming that a single formalism
+or evaluator uniquely implements those requirements. In that respect it stands in deliberate parallel
+with the selective law developed in Section 5.
+
+
+
+
+                                                   15
+5     Selective Actualization
+
+Constitutive constraint yields a realm of coherent possibility. It does not yet yield reality as realized
+history. The task of selective actualization is therefore not to replace the constitutive order, but to
+govern how actuality proceeds from within it.
+   Let H denote realized history at some stage. Let A(H) denote the admissible continuation cone
+at H: the locally accessible continuations compatible with constitutive constraint and with the
+commitments already carried by H. Selective actualization is a rule on A(H). The question is:
+what structural features must such a rule possess if it is to generate a nontrivial, dynamically stable,
+historically articulated world without hidden global foresight?
+
+
+5.1   Why actuality must be local
+
+A determinate universe cannot require an external oracle that surveys indefinitely remote futures
+before each act of becoming. If actuality depended on such a survey, the law of becoming would
+either be teleological in formulation or opaque in operation. Time-symmetric and whole-history
+approaches sharpen the temptation to such a picture, and also the cost of yielding to it (Price,
+1996; Wheeler and Feynman, 1945, 1949). If Price is right that the deepest physical description is
+time-symmetric, that sharpens rather than weakens the present point: the articulation of realized
+history from within the present continuation cone is then explanatory work that the time-symmetric
+base does not itself perform. Any viable Selective Law must therefore be localizable: it must order
+candidate continuations by features available in the realized present and its immediately accessible
+continuation cone.
+   Two clarifications are needed before this requirement can be stated precisely, because the concept
+of locality at stake is easily confused with nearby but distinct notions.
+   First, locality here is not spatial. A continuation cone is a cone of admissible extensions of
+realized history, not a region of space or spacetime. The requirement constrains what the selective
+role may presuppose, not where its effects may be felt.
+   Second, and more importantly for what follows, locality here does not operate at the level of
+dynamics on a fixed state space. This distinction matters because the most natural way to raise
+an objection against localism, namely, the worry that the selective law covertly looks ahead into
+the future, presupposes that the selective role is a dynamics of that kind. It is not. A dynamics
+in the familiar sense presupposes a state space already given, within which forward evolution is
+defined. Selective actualization, as articulated here, operates at a level prior to such dynamics: it
+concerns the integration of admissible candidates into realized history, and thereby contributes to
+determining what the next realized history is. The distinction between constitutive and selective
+roles developed in Section 3 is, among other things, a distinction of explanatory level. Selective
+actualization is not a forward-simulating rule running on a prefabricated stage. It is one of the
+conditions under which a determinate next stage becomes available at all.
+   The remaining question, taken up in subsection 5.2, is which structural features of the present
+continuation cone the Localizability Requirement may permit the selective law to read.
+
+
+
+
+                                                   16
+5.2     The Localizability Requirement
+
+Definition 5 (Localizability Requirement). Any viable Selective Law must order admissible contin-
+uations by properties encoded in the realized history it inherits, in the candidate continuation itself,
+and in the immediate structural relations between the candidate and the admissible field opened by
+its hypothetical integration.
+
+   Three features of this formulation deserve comment.
+    First, the properties that ground comparative eligibility must be readable from structure already
+determined at the present stage. Realized history is already determinate. A candidate continuation
+is, by hypothesis, a specific admissible extension under consideration. The relations between a
+candidate and its immediate continuation field are structural features of the candidate’s position in
+the admissible order, not forecasts of what will later happen.
+    Second, admissible comparisons may include structural counterfactual properties of the candidate.
+What a candidate’s integration would make available, as a matter of admissibility structure, is a
+feature of the candidate’s place in the admissible order at the present stage. It is not a prediction
+about which admissible continuations will in fact be integrated at subsequent stages. The distinction
+is the same distinction already standard in discussions of modal structure: to say that a move opens
+certain further admissible moves is to describe its position in the structure of admissibility, not to
+predict a trajectory through it.
+   Third, the Localizability Requirement forbids dependence on properties that are not readable
+from the present continuation cone, in particular, dependence on how far-downstream admissible
+developments would actually unfold, or on the content of continuations that do not figure in the
+immediate admissible field. This is what blocks teleology and computational opacity.
+   Selective actualization is therefore path-dependent without being globally foresighted. It reads
+what is already structured into the present admissible field. It does not simulate the future on a
+pre-existing stage, because at the level at which it operates there is no pre-existing stage on which
+such simulation could be defined.
+
+
+5.2.1    Addressing the look-ahead objection
+
+A natural objection to the framework deserves direct response. The Selective Law, as stated below
+in its canonical formulation, appears to rank continuations partly by their intrinsic generative
+affordance, a measure of how much further admissible continuation space a candidate immediately
+opens. Does this smuggle in a covert look-ahead, so that localism is preserved in letter but not in
+substance?
+   The objection has force if selective actualization is read as a dynamics on a fixed state space.
+On that reading, to assess what a candidate “opens” is to forecast which future states will be
+reachable from it, which requires simulating the dynamics forward. That is a global operation, and
+the Localizability Requirement would indeed fail to block it.
+   But the reading misidentifies the explanatory level at which the selective role operates. The
+distinction drawn in the previous subsection is relevant here. Intrinsic generative affordance is
+not a forecast of which admissible continuations will subsequently be integrated. It is a structural
+
+
+                                                  17
+property of the candidate’s position in the admissible order at the present stage: the immediate
+admissible field its integration would open, read from features already present in the candidate’s
+specification and its relation to realized history. Whether an admissible opening will in fact be
+taken at some later stage is a separate question, settled by further applications of the Selective Law
+to further realized histories. It is no part of what the current application needs to determine.
+   An analogy from a different domain may help, though it is only an analogy. When a constructive
+proof introduces a lemma, one can ask what further inferences that lemma makes immediately
+available. The answer is a structural property of the lemma’s position in the inferential order,
+readable from the lemma itself together with the prior context, and does not require predicting
+which further inferences will in fact be drawn. The distinction between what a move structurally
+opens and what will trajectorially follow from it is not peculiar to the present framework; it is
+already operative wherever structural and dynamical notions are distinguished.
+   Two further points secure the position.
+   First, the Selective Law compares candidates at a common stage. Comparison requires read-
+ing each admissible candidate and the immediate structural relations among them. This is a
+contemporaneous operation on the present admissible field, not a forward projection. The Localiz-
+ability Requirement permits such contemporaneous comparison; what it forbids is dependence on
+continuations that lie beyond the present admissible field.
+   Second, the framework is explicitly lane-relative in the following sense. Selective locality holds
+within a constitutive regime, that is, within the space of admissibility fixed by constitutive constraint.
+The specification of that regime is prior work, discharged by the Constitutive Law. This division of
+labor is not a concession; it is the correct reflection of the two-role architecture defended in Section
+3. The selective role need not explain why reality admits the constitutive regime it does. It needs
+only to explain, from within that regime, how one admissible continuation rather than another
+becomes integrated into realized history.
+   The look-ahead objection therefore fails on inspection. It presupposes that the selective role
+operates as a dynamics on a pre-existing state space and would require forward simulation to do its
+work. Neither presupposition survives the distinction between constitutive and selective explanatory
+roles as drawn in Section 3. What the Localizability Requirement permits is the reading of structural
+features present in the candidate’s position in the admissible order. What it forbids is dependence
+on features not so present. Intrinsic generative affordance, properly understood, belongs to the first
+category.
+
+
+5.3   Commitment
+
+Reality must preserve realized history. What has become actual cannot simply vanish from ontological
+account. This gives the Selective Law a path-dependent context without requiring global foresight:
+each continuation is judged relative to a cumulative inherited world. Process-oriented metaphysics
+places exactly this cumulative character of becoming at center stage (Whitehead, 1929; Rescher,
+1996).
+
+Definition 6 (Commitment). A selective order exhibits commitment when realized history is
+cumulative: what has become actual remains part of the world’s history and conditions future
+
+
+                                                   18
+actuality.
+
+   Whitehead matters here for more than the generic thought that reality is processual. His account
+of concrescence is a nearby analogue of what this paper calls coherent integration, and his contrast
+between eternal objects and actual occasions parallels, without matching, the present distinction
+between constitutive admissibility and selective actualization. The difference is equally important.
+The present paper does not adopt Whitehead’s full categoreal scheme and isolates the admissibility
+question more sharply than Whitehead’s own presentation does. Whitehead is therefore engaged as
+a serious neighboring framework for cumulative becoming rather than as a mere honorary citation.
+   Commitment does not mean that every local form persists forever. It means that realized actuality
+is not ontologically reset at each step.
+
+
+5.4    Admissibility
+
+Only continuations coherent with both the Constitutive Law and realized history may be candidates
+for actualization. The Selective Law therefore acts not on arbitrary possibilities, but on a local
+continuation cone carved out by coherence.
+
+Definition 7 (Admissibility). A continuation of history is admissible when it is coherent with both
+the Constitutive Law and the realized past it would extend.
+
+   Admissibility is therefore the point at which the constitutive and selective roles touch. Constitutive
+constraint defines the admissible field; selective actualization acts only within it.
+
+
+5.5    Local valuation
+
+Suppose now that multiple admissible continuations are available. If the Selective Law contains no
+ordering principle, then actuality is brute. But the relevant ordering cannot be framed as a score
+assigned by inspecting remote unactualized futures.
+   A dynamic world must avoid two opposite failures. If it always favors bare preservation, it
+stagnates. If it always favors novelty as such, it explodes into unstable excess. Hence valuation
+must be dual. It must regard both what a continuation immediately opens and what it requires in
+order to become real without destabilizing what already exists. This balance between novelty and
+stability is also one reason process traditions resist reducing becoming either to mere repetition or
+to unconstrained flux (Whitehead, 1929; Rescher, 1996; Cartwright, 1999).
+
+Definition 8 (Intrinsic generative affordance). The intrinsic generative affordance of a continuation
+is the degree to which its present structure immediately opens further coherent continuation space.
+
+   Intrinsic generative affordance is not a forecast produced by simulating remote futures. It is the
+locally readable generative room already encoded in the continuation itself and in the immediate
+continuation field it opens.
+
+Definition 9 (Stabilization burden). The stabilization burden of a continuation is the additional
+coordination, integration, and maintenance required to make it actual without destabilizing realized
+
+
+                                                   19
+history.
+
+   Intrinsic generative affordance and stabilization burden are both structural properties of a
+candidate’s position in the present admissible field. Neither requires forecasting which admissible
+continuations will subsequently be integrated. Intrinsic generative affordance without stabilization
+collapses into uncontrolled branching. Stabilization without intrinsic generative affordance collapses
+into sterile conservation. A genuine selective rule must therefore weigh both, reading each from
+features available in realized history, in the candidate itself, and in the immediate structural relations
+that the candidate’s integration would determine.
+
+
+5.6    Critical sufficiency
+
+Even dual valuation is not enough. A world that always chose the abstractly largest continuation
+would collapse into gratuitous composite leaps. Distinct admissible gains could be bundled into one
+oversized transition, and actuality would lose articulation.
+   Therefore the Selective Law cannot be a rule of simple maximization. It must be critical: actuality
+should prefer what is sufficient here and now, not what is merely largest in the abstract.
+
+Definition 10 (Critical sufficiency). A continuation is sufficient in context when its intrinsic
+generative affordance is strong enough, relative to its stabilization burden, to justify actualization at
+the present stage of history.
+
+   Critical sufficiency introduces a context-sensitive threshold. Not every positive continuation
+actualizes. Only those strong enough to justify integration under present conditions can do so.
+   Intrinsic generative affordance and stabilization burden are the inputs to valuation. Critical
+sufficiency is the threshold relation that says when their balance is enough for actualization here
+and now. It is therefore a scale-condition on eligibility, not a second name for generative affordance.
+
+
+5.7    Constructive primeness
+
+Among sufficient continuations, actuality must prefer those that are not merely artificial bundles of
+several independently sufficient moves. Otherwise critical sufficiency still leaves room for arbitrary
+packing, and history again loses articulation.
+   Constructive primeness answers a different question from critical sufficiency. Critical sufficiency
+asks whether a candidate is enough. Constructive primeness asks whether the candidate’s being
+enough is genuine or merely the result of packaging together already-enough submoves. The former
+blocks pressure toward ever larger moves; the latter blocks arbitrary bundling among moves that
+already meet the threshold.
+
+Definition 11 (Constructive primeness). A continuation at a stage fails to be constructively prime
+when it can be analyzed as a composition of independently sufficient components, each of which would
+already clear the sufficiency threshold in context on its own. A continuation is constructively prime
+when it admits no such analysis: its sufficiency is genuine rather than parasitic on the bundling of
+components that could have been actualized separately.
+
+
+                                                   20
+   Two features of this definition deserve comment.
+   First, the definition is stated regulatively rather than algebraically. It does not presuppose a
+specific combining operation on continuations, a specific partial order on decompositions, or a
+unique-factorization theorem for admissible candidates. It characterizes constructive primeness by
+what it excludes, gratuitous bundling of independently sufficient components, rather than by a
+positive mathematical structure. This is deliberate. The foundations paper operates at a level of
+abstraction that should not legislate the algebra of combination. That algebra is the proper work of
+implementation.
+   Second, the regulative constraint is nevertheless determinate enough to do its argumentative
+work. What constructive primeness blocks is clear: the actualization of composite candidates that
+clear the sufficiency threshold only because they package together smaller candidates each of which
+was already sufficient on its own. What it permits is equally clear: the actualization of candidates
+whose sufficiency is not thus decomposable, whether because the candidate is structurally atomic in
+the relevant context or because its sufficiency arises from the interaction of components that would
+not be independently sufficient. The later necessity argument defends the need for this constraint
+by showing what goes wrong without it.
+   The mathematical content of “composition,” “component,” “independently sufficient,” and
+“analysis” is left open. Any adequate implementation of the Selective Law must supply these notions
+within whatever algebraic setting it uses to represent admissible continuations and their internal
+structure. Different implementations may supply them differently. The foundations paper commits
+only to the regulative claim that the implementation-level notions, however specified, must respect
+the exclusion of gratuitous bundling that this definition articulates.
+
+
+5.8   Coherent integration
+
+Actualization must not end with choice alone. What is actualized must enter history in a way that
+changes the next field of admissible continuations. Without that, there is no cumulative reality,
+only repeated isolated choices.
+
+Definition 12 (Coherent integration). A selective order exhibits coherent integration when the
+actualized continuation is irreversibly incorporated into realized history and thereby reshapes the
+future admissible field.
+
+   Commitment and coherent integration are related but not identical. Commitment names the
+persistence of already realized history as a constraint on later actuality. Coherent integration names
+the update by which a newly actualized continuation enters that persistent history and reshapes the
+next admissible field. The former looks backward from the present context; the latter looks forward
+from the present incorporation.
+   Coherent integration turns local actualization into world-history rather than episodic choice.
+Deeper future structure then arises by recursive iteration of the same local law, not by precomputation
+of a fully surveyed future.
+
+
+
+
+                                                  21
+5.9    Canonical statement of the Selective Law
+
+We may now state the selective role in canonical form. The statement is deliberately regulative
+rather than algorithmic: it characterizes what any adequate selective law must achieve, not a specific
+mathematical operation on a specified algebraic structure.
+
+Theorem 2 (Selective Law). Among the admissible continuations of realized history, actuality
+proceeds by integrating a continuation that is sufficient in context and constructively prime in
+context, and that is not strictly outranked under the history-indexed preorder by another admissible
+continuation that is likewise sufficient and prime. The continuation so integrated is irreversibly
+incorporated into realized history, thereby updating the admissible field for further selection.
+
+   The statement is regulative in the following sense. It specifies the conditions any adequate
+selection at a stage must satisfy, admissibility, sufficiency in context, primeness in context, and
+non-dominance under the history-indexed preorder, and it specifies the integrative effect of selection
+on realized history. It does not specify, at the foundational level, a unique continuation as the one
+actual continuation. Among continuations satisfying all four conditions, further selection between
+them is the work of implementation-level structure that the foundational framework does not itself
+supply.
+
+Remark 2. The phrasing “proceeds by integrating” rather than “selects” is deliberate. “Selects”
+suggests a single deterministic operation with a unique output, which would require more at the
+foundational level than the framework supplies. “Proceeds by integrating” describes what happens, an
+admissible continuation satisfying the regulative conditions becomes part of realized history, without
+overclaiming determinacy. An implementation-level account, such as the one developed in subsequent
+work under the Principle of Efficient Novelty, may secure determinacy by additional mathematical
+structure; the foundational framework does not require that it do so.
+
+   This scoping is not a gap in the argument. It reflects the proper division of labor between
+foundational explanation and formal implementation. The foundational framework characterizes
+what any adequate selective law must achieve, the structural constraints that render a law intelligible
+as a law of selective actualization rather than as a brute selector or a globally foresighted oracle.
+The specification of a unique actual continuation among those satisfying these constraints requires
+additional structure: a specific algebra of combination on continuations, a specific refinement of the
+comparative relation, a specific tie-breaking discipline, or a specific valuational metric. These are
+implementation choices. Different implementations may make different choices and still count as
+adequate articulations of the same underlying selective role. The underdetermination they introduce
+is not a third role smuggled in by the back door; it is the familiar difference between a foundational
+characterization of selective actualization and a complete implementation of it.
+
+
+5.10    Why these requirements are needed
+
+The previous subsections stated the selective role positively. The present subsection strengthens the
+case by showing that each component is forced by the failure of nearby alternatives.
+
+
+
+                                                  22
+5.10.1   Without localizability: teleology or opacity
+
+If the selective law ordered continuations by properties not readable from the present admissible
+field, by dependence on continuations beyond that field, or on how far-downstream admissible
+developments would actually unfold, it would have to proceed either by an implicit teleological
+formulation or by an opaque global operation not grounded in present structure. Neither is
+compatible with the explanation of a determinate, historically articulated world by features already
+present at the stage of actualization. Therefore localizability, in the sense of the Localizability
+Requirement, is necessary.
+
+
+5.10.2   Without commitment: no evolving world
+
+A world without commitment is not an evolving world but a sequence of disconnected replacements.
+Nothing that has happened genuinely belongs to what comes next. Identity through change
+disappears, and with it any meaningful notion of history. Therefore commitment is necessary.
+
+
+5.10.3   Without admissibility: self-violation
+
+A selective law without admissibility can actualize what the constitutive law has already ruled out.
+In that case the ontology contradicts itself: possibility is constrained at one level and unconstrained
+at another. Therefore admissibility is necessary.
+
+
+5.10.4   Without valuation: brute actuality
+
+If multiple coherent continuations are available and nothing orders them, then actuality is brute.
+The world becomes one possibility rather than another for no internal reason. Therefore valuation
+is necessary.
+
+
+5.10.5   Without intrinsic generative affordance: stagnation
+
+A world that values only preservation may remain stable, but it cannot be genuinely dynamic. It
+can only conserve what already exists. No principled route to novelty remains. Therefore valuation
+cannot reduce to stabilization burden alone.
+
+
+5.10.6   Without stabilization burden: explosion
+
+A world that values only immediately opened continuation space may constantly introduce difference,
+but at the cost of losing stability and identity. Novelty becomes self-undermining. Therefore valuation
+cannot reduce to intrinsic generative affordance alone.
+
+
+5.10.7   Without critical sufficiency: oversized jumps
+
+If actuality had no context-sensitive threshold, it would have no principled reason to stop at the
+first continuation that is adequate for actualization. Even a non-composite continuation that is
+
+
+                                                  23
+already enough could be bypassed in favor of a larger admissible continuation simply because the
+latter carries more total affordance. Actualization would then be biased toward delay and overshoot:
+the world would wait for, or prefer, ever larger moves before integrating anything. History would
+advance by scale-driven escalation rather than articulated becoming. Therefore the law must be
+critical rather than naively maximal.
+
+
+5.10.8    Without constructive primeness: gratuitous bundling
+
+Suppose critical sufficiency is retained but constructive primeness is not. Then the world can stop
+once enough has been reached, but it still cannot distinguish an authentically sufficient move from a
+package of several already sufficient moves taken together. The failure is no longer one of scale but
+of composition. Once the threshold is met, arbitrary bundling remains permitted. History would
+still lose articulation because several independently eligible transitions could be collapsed into one
+gratuitous aggregate. Therefore constructive primeness is necessary in addition to, rather than
+instead of, critical sufficiency.
+
+
+5.10.9    Without coherent integration: no world-history
+
+Suppose a continuation is actualized but not coherently integrated. Then it does not alter the future
+admissible field. Actualization becomes episodic rather than cumulative, and no world-history forms.
+Therefore coherent integration is necessary.
+
+
+5.10.10    Therefore
+
+Any universe rich enough to sustain determinate, cumulative becoming must obey a Selective Law
+that is:
+
+• cumulative,
+
+• coherence-preserving,
+
+• locally evaluable,
+
+• valuational,
+
+• critical,
+
+• prime-selective,
+
+• and integrative.
+
+   Taken together, these constraints force selective actualization into something close to the canonical
+statement given above. The exact later formalization may vary. The structural shape cannot vary
+far without the ontology collapsing into arbitrariness, stagnation, explosion, serial replacement, or
+computational opacity.
+
+
+
+
+                                                  24
+6     A Minimal Formal Schema
+
+The preceding argument can now be compressed into a minimal formal schema. The purpose of
+the schema is not to replace the philosophical discussion with a technical system. It is to state,
+in compact form, what the selective role ranges over, how context enters, what counts as a better
+continuation, and how an actual choice becomes the next realized history.
+    The notation is intentionally spare:
+
+• H is realized history up to the present stage.
+
+• A(H) is the admissible continuation cone at H: the continuations compatible with constitutive
+  constraint and with the commitments already carried by H.
+
+• ⪯H is a context-sensitive preorder on A(H) used here as a convenient schematic representation
+  of local comparative eligibility relative to H, once the local balance of generative affordance and
+  stabilization burden is taken into account.
+
+• SH (x) says that x is sufficient at H: it clears the context-sensitive threshold for actualization.
+
+• PH (x) says that x is prime at H: it is not merely a gratuitous bundle of independently sufficient
+  continuations.
+
+• I(H, x) is the integration of x into the next realized history.
+
+   The dependence on H is not cosmetic. It represents the path-dependent context inherited from
+realized history. Admissibility, sufficiency, primeness, and comparative rank are all assessed relative
+to the history being extended. The framework therefore does not compare continuations against a
+history-free global scale. It compares admissible continuations relative to a determinate present
+continuation cone.
+   The comparative structure is kept abstract on purpose. The philosophical argument up to this
+point forces some local comparative articulation, but not a preorder in particular. A preorder is
+used here because it is a familiar and minimally committal device for representing non-dominance,
+context-sensitivity, and ties without presupposing a metric or a total ranking. A later implementation
+could instead employ a partial order, a choice correspondence over an eligible set, a partition into
+sufficient and insufficient regions supplemented by local dominance rules, a similarity structure, or
+a non-additive ordering. What the foundations paper requires is only enough local comparative
+structure to distinguish dominated from non-dominated admissible continuations in context H.
+   Using a preorder rather than a total order also leaves room for ties. Two admissible continuations
+may be equally eligible at this level of abstraction. A later theory may refine such ties by additional
+local structure, treat them as genuine parity, or assign them deterministic, probabilistic, or amplitude-
+like refinements. Such refinements do not add a third foundational role. They are more determinate
+implementations of the selective role. What matters here is that “better” means better relative to
+the realized history and its admissible continuation cone, not better by inspection of indefinitely
+distant futures.
+   The preorder ⪯H ranks admissible continuations by structural features readable at the present
+stage: features of the candidate itself, of the realized history it would extend, and of the immediate
+
+
+                                                   25
+admissible field its integration would determine. It does not rank by forecasting which admissible
+continuations will be integrated at subsequent stages.
+   With that notation in place, the selective role can be stated schematically. A continuation x
+is eligible for actualization at H only if it lies in the admissible cone, is sufficient in context, is
+prime in context, and is not strictly outranked by another admissible continuation that is likewise
+sufficient and prime:
+
+                              x ∈ A(H),         SH (x),      PH (x),
+                              ¬∃y ∈ A(H) SH (y) ∧ PH (y) ∧ y ≺H x .
+                                                                        
+
+
+  Here y ≺H x is the strict part of the preorder: y is strictly more eligible than x in context H.
+Once some such x is integrated, the next realized history is given schematically by
+
+
+                                            H ′ = I(H, x).
+
+    This schema is minimal but already clarifying. It says what an adequate implementation must
+integrate: an admissible continuation satisfying sufficiency, primeness, and non-dominance in context.
+It says what counts as better: comparative eligibility under the history-indexed preorder ⪯H . It
+says how context enters: every condition is indexed to the realized history H being extended. And
+it says how actuality advances: not by cataloguing possible worlds, but by integrating one locally
+admissible, sufficient, and prime continuation into the next history. That is enough structure to
+make the framework assessable without importing a full technical implementation.
+
+
+7    A Toy Branching Model
+
+A small branching example makes the division of explanatory labor fully explicit. Let H be realized
+history, and consider four candidate continuations:
+
+
+                                   a,      b,      c,      d = b ⊕ c.
+
+   Here ⊕ is schematic notation for whatever combining structure an implementation supplies
+when representing how one continuation can be analyzed as incorporating others. This paper does
+not commit to a specific algebraic reading of ⊕, because the algebra of combination is proper
+implementation work. What the example requires is only that some such structure be available
+when the framework is formally implemented, so that the regulative notion of constructive primeness
+can be given determinate content. The toy model illustrates the architecture of the view at the
+regulative level, and the schematic character of ⊕ reflects the presentation-independence of that
+level rather than an unresolved commitment.
+   The case of a illustrates constitutive exclusion. Suppose a carries an unresolved incompatibility:
+it cannot be jointly determined with the identity and coherence conditions already borne by H.
+Then a never enters the admissible continuation cone at all:
+
+
+                                                a∈
+                                                 / A(H).
+
+
+                                                   26
+   This is the work of constitutive constraint. The selective role does not need to reject a, because
+a was never a genuine candidate for actualization in the first place.
+   The case of b illustrates admissibility without sufficiency. Suppose b is coherent with constitutive
+constraint and with realized history, so that
+
+
+                                              b ∈ A(H),
+
+  but suppose also that b opens too little local generative affordance to justify the stabilization
+burden it would impose in the present context. Then b is admissible but not sufficient:
+
+
+                                       b ∈ A(H),        ¬SH (b).
+
+   This is the first point at which the selective role does substantive work. Constitutive constraint
+leaves b inside the admissible cone, but selective actualization does not yet permit its integration
+into realized history.
+   The case of c illustrates a continuation that is admissible, sufficient, and prime. Suppose c is
+coherent with H, opens enough further continuation space to justify its stabilization burden, and
+does so without being a gratuitous bundle of independently sufficient parts. Then
+
+
+                                  c ∈ A(H),      SH (c),       PH (c).
+
+   To keep the example focused, suppose further that no admissible continuation that is both
+sufficient and prime strictly outranks c under the context-sensitive preorder:
+
+
+                              ¬∃y ∈ A(H) SH (y) ∧ PH (y) ∧ y ≺H c .
+                                                                         
+
+
+  Under those assumptions, c is eligible for actualization.
+  The final case shows why primeness matters. Let
+
+
+                                              d = b ⊕ c.
+
+   Assume that this bundled continuation is still admissible and still sufficient because it contains
+the gain already carried by c:
+
+
+                                        d ∈ A(H),         SH (d).
+
+   Even so, d should not be selected if the extra b-component contributes nothing that is contextually
+needed for actualization. In that case d is not prime. It is merely a gratuitous package that combines
+one independently insufficient move with one move that was already sufficient on its own:
+
+
+                                               ¬PH (d).
+
+  The example therefore yields a clean pattern of exclusion and selection:
+
+
+                                                   27
+                                    a∈
+                                     / A(H),
+                                    b ∈ A(H) but ¬SH (b),
+                                    c ∈ A(H) ∧ SH (c) ∧ PH (c),
+                                    d ∈ A(H) ∧ SH (d) ∧ ¬PH (d).
+
+   Only c survives every filter that the framework imposes. Constitutive constraint excludes a.
+Selective sufficiency excludes b. Primeness excludes d. Under the assumptions made explicit in each
+case, one may therefore write schematically
+
+
+                                            H ′ = I(H, c).
+
+   The toy model displays the architecture of the view in one place. Constitutive constraint deter-
+mines which continuations count as genuine candidates. Selective actualization then distinguishes the
+merely admissible from the actually eligible via sufficiency, and distinguishes the bundled from the
+constructively prime via the exclusion of gratuitous packaging. The result, under the assumptions
+made explicit in each case, is that c is the continuation that satisfies all the regulative conditions
+of Theorem 2. That c rather than any other equally qualifying candidate becomes integrated
+into realized history, in settings where multiple such candidates would coexist, is a question the
+foundational framework does not on its own settle. Its settlement belongs to the implementation-level
+structure that a specific articulation of the Selective Law supplies. The architectural point of the toy
+model is not that c is uniquely determined by the framework; it is that the framework determines
+what must be true of whatever continuation is integrated, and that this is enough to exhibit the
+two-role division of explanatory labor.
+
+
+8     What the Framework Adds
+
+8.1   A grounding-theoretic translation
+
+A further way to locate the contribution is by translating it into the vocabulary of the contemporary
+grounding literature without thereby committing the paper to any particular position within it. On
+that vocabulary, the constitutive role corresponds to a relation of structural grounding: coherence,
+equivalence-invariance, canonicity, and local satisfiability of compatibility burdens jointly ground
+the facts that determine admissibility. The selective role corresponds to a relation of partial
+grounding on admissibility facts: given that a continuation is admissible, its integration into realized
+history is grounded in its satisfaction of sufficiency, primeness, and non-dominance in context, but
+only partially, since among continuations satisfying all the regulative conditions the foundational
+framework does not uniquely ground which is integrated. That further determination belongs to
+implementation-level structure, and is therefore grounded at a level the foundational framework
+defers rather than adjudicates (Fine, 2012; Schaffer, 2009; Rosen, 2010).
+   The three-category classification defended in subsection 3.3 admits a similar translation. Roles
+that are structural consequences of how the two foundational roles operate, modal structure being
+the paradigm case, stand in a relation of derivative grounding: the grounds of modal facts are the
+
+
+                                                  28
+joint grounds of admissibility facts and selective facts, so modal facts are grounded at a lower level
+than either constitutive or selective facts taken alone. Roles that are derived features of cumulative
+actualization, individuation being the paradigm case, stand in a relation of iterated path-dependent
+grounding: individuation facts are grounded in the cumulative history of applications of the selective
+role, each of which partially grounds the subsequent stage. Scope questions about what grounds
+the framework itself are ungrounded in the relevant sense: they do not admit of further grounding
+without presupposing the framework whose grounding they purport to specify, and their status is
+analogous to that of fundamental primitives in standard grounding-theoretic treatments.
+   This translation is offered as a bridge rather than as an endorsement of any particular grounding
+theorist’s view. A Finean account of grounding, a Schafferian account, and a Rosen-style account
+each admit the bridge, with differences in how they articulate the relevant grounding relations.
+What matters for the present paper is that the architectural thesis, two irreducible foundational
+roles with a principled classification of apparent third roles, is stateable in grounding vocabulary
+and is therefore assessable by grounding-literate readers without requiring that the paper adopt a
+particular grounding theory to make its case.
+
+
+8.2   Order of form and order of becoming
+
+Constitutive constraint and selective actualization are not rival explanations. They are complemen-
+tary.
+   Constitutive constraint answers the question: what can coherently be? It defines the admissible
+order of form. In a broadly structural register, it concerns the realm of coherent candidates as such.
+   Selective actualization answers the question: what becomes actual? It defines the order of realized
+history through recursive local actualization. In a broadly process-oriented register, it concerns the
+transition from candidate structure to inhabited actuality.
+   A useful way to state the contribution is this: constitutive constraint gives the world its order
+of form, while selective actualization gives it its order of becoming. The novelty is not merely to
+contrast possibility with actuality in the abstract, but to argue that foundational explanation must
+assign these two questions to distinct explanatory roles. The first specifies the candidate space
+but does not order actualization within it. The second orders actualization within the candidate
+space but does not create that space. Neither is reducible to the other without explanatory loss.
+In that respect the framework remains compatible with sharply different views of lawhood and
+structure while pressing a more basic question about the relation between admissibility and actuality
+(Armstrong, 1983; van Fraassen, 1989; Maudlin, 2007; French, 2014).
+
+
+9     Scope, Limits, and What Is Deferred
+
+A foundations paper gains strength by distinguishing necessity from proposal and proposal from
+speculation.
+
+
+
+
+                                                 29
+9.1   Argued as metaphysical necessity
+
+The following claims are argued here as necessary for any stable and historically articulated world:
+
+ 1. Reality requires both a constitutive law and a selective law.
+
+ 2. The constitutive law must at least require coherent realizability, equivalence-invariance, canonical
+    executability, and local satisfiability of compatibility burdens.
+
+ 3. The selective law must at least require localizability, commitment, admissibility, valuation,
+    critical sufficiency, constructive primeness understood regulatively, and coherent integration.
+
+   These are the core philosophical results of the paper.
+
+
+9.2   Proposed as canonical formulation
+
+The following stronger claims are proposed as the best current articulation of the foregoing necessities:
+
+ 1. The Constitutive Law is best stated as the requirement that a universe of the target kind be a
+    coherent, equivalence-invariant, canonically executable structure whose identity and compatibility
+    conditions are locally satisfiable.
+
+ 2. The Selective Law is best stated as the regulative rule that actuality proceeds by integrating
+    a constructively prime admissible continuation whose intrinsic generative affordance is suffi-
+    cient to justify its stabilization burden in context, and that the continuation so integrated
+    irreversibly updates the basis of further actualization. The rule characterizes what any adequate
+    implementation must achieve rather than uniquely specifying which continuation is actualized.
+
+   These formulations are stronger than the bare necessities because they package the minimal
+requirements into single canonical statements.
+
+
+9.3   Deferred to later work
+
+The following questions are intentionally left open here:
+
+ 1. The exact mathematical form of valuation and local actualization.
+
+ 2. Any concrete evaluator, threshold equation, or dynamical mechanism that might instantiate the
+    Selective Law.
+
+ 3. The formal status of arithmetic and the natural numbers, beyond the weak assumption that
+    cumulative actualization can be discussed stagewise.
+
+ 4. Probabilistic or amplitude-like refinements of actualization.
+
+ 5. Cosmological, physical, or phenomenological applications.
+
+ 6. Any claim that a single human formalism uniquely and exhaustively captures the constitutive
+    order.
+
+
+
+                                                   30
+ 7. The specification of implementation-level structure, including the algebra of combination on
+    continuations, the choice of local comparative structure represented schematically here by ⪯H ,
+    and the deterministic, probabilistic, or otherwise controlled discipline by which uniqueness
+    or non-uniqueness of actualization is handled among continuations satisfying the regulative
+    conditions of Theorem 2, is deferred to formal work on specific articulations of the Selective
+    Law, of which the Principle of Efficient Novelty is one example.
+
+   This paper is therefore not a complete metaphysical system. It is the identification of the two
+irreducible tasks any such system must perform, together with the strongest presentation-independent
+articulation currently available.
+
+
+10     Conclusion
+
+The paper has argued for a simple but demanding thesis. A universe cannot be constituted by form
+alone, because form alone never explains actuality. Nor can it be constituted by actuality alone,
+because actuality without admissible form is unintelligible. A determinate world requires both a
+constitutive law and a selective law.
+   The constitutive order determines what can coherently count as possible. The selective order
+determines how coherent possibilities are locally actualized and integrated into history. At the
+indexed level of foundational explanation defended in subsection 3.3, no third irreducible role has
+yet survived examination; the classification of modal structure, individuation, and scope questions
+given there is offered as a structural proposal open to further challenge. Every further putatively
+primitive law considered so far has either constrained coherent possibility, governed actualization
+from within it, or fallen into one of the derivative or scope-sensitive categories distinguished there.
+   The resulting picture may be summarized in one sentence:
+
+      Reality is neither mere form nor brute fact. It is coherent possibility under a law of
+      local actualization.
+
+   Or, still more compactly:
+
+     A universe of the target kind exists only where coherent form and local actualization
+     meet.
+
+  That is the paper’s final claim. If it is right, then the deepest problem for metaphysics is not to
+choose between mathematics and world, nor between possibility and actuality, but to understand
+why reality requires both – and why the two laws that govern them must have the form they do.
+
+
+References
+D. M. Armstrong. What Is a Law of Nature? Cambridge University Press, 1983.
+
+Alexander Bird. Nature’s Metaphysics: Laws and Properties. Oxford University Press, 2007.
+
+
+                                                  31
+Nancy Cartwright. How the Laws of Physics Lie. Oxford University Press, 1983.
+
+Nancy Cartwright. The Dappled World: A Study of the Boundaries of Science. Cambridge University
+  Press, 1999.
+
+Fred I. Dretske. Laws of nature. Philosophy of Science, 44(2):248–268, 1977. doi: 10.1086/288831.
+
+Brian Ellis. Scientific Essentialism. Cambridge University Press, 2001.
+
+Kit Fine. Guide to ground. In Fabrice Correia and Benjamin Schnieder, editors, Metaphysical
+ Grounding: Understanding the Structure of Reality. Cambridge University Press, 2012.
+
+Steven French. The Structure of the World: Metaphysics and Representation. Oxford University
+  Press, 2014.
+
+Michael Friedman. Dynamics of Reason. CSLI Publications, 2001.
+
+Ned Hall. Humean reductionism about laws of nature. In Barry Loewer and Jonathan Schaffer,
+  editors, A Companion to David Lewis, pages 262–277. Wiley-Blackwell, 2015.
+
+James Ladyman. What is structural realism? Studies in History and Philosophy of Science Part A,
+  29(3):409–424, 1998. doi: 10.1016/S0039-3681(98)80129-5.
+
+James Ladyman, Don Ross, David Spurrett, and John Collier. Every Thing Must Go: Metaphysics
+  Naturalized. Oxford University Press, 2007.
+
+David Lewis. On the Plurality of Worlds. Blackwell, 1986.
+
+Barry Loewer. Humean supervenience. Philosophical Topics, 24(1):101–127, 1996. doi: 10.5840/
+  philtopics199624112.
+
+Per Martin-Löf. Intuitionistic Type Theory. Bibliopolis, 1984.
+
+Tim Maudlin. The Metaphysics Within Physics. Oxford University Press, 2007.
+
+Stephen Mumford. Laws in Nature. Routledge, 2004.
+
+Alvin Plantinga. The Nature of Necessity. Clarendon Press, 1974.
+
+Huw Price. Time’s Arrow and Archimedes’ Point: New Directions for the Physics of Time. Oxford
+ University Press, 1996.
+
+Nicholas Rescher. Process Metaphysics: An Introduction to Process Philosophy. State University of
+  New York Press, 1996.
+
+Gideon Rosen. Metaphysical dependence: Grounding and reduction. In Bob Hale and Aviv Hoffmann,
+  editors, Modality: Metaphysics, Logic, and Epistemology. Oxford University Press, 2010.
+
+Jonathan Schaffer. On what grounds what. In David J. Chalmers, David Manley, and Ryan
+  Wasserman, editors, Metametaphysics: New Essays on the Foundations of Ontology, pages
+  347–383. Oxford University Press, 2009.
+
+
+                                                32
+Stewart Shapiro. Philosophy of Mathematics: Structure and Ontology. Oxford University Press,
+  1997.
+
+Max Tegmark. The mathematical universe. Foundations of Physics, 38:101–150, 2008. doi:
+ 10.1007/s10701-007-9186-9.
+
+The Univalent Foundations Program. Homotopy Type Theory: Univalent Foundations of Mathemat-
+ ics. Institute for Advanced Study, 2013.
+
+Michael Tooley. The nature of laws. Canadian Journal of Philosophy, 7(4):667–698, 1977. doi:
+ 10.1080/00455091.1977.10716190.
+
+Bas C. van Fraassen. Laws and Symmetry. Oxford University Press, 1989.
+
+John A. Wheeler and Richard P. Feynman. Interaction with the absorber as the mechanism of
+  radiation. Reviews of Modern Physics, 17(2-3):157–181, 1945. doi: 10.1103/RevModPhys.17.157.
+
+John A. Wheeler and Richard P. Feynman. Classical electrodynamics in terms of direct interparticle
+  action. Reviews of Modern Physics, 21(3):425–433, 1949. doi: 10.1103/RevModPhys.21.425.
+
+Alfred North Whitehead. Process and Reality: An Essay in Cosmology. Macmillan, 1929.
+
+Ludwig Wittgenstein. On Certainty. Blackwell, 1969. Edited by G. E. M. Anscombe and G. H. von
+  Wright.
+
+John Worrall. Structural realism: The best of both worlds? Dialectica, 43(1-2):99–124, 1989.
+
+
+
+
+                                               33
+
