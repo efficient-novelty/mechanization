@@ -302,6 +302,14 @@ agda --transliterate Test/ClutchingSmoke.agda
 agda --transliterate Test/Fibonacci.agda
 ```
 
+From the repository root, the coherence-depth artifact check runs the same
+baseline, reports the known auxiliary bridge-contract postulate separately,
+and scans theorem-facing modules for `postulate`:
+
+```bash
+./scripts/check_coherence_depth_artifact.sh
+```
+
 Useful additional checks:
 
 ```bash
@@ -321,6 +329,22 @@ agda --transliterate Metatheory/TwoDFoundations.agda
 agda --transliterate Test/OpSchemaTest.agda
 agda --transliterate Test/BlindTest.agda
 ```
+
+## Trust Boundary And Theorem Index
+
+The paper-facing trust boundary is tracked outside the Agda tree so reviewers
+can inspect it without reading every module:
+
+- `docs/coherence_depth_trust_boundary.md`: paper theorem, Agda module,
+  theorem-name, postulate-free status, and whether the result still depends on
+  the raw-surface bridge.
+- `docs/theorem_index.md`: searchable theorem-name index for the current
+  coherence-depth package plus planned names that are intentionally absent
+  until the bridge phases are implemented.
+
+The current missing Agda bridge work is tracked in `mechanization_plan.md`.
+The next executable slice starts with `Metatheory/CanonicalTelescope.agda` and
+`Metatheory/TraceCostNormalForm.agda`.
 
 ## Known Issues
 

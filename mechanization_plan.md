@@ -84,15 +84,12 @@ absent and are the core backlog:
 
 Supporting documentation and audit artifacts are also absent:
 
-- `docs/coherence_depth_trust_boundary.md`
-- `docs/theorem_index.md`
 - `docs/case_studies/coherence_depth_universe_extension.md`
 - `docs/case_studies/coherence_depth_global_modality.md`
 - `docs/case_studies/coherence_depth_promoted_interface.md`
 - `docs/case_studies/coherence_depth_sparse_datatype.md`
 - `docs/reports/coherence_depth_case_study_report.md`
 - `scripts/coherence_depth_audit.py`
-- `scripts/check_coherence_depth_artifact.sh`
 - `runs/coherence_depth_case_studies/*.yaml`
 
 ## Invariants For All New Agda Work
@@ -111,37 +108,13 @@ Supporting documentation and audit artifacts are also absent:
   equivalence.
 - Every new theorem-facing module must get a smoke import under `agda/Test/`.
 
-## Phase 0: Audit And Trust-Boundary Cleanup
-
-Goal: make the current state auditable before adding new bridge machinery.
-
-Deliverables:
-
-- `docs/coherence_depth_trust_boundary.md`
-- `docs/theorem_index.md`
-- `scripts/check_coherence_depth_artifact.sh`
-
-Tasks:
-
-1. Add a theorem table with columns:
-   paper result, Agda module, theorem name, postulate-free status, bridge
-   dependency.
-2. Add a script that:
-   - runs the current Agda checks;
-   - runs the new bridge checks as they appear;
-   - scans theorem-facing modules for `postulate`;
-   - reports known auxiliary postulates separately, currently
-     `agda/Test/BridgePayloadContract.agda`.
-3. Update `agda/README.md` with the new theorem index and verification
-   commands.
-
-Acceptance:
-
-```bash
-./scripts/check_coherence_depth_artifact.sh
-```
-
-passes for the current baseline before later phases add new checks.
+Phase 0 audit cleanup was completed on 2026-05-02. The trust-boundary table is
+in `docs/coherence_depth_trust_boundary.md`, the theorem-name index is in
+`docs/theorem_index.md`, and `scripts/check_coherence_depth_artifact.sh`
+checks the baseline Agda modules and theorem-facing postulate boundary. The
+script uses native `agda` when it is on `PATH` and falls back to
+`powershell.exe` for Agda invocations in Windows Git Bash, because this
+workspace exposes Agda in PowerShell but not necessarily in Bash.
 
 ## Phase 1: Canonical Telescope And Trace Cost Normal Forms
 
@@ -738,4 +711,3 @@ The missing mechanization from `paper_improvement_plan.md` is implemented when:
 7. The theorem-facing modules remain postulate-free.
 8. `1_coherence_depth.tex` no longer overstates or understates the formalized
    boundary.
-
